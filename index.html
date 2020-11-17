@@ -1,10 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Demo Html&CSS</title>
-</head>
-<body>
-<p>coucou</p>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Demo Html&CSS</title>
+    </head>
+    <!--  Ici commence le corps du site (body) -->
+    <body>
+        <!--  header correspond à l'en tête du site, typiquement un bandeau en haut du site-->
+        <header>
+            <!--  h1 est le titre le plus important dans la hierarchie, on peut aller jusqu'à h6-->
+            <h1> Le titre principal dans l'en-tête</h1>
+            <!-- Un menu de navigation, c'est toujours utile. -->
+
+            <nav>
+                <h2> Menu </h2>
+                <ol>
+                    <li class="crumb"><a href="#">Bikes</a></li>
+                    <li class="crumb"><a href="#">BMX</a></li>
+                    <li class="crumb">Jump Bike 3000</li>
+                </ol>
+            </nav>
+
+        </header>
+        <!-- ici, je commence eun section de mon site -->
+        <section>
+            <h2> Section principale </h2>
+            <p>Ceci est un simple paragraphe, comportant un mot <strong>important</strong></p>
+            <!-- Un lien vers un article externe -->
+            <a href="https://www.lofficiel.com/fashion/la-formation-de-code-avec-karlie-kloss">Karlie Kloss nous apprend à coder</a>
+            <br>
+            <!-- Je peux aussi ajouter une image -->
+            <img
+                    src="images/karlie1.jpg"
+                    alt="Karlie Kloss et le code dnas le magasine Forbes"
+                    height="200px"
+                    width="auto"
+            />
+        </section>
+
+
+        <footer>
+            <p> Site réalisé par Itachi Uchiwa dans le cadre du cours de SNT </p>
+        </footer>
+    </body>
 </html>
