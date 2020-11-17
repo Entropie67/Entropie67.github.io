@@ -6,7 +6,7 @@
 body {
     background-color: #9E9E9E;
 }
-/* je vais encacder l'en-tête */
+/* je vais encadrer l'en-tête */
 header {
     border: solid #BF360C; /* le type de trait et la couleur */
     border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
@@ -14,9 +14,8 @@ header {
 }
 
 /* quand je passe avec la souris sur l'en-tête (hover) */
-header:hover {
+header:hover, section:hover {
     background-color: bisque;
-
 }
 
 /* le style que je veux appliquer au titre h1
