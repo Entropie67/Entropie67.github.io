@@ -1,0 +1,56 @@
+
+/* Pour choisir des couleurs : https://www.materialui.co/colors */
+
+
+/* le style appliqué au body est un style qui va être valable sur toutes les pages, dans le body */
+body {
+    background-color: #9E9E9E;
+}
+/* je vais encacder l'en-tête */
+header {
+    border: solid #BF360C; /* le type de trait et la couleur */
+    border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 10px; /* marge intérieure */
+}
+
+/* quand je passe avec la souris sur l'en-tête (hover) */
+header:hover {
+    background-color: bisque;
+
+}
+
+/* le style que je veux appliquer au titre h1
+ Ici une couleur et un texte au centre*/
+h1 {
+    color: #BF360C;
+    text-align: center;
+}
+h2{
+    color: darkcyan;
+}
+
+footer {
+    border: solid darkblue;
+}
+
+section {
+    border: solid blueviolet;
+    margin: 10px;  /* marge externe */
+    padding: 10px;
+}
+
+footer {
+    font-size: 80%;
+    background-color: black;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+/* mettons les mots importants (strong) en rouge */
+strong {
+    color: darkred;
+}
+
+img {
+    margin: 10px;
+}
