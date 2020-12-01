@@ -11,6 +11,7 @@ const valide = document.querySelector("#valide");
 valide.addEventListener('click', function(event){
     const nom = document.querySelector("input").value;
     alert("Salut " + nom);
+
     console.log(nom);
 });
 
