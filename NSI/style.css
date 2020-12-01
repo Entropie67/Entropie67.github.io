@@ -1,13 +1,47 @@
+header {
+    border: solid;
+    border-radius: 10px;
+    background-color: #9E9E9E;
+    margin: 10px;
+}
+body {
+    background-color: antiquewhite;
+}
+
+#players {
+    border: solid;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    margin: 10px;
+}
+
+#hajime {
+    width: 80%;
+    height: 50px;
+    margin: auto;
+    display: block;
+    border-radius: 10px;
+}
+
+#hajime:hover {
+    background-color: #BF360C;
+}
 h1 {
     text-align: center;
     color: #BF360C;
 }
-
+h2 {
+    text-align: center;
+}
 #premier {
     color: blue;
 
 }
-
+#combat {
+    display: none;
+}
 #valide {
     background-color: green;
 }
