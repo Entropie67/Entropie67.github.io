@@ -4,11 +4,11 @@
 
 /* le style appliqué au body est un style qui va être valable sur toutes les pages, dans le body */
 body {
-    background-color: #9E9E9E;
+    background-color: honeydew;
 }
 /* je vais encadrer l'en-tête */
 header {
-    border: solid #BF360C; /* le type de trait et la couleur */
+    border: solid #2979ff; /* le type de trait et la couleur */
     border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
     padding: 10px; /* marge intérieure */
 }
@@ -21,7 +21,7 @@ header:hover, section:hover {
 /* le style que je veux appliquer au titre h1
  Ici une couleur et un texte au centre*/
 h1 {
-    color: #BF360C;
+    color: #2979ff;
     text-align: center;
 }
 h2{
@@ -40,7 +40,7 @@ section {
 
 footer {
     font-size: 80%;
-    background-color: black;
+    background-color: #aa00c7;
     color: white;
     padding: 10px;
     text-align: center;
@@ -52,4 +52,22 @@ strong {
 
 img {
     margin: 10px;
+}
+
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+li {
+    list-style-type: none;
+    margin: 10px;
+}
+
+/* li a veut dire : "les liens (a) dans les listes (li) */
+li a {
+    background-color: #aa00c6;
+    border: solid #aa00c7;
+    border-radius: 10px;
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: azure;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none; /* pour que les liens ne soient pas soulignés */
 }
