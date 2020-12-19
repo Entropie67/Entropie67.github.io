@@ -7,7 +7,7 @@ function draw() {
         let ctx = canvas.getContext("2d");
         let xCenter = canvas.width / 2
         let yCenter = canvas.height / 2
-        let rayon = 100
+        let rayon = xCenter / 5
         ctx.fillStyle = 'rgb(200, 0, 0)';
         ctx.fillRect(10, 10, 50, 50);
 
