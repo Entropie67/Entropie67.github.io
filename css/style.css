@@ -71,3 +71,19 @@ li a {
     padding: 5px;
     text-decoration: none; /* pour que les liens ne soient pas soulignés */
 }
+/*********************************************************************************************************************
+/* ne tenez pas compte de la suite, c'est simplement pour mieux placer mes vidéos sur la page carrieres
+ *********************************************************************************************************************/
+.video {
+    display: block;
+
+}
+#videos {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+iframe {
+    border-radius: 10px;
+}
