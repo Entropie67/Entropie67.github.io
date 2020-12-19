@@ -87,3 +87,22 @@ li a {
 iframe {
     border-radius: 10px;
 }
+
+.background {
+    background-color: black;
+    height: 100%;
+    width: 100%;
+}
+
+.content {
+    position: absolute;
+    z-index: 100;
+    top: 2rem;
+    text-align: center;
+    width: 75%;
+    background: #fff;
+    margin-left: 12%;
+    height: 80%;
+    padding-top: 3rem;
+    opacity: 80%;
+}
