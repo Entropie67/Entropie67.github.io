@@ -42,10 +42,11 @@ body{
 .container .card:hover .face.face1{
     background: #ff0057;
     transform: translateY(0);
+    color: white;
 }
 
 .container .card .face.face1 .content{
-    opacity: 0.2;
+    opacity: 0.8;
     transition: 0.5s;
 }
 
@@ -126,6 +127,7 @@ body{
     color: white;
     font-size: 500%;
     opacity: 100%;
+
 }
 
 html, body {
