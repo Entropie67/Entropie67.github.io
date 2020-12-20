@@ -1,6 +1,17 @@
 
 
 
+let taille = document.body.clientWidth
+
+// Ici je vais rediriger en dessous de 1000 px
+if (taille < 1000) {
+    console.log("redirection");
+    window.location = "nsimobile.html";
+} else {
+    console.log("ok, assez grand");
+
+}
+
 function draw() {
     let canvas = document.getElementById("canvas");
     canvas.width = document.body.clientWidth; //document.width is obsolete
