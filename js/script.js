@@ -11,6 +11,7 @@ function draw() {
         let xCenter = canvas.width / 2
         let yCenter = canvas.height / 2
         let rayon = xCenter / 5
+        let unite = xCenter / 15
         // Légende
 
         ctx.fillStyle = 'rgba(250, 0, 0, 0.9)';
@@ -44,6 +45,7 @@ function draw() {
         ctx.textAlign = 'left';
         ctx.fillText('Choix libre', 70, 300);
         // NSI
+        /*
         ctx.beginPath();
         ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
         ctx.arc(xCenter, yCenter, rayon, 0, 2 * Math.PI);
@@ -63,5 +65,7 @@ function draw() {
         ctx.lineTo(xCenter + rayon + 200, yCenter);
         //ctx.lineTo(200, 300);
         ctx.stroke();
+        */
+
     }
 }

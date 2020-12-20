@@ -3,6 +3,9 @@
 
 
 /* le style appliqué au body est un style qui va être valable sur toutes les pages, dans le body */
+html, body {
+    height: 100%;
+}
 body {
     background-color: honeydew;
 }
@@ -92,6 +95,7 @@ iframe {
     background-color: black;
     height: 100%;
     width: 100%;
+    margin: 0px;
 }
 
 .content {
