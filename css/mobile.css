@@ -15,7 +15,7 @@ body{
     flex-direction: row;
     justify-content: space-around;
     flex-wrap: wrap;
-    border: solid;
+    /* border: solid; /* for debug */
 }
 
 .container .card{
@@ -111,7 +111,7 @@ body{
 .container {
     position: absolute;
     z-index: 99;
-    top: 2rem;
+    top: 3em;
     text-align: center;
     width: 90%;
     background: #333;
@@ -122,17 +122,11 @@ body{
 }
 
 .fas {
-    color: white;
+    color: orangered;
     font-size: 500%;
+    opacity: 100%;
 }
-h1 {
-    display: block;
-    flex-wrap: wrap;
-    position: absolute;
-    z-index: 98;
-    width: 50%;
-    margin-left: 25%;
-    top: 2rem;
-    text-align: center;
-    color: white;
+
+html, body {
+    height: 100%;
 }
