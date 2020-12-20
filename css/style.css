@@ -103,5 +103,6 @@ iframe {
     background: #fff;
     margin-left: 12%;
     height: 80%;
-    opacity: 80%;
+    opacity: 90%;
+    border-radius: 10px;
 }
