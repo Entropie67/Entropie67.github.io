@@ -11,7 +11,7 @@ body {
 /* je vais encadrer l'en-tête */
 header {
     background : url("https://s2.qwant.com/thumbr/0x380/c/3/658a73976f5c8fc477b8dbc94880b356bfe689beb07439e4f3fb259a5e668b/AI1920_f0dksn.png?u=https%3A%2F%2Fmartechtoday.com%2Fwp-content%2Fuploads%2F2018%2F08%2FAI1920_f0dksn.png&q=0&b=1&p=0&a=1");
-    background: size: 100px;
+    background-size: 100px;
     border:solid #2979ff;/* le type de trait et la couleur */
     border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
     padding: 10px; /* marge intérieure */
@@ -81,7 +81,6 @@ li a {
 /* ne tenez pas compte de la suite, c'est simplement pour mieux placer mes vidéos sur la page carrieres
  *********************************************************************************************************************/
 
-
 .video {
     display: block;
 
@@ -101,17 +100,4 @@ iframe {
     height: 100%;
     width: 100%;
     margin: 0;
-}
-
-.content {
-    position: absolute;
-    z-index: 100;
-    top: 2rem;
-    text-align: center;
-    width: 75%;
-    background: #fff;
-    margin-left: 12%;
-    height: 80%;
-    opacity: 90%;
-    border-radius: 10px;
 }
