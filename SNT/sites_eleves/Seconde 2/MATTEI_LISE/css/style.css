@@ -1,0 +1,32 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+
+
+body {
+    background-color: #b3e5fc;
+}
+h1{
+	color: #880e4f;
+	border : solid;
+	border-radius: 10px;
+	text-align : center;
+	padding : 10px;
+}
+h1:hover{
+	background-color: #ce93d8
+}
+li{
+	color: #c2185b;
+	border: solid;
+	border-radius: 10px;
+	text-align: center;
+	padding: 8px
+}
+li:hover{
+	background-color: #ffcdd2;
+}
+strong{
+	color: #4a148c;
+}
