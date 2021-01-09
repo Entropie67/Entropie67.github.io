@@ -1,0 +1,23 @@
+h1 {
+    text-align: center;
+}
+
+#tables {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+table {
+    display: block;
+    border: solid black;
+}
+.classes {
+
+}
+
+th {
+    background-color: #1b7fcc;
+}
+h2 {
+    text-align: center;
+}
