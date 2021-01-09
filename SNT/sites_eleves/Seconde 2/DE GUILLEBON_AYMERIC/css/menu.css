@@ -1,0 +1,37 @@
+body{
+	background: url("../images/nuit.jpg") no-repeat;
+	background-size: 100%;
+
+}
+
+
+li a {
+	color: white;
+	font-family: Arial;
+}
+h1 {
+	color : lightblue;
+	text-align : center;
+	border : solid;
+	border-radius: 10px;
+	font-family: Arial;
+}
+
+li a {
+    background-color: black;
+    border: solid lightblue;
+    border-radius: 10px;
+    display: block; 
+    color: azure;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none; /
+    text-align: center;
+}
+li :hover, section:hover {
+	background-color: lightgrey;
+}
+li {
+    list-style-type: none;
+    margin: 30px;
+}

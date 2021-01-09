@@ -1,0 +1,172 @@
+
+
+
+
+
+h1 {
+	color : red;
+	text-align : center;
+	border : solid;
+	border-radius: 10px;
+	font-family: Arial;
+}
+img{
+	width: 300px
+}
+p{
+	color: black;
+	font-family: Arial;
+
+}
+a{
+	font-size: 20px;
+}
+
+
+
+ul{
+    display: block;
+    list-style-type: disc;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+}
+
+
+
+header {
+    border: solid #2979ff;
+    border-radius: 10px;
+    padding: 10px;
+
+}
+header {
+    display: block;
+}
+
+
+body {
+    background-color: honeydew;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: block;
+    margin: 8px;
+}
+h2 {
+	
+	text-align : center;
+	border : solid;
+	border-radius: 10px;
+	font-family: Arial;
+}
+html, body {
+    height: 100%;
+}
+
+html[Attributes Style] {
+    -webkit-locale: "fr";
+}
+user agent stylesheet
+html {
+    display: block;
+}
+
+h2 {
+    color: darkcyan;
+}
+
+
+h2 {
+    display: block;
+    font-size: 1.5em;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+h3 {
+    color: darkcyan;
+    font-family: Arial;
+}
+
+
+h3 {
+    display: block;
+    font-size: 1.5em;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+
+}
+
+element.style {
+}
+li {
+    list-style-type: none;
+    margin: 10px;
+}
+
+user agent stylesheet
+li {
+    display: list-item;
+    text-align: -webkit-match-parent;
+    
+}
+
+section {
+    border:  blue;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+user agent stylesheet
+section {
+    display: block;
+}
+
+element.style {
+}
+footer {
+    font-size: 120%;
+    background-color: lightblue;
+    color: white;
+    padding: 7px;
+    text-align: center;
+}
+
+footer {
+    border: solid darkcyan;
+    border-radius: 10px;
+}
+user agent stylesheet
+footer {
+    display: block;
+}
+li a {
+    background-color: darkcyan;
+    border: solid blue;
+    border-radius: 10px;
+    display: block; 
+    color: azure;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none; /
+    font-family: Arial;
+}
+header:hover, section:hover {
+    background-color: lightgrey;
+}
+li :hover, section:hover {
+	background-color: lightblue;
+}

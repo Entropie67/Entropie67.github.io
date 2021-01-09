@@ -1,0 +1,63 @@
+
+nav.menu-nav ul li.bouton a{
+
+	color: white;
+	background-color: #FF5722 ;
+	text-decoration: none;
+	font-size: 20px
+}
+
+li {
+    list-style-type: none;
+    margin: 10px;
+}
+
+header {
+    background-color: #FFAB91;
+}
+
+
+p{
+	color: red;
+}
+body {
+    background-color: #FFF9C4;
+}
+
+header {
+    border: solid #f44336; 
+    border-radius: 8px; 
+    padding: 8px; 
+    text-align: center;
+}
+h1 {
+    color: #EF6C00;
+    text-align: center;
+}
+
+
+h2{
+    color: #E91E63;
+}
+
+h3{
+	color: #b71c1c;
+}
+
+section{
+	border: solid : black; 
+    border-radius: 8px; 
+    padding: 8px; 
+}
+
+footer {
+    border: solid red;
+    }
+
+footer {
+    font-size: 80%;
+    background-color: #FFEB3B;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
