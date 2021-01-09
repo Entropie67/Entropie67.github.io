@@ -1,11 +1,13 @@
 h1 {
     text-align: center;
+    color: #aa00c7;
 }
 
 #tables {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    flex-wrap: wrap;
 }
 table {
     display: block;
@@ -17,7 +19,13 @@ table {
 
 th {
     background-color: #1b7fcc;
+    color: white;
+    padding: 10px;
 }
 h2 {
     text-align: center;
+    color:blue;
+}
+td {
+    padding: 2px;
 }
