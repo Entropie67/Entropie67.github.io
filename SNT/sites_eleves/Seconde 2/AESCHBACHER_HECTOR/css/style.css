@@ -1,0 +1,128 @@
+/*
+    C'est ici qu'on gère, avec gout, le style de notre site.
+      Vous pourrez trouver des couleurs ici :
+      - https://materialuicolors.co/
+      - https://material.io/resources/color
+ */
+
+ body {
+     font-family: "Open Sans", sans-serif;
+ }
+.index {
+    border: 0px solid red;
+}
+.index tr>td  {
+    border: 0px solid darkgreen;
+    padding: 0px;
+}
+
+
+h1, h2, h3 {
+    text-align: center;
+}
+
+h1 {
+    color: white;
+    background-color: #64b5f6;
+    margin: 0px;
+    padding: 15px;
+}
+h2 {
+    border-bottom: 2px solid darkslategray;
+    padding-bottom: 1em;
+}
+
+p {
+    text-indent: 1.5em;
+    text-align: justify;
+}
+.left  { float: left;  }
+.right { float: right; }
+.centered {
+    text-align: center;
+}
+.justified {
+    text-align:justify;
+}
+.full-width {
+    width: 100%;
+}
+
+table.fixed {
+    table-layout: fixed;
+}
+
+/* container pour l'image et le texte */
+.objectif-container {
+    position: relative;
+  }
+/* le texte centré au milieu de la page de garde */
+.objectif {
+    color: white;
+    background: rgb(13, 71, 161, 0.7);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: medium;
+    padding: 1em;
+    line-height: 1.8em; /* augmente l'interligne */
+}
+
+.menu {
+    font-size: 1.2rem;
+    text-align: center;
+}
+.menu a:link {
+    color: white;
+    text-decoration: none;
+}
+.menu a:visited {
+    color: white;
+}
+.menu a:hover {
+    color: white;
+    text-decoration: underline;
+}
+tr.menu > td {
+    padding: 1em;
+}
+.bleu1 {
+    background-color: #e0e0e0;
+    padding: 10px;
+}
+.bleu2 {
+    background-color: #64b5f6;
+}
+.bleu3 {
+    background-color: #1976d2;
+}
+.bleu4 {
+    background-color: #0d47a1;
+}
+
+.page {
+    margin: 1em 2em;
+}
+
+.avantages th {
+    background-color: #0d47a1;
+    color: white;
+    height: 1.25em;
+}
+.avantages td {
+    padding: 1.2em;
+    background-color: rgba(147,128,108,.1);
+}
+
+.avantages td span {
+    color: green;
+}
+.avantages td + td span {
+    color: red;
+}
+
+iframe {
+    width: calc(100vw - 80px);
+    height: calc((100vw - 80px)/2);
+}

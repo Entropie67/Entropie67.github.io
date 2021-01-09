@@ -1,0 +1,92 @@
+
+body{
+	background-color: grey;
+	font-family: trebuchet ms;
+	margin-right: auto;
+	margin-left: auto;
+	align-items: center;
+}
+
+
+h1{
+	text-align: center;
+	font-size: 275%;
+	color: white;
+}
+
+h2{
+	text-align: left;
+	text-indent: 3%;
+	font-size: 140%;
+	color: white;
+}
+
+
+h3{
+	text-align: left;
+	font-size: 140%;
+	color: white;
+}
+
+
+h4{
+	text-align: left;
+	font-size: 140%;
+	color: white;
+}
+
+
+p{
+	text-align: left;
+	font-size: normal;
+	color: black;
+}
+
+
+section{
+	border: solid #707070; 
+	border-radius: 20px;
+	padding: 20px;
+	margin : 75px;
+	border-style: ridge; 
+}
+
+
+	border: solid #707070; 
+	border-radius:50px;
+	margin : 40px;
+	border-style: ridge; 
+	overflow: auto;
+}
+
+
+section:hover{
+	background-color:#00251a
+}
+
+
+aside:hover{
+	background-color:#1b0000
+}
+
+h6{
+
+    text-align: left;
+	font-size: 100%;
+	color: black;
+
+}
+ 
+
+h6{
+
+    text-align: left;
+	font-size: 100%;
+	color: black;
+
+}
+ 
+
+
+
+

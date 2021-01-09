@@ -1,0 +1,27 @@
+body{background-image:url(https://hellofuture.orange.com/app/uploads/2018/01/Intro-HELLO-FUTURE-1920x1080_v2.gif);
+}
+header{color: white
+}
+section{color: white
+}
+body{color: white
+}
+header:hover, section:hover {
+    background-image:url();
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+li a {
+    background-color: red;
+    border: solid ;
+    border-radius: 20px;
+    display: block;
+    color: azure;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none;
+}
+
+
+
+

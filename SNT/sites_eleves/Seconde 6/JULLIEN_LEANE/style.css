@@ -1,0 +1,110 @@
+html, body {
+    height: 100%;
+}
+body {
+    background-color: #00363a ;
+}
+
+
+aside {
+    border: outset; 
+    border-radius: 10px; 
+    padding: 10px; 
+    width: 500px;
+
+}
+
+nav{
+    vertical-align: right;
+}
+header:hover, section:hover {
+    background-color: #006978;
+}
+
+header:hover, aside:hover {
+    background-color: #006978;
+}
+
+
+h1{
+    color: white;
+    text-align: center;
+    text-decoration: underline;
+}
+h2{
+    color: white;
+    text-decoration:underline;
+}
+
+h3 {
+    color: white;
+    font-size: 15px;
+ }   
+
+h4{
+    color:white;
+    font-size: 15px;
+}
+h5{
+    color:white;
+    font-size: 15px;
+}
+h6{ 
+    color: white;
+    font-size: 18px;
+    text-decoration: underline;
+}
+p{
+    color:white;
+}
+
+footer {
+    border: #90caf9 ;
+}
+
+section {
+    border: white ;
+    margin: 10px; 
+    padding: 10px;
+    border-radius: 10px;
+}
+
+footer {
+    font-size: 100%;
+    background-color: #212121;
+    color: white;
+    padding: 5px;
+    text-align: center;
+}
+strong {
+    color: darkred;
+}
+
+img {
+    margin: 20px;
+}
+div{
+    color: white;
+    border-radius: 10px
+    background-color:#212121;
+    display: block;
+    float: right;
+    width: 700px;
+    height:700px
+    margin-right:200px;
+    z-index: 
+}
+
+li a {
+    border-radius: 10px;
+    display: block;
+    width: 300px;
+    text-decoration: underline;
+    padding: 5px;
+    color :white;
+
+}
+
+header:hover, li a:hover {
+    background-color:  #00363a;
+}

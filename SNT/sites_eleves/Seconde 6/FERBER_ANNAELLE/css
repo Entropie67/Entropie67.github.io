@@ -1,0 +1,37 @@
+body {
+    height: 100%;
+}
+body {
+    background-color: #F3E5F5;
+}
+header{
+    border: solid  #aa00c7;
+    padding: 10px; 
+}
+h1 {
+    color:  #aa00c7;
+    text-align: center;
+    border:  #aa00c7;
+}
+h2{
+    color:  #aa00c7;
+    border:  #aa00c7;
+}
+
+footer {
+    border:  #aa00c7;
+}
+
+section {
+    border : solid #aa00c7 ;
+    margin: 10px; 
+    padding: 10px;
+}
+
+footer {
+    font-size: 80%;
+    background-color: #aa00c7;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}

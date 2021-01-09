@@ -1,0 +1,99 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+
+
+
+
+body {
+	height : 100%;
+	background-color: #B3E5FC;
+}
+header {
+    /* border: solid #2979ff; le type de trait et la couleur */
+    border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 10px; /* marge intérieure */
+}
+
+/* quand je passe avec la souris sur l'en-tête (hover) */
+/* header:hover,  */
+section:hover {
+    background-color: bisque;
+}
+
+
+h1 {
+	text-align: center;
+    color:#212121;
+    border:solid;
+}
+
+h1:hover{
+	background-color:lightblue;
+	color:#5C6BC0;
+}
+#carte
+{
+	width:800px;
+	margin:0 auto;
+	background-color: white;
+	/* text-align: center; */
+	align-content: center;
+}
+/* footer {
+    border: solid darkblue;
+} */
+
+section {
+    /* border: solid blueviolet; */
+    /* margin: 5px;  marge externe */
+    padding: 10px;
+}
+
+section div {
+    padding: 15px;
+}
+p {
+    text-indent: 30px;
+}
+
+
+footer {
+    font-size: 50%;
+    background-color: #aa00c7;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+/* mettons les mots importants (strong) en rouge */
+strong {
+    color: darkred;
+}
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+li {
+    list-style-type: none;
+    margin: 10px;
+}
+
+/* li a veut dire : "les liens (a) dans les listes (li) */
+.menu{
+    background-color:  #aa00c6;
+    border: solid #aa00c7;
+    border-radius: 10px;
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: azure;
+    width: 50%;
+    padding: 5px;
+    text-decoration: none; /* pour que les liens ne soient pas soulignés */
+}
+.image {
+    width: 25%;
+    height: 25%;
+    text-align: center;
+    margin: auto;
+}
+
+.center {
+    text-align: center;
+}

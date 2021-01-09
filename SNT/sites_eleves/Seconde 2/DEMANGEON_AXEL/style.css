@@ -1,0 +1,106 @@
+html, body {
+    height: 100%;
+}
+body {
+    background-image: url(https://i.pinimg.com/originals/78/06/f7/7806f739423978f36378ae4304afd292.png);
+}
+/* je vais encadrer l'en-tête */
+header {
+    border: solid #292929 ; /* le type de trait et la couleur */
+    border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 10px; /* marge intérieure */
+}
+   /* le type de trait et la couleur */
+     /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 10px; /* marge intérieure */
+
+
+footer {
+    
+}
+title{color: white}
+
+section {
+    border: black;
+    margin: 10px;  /* marge externe */
+    padding: 10px;
+}
+
+footer {
+    font-size: 80%;
+    background-color:black;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+/* mettons les mots importants (strong) en rouge */
+strong {
+    color: darkred;
+}
+
+img {
+    margin: 10px;
+}
+
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+li {
+    list-style-type: none;
+    margin: 10px;
+}
+
+/* li a veut dire : "les liens (a) dans les listes (li) */
+li a {
+    background-image: url(https://cdn1.dotesports.com/wp-content/uploads/2019/09/12195522/league-of-legends.jpg);
+    
+    border-radius: 10px;
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: azure;
+    width: 21%;
+    padding: 5px;
+    text-decoration: none; /* pour que les liens ne soient pas soulignés */
+}
+h2{
+    color:#E91212 ;
+    text-align: center;
+    text-decoration: underline;
+}
+
+h1{
+    color:#E91212 ;
+    text-align: center;
+    text-decoration: underline;
+}
+
+/*.video {
+    display: block;
+
+}
+#videos {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+iframe {
+    border-radius: 10px;
+}
+
+.background {
+    background-color: black;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+}
+
+.content {
+    position: absolute;
+    z-index: 100;
+    top: 2rem;
+    text-align: center;
+    width: 75%;
+    background: #fff;
+    margin-left: 12%;
+    height: 80%;
+    opacity: 90%;
+    border-radius: 10px;
+}

@@ -1,0 +1,15 @@
+body {
+background-color: turquoise;
+}
+HTML{ font-size: 25px;}
+h1 {
+	color:black;
+	border-radius: 10px;
+	text-align: center;
+	padding:10px;
+}
+section {
+	border:solid black;
+	margin:10px;
+	padding : 10px;
+}
