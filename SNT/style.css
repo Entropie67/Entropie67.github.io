@@ -11,7 +11,8 @@ h1 {
 }
 table {
     display: block;
-    border: solid black;
+    border: solid blue;
+    border-radius: 5px;
 }
 .classes {
 
@@ -21,11 +22,19 @@ th {
     background-color: #1b7fcc;
     color: white;
     padding: 10px;
+    border-bottom: solid blue;
 }
 h2 {
     text-align: center;
     color:blue;
 }
+
 td {
     padding: 2px;
+
+}
+
+tr:hover {
+    background-color: #8e8e8e;
+
 }

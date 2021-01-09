@@ -1,0 +1,121 @@
+
+/* Pour choisir des couleurs : https://www.materialui.co/colors */
+
+
+/* le style appliqué au body est un style qui va être valable sur toutes les pages, dans le body */
+html, body {
+    height: 500%;
+}
+body {
+    background-color: white;
+}
+/* je vais encadrer l'en-tête */
+header {
+    border: solid black;   /* le type de trait et la couleur */
+    border-radius: 100px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 20px; /* marge intérieure */
+}
+
+/* quand je passe avec la souris sur l'en-tête (hover) */
+header:hover, section:hover {
+   ;
+    background-color: #b3e5fc  ;
+
+}
+
+/* le style que je veux appliquer au titre h1
+ Ici une couleur et un texte au centre*/
+h1 {
+    color: #1565c0;
+    text-align: center;
+    text-decoration: underline;
+}
+h2{
+    color: blue;
+
+}
+
+footer {
+    border: black;
+}
+
+section {
+    border: solid black;
+    border-radius: 100px;
+    margin: 30px;  /* marge externe */
+    padding: 20px;
+}
+
+footer {
+    font-size: 80%;
+    background-color: orange;
+    color: black;
+    padding: 30px;
+    text-align: center;
+    border-radius: 100px
+}
+/* mettons les mots importants (strong) en rouge */
+strong {
+    color: darkblue;
+}
+
+
+img {
+    margin: 20px;
+}
+
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+li {
+    list-style-type: none;
+    margin: 10px;
+}
+
+/* li a veut dire : "les liens (a) dans les listes (li) */
+li a {
+    background-color: orange;
+    border: solid orange;
+    border-radius: 100px;
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: black;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none; /* pour que les liens ne soient pas soulignés */
+}
+/*********************************************************************************************************************
+/* ne tenez pas compte de la suite, c'est simplement pour mieux placer mes vidéos sur la page carrieres
+ *********************************************************************************************************************/
+
+
+.video {
+    display: block;
+
+}
+#videos {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+iframe {
+    border-radius: 10px;
+}
+
+.background {
+    background-color: black;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+}
+
+.content {
+    position: absolute;
+    z-index: 100;
+    top: 2rem;
+    text-align: center;
+    width: 75%;
+    background: #fff;
+    margin-left: 12%;
+    height: 80%;
+    opacity: 90%;
+    border-radius: 10px;
+}
