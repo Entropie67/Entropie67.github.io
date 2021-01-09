@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Nous Contacter</title>
+  <link rel="stylesheet" href="css/style2.css">
+  <script>
+    function copyToClipboard(element) {
+  var $temp = $("<input>");
+  $("body").append($temp);
+  $temp.val($(element).text()).select();
+  document.execCommand("copy");
+  $temp.remove();
+}
+  </script>
+  
+</head>
+
+
+
+<body>
+
+
+  
+
+ <div class="divlinks">
+    
+  <p class="titre" >Nous Contacter</p>
+   <br>
+   <br>
+   <br>
+   <br>
+   <br>
+    <div class="liendiscord">
+  <a class="Discord" href= "https://discord.gg/EEttm79W76" target="blank">
+    <img class="Discord" src="images/discord.jpg" alt="">
+    
+  </a>
+  <p class="liendctxt" >Lien du serveur discord</p> 
+</div>
+<br>
+
+ 
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <div class="texteacopier" >
+    <p id="p1">jutsocarry@gmail.com</p>
+    <p id="p2">BAKASABL#6229</p><br/>
+  </div>
+
+   <div class="button1">
+    <button onclick="copyToClipboard('#p1')"> <img class="emailimg" src="images/gmail.png" alt=""> Copier l'email</button>
+  </div> 
+    <br>
+    <br>
+    <br>  
+    <br>
+    
+    <button  onclick="copyToClipboard('#p2')"><img class="dcp" src="images/dcp.png" alt=""> Copier le tag Discord</button>
+
+ 
+
+
+
+ 
+
+
+ </div>
+
+
+</body>
+</html>

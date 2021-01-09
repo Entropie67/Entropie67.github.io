@@ -1,0 +1,96 @@
+
+html {
+    height: 100%;
+    margin: 0px;
+
+}
+
+body {
+    background-image: url(../images/Back.png);
+    margin: 0px;
+    height: 100%;
+    background-repeat:no-repeat;
+}
+
+.tarif {
+    width: 100%;
+    
+
+}
+
+.bando {
+    background-color: white;
+    width: 50%;
+    margin-right: auto;
+    margin-left: auto;
+    min-width: 500px;
+    padding: 50px;
+    height: 1000px;
+
+
+    
+
+}
+.alltxt {
+    color: rgb(1, 1, 1);
+    font-size: 25px;
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+}
+
+.paypalimg {   
+
+    height: 10%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+
+}
+
+th {
+    color: rgb(1, 1, 1);
+    font-size: 20px;
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+
+}
+
+tr {    
+    color: rgb(1, 1, 1);
+    font-size: 18px;
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+
+}
+
+.tarifs {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    height: 20%;
+    width: 60%;
+    
+}
+
+.libele {
+    color: rgb(1, 1, 1);
+    font-size: 15px;
+    text-decoration: none ;
+    text-align: center;
+    text-decoration: none;
+    padding: 50px;
+    
+
+}
+
+.alltxt {
+    color: rgb(1, 1, 1);
+    font-size: 25px;
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+
+

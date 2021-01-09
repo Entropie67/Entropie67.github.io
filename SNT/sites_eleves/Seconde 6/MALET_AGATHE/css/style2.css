@@ -1,0 +1,30 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ border-radius: 10px; h1:hover {background-color: #6A1B9A;
+	color: black;}   border: solid;
+	border-radius: 10px;
+ */
+
+
+body {
+    background-color: white;
+}
+h1 {text-align: center;
+	color: black;}
+
+
+td{border: solid;
+	text-align: center;}
+
+img{width: 150px;}
+
+
+h2{text-align: center;}
+h6{color: white;}
+mark{background-color: yellow;}
+mark:hover {background-color: #FFAB00;}
+
+
+h3{text-align:left;}
+

@@ -1,0 +1,46 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+
+
+body {
+    background-color: white;
+}
+h1{
+	color:white;	
+	border:solid;
+	border-radius: 10px;
+	text-align: center;
+	padding: 10px;
+	background-color:red
+
+}
+IMG{
+    display: block;
+    margin-left: auto;
+    margin-right: auto }
+ ...
+<IMG class="displayed" src="..." alt="...">
+
+p{text-align: center;
+}
+
+h2{
+	color:white;	
+	border:solid;
+	border-radius: 10px;
+	text-align: center;
+	padding: 10px;
+	background-color:red}
+
+	a {
+    background-color: #aa00c6;
+    border: solid #aa00c7;
+    border-radius: 10px;
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: azure;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none; /* pour que les liens ne soient pas soulignés */
+}

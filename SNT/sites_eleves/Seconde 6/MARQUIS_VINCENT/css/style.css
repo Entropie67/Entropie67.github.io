@@ -1,0 +1,251 @@
+ /* --------------------------------------------------VERSION PC----------------------------------------------- */
+
+ @media (min-width: 1000px) { 
+
+/* --------------------page----------------- */
+body {
+    background-color: rgb(3, 2, 3);
+    height: 100%;
+    margin: 0;
+
+}
+html {
+    height: 100%;
+
+}
+
+.div2 {
+    height: 100%;
+}
+.separation {
+    display: flex;
+    height: 100%;
+    background-size: 100%;
+    background-position-y: 130px;
+    background-repeat: no-repeat;
+}
+.div1 {
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 50%;
+}
+
+.videoarriereplan {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100;
+    transform: translateX(-50%) translateY(-50%);
+    background: no-repeat;
+    background-size: cover;
+
+}
+
+/* --------------------texte----------------- */
+h1 {
+    color: rgb(255, 255, 255);
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    font-size: 60px;
+    letter-spacing: -1px;
+    padding-left: 100px;
+    line-height: 60px;
+}
+p {
+    color: rgb(255, 255, 255);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    padding-left: 100px;
+    line-height: 40px;
+    font-weight: 400;
+}
+
+mark {
+    background-color: rgb(22, 22, 22);
+    color: rgb(255, 255, 255);
+}
+
+/* --------------------boutons----------------- */
+.produits {
+
+    outline:none;
+    
+    background-color: rgb(70, 207, 255);
+    border: none;
+    color: white;
+    padding: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    margin-top: 20px;
+    border-radius: 50px;
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    transition: 0.3s;
+
+}
+.produits:hover {
+
+
+    box-shadow: 
+    0 0 2px #fff,
+    0 0 20px rgb(70, 207, 255),
+    0 0 200px rgb(70, 207, 255);
+    
+}
+.contacter {
+
+    outline:none;
+    text-decoration: none;
+    background-color: rgb(207, 207, 207);
+    border: none;
+    color: white;
+    padding: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    margin-top: 20px;
+    margin-left: 30px;
+    border-radius: 50px;
+    color: rgb(22, 22, 22);
+}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 1000px) { 
+
+
+ /* --------------------------------------------------VERSION MOBILE----------------------------------------------- */
+
+
+
+
+ body {
+    background-color: rgb(3, 2, 3);
+    height: 100%;
+    margin: 0;
+
+}
+html {
+    height: 100%;
+
+}
+
+.div2 {
+    height: 100%;
+}
+.separation {
+    display: flex;
+    height: 100%;
+    background-size: 100%;
+    background-position-y: 130px;
+    background-repeat: no-repeat;
+}
+.div1 {
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 90%;
+}
+
+.videoarriereplan {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100;
+    transform: translateX(-50%) translateY(-50%);
+    background: no-repeat;
+    background-size: cover;
+
+}
+
+/* --------------------texte----------------- */
+h1 {
+    color: rgb(255, 255, 255);
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    font-size: 90px;
+    letter-spacing: -1px;
+    padding-left: 100px;
+    line-height: 100px;
+}
+p {
+    color: rgb(255, 255, 255);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 50px;
+    letter-spacing: 0.5px;
+    padding-left: 100px;
+    line-height: 70px;
+    font-weight: 400;
+}
+
+mark {
+    background-color: rgb(22, 22, 22);
+    color: rgb(255, 255, 255);
+}
+
+/* --------------------boutons----------------- */
+.produits {
+
+    outline:none;
+    
+    background-color: rgb(70, 207, 255);
+    border: none;
+    color: white;
+    padding: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 50px;
+    margin-top: 20px;
+    border-radius: 50px;
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    transition: 0.3s;
+
+}
+.produits:hover {
+
+
+    box-shadow: 
+    0 0 2px #fff,
+    0 0 20px rgb(70, 207, 255),
+    0 0 200px rgb(70, 207, 255);
+    
+}
+.contacter {
+
+    outline:none;
+    text-decoration: none;
+    background-color: rgba(207, 207, 207, 0);
+    border: none;
+    color: white;
+    padding: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0px;
+    margin-top: 0px;
+    margin-left: 0px;
+    border-radius: 50px;
+    color: rgb(22, 22, 22);
+}
+}

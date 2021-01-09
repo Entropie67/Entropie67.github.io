@@ -1,0 +1,41 @@
+body{
+	background-image: url(../images/Lijiang.png);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+}
+
+h1{
+	color: purple;
+	text-align: center;
+	font-size: 50px
+}
+
+nav ul li a{
+    text-decoration: none;
+    font-size: 50px;
+    padding: 15px;
+    border-style: solid;
+    border-radius: 15px;
+    border-color: #3498DB;
+    color: purple;
+}
+
+nav ul li:hover a{
+    background-color: yellow;
+    border: none;
+    transition: 300ms;
+}
+
+nav ul li{
+    list-style-type: none;
+    display: inline-block;
+}
+
+h2{
+	font-size: 30px;
+	color: red;
+}
+
+html{
+    font-family: Verdana, Impact, "Arial Black", Arial;
+}

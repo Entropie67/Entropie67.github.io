@@ -1,0 +1,27 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+
+
+body {
+    background-color: white; 
+    color: black ;
+}
+h1{text-align: center ;
+border : solid ;
+border-radius : 10px; }
+h1:hover {
+	background-color : white ;
+	color : red;
+}
+img {width : 1000px;
+}
+ul {border:solid;
+	border-radius: 10px;}
+img {width: 650px;}
+
+ul{background-color: yellow}
+
+.p1: hover{color: red;}
+.p1: hover{text-decoration-color: red;}

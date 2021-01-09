@@ -1,0 +1,116 @@
+
+
+/* version pc */
+@media (min-width: 1000px) { 
+    .imageperso {
+        height: 150px;
+        width: 150px;
+    }
+    body
+    {
+        background-image: url(imagessite2.jpg);
+        background-attachment: fixed ;
+        background-repeat: no-repeat ;
+        font-style: oblique;
+        font-weight: bolder;
+        font-size: xx-large;
+        background-size: cover;
+        background-size: contain;
+        background-size: 100%;
+        color:purple;
+    }
+    p
+    {
+        font-size: large;   
+    }
+    h1
+    {
+        text-align: center;
+        color: purple;
+    }
+    .oui
+    {
+        column-count: 3;
+        text-align: center;
+    }
+    
+    h2
+    {
+        text-align: center;
+        color: purple;
+        }
+    h3
+    {
+        color: red;
+    }
+    
+    
+    Mark
+    {
+        font-size: x-large;
+        color: red;
+        background-color: black;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+/* version tel */
+@media (max-width: 1000px) { 
+    .imageperso {
+        height: 150px;
+        width: 150px;
+    }
+    body
+    {
+        
+        background-color: black ;
+    
+        font-style: oblique;
+        font-weight: bolder;
+        font-size: xx-large;
+          color:purple;
+    }
+    p
+    {
+        font-size: x-large;   
+    }
+    h1
+    {
+        text-align: center;
+        color: purple;
+    }
+    .oui
+    {
+        column-count: 3;
+        text-align: center;
+    }
+    
+    h2
+    {
+        text-align: center;
+        color: purple;
+        }
+    h3
+    {
+        color: red;
+        font-size: ;
+    }
+
+    
+    
+    Mark
+    {
+        font-size: smaller;
+        color: red;
+        background-color: black;
+    }
+}

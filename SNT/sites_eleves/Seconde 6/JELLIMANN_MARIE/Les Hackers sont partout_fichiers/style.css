@@ -1,0 +1,59 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+
+  
+  body {
+    background-color: #67ffdb;
+}
+
+h1 {
+	text-align: center;
+	color: black;
+	border: solid;
+	font-family: Comic Sans MS;
+	border-radius: 	10px;
+}
+	
+
+h1:hover {
+
+	background-color:black ; 
+	color:blue;
+}
+
+h2 {
+	text-align: center;
+	color: blue;
+    border: solid;
+    font-family: Comic Sans MS;
+    border-radius-bottom-left: 10px;
+}
+header nav{
+	color: blue;
+}
+header nav ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+header nav ul li{
+    margin: 0;
+    padding: 0;
+    width: 2000px;
+    height: 110px;
+    background-color: black;
+    text-align: center;
+} 
+
+header nav ul li a:hover{
+	background-color: #67ffdb;
+} 
+
+h2:hover {
+
+	background-color:blue ; 
+	color:black;
+}
+

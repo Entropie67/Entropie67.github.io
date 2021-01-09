@@ -1,0 +1,46 @@
+
+html {
+    height: 100%;
+
+}
+
+body {
+    background-image: url(../images/Back1.png);
+    margin: 0;
+}
+
+
+.nextpage { 
+    color: rgb(0, 0, 0);
+    font-size: 50px;
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+
+}
+.Bvn {
+    font-family: 'Lato', sans-serif;
+    font-size: 60px;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    margin-top: auto;
+    background-color: rgb(255, 255, 255);
+    padding: 30px;
+}
+.irltrade {
+    color: rgb(0, 0, 0);
+    font-size: 50px;
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+    
+}
+.carry {
+    color: rgb(0, 0, 0);
+    font-size: 50px;
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+}
+
+a:hover{
+    color: white;
+}
+
