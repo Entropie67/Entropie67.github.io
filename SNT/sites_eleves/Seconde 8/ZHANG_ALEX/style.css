@@ -1,0 +1,142 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+ #rrr{background-image: url("compet_esport.jpg");
+background-size: 50%;
+background-repeat: no-repeat;
+background-position: 50% 90px;
+background-color: white ;
+}
+
+h2{font-family:'big_john_probold';
+text-align: center;}
+
+@font-face {
+    font-family: 'big_john_probold';
+    src: url('bigjohnpro-bold-webfont.woff2') format('woff2'),
+         url('bigjohnpro-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'jaapokki_subtractregular';
+    src: url('jaapokkisubtract-regular-webfont.woff2') format('woff2'),
+         url('jaapokkisubtract-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;}
+
+
+@font-face {
+    font-family: 'moon_2.0regular';
+    src: url('moon2.0-regular-webfont.woff2') format('woff2'),
+         url('moon2.0-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+h1{font-family: 'jaapokki_subtractregular';
+  text-align : center;
+  margin-top: 290px;
+  font-size: 50;
+  color:white;
+
+
+ }
+#intro{
+
+font-family: 'moon_2.0regular';
+color:black;
+font-size: 18px;
+width: 30% ;
+margin-left: 34%;
+padding:20px;
+border: 2px solid #8c9eff ;
+background-color:white;
+
+
+
+
+
+}
+
+#grr{color:white;}
+
+p{
+
+text-align: left;
+font-family: 'moon_2.0regular';
+font-size: 18px;
+margin-left: 10%;
+width: 60%;
+}
+
+
+#grospave{margin-left: 24%;
+width:50%;
+background-color:#8c9eff;
+border-radius:10px;
+padding: 20px;
+text-align: left;
+color: white;}
+
+section{background-color: #002171}
+
+#gros{background-color:#b388ff;
+text-align: center;
+margin:100px auto ;
+padding-bottom: 40px;
+padding:20px;
+border-radius:10px;
+width:50%;
+}
+
+div.images{
+text-align: center;}
+
+figcaption{font-family: 'moon_2.0regular';
+font-size: 18px;
+text-align: left;
+margin-left: 15%;
+margin-right: 15%;}
+
+
+
+.button{background-color: #90caf9;
+  padding:7px;
+  text-align: center;
+  border-radius:20px;
+  font-family:'moon_2.0regular';
+  color:white;
+  text-decoration: none;
+}
+.LAN{text-align: center;
+background-color:#ffa726;
+padding: 30px; }
+.reportage{text-align: center;
+background-color: #90caf9;
+padding: 30px; }
+
+#vvv{color:black;
+margin-top:75px;}
+
+article{text-align: center;
+font-family: 'moon_2.0regular';
+font-size: 18px;}
+
+#jeu{margin-left: 24%;
+width:50%;
+background-color:#ffa726;
+border-radius:10px;
+padding: 20px;
+text-align: left;
+color: white;}
+
+div.coucou{font-family:  'moon_2.0regular';
+font-size:18px;
+text-align: center;
+font-weight: bold;}
+
+#bas{margin-bottom: 50px}

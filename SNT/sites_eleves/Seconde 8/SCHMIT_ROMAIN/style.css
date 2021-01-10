@@ -1,0 +1,64 @@
+body {
+    background-color: white;
+}
+h1{
+	text-align: center;
+	border: solid;
+	border-radius: 15px;
+	p{color: #212121;
+}	
+}
+h1:hover {
+	color: Blue;
+}
+img{
+	height:200px;
+	width:auto;
+
+}
+
+
+
+html, body {
+    height: 100%;
+}
+body {
+    background-color: white;
+}
+
+header:hover, section:hover {
+    background-color: lightblue;
+}
+h1 {
+    color: black;
+    text-align: center;
+}
+h2{
+    color: darkblue;
+}
+
+footer {
+    border: solid lightblue;
+}
+
+section {
+	border-radius: 15px;
+    border: solid darkblue;
+    margin: 20px;  
+    padding: 30px;
+}
+
+footer {
+    font-size: 80%;
+    background-color: #aa00c7;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+a {
+	color:blue;
+}
+
+strong {
+    color: red;
+
