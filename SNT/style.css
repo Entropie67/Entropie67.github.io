@@ -44,3 +44,7 @@ tr:hover {
 body {
     background-color: #cfd8dc;
 }
+
+.abs {
+    color: grey;
+}
