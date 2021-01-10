@@ -56,11 +56,13 @@ h1:hover {background-color: #01579B }
 
 .image {float:right;}
 
-header {margin:10px;
-border:solid black;
-display: block;
-list-style: none
-margin-left: 0px;}
+header {
+    margin:10px;
+    border:solid black;
+    display: block;
+    list-style: none;
+    margin-left: 0px;
+}
 
 h3{font-size: 30px;
 margin:50px;
