@@ -1,0 +1,147 @@
+/* Pour choisir des couleurs : https://www.materialui.co/colors */
+
+
+
+
+
+/* le style appliqué au body est un style qui va être valable sur toutes les pages, dans le body */
+
+html, body {
+
+    height: 100%;
+
+
+}
+
+body {
+
+    background-color: grey;
+   
+
+}
+
+/* je vais encadrer l'en-tête */
+
+header {
+
+
+    padding: 10px; /* marge intérieure */
+
+    background: url(http://www.freeliquidtemplates.com/free-headers-for-websites/header13.jpg) no-repeat;
+
+    background-size: 100%;
+
+    width: 100%;
+
+
+
+}
+
+h1 {
+
+    color: white;
+
+    text-align: center;
+    font-size: 70px
+
+}
+
+
+section{
+    background-color: grey;
+    width: 1341px;
+    height: 500px;
+
+}
+
+div#content div{
+    display: inline-block;
+    width: 49%;
+}
+
+div#content div h2, p{
+    margin: 35px;
+}
+
+div#content div.leftbox{
+
+    vertical-align: top;
+
+}
+
+div#content div.rightbox{
+
+    margin-top: 30px
+
+}
+
+
+
+footer {
+
+    font-size: 80%;
+
+    background-color: #333;
+
+    color: white;
+
+    padding: 10px;
+
+    text-align: center;
+
+    width: 1323px;
+
+}
+
+
+
+
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+
+li {
+
+    list-style-type: none;
+
+    margin: 10px;
+
+}
+
+li:hover a{
+    color: grey;
+    background-color: lightgrey;
+    border: solid lightgrey;
+    transition: 0.4s all;
+}
+
+nav ul li{
+    display: inline-block;
+    margin: 70px;
+    margin-top: 10px
+}
+
+/* li a veut dire : "les liens (a) dans les listes (li) */
+
+li a {
+
+    background-color: grey;
+
+    border: solid grey;
+
+    border-radius: 10px;
+
+    color: azure;
+
+    width: 15%;
+
+    padding: 5px;
+
+    text-decoration: none; /* pour que les liens ne soient pas soulignés */
+
+}
+
+
+/*********************************************************************************************************************
+
+/* ne tenez pas compte de la suite, c'est simplement pour mieux placer mes vidéos sur la page carrieres
+
+ *********************************************************************************************************************/
