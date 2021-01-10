@@ -1,0 +1,72 @@
+#menu-deroulant, #menu-deroulant ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+#menu-deroulant {
+    text-align: center;
+}
+#menu-deroulant li {
+    display: inline-block;
+}
+#menu-deroulant {
+    display: block;
+    color:#a4a4a4;
+    font-family: 'PT Sans', sans-serif;
+    font-size: 30px;
+}
+    a {
+    text-decoration: none;
+    color: #a4a4a4;
+}
+    .rectangle1 {
+    height: 140px;
+    width: 100%;
+    background-color: #212121;
+}
+    .rectangle2 {
+    height: 100%;
+    width: 100%;
+    background-color: #424242;
+}
+* {
+margin: 0;
+padding: 0;
+}
+
+    h1 {
+        font-family: 'Roboto', sans-serif;
+        text-align : center;
+        font-size: 100px;
+}
+    img {
+        height: 461px;
+        width: 751px;
+        border: 30px solid;
+        border-image: linear-gradient(#212121,#424242 ) 5;
+}
+    #def {
+        font-size: 30px;
+        border: 10px solid;
+        border-image: linear-gradient(#494949, #616161 ) 5;
+    }
+    #conseil {
+        font-size: 30px;
+        border: 10px solid;
+        border-image: linear-gradient(#616161, #494949 ) 5;
+    }
+    h2 {
+        font-size: 40px;
+        font-family: 'Arial', sans-serif;
+    }
+    h3 {
+        font-size: 30px;
+    }
+    #terrain {
+    border: 30px solid;
+    border-image: linear-gradient(#494949, #616161 ) 5;
+    }
+    #ia {
+    border: 30px solid;
+    border-image: linear-gradient(#494949, #616161 ) 5;
+    }
