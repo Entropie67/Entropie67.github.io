@@ -1,0 +1,162 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+
+
+body {
+    background-color: black;
+    
+}
+h1 {
+    	color: white;
+    	font-size: 50px;
+    	border: solid;width:425px;height:60px;
+    }
+
+ 
+ h2 { 
+ 	color: #00695C ;
+ 	font-size: 25px;
+ }
+
+img.e{
+	width:500px;
+	height:500px;
+}    
+
+img.d{
+	width:800px;
+	height:500px;
+}    
+
+p.une{
+	font-weight: bold;
+	font-size: 25px;
+	color: white;
+}
+
+
+
+
+
+nav ul li{
+	display: inline-block;
+	list-style-type: none ;
+}
+
+nav ul li a{
+	color: black;
+	text-decoration: none;
+	padding: 30px
+	
+}
+
+nav ul li.a{
+	border: solid;width:200px;height:35px;
+	border-radius: 15px;
+	background-color: #66BB6A
+}
+
+nav ul li.b{
+	border: solid;width:200px;height:35px;
+	border-radius: 15px;
+	background-color: #66BB6A
+
+}
+
+nav ul li.c{
+	border: solid;width:200px;height:35px;
+	border-radius: 15px;
+	background-color: #66BB6A
+}
+
+nav ul li.d{
+	border: solid;width:200px;height:35px;
+	border-radius: 15px;
+	background-color: #66BB6A
+}S
+
+
+/*petit dejeuner*/
+
+img {
+	width:200px;
+	height:350px;
+}
+
+h2{
+	font-size: 40px
+}
+
+p.deux{
+	font-size: 25px;
+	color: white;
+}
+
+a {
+	font-size: 20px;
+	background-color: white;
+}
+
+
+
+image.two {
+	width:600px;
+	height:200px;
+}
+
+p.deux {
+	color: white;
+}
+
+p.trois {
+	color: white;
+	font-size: 25px;
+}
+
+p.quatre {
+	color: white;
+	font-size: 25px;
+}
+
+
+p.cinq {
+	color: white;
+	font-size: 30px
+}
+
+p.six {
+	color: white;
+	font-size: 30px
+}
+
+p.sept {
+	color: white;
+	font-size: 40px
+}
+
+img.five {
+	width: 650px;
+	height:450px;
+}
+
+h2.tel {
+	color: #03A9F4;
+	font-size: 50px;
+}
+
+h2.tele {
+	color: #E91E63;
+	font-size: 50px;
+}
+
+h2.tela {
+	color: #FFEB3B;
+	font-size: 50px;
+}
+
+h2.telo {
+	color: #8E24AA;
+	font-size: 50px;
+}
