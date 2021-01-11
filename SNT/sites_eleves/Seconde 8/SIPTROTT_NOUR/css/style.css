@@ -57,7 +57,7 @@ nav.menu-nav ul li.btn{
 }
 
 nav.menu-nav ul li.btn a{
-	color: #004C90
+	color: #004C90;
 	background-color: red;
 	padding-right: 100px;
 	font-size: 25px;
