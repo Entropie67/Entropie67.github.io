@@ -1,0 +1,92 @@
+html, body {
+    height: 100%;
+}
+body {
+    background-color: #78909c;
+}
+/* je vais encadrer l'en-tête */
+header {
+    border: solid #fafafa; /* le type de trait et la couleur */
+    border-radius: 30px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 10px; /* marge intérieure */
+}
+
+/* quand je passe avec la souris sur l'en-tête (hover) */
+a:hover {
+    background-color: #4b636e;
+}
+
+/* le style que je veux appliquer au titre h1
+ Ici une couleur et un texte au centre*/
+p {
+    color: #fafafa;
+    text-align: left;
+    font-family: "Agency FB"; /* font fantaisiste ;) */
+}
+
+h2{
+    color: #000000;
+    text-align: center;
+    font-family: "Agency FB"; /* font fantaisiste ;) */
+
+}
+
+/* mettons les mots importants (strong) en rouge */
+strong {
+    color: #fafafa;
+}
+
+img {
+    margin: 0px;
+}
+
+div{
+    text-align: center;
+}
+
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+li {
+    list-style-type: none;
+    margin: 10px;
+}
+
+/* li a veut dire : "les liens (a) dans les listes (li) */
+li a {
+    text-align: center;
+    background-color: #000000;
+    border:#000000;
+    border-radius: 30px;
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: #fafafa;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none; /* pour que les liens ne soient pas soulignés */
+    font-family: "Agency FB"; /* font fantaisiste ;) */
+
+}
+
+section {
+    background-color: #fafafa;
+    border: solid #fafafa; /* le type de trait et la couleur */
+    border-radius: 30px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 10px; /* marge intérieure */
+}
+
+h3 {
+    text-align: center;
+    color: #78909c;
+}
+
+.flotte {
+    float:left;
+
+}
+
+h4 {
+    color: #78909c;
+}
+
+h5 {
+    color: #78909c;
+    text-align: center; 
+}

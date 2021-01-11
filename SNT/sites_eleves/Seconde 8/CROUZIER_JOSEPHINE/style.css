@@ -1,0 +1,76 @@
+
+/* Pour choisir des couleurs : https://www.materialui.co/colors */
+
+
+/* le style appliqué au body est un style qui va être valable sur toutes les pages, dans le body */
+html, body {
+    height: 100%;
+}
+body {
+    background-color: #c8e6c9; 
+}
+/* je vais encadrer l'en-tête */
+header {
+    border: solid #009688; /* le type de trait et la couleur */
+    border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 10px; /* marge intérieure */
+}
+
+div{ 
+    text-align: center;
+}
+
+/* le style que je veux appliquer au titre h1
+ Ici une couleur et un texte au centre*/
+h1 {
+    color: #009688;
+    text-align: center;
+}
+h2{
+    color: #009688;
+    text-align: center;
+
+footer {
+    border: #009688;
+}
+
+section {
+    border: #009688;
+    margin: 10px;  /* marge externe */
+    padding: 10px;
+}
+
+footer {
+    font-size: 80%;
+    background-color: #aa00c7;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+/* mettons les mots importants (strong) en rouge */
+strong {
+    color: blue;
+}
+
+img {
+    margin: 20px;
+}
+
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+li {
+    list-style-type: none;
+    margin: 10px;
+    text-align: center;
+}
+
+/* li a veut dire : "les liens (a) dans les listes (li) */
+li a {
+    background-color: #aa00c6;
+    border: solid #aa00c7;
+    border-radius: 10px;
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: azure;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none;/* pour que les liens ne soient pas soulignés */
+     
