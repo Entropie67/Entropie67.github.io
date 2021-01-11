@@ -1,0 +1,134 @@
+
+/* Pour choisir des couleurs : https://www.materialui.co/colors */
+
+
+/* le style appliqué au body est un style qui va être valable sur toutes les pages, dans le body */
+
+
+
+
+html, body {
+    height: 100%; text-align: 
+}
+body {
+    background: url("https://www.ruchersdugue.fr/media/ruchersdugue/r/u/1200x800/ruche-abeille-architecte.jpg");
+    background-size: 100%;
+}
+/* je vais encadrer l'en-tête */
+header {
+    border: solid #2979ff; /* le type de trait et la couleur */
+    border-radius: 150px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 13px; /* marge intérieure */
+    background-color: #eee8aa;
+}
+
+h1{
+    font-family:  Brush Script MT, cursive, serif;
+    font-size: 400%; 
+}
+/* quand je passe avec la souris sur l'en-tête (hover) */
+header:hover, section:hover {
+    background-color: #eee8aa;
+}
+/* le style que je veux appliquer au titre h1
+ Ici une couleur et un texte au centre*/
+h1 {
+    color: #2979ff;
+    text-align: center;
+}
+
+
+
+img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto ;
+    margin-top: 20px;
+    border-radius: 20px;
+}
+h2{
+    color: darkcyan;
+}
+
+footer {
+    border: solid darkblue;
+}
+
+section {
+    border: solid blueviolet;
+    margin: 75px;  /* marge externe */
+    padding: 10px;
+    background-color: #eee8aa;
+}
+
+footer {
+    font-size: 80%;
+    background-color: #FFA500;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+/* mettons les mots importants (strong) en rouge */
+strong {
+    color: darkred;
+}
+
+
+
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+li {
+    list-style-type: none;
+    margin: 30px;
+}
+
+p.texte{
+    font-size: 60px;
+}
+/* li a veut dire : "les liens (a) dans les listes (li) */
+li a {
+    background-color: #1c07a6;
+    border: dashed #1c07a6;
+    border-radius: 40px;
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: azure;
+    width: 15%;
+    padding: 5px; /* pour que les liens ne soient pas soulignés */
+}
+/*********************************************************************************************************************
+/* ne tenez pas compte de la suite, c'est simplement pour mieux placer mes vidéos sur la page carrieres
+ *********************************************************************************************************************/
+
+
+.video {
+    display: block;
+
+}
+#videos {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+iframe {
+    border-radius: 10px;
+}
+
+.background {
+    background-color: black;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+}
+
+.content {
+    position: absolute;
+    z-index: 100;
+    top: 2rem;
+    text-align: center;
+    width: 75%;
+    background: #fff;
+    margin-left: 12%;
+    height: 80%;
+    opacity: 90%;
+    border-radius: 10px;
+}
