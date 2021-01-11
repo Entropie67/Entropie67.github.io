@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+    <head>
+
+<h1> Les réseaux sociaux </h1>
+
+<style>
+
+body 
+{
+    background-image: url("illustration.jpeg"); 
+} 
+
+    
+
+</style>
+</head>
+<body>
+
+<head>
+<body>
+
+<h2>
+ Bienvenue sur le super site de Za2. Ici vous en saurez plus sur les réseaux sociaux !
+ </h2>
+
+
+        <meta charset="UTF-8">
+        <link href="css.css" rel="stylesheet">
+        <title> Demo Html&CSS </title>
+
+
+<style> 
+
+
+p
+{
+    background-color : pink ;
+}
+
+p2 {
+    background-color : pink ;
+}
+p3 {
+    background-color : pink ;
+}
+
+p4 {
+    background-color : pink ;
+} 
+p5 {
+    background-color : pink ;
+}
+
+h4 
+{ background-color : white ; }
+</style>
+
+    
+    <!Bienvenue sur le super site de Za2! Ici vous en saurez plus sur les réseaux sociaux> 
+    <!-- (body) -->
+    <body>
+  
+        <header>
+    
+            
+            <nav>
+                <h5> Menu </h5>
+                <ul>
+                    <li ><a href="Top des réseaux sociaux les plus utilisés dans le monde.html">Top des réseaux sociaux les plus utilisés dans le monde</a></li>
+                    <li ><a href="#deuxiemepartie">Lien vers la deuxième partie</a></li>
+                   
+                </ul>
+            </nav>
+        </header>
+       
+        <section>
+            <h3> Une première section </h3>
+
+ <body>
+<p> 1. En première position, nous retrouvons Facebook. </p>
+
+<h4> Le savez-tu ?
+           8,7% des utilisateurs de Facebook sont des faux profils. </h4>
+
+<p> 2. Youtube se place en seconde position. Quoi de mieux que Youtube pour visionner un bon tuto fimo ? </p>
+
+
+<h4> Le savez-tu ? A sa création, Youtube devait être un site de rencontres. </h4>
+ 
+<p> 3. Ensuite arrive Twitter, la parfaite plateforme de microblogging :) </p>
+
+
+<h4> Le savez-tu ? Au départ, Twitter ne voulait pas de hashtags. C'est en 2007, soit un an après la création de l'application, que l'ingénieur Chris Messina lance l'idée du # en 2007 et qui parvient à convaincre Twitter. </h4>
+
+
+ 
+<p> 4. Après Twitter vient Linkedin. </p>
+
+
+<h4> Le savez-tu ? Linkedin est le réseau le plus professionnel de tous ! </h4>
+ 
+<p> 5. Et nous finissons ce top 5 en beauté avec Instagram, LA plateforme qu'utilisent les jeunes de 2021 ! </p> 
+
+
+
+<h4> Le savez-tu ? En janvier 2019, une publication Instagram d'un simple oeuf fait près de 55 millions de likes, et atteint son objectif qui était d'atteindre le record de la photo la plus “likée” de l’histoire d’Instagram. </h4>
+            
+
+            <a href="https://www.lasantepublique.fr/reseaux-sociaux-mauvais-pour-sante-mentale/">la nocivité des réseaux sociaux</a>
+            <br>
+            <!-- Je peux aussi ajouter une image -->
+            <img
+                    src="https://www.lasantepublique.fr/reseaux-sociaux-mauvais-pour-sante-mentale/"
+                    alt= "Ici vous retrouverez les détails de l'impact mental négatif que peuvent vous apporter les réseaux sociaux et pourquoi il est déconseillé de les utiliser plus de 30 minutes par jour."
+                    height="200px"
+                    width="auto"
+
+
+            />
+        </section>
+        <section>
+            <h2 id="deuxiemepartie" > Une deuxième section </h2>
+            <body>
+                 <img src="jug.jpeg">
+            </body>
+            <br>
+           
+            
+            <p> Site réalisé par Djéid' </p>
+        </footer>
+    </body>
+</html>

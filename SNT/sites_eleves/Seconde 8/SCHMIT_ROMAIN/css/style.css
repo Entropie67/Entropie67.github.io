@@ -1,13 +1,15 @@
 body {
     background-color: white;
 }
-h1{
-	text-align: center;
-	border: solid;
-	border-radius: 15px;
-	p{color: #212121;
-}	
+h1 {
+    text-align: center;
+    border: solid;
+    border-radius: 15px;
 }
+p{
+    color: #212121;
+}	
+
 h1:hover {
 	color: Blue;
 }
@@ -61,4 +63,5 @@ a {
 
 strong {
     color: red;
+}
 
