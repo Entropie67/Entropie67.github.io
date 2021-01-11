@@ -1,0 +1,71 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+
+
+body {
+    background-color: #e0f2f1;
+}
+h1  { 
+	color: black ; 
+	text-align: center;
+	border: solid;
+	border-radius: 10px;
+	background-color: #80cbc4;
+ }
+ img {
+ 	width: auto;
+    height: 250px;
+ }
+
+ li {
+    margin: 10px;
+}
+li a {
+    color: black;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none; 
+}
+h2 {
+	color: darkcyan;
+}
+h3 {
+	color: #ffa726;
+}
+.un {
+	color: black;
+	font-size: 75%;
+	margin-left: 400px;
+}
+.deux{
+	color: black;
+	font-size: 75%;
+}
+.trois{
+	width: auto;
+	height: 400px;
+}
+.quatre{
+	font-size: 75%;
+	color: black;
+	text-decoration: none;
+}
+.cinq{
+	margin-left: 500px;
+	font-size: 70%;
+}
+.six{
+	color: black;
+	font-size: 75%;
+}
+.sept{
+	color: blue;
+	font-size: 75%;
+	margin-left: 50px;
+}
+.huit{
+	color: black;
+	font-size: 80%;
+}
