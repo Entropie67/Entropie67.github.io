@@ -1,0 +1,84 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+
+
+body {background: url(https://s1.qwant.com/thumbr/0x380/3/8/5debe5c7f07c8077be9a653b53c4db70b4827fffebc214276a387684820aa5/800px_COLOURBOX10725277.jpg?u=https%3A%2F%2Fd2gg9evh47fn9z.cloudfront.net%2F800px_COLOURBOX10725277.jpg&q=0&b=1&p=0&a=1);
+	  background-size: 100%;
+    
+}
+h1 {
+	color: #00FF00;
+    text-align: center;
+    border: solid;
+    border-radius: 3px;
+    background-color:  #000;
+}
+li a {
+    background-color: #333333;
+    border: solid #008000;
+    border-radius: 100px;
+    display: block; 
+    text-align: center;
+    color: #000;
+    width: 20%;
+    padding: 5px;
+    text-decoration: none;
+}
+
+ h2.Top5 {
+ 	color: #00FF00;
+ 	background-color: #000
+ 	text-align:center;
+ }
+	
+
+
+h2 {
+	color: #483D8B;
+}
+
+p {
+	color: #00FF7F;
+	background-color: #000;
+}
+
+img {
+	width: 500px;
+	height: 500px;
+	margin: auto;
+}
+section {
+    background-color: #000; 
+    border: solid #6B8E23;
+    margin: 50px;  
+    padding: 50px;
+    border-radius:25px;
+}
+header {
+    border: solid #008000;
+    margin: 50px;  
+    padding: 50px;
+    border-radius:50px;
+    background-color: #000;
+}
+footer {
+    background-color: #8FBC8F;
+    color: #000;
+    text-align: center;
+}
+}
+
+
+
+    
+
+
+
+
+
+
+
+
+
