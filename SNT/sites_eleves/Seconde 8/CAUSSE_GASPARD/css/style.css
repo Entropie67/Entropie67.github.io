@@ -1,0 +1,241 @@
+/* 
+C'est ici qu'on gère, avec gout, le style de notre site.
+ Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
+ */
+html, body {
+    height: 100%;
+}
+
+body {
+    background-color: honeydew;
+}
+nav {
+    border-bottom: 1.5px solid black;
+    background-color: lightgrey;
+    border-top:0.1px solid black;
+    border-left: solid;
+    border-right: 0.1px solid darkgrey;
+
+
+    border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    
+    padding-left: 250px;
+    font-size: 1.5em;
+    filter: contrast(125%);
+
+
+}
+
+.navigation ul {
+    list-style-type: none;
+    padding-left: 0;
+    
+}
+.navigation a{
+	color: black; 
+}
+.navigation {
+    display: inline-block;
+    text-align: center;
+
+	
+	font-family: arial;
+
+
+}
+
+.navigation a::after {
+    display: inline-block;
+    color: #000;
+    content: '';
+    font-size: 100%;
+    font-weight: bold;
+    padding: 3px;
+
+}
+
+h1 {
+	color: black;
+	text-align: center;
+	border: solid;
+	border-radius: 10px;
+	padding: 20px;
+}
+h2 {
+	color: black;
+	text-align: left;
+	text-decoration: underline;
+	border-radius: 10px;
+	padding: 20px;
+}
+img{
+	width: 3px;
+	height: 3px;
+
+}
+
+
+
+/* je vais encadrer l'en-tête */
+h1 {
+    border: solid #2979ff; /* le type de trait et la couleur */
+    border-radius: 10px; /* je vais arrondir les angles, c'est important d'arrondir les angles :) */
+    padding: 10px; /* marge intérieure */
+}
+
+/* quand je passe avec la souris sur l'en-tête (hover) */
+h1:hover{
+    background-color: bisque;
+
+}
+
+/* le style que je veux appliquer au titre h1
+ Ici une couleur et un texte au centre*/
+
+
+
+section {
+    
+    margin: 10px;  /* marge externe */
+    padding: 10px;
+}
+
+
+
+img {
+    margin: 10px;
+}
+
+/* Ce passage est là pour enlever les puces devant une liste et également ajouter une marge*/
+li {
+    list-style-type: none;
+    margin: 10px;
+}
+
+/* li a veut dire : "les liens (a) dans les listes (li) */
+li a {
+    
+    
+    display: block; /* pour que les liens se comportent comme des "block" */
+    color: azure;
+    width: 15%;
+    padding: 5px;
+    text-decoration: none; /* pour que les liens ne soient pas soulignés */
+}
+
+.wrapper {
+  position: relative;
+}
+.blue-box:hover, .green-box:hover, .tablebox:hover {
+	z-index:5;
+	filter:contrast(120%);
+}
+
+.tablebox{
+  position: absolute;
+  z-index: 2;
+  border: solid ;
+  border-color:black;
+  height : 28em;
+  width : 50%;
+  top: 200px; left: 25%;
+  overflow: auto;
+  background-color: darkcyan;
+  border-radius: 10px;
+  
+}
+
+.green-box {
+  position: absolute;
+  z-index: 3; 
+  background: lightblue ;
+  width: 400;
+  left: 60%;
+  top: 0px;
+  height: 620;
+  opacity: 0.9;
+  border-radius: 10px;
+  overflow: auto;
+  
+  border:solid;
+}
+.shadowbox {
+  position:absolute;
+  height:20em;
+  width: 30em;
+  z-index: 4;
+  border: 1px solid #333;
+  box-shadow: 8px 8px 5px #444;
+  padding: 8px 12px;
+  overflow: auto;
+  left : 15%;
+  top: 20px;
+  font-size: 1.3em;
+  border-radius: 10px;
+  
+  background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc);
+  }
+span[data-descr] {
+  position: relative;
+  text-decoration: none;
+  color: none;
+  cursor: help;
+}
+
+span[data-descr]:hover::after {
+  content: attr(data-descr);
+  position: absolute;
+  left: 0;
+  top: 24px;
+  min-width: 200px;
+  border: 1px #aaaaaa solid;
+  border-radius: 10px;
+  background-color: #ffffcc;
+  padding: 12px;
+  color: #000000;
+  font-size: 14px;
+  z-index: 1;
+}
+#definition {
+	font-family: serif;
+
+}
+#important {
+	
+	font-family: fantasy;
+	text-decoration: underline;
+	color:darkred;
+
+}
+.tableau1 {
+	border: solid;
+}
+ul {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+ul li {display: inline-block;}
+ul li:hover ul {display: block;}
+ul li ul {
+  position: absolute;
+  width: 200px;
+  display: none;
+}
+
+ul li ul li { 
+  background: grey; 
+  display: block;
+
+}
+ul li ul li a {display:block !important;} 
+ul li ul li:hover {background: #666;}
+
+#deroulant {
+	z-index: 5;
+	font-size: 50%;
+}
+#ada {
+	width:75%;
+	height:75%;
+}
