@@ -2,7 +2,7 @@
 C'est ici qu'on gère, avec gout, le style de notre site.
  Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
  */
- #rrr{background-image: url("../images/compet_esport.jpg");
+ #rrr{background-image: url("compet_esport.jpg");
 background-size: 50%;
 background-repeat: no-repeat;
 background-position: 50% 90px;
@@ -15,7 +15,7 @@ text-align: center;}
 @font-face {
     font-family: 'big_john_probold';
     src: url('bigjohnpro-bold-webfont.woff2') format('woff2'),
-         url('../bigjohnpro-bold-webfont.woff') format('woff');
+         url('bigjohnpro-bold-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 
@@ -23,16 +23,16 @@ text-align: center;}
 
 @font-face {
     font-family: 'jaapokki_subtractregular';
-    src: url('../jaapokkisubtract-regular-webfont.woff2') format('woff2'),
-         url('../jaapokkisubtract-regular-webfont.woff') format('woff');
+    src: url('jaapokkisubtract-regular-webfont.woff2') format('woff2'),
+         url('jaapokkisubtract-regular-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;}
 
 
 @font-face {
     font-family: 'moon_2.0regular';
-    src: url('../moon2.0-regular-webfont.woff2') format('woff2'),
-         url('../moon2.0-regular-webfont.woff') format('woff');
+    src: url('moon2.0-regular-webfont.woff2') format('woff2'),
+         url('moon2.0-regular-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 
