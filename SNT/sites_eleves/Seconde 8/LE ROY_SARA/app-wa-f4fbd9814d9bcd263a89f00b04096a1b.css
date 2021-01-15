@@ -814,7 +814,7 @@ select {
   --card-vertical-padding: calc((var(--card-min-height) - (var(--font-size-base) * var(--line-height-base)) - (var(--card-border-width) * 2)) / 2);
   --card-horizontal-padding: var(--spacing-xl);
   --card-text-align: center;
-  --card-border-width: 0em; /* I shit you not. CSS calc cannot add 0 to something with units without 0 having units on it too. */
+  --card-border-width: 0em; /* I shit you not. css calc cannot add 0 to something with units without 0 having units on it too. */
   --card-border-style: solid;
   --card-border-color: var(--white);
   --card-padding: var(--card-vertical-padding) var(--card-horizontal-padding);
