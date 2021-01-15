@@ -1,0 +1,33 @@
+p.welcome{
+	color: purple;
+}
+p.description{
+	color: blue;
+}
+h1{
+	color: red;
+	font-size:50px;
+	padding-left:200px;
+}
+
+body{background-color:black;
+}
+
+h1.headline{
+	font-size: 5.3em;
+}
+p.para{
+	color:blue;
+}
+
+nav.menu-nav ul li.btn{
+	list-style-ty"pe:none;
+}
+
+nav.menu-nav ul li.btn a{
+	color: red;
+	text-decoration: none;
+}
+
+img.{
+	size: 1000px;
