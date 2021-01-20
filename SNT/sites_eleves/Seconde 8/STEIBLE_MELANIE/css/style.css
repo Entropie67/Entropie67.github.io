@@ -3,6 +3,7 @@ C'est ici qu'on gère, avec gout, le style de notre site.
  Vous pourrez trouver des couleurs ici : https://materialuicolors.co/
  */
 
+
 body {
     background-color: #607D8B;
 }
@@ -25,5 +26,8 @@ h4{
 	text-align: center;
 	font-size: 26px;
 	
+
+}
+h5,h6{font-size: 23px;
 
 }
