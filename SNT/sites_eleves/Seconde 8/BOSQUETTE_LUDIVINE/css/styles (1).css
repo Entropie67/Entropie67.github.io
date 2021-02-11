@@ -1,0 +1,102 @@
+html, body {
+    height: 100%; 
+}
+    
+
+body{
+   background: url("https://fifty-wp.s3.amazonaws.com/detours/uploads/2016/09/hack.png");
+    background-size: 100%;
+}
+
+
+
+
+header {
+    border: solid white; 
+    border-radius: 150px; 
+    padding: 13px; 
+    background-color:black;
+}
+   
+
+
+
+
+header:hover, section:hover {
+    background-color: green;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+}
+h4{
+	color:white;
+}
+p{
+	color:white;
+}
+img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto ;
+    margin-top: 20px;
+    border-radius: 20px;
+    }
+    li{
+    	color:white;
+    }
+a{
+	color:white;
+}
+li{
+    color:white;
+}
+h2{
+    color:white;
+ 
+   .video {
+    display: block;
+
+}
+#videos {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+iframe {
+    border-radius: 10px;
+}
+
+.background {
+    background-color: black;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+}
+
+.content {
+    position: absolute;
+    z-index: 100;
+    top: 2rem;
+    text-align: center;
+    width: 75%;
+    background: #fff;
+    margin-left: 12%;
+    height: 80%;
+    opacity: 90%;
+    border-radius: 10px;
+}
+footer {
+    border:solid white;
+}
+
+}
+
+footer {
+    font-size: 100%;
+    background-color:black;
+    color: white;
+    padding: 10px;
+    text-align: center;
