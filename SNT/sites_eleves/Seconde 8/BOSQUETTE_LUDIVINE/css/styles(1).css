@@ -1,14 +1,11 @@
 html, body {
     height: 100%; 
 }
-    
 
 body{
    background: url("https://fifty-wp.s3.amazonaws.com/detours/uploads/2016/09/hack.png");
     background-size: 100%;
 }
-
-
 
 
 header {
@@ -17,9 +14,6 @@ header {
     padding: 13px; 
     background-color:black;
 }
-   
-
-
 
 
 header:hover, section:hover {
@@ -52,9 +46,9 @@ a{
 li{
     color:white;
 }
-h2{
-    color:white;
- 
+h2 {
+    color: white;
+}
    .video {
     display: block;
 
@@ -92,11 +86,12 @@ footer {
     border:solid white;
 }
 
-}
+
 
 footer {
     font-size: 100%;
-    background-color:black;
+    background-color: black;
     color: white;
     padding: 10px;
     text-align: center;
+}
