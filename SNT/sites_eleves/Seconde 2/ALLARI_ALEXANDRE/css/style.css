@@ -1,0 +1,75 @@
+
+
+nav.menu-nav ul li.btn{
+list-style-type: none;
+display: inline-block;
+}
+
+nav.menu-nav ul li.btn a{
+	text-decoration: none;
+	background-color: #000;
+	padding-right: 10px;
+	padding-left: 10px;
+	font-size: 20px;
+	font-weight: lighter;
+
+}
+
+nav.menu-nav ul li.btn:hover a{
+	color:#800080;
+	background-color: #808080
+
+
+}
+
+
+p.Bienvenue{
+	color: #1FB6B6;
+	background-color: #FF00FF;
+}
+p.amour{
+	color: rgb(128, 128, 0) ;
+	background-color: #000;
+}
+
+body{
+	background: url(https://www.incognito.fr/actualites/assets-incognito/uploads/2016/05/blog-74.jpg) no-repeat;
+	background-size: 100%;
+
+}
+h1.headline{
+	font-size: 50px;
+	font-weight: bold;
+	padding-top: 0px;
+	padding-left: 95px;
+}
+p.Bienvenue{
+	font-size: 1.1em;
+	font-weight: lighter;
+	padding-left: 95px;
+}
+
+a{
+	color: #800000 ;
+	opacity: 1;
+}
+
+<h1.offre{
+	color: #000;
+	background-color: #fff;
+
+}
+<h2.choix{
+	background-color: #fff:;
+}
+p.merci{
+	color: rgb(128, 128, 0) ;
+	background-color: #000;
+}
+
+p.contactez{
+	list-style-type: none;
+display: inline-block;
+background-color: black;
+color: rgb(128, 128, 0) ;
+}
