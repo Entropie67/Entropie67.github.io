@@ -1,6 +1,7 @@
 
 function setup() {
-    createCanvas(720, 560);
+    let cnv = createCanvas(400, 400);
+    cnv.parent('P5');
     noStroke();
     noLoop();
 }
