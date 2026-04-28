@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEURAL.IQ // Diagnostic Cognitif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-0: #050814;
+    --bg-1: #0a1024;
+    --bg-2: #111934;
+    --neon-cyan: #00f0ff;
+    --neon-magenta: #ff2bd6;
+    --neon-purple: #a64bff;
+    --neon-green: #00ff9d;
+    --neon-yellow: #ffd60a;
+    --neon-red: #ff3a5c;
+    --text-primary: #e8f0ff;
+    --text-secondary: #8da4c8;
+    --text-dim: #4a5b80;
+    --glass: rgba(20, 30, 60, 0.45);
+    --glass-border: rgba(0, 240, 255, 0.25);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { overflow-x: hidden; }
+
+  body {
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+    background: var(--bg-0);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--text-primary);
+    position: relative;
+    overflow-y: auto;
+  }
+
+  /* === Fond animé : grille + nébuleuse === */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(166, 75, 255, 0.18), transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(0, 240, 255, 0.15), transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(255, 43, 214, 0.08), transparent 60%),
+      var(--bg-0);
+    z-index: -2;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 240, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.06) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    z-index: -1;
+    animation: gridDrift 20s linear infinite;
+  }
+  @keyframes gridDrift {
+    from { background-position: 0 0, 0 0; }
+    to   { background-position: 50px 50px, 50px 50px; }
+  }
+
+  /* === Container glass === */
+  .container {
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 760px;
+    padding: 36px 40px;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      0 0 60px rgba(0, 240, 255, 0.08);
+    clip-path: polygon(
+      24px 0, 100% 0, 100% calc(100% - 24px),
+      calc(100% - 24px) 100%, 0 100%, 0 24px
+    );
+  }
+  /* Coins néon décoratifs */
+  .container::before, .container::after {
+    content: '';
+    position: absolute;
+    width: 28px; height: 28px;
+    border: 2px solid var(--neon-cyan);
+    pointer-events: none;
+  }
+  .container::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+  .container::after  { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+  /* === Typographie === */
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.9em;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+    text-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+    position: relative;
+  }
+  h1::before {
+    content: attr(data-text);
+    position: absolute;
+    left: 2px; top: 0;
+    color: var(--neon-magenta);
+    -webkit-text-fill-color: var(--neon-magenta);
+    opacity: 0.4;
+    z-index: -1;
+    filter: blur(2px);
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8em;
+    color: var(--neon-cyan);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    opacity: 0.8;
+  }
+  .subtitle::before { content: '> '; color: var(--neon-magenta); }
+
+  h2, h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--neon-cyan);
+    margin-bottom: 16px;
+  }
+
+  .intro p { margin-bottom: 12px; line-height: 1.6; color: var(--text-secondary); font-size: 1.05em; }
+  .intro ul { margin: 12px 0 20px 0; color: var(--text-secondary); line-height: 1.8; list-style: none; }
+  .intro ul li { padding-left: 24px; position: relative; }
+  .intro ul li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 8px var(--neon-cyan);
+  }
+  .intro strong { color: var(--text-primary); }
+
+  /* === Boutons === */
+  button {
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(166, 75, 255, 0.15));
+    color: var(--neon-cyan);
+    border: 1px solid var(--neon-cyan);
+    padding: 14px 32px;
+    font-size: 0.85em;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2), inset 0 0 12px rgba(0, 240, 255, 0.05);
+  }
+  button:hover {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(166, 75, 255, 0.3));
+    color: white;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), inset 0 0 20px rgba(0, 240, 255, 0.15);
+    transform: translateY(-2px);
+  }
+  button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  button.secondary {
+    background: transparent;
+    color: var(--neon-magenta);
+    border-color: var(--neon-magenta);
+    box-shadow: 0 0 20px rgba(255, 43, 214, 0.2);
+  }
+  button.secondary:hover {
+    background: rgba(255, 43, 214, 0.15);
+    box-shadow: 0 0 30px rgba(255, 43, 214, 0.5);
+  }
+
+  /* === Progression HUD === */
+  .progress-wrap { margin-bottom: 28px; }
+  .progress-bar {
+    background: rgba(0, 240, 255, 0.08);
+    height: 4px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    position: relative;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+    height: 100%;
+    transition: width 0.4s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: 0 0 12px var(--neon-cyan);
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: white;
+    box-shadow: 0 0 8px white;
+  }
+  .progress-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78em;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    letter-spacing: 1px;
+  }
+  .progress-text span:first-child { color: var(--neon-cyan); }
+
+  .category-tag {
+    font-family: 'JetBrains Mono', monospace;
+    display: inline-block;
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--neon-cyan);
+    padding: 4px 14px;
+    font-size: 0.72em;
+    font-weight: 700;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-left: 2px solid var(--neon-cyan);
+    border-right: 2px solid var(--neon-cyan);
+  }
+  .category-tag::before { content: '[ '; opacity: 0.6; }
+  .category-tag::after  { content: ' ]'; opacity: 0.6; }
+
+  .question-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.45em;
+    line-height: 1.4;
+    margin-bottom: 28px;
+    color: var(--text-primary);
+    min-height: 70px;
+    font-weight: 500;
+  }
+
+  /* === Options === */
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .option {
+    font-family: 'Rajdhani', sans-serif;
+    background: rgba(10, 16, 36, 0.6);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    padding: 14px 18px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 1.05em;
+    color: var(--text-primary);
+    transition: all 0.18s;
+    letter-spacing: normal;
+    text-transform: none;
+    font-weight: 500;
+    clip-path: none;
+    box-shadow: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .option::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--neon-cyan);
+    transform: scaleY(0);
+    transition: transform 0.18s;
+  }
+  .option:hover {
+    background: rgba(0, 240, 255, 0.08);
+    border-color: var(--neon-cyan);
+    color: var(--text-primary);
+    transform: translateX(4px);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+  }
+  .option:hover::before { transform: scaleY(1); }
+  .option.selected {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: var(--neon-cyan);
+    color: white;
+    box-shadow: 0 0 24px rgba(0, 240, 255, 0.3), inset 0 0 12px rgba(0, 240, 255, 0.1);
+  }
+  .option.selected::before { transform: scaleY(1); background: var(--neon-magenta); box-shadow: 0 0 8px var(--neon-magenta); }
+
+  .nav-buttons { display: flex; justify-content: space-between; gap: 12px; }
+
+  /* === Résultats === */
+  .results { text-align: center; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    margin: 28px 0 24px;
+    flex-wrap: wrap;
+  }
+
+  /* Avatar holographique */
+  .avatar {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(0, 240, 255, 0.2), rgba(10, 16, 36, 0.9));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5em;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    border: 2px solid var(--neon-cyan);
+    box-shadow:
+      0 0 30px rgba(0, 240, 255, 0.5),
+      inset 0 0 20px rgba(0, 240, 255, 0.15);
+    animation: avatarPulse 3s ease-in-out infinite;
+  }
+  @keyframes avatarPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), inset 0 0 20px rgba(0, 240, 255, 0.15); }
+    50%      { box-shadow: 0 0 50px rgba(0, 240, 255, 0.8), inset 0 0 30px rgba(0, 240, 255, 0.25); }
+  }
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(1.1) contrast(1.05);
+  }
+  /* Anneau orbital décoratif */
+  .avatar::after {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    border: 1px dashed rgba(0, 240, 255, 0.4);
+    animation: orbit 8s linear infinite;
+  }
+  @keyframes orbit {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .tier-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .tier-prefix {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7em;
+    color: var(--neon-cyan);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .tier-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4em;
+    font-weight: 900;
+    line-height: 1;
+    padding: 12px 28px;
+    color: white;
+    letter-spacing: 4px;
+    position: relative;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    text-shadow: 0 0 16px currentColor;
+  }
+  .tier-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1em;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: left;
+    letter-spacing: 1px;
+  }
+
+  /* Couleurs néon par tier */
+  .tier-F  { background: linear-gradient(135deg, #2a3142, #4a5568); border: 1px solid #718096; box-shadow: 0 0 20px rgba(113, 128, 150, 0.4); }
+  .tier-E  { background: linear-gradient(135deg, #4a5568, #718096); border: 1px solid #a0aec0; box-shadow: 0 0 20px rgba(160, 174, 192, 0.4); }
+  .tier-D  { background: linear-gradient(135deg, #00ff9d, #00b377); border: 1px solid var(--neon-green); box-shadow: 0 0 24px rgba(0, 255, 157, 0.5); }
+  .tier-C  { background: linear-gradient(135deg, #00d4ff, #0099cc); border: 1px solid #00d4ff; box-shadow: 0 0 24px rgba(0, 212, 255, 0.5); }
+  .tier-B  { background: linear-gradient(135deg, #00f0ff, #0088ff); border: 1px solid var(--neon-cyan); box-shadow: 0 0 28px rgba(0, 240, 255, 0.6); }
+  .tier-A  { background: linear-gradient(135deg, #a64bff, #6b1fb3); border: 1px solid var(--neon-purple); box-shadow: 0 0 30px rgba(166, 75, 255, 0.6); }
+  .tier-S  { background: linear-gradient(135deg, #ff2bd6, #b3158f); border: 1px solid var(--neon-magenta); box-shadow: 0 0 32px rgba(255, 43, 214, 0.7); }
+  .tier-SS { background: linear-gradient(135deg, #ff3a5c, #cc1635); border: 1px solid var(--neon-red); box-shadow: 0 0 36px rgba(255, 58, 92, 0.8); }
+  .tier-NSI {
+    background: linear-gradient(135deg, #ffd60a, #ff8a00, #ffd60a, #ff2bd6, #00f0ff);
+    background-size: 300% 300%;
+    border: 2px solid #ffd60a;
+    color: #0a1024;
+    text-shadow: 0 0 8px white;
+    animation: nsiShine 3s ease-in-out infinite;
+    box-shadow:
+      0 0 40px rgba(255, 214, 10, 0.8),
+      0 0 80px rgba(255, 43, 214, 0.5);
+  }
+  @keyframes nsiShine {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+
+  /* Score circulaire holographique */
+  .score-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.15), rgba(10, 16, 36, 0.9));
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 28px auto 16px;
+    position: relative;
+    border: 2px solid var(--neon-cyan);
+    box-shadow:
+      0 0 40px rgba(0, 240, 255, 0.4),
+      inset 0 0 30px rgba(0, 240, 255, 0.1);
+  }
+  .score-circle::before, .score-circle::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+  }
+  .score-circle::before { inset: -12px; border-style: dashed; animation: orbit 12s linear infinite; }
+  .score-circle::after  { inset: -22px; border-style: dotted; animation: orbit 18s linear infinite reverse; }
+
+  .score-circle .score-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3.5em;
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(180deg, white, var(--neon-cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 24px var(--neon-cyan);
+  }
+  .score-circle .score-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7em;
+    color: var(--neon-cyan);
+    margin-top: 6px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .iq-summary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+  }
+  .iq-summary strong { color: var(--neon-cyan); font-size: 1.2em; }
+
+  /* === Breakdown === */
+  .breakdown {
+    background: rgba(10, 16, 36, 0.5);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    padding: 22px;
+    margin: 24px 0;
+    text-align: left;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  }
+  .cat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+  .cat-row:last-child { margin-bottom: 0; }
+  .cat-name {
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--text-primary);
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95em;
+    letter-spacing: 0.5px;
+  }
+  .cat-bar {
+    flex: 2;
+    background: rgba(0, 240, 255, 0.08);
+    height: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+  }
+  .cat-fill {
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+    height: 100%;
+    box-shadow: 0 0 8px var(--neon-cyan);
+    transition: width 0.6s ease;
+  }
+  .cat-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    min-width: 56px;
+    text-align: right;
+    font-size: 0.9em;
+  }
+
+  /* === Disclaimer === */
+  .disclaimer {
+    background: rgba(255, 43, 214, 0.08);
+    border: 1px solid rgba(255, 43, 214, 0.3);
+    border-left: 3px solid var(--neon-magenta);
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    font-size: 0.88em;
+    margin: 20px 0;
+    text-align: left;
+    line-height: 1.5;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .disclaimer strong { color: var(--neon-magenta); }
+  .disclaimer::before { content: '⚠ '; color: var(--neon-magenta); font-weight: bold; }
+
+  /* === Review === */
+  .review-section { text-align: left; margin-top: 24px; }
+  .review-item {
+    background: rgba(10, 16, 36, 0.6);
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border-left-width: 3px;
+  }
+  .review-item.correct { border-left-color: var(--neon-green); box-shadow: -2px 0 8px rgba(0, 255, 157, 0.2); }
+  .review-item.wrong   { border-left-color: var(--neon-red);   box-shadow: -2px 0 8px rgba(255, 58, 92, 0.2); }
+  .review-item .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    font-size: 0.78em;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .review-item .q-text { margin: 6px 0; color: var(--text-primary); font-size: 1em; }
+  .review-item .answer { font-size: 0.88em; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+  .review-item .answer strong { color: var(--text-primary); }
+  .review-item.correct .answer strong:last-of-type { color: var(--neon-green); }
+  .review-item.wrong .answer strong:last-of-type { color: var(--neon-green); }
+
+  /* === Petits écrans === */
+  @media (max-width: 600px) {
+    .container { padding: 24px 20px; }
+    h1 { font-size: 1.4em; letter-spacing: 2px; }
+    .question-text { font-size: 1.2em; }
+    .tier-badge { font-size: 3em; }
+    .avatar { width: 130px; height: 130px; }
+    .score-circle { width: 170px; height: 170px; }
+    .score-circle .score-num { font-size: 3em; }
+  }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+
+<script>
+const questions = [
+  // ===== SUITES NUMÉRIQUES (10) =====
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 4, 8, 16, ?", opts: ["24", "32", "20", "30"], correct: 1 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 1, 2, 3, 5, 8, ?", opts: ["11", "13", "12", "10"], correct: 1 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 4, 9, 16, 25, ?", opts: ["30", "36", "32", "49"], correct: 1 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 100, 81, 64, 49, ?", opts: ["36", "32", "40", "25"], correct: 0 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 3, 6, 10, 15, ?", opts: ["18", "20", "21", "25"], correct: 2 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 6, 12, 20, 30, ?", opts: ["40", "42", "36", "44"], correct: 1 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 2, 4, 7, 11, 16, ?", opts: ["20", "21", "22", "23"], correct: 2 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 3, 9, 27, 81, ?", opts: ["162", "243", "324", "405"], correct: 1 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 64, 32, 16, 8, ?", opts: ["2", "4", "6", "0"], correct: 1 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 5, 10, 17, 26, ?", opts: ["35", "37", "36", "39"], correct: 1 },
+
+  // ===== ANALOGIES VERBALES (10) =====
+  { cat: "Analogies verbales", q: "Chien est à chiot ce que chat est à...", opts: ["Chatte", "Chaton", "Félin", "Bébé"], correct: 1 },
+  { cat: "Analogies verbales", q: "Pied est à chaussure ce que main est à...", opts: ["Bague", "Bracelet", "Gant", "Doigt"], correct: 2 },
+  { cat: "Analogies verbales", q: "Médecin est à hôpital ce que professeur est à...", opts: ["Université", "Élève", "École", "Cours"], correct: 2 },
+  { cat: "Analogies verbales", q: "Oiseau est à voler ce que poisson est à...", opts: ["Eau", "Nager", "Branchies", "Mer"], correct: 1 },
+  { cat: "Analogies verbales", q: "Pinceau est à peintre ce que stylo est à...", opts: ["Encre", "Papier", "Écrivain", "Bureau"], correct: 2 },
+  { cat: "Analogies verbales", q: "Livre est à bibliothèque ce que tableau est à...", opts: ["Mur", "Peinture", "Musée", "Cadre"], correct: 2 },
+  { cat: "Analogies verbales", q: "Roue est à voiture ce que aile est à...", opts: ["Oiseau", "Avion", "Vol", "Plume"], correct: 1 },
+  { cat: "Analogies verbales", q: "Marteau est à clou ce que tournevis est à...", opts: ["Boulon", "Vis", "Outil", "Bricoleur"], correct: 1 },
+  { cat: "Analogies verbales", q: "Gland est à chêne ce que pépin est à...", opts: ["Fruit", "Pomme", "Arbre", "Graine"], correct: 1 },
+  { cat: "Analogies verbales", q: "Affamé est à nourriture ce qu'assoiffé est à...", opts: ["Verre", "Soif", "Eau", "Boire"], correct: 2 },
+
+  // ===== RAISONNEMENT SPATIAL / VISUEL (10) =====
+  { cat: "Raisonnement spatial", q: "Quel symbole complète la suite : ▲ ◼ ● ▲ ◼ ?", opts: ["▲", "◼", "●", "■"], correct: 2 },
+  { cat: "Raisonnement spatial", q: "Combien de faces possède un cube ?", opts: ["4", "6", "8", "12"], correct: 1 },
+  { cat: "Raisonnement spatial", q: "Si on plie une feuille de papier en deux, puis encore en deux, combien de couches obtient-on ?", opts: ["2", "3", "4", "8"], correct: 2 },
+  { cat: "Raisonnement spatial", q: "Quelle paire de lettres complète : AZ, BY, CX, DW, ?", opts: ["EU", "EV", "FW", "EW"], correct: 1 },
+  { cat: "Raisonnement spatial", q: "Quelle direction complète : ↑ → ↓ ← ↑ → ↓ ?", opts: ["↑", "→", "↓", "←"], correct: 3 },
+  { cat: "Raisonnement spatial", q: "Combien d'arêtes possède un cube ?", opts: ["8", "10", "12", "6"], correct: 2 },
+  { cat: "Raisonnement spatial", q: "Si vous regardez votre montre dans un miroir et qu'elle indique 3h00, quelle heure est-il réellement ?", opts: ["3h00", "9h00", "6h00", "12h00"], correct: 1 },
+  { cat: "Raisonnement spatial", q: "Un rectangle a une longueur double de sa largeur. Si son périmètre est 24 cm, quelle est sa largeur ?", opts: ["3 cm", "4 cm", "6 cm", "8 cm"], correct: 1 },
+  { cat: "Raisonnement spatial", q: "Combien de sommets possède un triangle ?", opts: ["2", "3", "4", "6"], correct: 1 },
+  { cat: "Raisonnement spatial", q: "Quelle figure ne fait pas partie du même groupe : carré, triangle, cercle, cube ?", opts: ["Carré", "Triangle", "Cercle", "Cube"], correct: 3 },
+
+  // ===== LOGIQUE & RÉSOLUTION DE PROBLÈMES (10) =====
+  { cat: "Logique & problèmes", q: "Un fermier a 17 moutons. Tous meurent sauf 9. Combien lui en reste-t-il ?", opts: ["8", "9", "17", "0"], correct: 1 },
+  { cat: "Logique & problèmes", q: "Si 3 chats attrapent 3 souris en 3 minutes, combien faut-il de chats pour attraper 100 souris en 100 minutes ?", opts: ["3", "33", "100", "10"], correct: 0 },
+  { cat: "Logique & problèmes", q: "Vous participez à une course et dépassez la 2ème personne. À quelle position êtes-vous ?", opts: ["1ère", "2ème", "3ème", "Dernière"], correct: 1 },
+  { cat: "Logique & problèmes", q: "Combien font 2 + 2 × 2 ?", opts: ["6", "8", "4", "10"], correct: 0 },
+  { cat: "Logique & problèmes", q: "Marie a 3 ans de plus que Paul. Dans 5 ans, la somme de leurs âges sera 27. Quel âge a Paul aujourd'hui ?", opts: ["7 ans", "8 ans", "10 ans", "12 ans"], correct: 0 },
+  { cat: "Logique & problèmes", q: "Un train parcourt 60 km en 45 minutes. Quelle est sa vitesse en km/h ?", opts: ["75", "80", "90", "120"], correct: 1 },
+  { cat: "Logique & problèmes", q: "A est plus grand que B. B est plus grand que C. Qui est le plus petit ?", opts: ["A", "B", "C", "Indéterminé"], correct: 2 },
+  { cat: "Logique & problèmes", q: "Un livre coûte 10 € plus la moitié de son prix. Combien coûte le livre ?", opts: ["15 €", "20 €", "25 €", "30 €"], correct: 1 },
+  { cat: "Logique & problèmes", q: "Si tous les Bloups sont des Glips, et certains Glips sont rouges, alors :", opts: ["Tous les Bloups sont rouges", "Certains Bloups sont rouges", "Aucun Bloup n'est rouge", "On ne peut pas conclure"], correct: 3 },
+  { cat: "Logique & problèmes", q: "Une bouteille et son bouchon coûtent 1,10 €. La bouteille coûte 1 € de plus que le bouchon. Combien coûte le bouchon ?", opts: ["0,10 €", "0,05 €", "0,15 €", "0,20 €"], correct: 1 }
+];
+
+let currentQ = 0;
+const answers = new Array(questions.length).fill(null);
+
+function render() {
+  if (currentQ === -1) renderIntro();
+  else if (currentQ >= questions.length) renderResults();
+  else renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderIntro() {
+  document.getElementById('app').innerHTML = `
+    <h1 data-text="NEURAL.IQ">NEURAL.IQ</h1>
+    <p class="subtitle">DIAGNOSTIC COGNITIF // 40 MODULES // ~25 MIN</p>
+    <div class="intro">
+      <p>Évaluation de vos capacités de raisonnement à travers <strong>4 modules cognitifs</strong> :</p>
+      <ul>
+        <li><strong>Suites numériques</strong> — détection de motifs mathématiques</li>
+        <li><strong>Analogies verbales</strong> — relations conceptuelles</li>
+        <li><strong>Raisonnement spatial</strong> — visualisation et formes</li>
+        <li><strong>Logique &amp; problèmes</strong> — déduction et calcul mental</li>
+      </ul>
+      <p><strong>Protocole :</strong> aucune assistance externe (calculatrice, recherche). Navigation libre entre les modules ; les réponses sont modifiables jusqu'à la validation finale.</p>
+      <div class="disclaimer">
+        Ce diagnostic est conçu à des fins ludiques et éducatives. Il <strong>ne remplace pas</strong> une évaluation psychométrique professionnelle (WAIS, Raven, WISC).
+      </div>
+    </div>
+    <button onclick="startTest()">▶ Initialiser la séquence</button>
+  `;
+}
+
+function startTest() { currentQ = 0; render(); }
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const progress = (currentQ / questions.length) * 100;
+  const optionsHtml = q.opts.map((opt, i) => `
+    <button class="option ${answers[currentQ] === i ? 'selected' : ''}" onclick="selectAnswer(${i})">
+      <strong style="color: var(--neon-cyan); margin-right: 10px; font-family: 'JetBrains Mono', monospace;">${String.fromCharCode(65 + i)}</strong> ${opt}
+    </button>
+  `).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+      <div class="progress-text">
+        <span>MODULE ${String(currentQ + 1).padStart(2, '0')} / ${questions.length}</span>
+        <span>${answers.filter(a => a !== null).length} / ${questions.length} VALIDÉS</span>
+      </div>
+    </div>
+    <span class="category-tag">${q.cat}</span>
+    <div class="question-text">${q.q}</div>
+    <div class="options">${optionsHtml}</div>
+    <div class="nav-buttons">
+      <button class="secondary" onclick="prev()" ${currentQ === 0 ? 'disabled' : ''}>◀ Précédent</button>
+      ${currentQ === questions.length - 1
+        ? `<button onclick="finish()" ${answers.filter(a => a !== null).length < questions.length ? 'disabled' : ''}>⬢ Analyser</button>`
+        : `<button onclick="next()" ${answers[currentQ] === null ? 'disabled' : ''}>Suivant ▶</button>`}
+    </div>
+  `;
+}
+
+function selectAnswer(i) { answers[currentQ] = i; render(); }
+function next() { if (currentQ < questions.length - 1) { currentQ++; render(); } }
+function prev() { if (currentQ > 0) { currentQ--; render(); } }
+function finish() { currentQ = questions.length; render(); }
+
+function estimateIQ(correct, total) {
+  const pct = correct / total;
+  if (pct >= 1.0) return 140;
+  if (pct >= 0.95) return 135;
+  if (pct >= 0.90) return 130;
+  if (pct >= 0.85) return 125;
+  if (pct >= 0.80) return 120;
+  if (pct >= 0.75) return 115;
+  if (pct >= 0.65) return 110;
+  if (pct >= 0.55) return 105;
+  if (pct >= 0.45) return 100;
+  if (pct >= 0.35) return 95;
+  if (pct >= 0.25) return 90;
+  if (pct >= 0.15) return 85;
+  return 80;
+}
+
+// Mapping IQ → tier. Pour chaque tier tu peux fournir une image (champ `img`)
+// qui prendra le pas sur l'emoji par défaut.
+// Les chemins sont relatifs au fichier HTML.
+const TIERS = [
+  { min: 130, code: "NSI", className: "tier-NSI", label: "Génie certifié — top 2% mondial",  emoji: "👑", img: null },
+  { min: 125, code: "SS",  className: "tier-SS",  label: "Esprit d'élite",                    emoji: "🧠", img: null },
+  { min: 115, code: "S",   className: "tier-S",   label: "Très haut niveau",                  emoji: "🤓", img: null },
+  { min: 110, code: "A",   className: "tier-A",   label: "Excellent",                         emoji: "😎", img: null },
+  { min: 105, code: "B",   className: "tier-B",   label: "Bon",                               emoji: "😊", img: null },
+  { min: 100, code: "C",   className: "tier-C",   label: "Correct",                           emoji: "🙂", img: null },
+  { min: 90,  code: "D",   className: "tier-D",   label: "Passable",                          emoji: "😐", img: null },
+  { min: 85,  code: "E",   className: "tier-E",   label: "Faible",                            emoji: "😅", img: null },
+  { min: 0,   code: "F",   className: "tier-F",   label: "Diagnostic critique",               emoji: "🥴", img: "QI_80%20et%20moins.webp" }
+];
+
+function getTier(iq) { return TIERS.find(t => iq >= t.min); }
+
+function renderResults() {
+  const correctCount = answers.reduce((acc, a, i) => acc + (a === questions[i].correct ? 1 : 0), 0);
+  const iq = estimateIQ(correctCount, questions.length);
+
+  const cats = {};
+  questions.forEach((q, i) => {
+    if (!cats[q.cat]) cats[q.cat] = { correct: 0, total: 0 };
+    cats[q.cat].total++;
+    if (answers[i] === q.correct) cats[q.cat].correct++;
+  });
+
+  const breakdownHtml = Object.entries(cats).map(([name, s]) => {
+    const pct = (s.correct / s.total) * 100;
+    return `
+      <div class="cat-row">
+        <span class="cat-name">${name}</span>
+        <div class="cat-bar"><div class="cat-fill" style="width: ${pct}%"></div></div>
+        <span class="cat-score">${s.correct}/${s.total}</span>
+      </div>
+    `;
+  }).join('');
+
+  const reviewHtml = questions.map((q, i) => {
+    const userAns = answers[i];
+    const isCorrect = userAns === q.correct;
+    return `
+      <div class="review-item ${isCorrect ? 'correct' : 'wrong'}">
+        <div class="q-num">// Q${String(i + 1).padStart(2, '0')} — ${q.cat}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="answer">Votre réponse : <strong>${q.opts[userAns]}</strong> ${isCorrect ? '✓' : `✗ — Bonne réponse : <strong>${q.opts[q.correct]}</strong>`}</div>
+      </div>
+    `;
+  }).join('');
+
+  const tier = getTier(iq);
+  const avatarContent = tier.img
+    ? `<img src="${tier.img}" alt="Avatar tier ${tier.code}">`
+    : tier.emoji;
+  const tierDisplay = tier.code === "NSI" ? "NSI-tier" : tier.code;
+
+  document.getElementById('app').innerHTML = `
+    <div class="results">
+      <h1 data-text="ANALYSE">ANALYSE</h1>
+      <p class="subtitle">DIAGNOSTIC TERMINÉ // RAPPORT GÉNÉRÉ</p>
+
+      <div class="result-header">
+        <div class="avatar">${avatarContent}</div>
+        <div class="tier-info">
+          <div class="tier-prefix">// Classification</div>
+          <div class="tier-badge ${tier.className}">${tierDisplay}</div>
+          <div class="tier-label">${tier.label}</div>
+        </div>
+      </div>
+
+      <div class="score-circle">
+        <span class="score-num">${iq}</span>
+        <span class="score-label">QI Estimé</span>
+      </div>
+      <p class="iq-summary">SCORE : <strong>${correctCount}</strong> / ${questions.length} MODULES VALIDÉS</p>
+
+      <div class="breakdown">
+        <h3>◆ Détail par module</h3>
+        ${breakdownHtml}
+      </div>
+
+      <div class="disclaimer">
+        Cette estimation est <strong>approximative et ludique</strong>. Un véritable QI se mesure avec des tests standardisés (WAIS, Raven, WISC) administrés par un psychologue qualifié.
+      </div>
+
+      <button onclick="toggleReview()">▼ Détail des réponses</button>
+      <div id="review" style="display:none;" class="review-section">
+        <h3 style="margin-top: 24px; margin-bottom: 16px;">◆ Journal des réponses</h3>
+        ${reviewHtml}
+      </div>
+
+      <div style="margin-top: 28px;">
+        <button class="secondary" onclick="restart()">↻ Recommencer</button>
+      </div>
+    </div>
+  `;
+}
+
+function toggleReview() {
+  const r = document.getElementById('review');
+  r.style.display = r.style.display === 'none' ? 'block' : 'none';
+}
+
+function restart() {
+  currentQ = -1;
+  for (let i = 0; i < answers.length; i++) answers[i] = null;
+  render();
+}
+
+currentQ = -1;
+render();
+</script>
+</body>
+</html>
