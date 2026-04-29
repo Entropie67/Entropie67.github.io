@@ -242,8 +242,9 @@
     min-height: 40px;
     color: var(--text-secondary);
   }
-  .feedback.ok    { border-left-color: var(--neon-green); color: var(--neon-green); }
-  .feedback.fail  { border-left-color: var(--neon-red);   color: var(--neon-red); }
+  .feedback.ok      { border-left-color: var(--neon-green); color: var(--neon-green); }
+  .feedback.fail    { border-left-color: var(--neon-red);   color: var(--neon-red); }
+  .feedback.pending { border-left-color: var(--neon-yellow); color: var(--neon-yellow); }
 
   footer {
     max-width: 1100px;
@@ -262,13 +263,13 @@
 
 <header class="page">
   <h1>NEURAL.IQ // MATRIX REASONING</h1>
-  <p class="subtitle">5 puzzles Mensa-style · preview interactive</p>
+  <p class="subtitle">39 puzzles Mensa.dk · classés par difficulté croissante · #39 = NSI-maker</p>
   <div class="private-tag">⚿ PAGE PRIVÉE — non liée depuis le site</div>
 </header>
 
 <div class="score-bar">
   <span class="score-label">// Progression</span>
-  <span><span class="score-val" id="answered">0</span> / 5 · score : <span id="total-score">— / —</span></span>
+  <span><span class="score-val" id="answered">0</span> tentés · score vérifié : <span id="total-score">— / —</span> · <span id="pending-count">5</span> avec réponse connue</span>
 </div>
 
 <div class="puzzles" id="puzzles"></div>
@@ -278,7 +279,21 @@
 </footer>
 
 <script>
+// Puzzles classés par difficulté croissante (Mensa.dk).
+// 'correct' = lettre de la bonne réponse, ou '?' si en attente de validation.
 const PUZZLES = [
+  { num: 1, correct: '?' }, { num: 2, correct: '?' }, { num: 3, correct: '?' },
+  { num: 4, correct: '?' }, { num: 5, correct: '?' }, { num: 6, correct: '?' },
+  { num: 7, correct: '?' }, { num: 8, correct: '?' }, { num: 9, correct: '?' },
+  { num: 10, correct: '?' }, { num: 11, correct: '?' }, { num: 12, correct: '?' },
+  { num: 13, correct: '?' }, { num: 14, correct: '?' }, { num: 15, correct: '?' },
+  { num: 16, correct: '?' }, { num: 17, correct: '?' }, { num: 18, correct: '?' },
+  { num: 19, correct: '?' }, { num: 20, correct: '?' }, { num: 21, correct: '?' },
+  { num: 22, correct: '?' }, { num: 23, correct: '?' }, { num: 24, correct: '?' },
+  { num: 25, correct: '?' }, { num: 26, correct: '?' }, { num: 27, correct: '?' },
+  { num: 28, correct: '?' }, { num: 29, correct: '?' }, { num: 30, correct: '?' },
+  { num: 31, correct: '?' }, { num: 32, correct: '?' }, { num: 33, correct: '?' },
+  { num: 34, correct: '?' },
   { num: 35, correct: 'C' },
   { num: 36, correct: 'A' },
   { num: 37, correct: 'F' },
@@ -317,15 +332,23 @@ function buildPuzzle(p) {
 }
 
 function answer(num, chosen, correct) {
-  // already answered ?
   const existingFb = document.getElementById('fb-' + num);
   if (existingFb.dataset.done === '1') return;
 
   const btn = document.getElementById('p' + num + '-' + chosen);
-  const correctBtn = document.getElementById('p' + num + '-' + correct);
   const fb = document.getElementById('fb-' + num);
 
-  // disable all buttons in this puzzle
+  // Réponse non encore validée par l'utilisateur — on enregistre juste le choix
+  if (correct === '?') {
+    document.querySelectorAll('#puzzle-' + num + ' .ans-btn').forEach(b => b.disabled = true);
+    btn.classList.add('correct');
+    fb.classList.add('pending');
+    fb.textContent = `▸ Vous avez choisi ${chosen} · réponse non vérifiée — donnez-la moi pour activer le scoring`;
+    fb.dataset.done = '1';
+    return;
+  }
+
+  const correctBtn = document.getElementById('p' + num + '-' + correct);
   document.querySelectorAll('#puzzle-' + num + ' .ans-btn').forEach(b => b.disabled = true);
 
   attemptedCount++;
