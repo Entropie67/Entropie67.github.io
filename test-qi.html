@@ -652,6 +652,59 @@
     font-family: 'Noto Sans SC', 'Rajdhani', sans-serif;
   }
 
+  /* === Matrix questions (Mensa-style) === */
+  .question-text.matrix-q {
+    text-align: center;
+    padding: 8px;
+    background: rgba(10, 16, 36, 0.5);
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    border-radius: 4px;
+    margin-bottom: 18px;
+  }
+  .matrix-q-img {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
+    border-radius: 2px;
+  }
+  .options.options-matrix {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  @media (max-width: 700px) {
+    .options.options-matrix { grid-template-columns: repeat(2, 1fr); }
+  }
+  .option.matrix-opt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 4px 4px;
+    text-align: center;
+    background: rgba(20, 30, 60, 0.7);
+  }
+  .option.matrix-opt .opt-letter {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--neon-cyan);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    font-size: 0.95em;
+  }
+  .option.matrix-opt .matrix-opt-img {
+    width: 100%;
+    max-width: 110px;
+    height: auto;
+    background: white;
+    display: block;
+    border-radius: 2px;
+  }
+  .option.matrix-opt:hover:not(.selected) .opt-letter { color: var(--neon-magenta); }
+  .option.matrix-opt.selected {
+    background: rgba(0, 240, 255, 0.18);
+    border-color: var(--neon-cyan);
+  }
+
   /* === Bloc personnage de référence === */
   .character-block {
     margin: 28px 0 20px;
@@ -734,13 +787,14 @@ function setLang(lang) {
 
 const UI = {
   fr: {
-    subtitle: "DIAGNOSTIC COGNITIF // 40 MODULES // 25 MIN CHRONOMÉTRÉ",
-    introIntro: "Évaluation de vos capacités de raisonnement à travers <strong>4 modules cognitifs</strong> :",
+    subtitle: "DIAGNOSTIC COGNITIF // 79 QUESTIONS // 40 MIN CHRONOMÉTRÉ",
+    introIntro: "Évaluation de vos capacités de raisonnement à travers <strong>5 modules cognitifs</strong> :",
     modNum: "<strong>Suites numériques</strong> — détection de motifs mathématiques",
     modVerb: "<strong>Raisonnement verbal</strong> — analogies, intrus, lexique, expressions",
     modSpat: "<strong>Raisonnement spatial</strong> — visualisation et formes",
     modLog: "<strong>Logique &amp; problèmes</strong> — déduction et calcul mental",
-    protocol: "<strong>Protocole :</strong> aucune assistance externe (calculatrice, recherche). Navigation libre entre les modules ; les réponses sont modifiables jusqu'à la validation finale. <strong>Limite de temps : 25 minutes au total.</strong> À l'expiration, le test se clôture automatiquement avec votre état courant.",
+    modMatrix: "<strong>Matrices visuelles</strong> — raisonnement non verbal de type Raven, classées par difficulté croissante (39 puzzles, plafond NSI ≥ 150)",
+    protocol: "<strong>Protocole :</strong> aucune assistance externe (calculatrice, recherche). Navigation libre entre les modules ; les réponses sont modifiables jusqu'à la validation finale. <strong>Limite de temps : 40 minutes au total.</strong> À l'expiration, le test se clôture automatiquement avec votre état courant.",
     disclaimer: "Ce diagnostic est conçu à des fins ludiques et éducatives. Il <strong>ne remplace pas</strong> une évaluation psychométrique professionnelle (WAIS, Raven, WISC).",
     startBtn: "▶ Initialiser la séquence",
     moduleLabel: "MODULE",
@@ -766,13 +820,14 @@ const UI = {
     resultDisclaimer: "Cette estimation est <strong>approximative et ludique</strong>. Un véritable QI se mesure avec des tests standardisés (WAIS, Raven, WISC) administrés par un psychologue qualifié."
   },
   en: {
-    subtitle: "COGNITIVE DIAGNOSTIC // 40 MODULES // 25 MIN TIMED",
-    introIntro: "Assessment of your reasoning abilities across <strong>4 cognitive modules</strong>:",
+    subtitle: "COGNITIVE DIAGNOSTIC // 79 QUESTIONS // 40 MIN TIMED",
+    introIntro: "Assessment of your reasoning abilities across <strong>5 cognitive modules</strong>:",
     modNum: "<strong>Number sequences</strong> — mathematical pattern recognition",
     modVerb: "<strong>Verbal reasoning</strong> — analogies, odd-one-out, vocabulary, idioms",
     modSpat: "<strong>Spatial reasoning</strong> — visualization and shapes",
     modLog: "<strong>Logic &amp; problems</strong> — deduction and mental arithmetic",
-    protocol: "<strong>Protocol:</strong> no external aids (calculator, search). Free navigation between modules; answers are editable until final submission. <strong>Time limit: 25 minutes total.</strong> When time runs out, the test auto-submits with your current state.",
+    modMatrix: "<strong>Visual matrices</strong> — Raven-style non-verbal reasoning, ordered by increasing difficulty (39 puzzles, NSI ≥ 150 ceiling)",
+    protocol: "<strong>Protocol:</strong> no external aids (calculator, search). Free navigation between modules; answers are editable until final submission. <strong>Time limit: 40 minutes total.</strong> When time runs out, the test auto-submits with your current state.",
     disclaimer: "This diagnostic is designed for fun and educational purposes. It <strong>does not replace</strong> a professional psychometric assessment (WAIS, Raven, WISC).",
     startBtn: "▶ Initialize sequence",
     moduleLabel: "MODULE",
@@ -798,13 +853,14 @@ const UI = {
     resultDisclaimer: "This estimate is <strong>approximate and recreational</strong>. A real IQ is measured with standardized tests (WAIS, Raven, WISC) administered by a qualified psychologist."
   },
   zh: {
-    subtitle: "认知诊断 // 40 题 // 25 分钟计时",
-    introIntro: "通过 <strong>4 个认知模块</strong> 评估您的推理能力：",
+    subtitle: "认知诊断 // 79 题 // 40 分钟计时",
+    introIntro: "通过 <strong>5 个认知模块</strong> 评估您的推理能力：",
     modNum: "<strong>数列推理</strong> — 数学规律识别",
     modVerb: "<strong>语言推理</strong> — 类比、辨异、词汇、成语",
     modSpat: "<strong>空间推理</strong> — 视觉与形状",
     modLog: "<strong>逻辑与解题</strong> — 演绎与心算",
-    protocol: "<strong>规则：</strong>禁止使用外部辅助工具（计算器、搜索）。可在模块间自由切换；提交前可修改答案。<strong>总时限：25 分钟。</strong>到时测试将以当前状态自动提交。",
+    modMatrix: "<strong>视觉矩阵</strong> — Raven 风格非语言推理，按难度递增排列（39 道题，NSI ≥ 150 上限）",
+    protocol: "<strong>规则：</strong>禁止使用外部辅助工具（计算器、搜索）。可在模块间自由切换；提交前可修改答案。<strong>总时限：40 分钟。</strong>到时测试将以当前状态自动提交。",
     disclaimer: "本诊断仅供娱乐与教育用途，<strong>不能替代</strong>由专业心理学家进行的标准化心理测量评估（WAIS、Raven、WISC）。",
     startBtn: "▶ 开始测试",
     moduleLabel: "题目",
@@ -958,14 +1014,56 @@ const questions = [
     opts: { fr:["Aucun Troll n'est mortel","Tous les Sorciers sont des Mages","Aucun Sorcier n'est un Troll","Certains Mages sont des Sorciers"], en:["No Troll is mortal","All Sorcerers are Mages","No Sorcerer is a Troll","Some Mages are Sorcerers"], zh:["巨魔都不是凡人","所有巫师都是法师","巫师都不是巨魔","有些法师是巫师"] }, correct: 0 },
   { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
     q: { fr:"Une bouteille et son bouchon coûtent 1,10 €. La bouteille coûte 1 € de plus que le bouchon. Combien coûte le bouchon ?", en:"A bottle and its cap cost $1.10. The bottle costs $1 more than the cap. How much does the cap cost?", zh:"一个瓶子和瓶盖总共 1.10 元。瓶子比瓶盖贵 1 元。瓶盖多少钱？" },
-    opts: { fr:["0,10 €","0,05 €","0,15 €","0,20 €"], en:["$0.10","$0.05","$0.15","$0.20"], zh:["0.10 元","0.05 元","0.15 元","0.20 元"] }, correct: 1 }
+    opts: { fr:["0,10 €","0,05 €","0,15 €","0,20 €"], en:["$0.10","$0.05","$0.15","$0.20"], zh:["0.10 元","0.05 元","0.15 元","0.20 元"] }, correct: 1 },
+
+  // ===== MATRICES VISUELLES (39) — Mensa.dk, classées par difficulté croissante =====
+  // type:'matrix' → q est le numéro du puzzle (image matrice/qN.png), opts sont 8 images (matrice/aN_a.png ... _h.png)
+  { type:"matrix", num:1,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:2 },
+  { type:"matrix", num:2,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:5 },
+  { type:"matrix", num:3,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:6 },
+  { type:"matrix", num:4,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:2 },
+  { type:"matrix", num:5,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:1 },
+  { type:"matrix", num:6,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:7 },
+  { type:"matrix", num:7,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:5 },
+  { type:"matrix", num:8,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:0 },
+  { type:"matrix", num:9,  cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:7 },
+  { type:"matrix", num:10, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:2 },
+  { type:"matrix", num:11, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:2 },
+  { type:"matrix", num:12, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:7 },
+  { type:"matrix", num:13, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:4 },
+  { type:"matrix", num:14, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:6 },
+  { type:"matrix", num:15, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:3 },
+  { type:"matrix", num:16, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:1 },
+  { type:"matrix", num:17, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:5 },
+  { type:"matrix", num:18, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:4 },
+  { type:"matrix", num:19, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:1 },
+  { type:"matrix", num:20, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:2 },
+  { type:"matrix", num:21, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:0 },
+  { type:"matrix", num:22, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:4 },
+  { type:"matrix", num:23, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:4 },
+  { type:"matrix", num:24, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:2 },
+  { type:"matrix", num:25, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:5 },
+  { type:"matrix", num:26, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:3 },
+  { type:"matrix", num:27, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:3 },
+  { type:"matrix", num:28, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:3 },
+  { type:"matrix", num:29, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:1 },
+  { type:"matrix", num:30, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:4 },
+  { type:"matrix", num:31, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:3 },
+  { type:"matrix", num:32, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:0 },
+  { type:"matrix", num:33, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:1 },
+  { type:"matrix", num:34, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:0 },
+  { type:"matrix", num:35, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:2 },
+  { type:"matrix", num:36, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:0 },
+  { type:"matrix", num:37, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:5 },
+  { type:"matrix", num:38, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:0 },
+  { type:"matrix", num:39, cat:{fr:"Matrices visuelles",en:"Visual matrices",zh:"视觉矩阵"}, correct:5 }
 ];
 
 let currentQ = 0;
 const answers = new Array(questions.length).fill(null);
 
 // === Timer global ===
-const TOTAL_TIME = 25 * 60; // 25 minutes en secondes
+const TOTAL_TIME = 40 * 60; // 40 minutes en secondes (5 modules, 79 questions)
 let testStartTime = null;
 let timerInterval = null;
 let timedOut = false;
@@ -989,6 +1087,7 @@ function renderIntro() {
         <li>${u.modVerb}</li>
         <li>${u.modSpat}</li>
         <li>${u.modLog}</li>
+        <li>${u.modMatrix}</li>
       </ul>
       <p>${u.protocol}</p>
       <div class="disclaimer">${u.disclaimer}</div>
@@ -1040,25 +1139,43 @@ function renderQuestion() {
   const u = UI[currentLang];
   const q = questions[currentQ];
   const progress = (currentQ / questions.length) * 100;
-  const opts = t(q.opts);
-  const optionsHtml = opts.map((opt, i) => `
-    <button class="option ${answers[currentQ] === i ? 'selected' : ''}" onclick="selectAnswer(${i})">
-      <strong style="color: var(--neon-cyan); margin-right: 10px; font-family: 'JetBrains Mono', monospace;">${String.fromCharCode(65 + i)}</strong> ${opt}
-    </button>
-  `).join('');
+  const isMatrix = q.type === 'matrix';
+  const numOpts = isMatrix ? 8 : 4;
+
+  let questionBlock, optionsHtml;
+  if (isMatrix) {
+    questionBlock = `<div class="question-text matrix-q"><img src="matrice/q${q.num}.png" alt="Puzzle #${q.num}" class="matrix-q-img"></div>`;
+    optionsHtml = Array.from({length: 8}, (_, i) => {
+      const letter = String.fromCharCode(97 + i); // a..h
+      const upper = String.fromCharCode(65 + i);  // A..H
+      return `
+      <button class="option matrix-opt ${answers[currentQ] === i ? 'selected' : ''}" onclick="selectAnswer(${i})">
+        <strong class="opt-letter">${upper}</strong>
+        <img src="matrice/a${q.num}_${letter}.png" alt="Option ${upper}" class="matrix-opt-img">
+      </button>`;
+    }).join('');
+  } else {
+    const opts = t(q.opts);
+    questionBlock = `<div class="question-text">${t(q.q)}</div>`;
+    optionsHtml = opts.map((opt, i) => `
+      <button class="option ${answers[currentQ] === i ? 'selected' : ''}" onclick="selectAnswer(${i})">
+        <strong style="color: var(--neon-cyan); margin-right: 10px; font-family: 'JetBrains Mono', monospace;">${String.fromCharCode(65 + i)}</strong> ${opt}
+      </button>
+    `).join('');
+  }
 
   document.getElementById('app').innerHTML = `
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
       <div class="progress-text">
         <span>${u.moduleLabel} ${String(currentQ + 1).padStart(2, '0')} / ${questions.length}</span>
-        <span id="global-timer" class="timer">25:00</span>
+        <span id="global-timer" class="timer">40:00</span>
         <span>${answers.filter(a => a !== null).length} / ${questions.length} ${u.validatedLabel}</span>
       </div>
     </div>
-    <span class="category-tag">${t(q.cat)}</span>
-    <div class="question-text">${t(q.q)}</div>
-    <div class="options">${optionsHtml}</div>
+    <span class="category-tag">${t(q.cat)}${isMatrix ? ' · #'+q.num : ''}</span>
+    ${questionBlock}
+    <div class="options ${isMatrix ? 'options-matrix' : ''}">${optionsHtml}</div>
     <div class="nav-buttons">
       <button class="secondary" onclick="prev()" ${currentQ === 0 ? 'disabled' : ''}>${u.prevBtn}</button>
       ${currentQ === questions.length - 1
@@ -1080,23 +1197,23 @@ function finish() {
 
 function estimateIQ(correct, total) {
   const pct = correct / total;
-  // Calibrage 11 tiers (70 → 150). Sans matrices, 100% plafonne à 148 (NSI hors d'atteinte) ;
-  // l'ajout des matrices déverrouille le seuil 150.
-  if (pct >= 1.0)   return 148;
-  if (pct >= 0.975) return 144;
-  if (pct >= 0.95)  return 140;
-  if (pct >= 0.925) return 136;
-  if (pct >= 0.90)  return 132;
-  if (pct >= 0.85)  return 128;
-  if (pct >= 0.80)  return 124;
-  if (pct >= 0.75)  return 120;
-  if (pct >= 0.70)  return 117;
-  if (pct >= 0.65)  return 113;
-  if (pct >= 0.58)  return 110;
-  if (pct >= 0.50)  return 107;
-  if (pct >= 0.42)  return 103;
-  if (pct >= 0.35)  return 100;
-  if (pct >= 0.28)  return 96;
+  // Calibrage 11 tiers (70 → 150) sur 79 questions (40 textuelles + 39 matrices Mensa).
+  // 100% requis pour NSI ≥ 150 — incluant les matrices très difficiles (#35-#39).
+  if (pct >= 1.0)   return 150;
+  if (pct >= 0.97)  return 146;
+  if (pct >= 0.94)  return 142;
+  if (pct >= 0.91)  return 138;
+  if (pct >= 0.87)  return 134;
+  if (pct >= 0.83)  return 130;
+  if (pct >= 0.78)  return 126;
+  if (pct >= 0.73)  return 122;
+  if (pct >= 0.68)  return 118;
+  if (pct >= 0.62)  return 114;
+  if (pct >= 0.55)  return 110;
+  if (pct >= 0.48)  return 107;
+  if (pct >= 0.40)  return 103;
+  if (pct >= 0.33)  return 100;
+  if (pct >= 0.26)  return 96;
   if (pct >= 0.20)  return 92;
   if (pct >= 0.13)  return 87;
   if (pct >= 0.08)  return 82;
@@ -1226,14 +1343,27 @@ function renderResults() {
 
   const reviewHtml = questions.map((q, i) => {
     const userAns = answers[i];
-    const opts = t(q.opts);
     const isCorrect = userAns === q.correct;
-    const userLabel = (userAns !== null && userAns !== undefined) ? opts[userAns] : '—';
+    const isMatrix = q.type === 'matrix';
+
+    let qDisplay, userLabel, correctLabel;
+    if (isMatrix) {
+      qDisplay = `Matrice #${q.num}`;
+      const letter = (idx) => (idx !== null && idx !== undefined) ? String.fromCharCode(65 + idx) : '—';
+      userLabel = letter(userAns);
+      correctLabel = letter(q.correct);
+    } else {
+      const opts = t(q.opts);
+      qDisplay = t(q.q);
+      userLabel = (userAns !== null && userAns !== undefined) ? opts[userAns] : '—';
+      correctLabel = opts[q.correct];
+    }
+
     return `
       <div class="review-item ${isCorrect ? 'correct' : 'wrong'}">
         <div class="q-num">// Q${String(i + 1).padStart(2, '0')} — ${t(q.cat)}</div>
-        <div class="q-text">${t(q.q)}</div>
-        <div class="answer">${u.yourAnswer} : <strong>${userLabel}</strong> ${isCorrect ? '✓' : `✗ — ${u.correctAnswer} : <strong>${opts[q.correct]}</strong>`}</div>
+        <div class="q-text">${qDisplay}</div>
+        <div class="answer">${u.yourAnswer} : <strong>${userLabel}</strong> ${isCorrect ? '✓' : `✗ — ${u.correctAnswer} : <strong>${correctLabel}</strong>`}</div>
       </div>
     `;
   }).join('');
