@@ -269,7 +269,7 @@
 
 <div class="score-bar">
   <span class="score-label">// Progression</span>
-  <span><span class="score-val" id="answered">0</span> tentés · score vérifié : <span id="total-score">— / —</span> · <span id="pending-count">5</span> avec réponse connue</span>
+  <span><span class="score-val" id="answered">0</span> tentés · score : <span id="total-score">— / —</span> · 39 réponses validées</span>
 </div>
 
 <div class="puzzles" id="puzzles"></div>
@@ -280,20 +280,43 @@
 
 <script>
 // Puzzles classés par difficulté croissante (Mensa.dk).
-// 'correct' = lettre de la bonne réponse, ou '?' si en attente de validation.
+// Réponses #1-#34 : sourcées sur iqtestanswers.blogspot.com (clé classique).
+// Réponses #35-#39 : confirmées par l'utilisateur (corrigé image).
 const PUZZLES = [
-  { num: 1, correct: '?' }, { num: 2, correct: '?' }, { num: 3, correct: '?' },
-  { num: 4, correct: '?' }, { num: 5, correct: '?' }, { num: 6, correct: '?' },
-  { num: 7, correct: '?' }, { num: 8, correct: '?' }, { num: 9, correct: '?' },
-  { num: 10, correct: '?' }, { num: 11, correct: '?' }, { num: 12, correct: '?' },
-  { num: 13, correct: '?' }, { num: 14, correct: '?' }, { num: 15, correct: '?' },
-  { num: 16, correct: '?' }, { num: 17, correct: '?' }, { num: 18, correct: '?' },
-  { num: 19, correct: '?' }, { num: 20, correct: '?' }, { num: 21, correct: '?' },
-  { num: 22, correct: '?' }, { num: 23, correct: '?' }, { num: 24, correct: '?' },
-  { num: 25, correct: '?' }, { num: 26, correct: '?' }, { num: 27, correct: '?' },
-  { num: 28, correct: '?' }, { num: 29, correct: '?' }, { num: 30, correct: '?' },
-  { num: 31, correct: '?' }, { num: 32, correct: '?' }, { num: 33, correct: '?' },
-  { num: 34, correct: '?' },
+  { num: 1,  correct: 'D' },
+  { num: 2,  correct: 'F' },
+  { num: 3,  correct: 'B' },
+  { num: 4,  correct: 'G' },
+  { num: 5,  correct: 'A' },
+  { num: 6,  correct: 'H' },
+  { num: 7,  correct: 'B' },
+  { num: 8,  correct: 'E' },
+  { num: 9,  correct: 'H' },
+  { num: 10, correct: 'A' },
+  { num: 11, correct: 'C' },
+  { num: 12, correct: 'F' },
+  { num: 13, correct: 'B' },
+  { num: 14, correct: 'D' },
+  { num: 15, correct: 'H' },
+  { num: 16, correct: 'E' },
+  { num: 17, correct: 'F' },
+  { num: 18, correct: 'C' },
+  { num: 19, correct: 'E' },
+  { num: 20, correct: 'D' },
+  { num: 21, correct: 'G' },
+  { num: 22, correct: 'A' },
+  { num: 23, correct: 'B' },
+  { num: 24, correct: 'H' },
+  { num: 25, correct: 'B' },
+  { num: 26, correct: 'A' },
+  { num: 27, correct: 'H' },
+  { num: 28, correct: 'G' },
+  { num: 29, correct: 'E' },
+  { num: 30, correct: 'A' },
+  { num: 31, correct: 'D' },
+  { num: 32, correct: 'E' },
+  { num: 33, correct: 'G' },
+  { num: 34, correct: 'G' },
   { num: 35, correct: 'C' },
   { num: 36, correct: 'A' },
   { num: 37, correct: 'F' },
