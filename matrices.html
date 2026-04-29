@@ -186,36 +186,52 @@
   }
   .ans-btn {
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.3em;
-    font-weight: 700;
-    padding: 14px 0;
     background: rgba(20, 30, 60, 0.7);
     color: var(--text-primary);
     border: 1px solid rgba(0, 240, 255, 0.25);
     cursor: pointer;
     transition: all 0.18s ease;
+    padding: 6px 4px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .ans-btn img {
+    width: 100%;
+    max-width: 90px;
+    height: auto;
+    display: block;
+    background: white;
+  }
+  .ans-btn img.broken { display: none; }
+  .ans-btn .ans-letter {
+    font-size: 0.95em;
+    font-weight: 700;
+    color: var(--text-secondary);
     letter-spacing: 0.05em;
   }
   .ans-btn:hover:not(:disabled) {
     background: rgba(0, 240, 255, 0.15);
     border-color: var(--neon-cyan);
-    color: var(--neon-cyan);
     transform: translateY(-2px);
   }
+  .ans-btn:hover:not(:disabled) .ans-letter { color: var(--neon-cyan); }
   .ans-btn:disabled { cursor: default; opacity: 0.5; }
   .ans-btn.correct {
     background: rgba(0, 255, 157, 0.18);
     border-color: var(--neon-green);
-    color: var(--neon-green);
     opacity: 1;
     box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
   }
+  .ans-btn.correct .ans-letter { color: var(--neon-green); }
   .ans-btn.wrong {
     background: rgba(255, 58, 92, 0.18);
     border-color: var(--neon-red);
-    color: var(--neon-red);
     opacity: 1;
   }
+  .ans-btn.wrong .ans-letter { color: var(--neon-red); }
 
   .feedback {
     font-family: 'JetBrains Mono', monospace;
@@ -278,7 +294,10 @@ let attemptedCount = 0;
 function buildPuzzle(p) {
   const id = `p${p.num}`;
   const lettersHtml = LETTERS.map(L => `
-    <button class="ans-btn" id="${id}-${L}" data-letter="${L}" onclick="answer(${p.num}, '${L}', '${p.correct}')">${L}</button>
+    <button class="ans-btn" id="${id}-${L}" data-letter="${L}" onclick="answer(${p.num}, '${L}', '${p.correct}')">
+      <img src="matrice/a${p.num}_${L.toLowerCase()}.png" alt="Option ${L}" onerror="this.classList.add('broken')">
+      <span class="ans-letter">${L}</span>
+    </button>
   `).join('');
 
   return `
@@ -288,8 +307,8 @@ function buildPuzzle(p) {
         <span class="puzzle-cat">Matrix Reasoning · Raven-style</span>
       </div>
       <div class="puzzle-image">
-        <img src="matrices/matrix-${p.num}.png" alt="Puzzle #${p.num}"
-             onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image attendue à <code>matrices/matrix-${p.num}.png</code><br>(déposez le fichier dans le dossier <code>matrices/</code> à la racine du repo)</div>'">
+        <img src="matrice/q${p.num}.png" alt="Puzzle #${p.num}"
+             onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image attendue à <code>matrice/q${p.num}.png</code><br>+ candidats <code>matrice/a${p.num}_a.png</code> à <code>_h.png</code></div>'">
       </div>
       <div class="answer-grid">${lettersHtml}</div>
       <div class="feedback" id="fb-${p.num}">▸ choisissez une réponse parmi les 8 options</div>
