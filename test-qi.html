@@ -676,17 +676,17 @@ const questions = [
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 0, 1, 1, 2, 4, 7, 13, ?", opts: ["20", "21", "24", "26"], correct: 2 },
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 5, 10, 17, 26, ?", opts: ["35", "37", "36", "39"], correct: 1 },
 
-  // ===== ANALOGIES VERBALES (10) =====
-  { cat: "Analogies verbales", q: "Aveugle est à cécité ce que sourd est à...", opts: ["Mutité", "Surdité", "Silence", "Audition"], correct: 1 },
-  { cat: "Analogies verbales", q: "Pied est à chaussure ce que main est à...", opts: ["Bague", "Bracelet", "Gant", "Doigt"], correct: 2 },
-  { cat: "Analogies verbales", q: "Apiculteur est à abeille ce que viticulteur est à...", opts: ["Vin", "Cep", "Vigne", "Tonneau"], correct: 2 },
-  { cat: "Analogies verbales", q: "Oiseau est à voler ce que poisson est à...", opts: ["Eau", "Nager", "Branchies", "Mer"], correct: 1 },
-  { cat: "Analogies verbales", q: "Pinceau est à peintre ce que stylo est à...", opts: ["Encre", "Papier", "Écrivain", "Bureau"], correct: 2 },
-  { cat: "Analogies verbales", q: "Livre est à bibliothèque ce que tableau est à...", opts: ["Mur", "Peinture", "Musée", "Cadre"], correct: 2 },
-  { cat: "Analogies verbales", q: "Sculpteur est à marbre ce que verrier est à...", opts: ["Vitrail", "Verre", "Cristal", "Vase"], correct: 1 },
-  { cat: "Analogies verbales", q: "Marteau est à clou ce que tournevis est à...", opts: ["Boulon", "Vis", "Outil", "Bricoleur"], correct: 1 },
-  { cat: "Analogies verbales", q: "Gland est à chêne ce que pépin est à...", opts: ["Fruit", "Pomme", "Arbre", "Graine"], correct: 1 },
-  { cat: "Analogies verbales", q: "Frugal est à dépense ce que laconique est à...", opts: ["Silence", "Parole", "Discours", "Brièveté"], correct: 1 },
+  // ===== RAISONNEMENT VERBAL (10) — analogies, intrus, synonymes/antonymes, expressions, définitions =====
+  { cat: "Raisonnement verbal", q: "Aveugle est à cécité ce que sourd est à...", opts: ["Mutité", "Surdité", "Silence", "Audition"], correct: 1 },
+  { cat: "Raisonnement verbal", q: "DESSEIN — sens le moins éloigné :", opts: ["Croquis", "Projet", "Tracé", "Image"], correct: 1 },
+  { cat: "Raisonnement verbal", q: "Lequel de ces mots est un synonyme de « perspicace » ?", opts: ["Sagace", "Crédule", "Affable", "Velléitaire"], correct: 0 },
+  { cat: "Raisonnement verbal", q: "Sculpteur est à marbre ce que verrier est à...", opts: ["Vitrail", "Verre", "Cristal", "Vase"], correct: 1 },
+  { cat: "Raisonnement verbal", q: "Lequel de ces mots est l'antonyme de « prolixe » ?", opts: ["Bavard", "Concis", "Élégant", "Précis"], correct: 1 },
+  { cat: "Raisonnement verbal", q: "Marteau est à clou ce que tournevis est à...", opts: ["Boulon", "Vis", "Outil", "Bricoleur"], correct: 1 },
+  { cat: "Raisonnement verbal", q: "Que signifie l'expression « avoir maille à partir avec quelqu'un » ?", opts: ["Lui ressembler beaucoup", "Avoir un différend avec lui", "Partager une nourriture", "Échanger des cadeaux"], correct: 1 },
+  { cat: "Raisonnement verbal", q: "OBSÉQUIEUX — sens le moins éloigné :", opts: ["Silencieux", "Servile", "Funèbre", "Solennel"], correct: 1 },
+  { cat: "Raisonnement verbal", q: "Un raisonnement qui part d'une règle générale pour en tirer un cas particulier est qualifié de :", opts: ["Inductif", "Déductif", "Abductif", "Analogique"], correct: 1 },
+  { cat: "Raisonnement verbal", q: "Frugal est à dépense ce que laconique est à...", opts: ["Silence", "Parole", "Discours", "Brièveté"], correct: 1 },
 
   // ===== RAISONNEMENT SPATIAL / VISUEL (10) =====
   { cat: "Raisonnement spatial", q: "Quel symbole complète la suite : ▲ ◼ ● ▲ ◼ ?", opts: ["▲", "◼", "●", "■"], correct: 2 },
@@ -737,7 +737,7 @@ function renderIntro() {
       <p>Évaluation de vos capacités de raisonnement à travers <strong>4 modules cognitifs</strong> :</p>
       <ul>
         <li><strong>Suites numériques</strong> — détection de motifs mathématiques</li>
-        <li><strong>Analogies verbales</strong> — relations conceptuelles</li>
+        <li><strong>Raisonnement verbal</strong> — analogies, intrus, lexique, expressions</li>
         <li><strong>Raisonnement spatial</strong> — visualisation et formes</li>
         <li><strong>Logique &amp; problèmes</strong> — déduction et calcul mental</li>
       </ul>
