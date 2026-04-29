@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEURAL.IQ // Matrices (preview privé)</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="EVA_42.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-0: #050814;
+    --bg-1: #0a1024;
+    --neon-cyan: #00f0ff;
+    --neon-magenta: #ff2bd6;
+    --neon-purple: #a64bff;
+    --neon-green: #00ff9d;
+    --neon-yellow: #ffd60a;
+    --neon-red: #ff3a5c;
+    --text-primary: #e8f0ff;
+    --text-secondary: #8da4c8;
+    --text-dim: #4a5b80;
+    --glass: rgba(20, 30, 60, 0.5);
+    --glass-border: rgba(0, 240, 255, 0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+    background: var(--bg-0);
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+    color: var(--text-primary);
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(166, 75, 255, 0.18), transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(0, 240, 255, 0.15), transparent 50%),
+      var(--bg-0);
+    z-index: -2;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    z-index: -1;
+  }
+
+  header.page {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+  header.page h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6em, 4vw, 2.4em);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    margin-bottom: 8px;
+  }
+  header.page .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78em;
+    color: var(--text-secondary);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  header.page .private-tag {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 4px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7em;
+    color: var(--neon-magenta);
+    background: rgba(255, 43, 214, 0.08);
+    border: 1px solid rgba(255, 43, 214, 0.4);
+    letter-spacing: 0.15em;
+  }
+  .score-bar {
+    max-width: 1100px;
+    margin: 0 auto 30px;
+    padding: 14px 22px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    letter-spacing: 0.1em;
+  }
+  .score-bar .score-label { color: var(--text-secondary); }
+  .score-bar .score-val { color: var(--neon-cyan); font-weight: 700; }
+  .score-bar #total-score { color: var(--neon-yellow); }
+
+  .puzzles { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+  .puzzle {
+    background: var(--glass);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: 26px 28px;
+    position: relative;
+  }
+  .puzzle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+  }
+  .puzzle-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.6em;
+    font-weight: 900;
+    color: var(--neon-cyan);
+    letter-spacing: 0.05em;
+  }
+  .puzzle-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72em;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: rgba(0, 240, 255, 0.06);
+    padding: 4px 10px;
+    border: 1px solid rgba(0, 240, 255, 0.15);
+  }
+
+  .puzzle-image {
+    width: 100%;
+    background: rgba(10, 16, 36, 0.9);
+    border: 1px solid rgba(0, 240, 255, 0.12);
+    border-radius: 2px;
+    margin-bottom: 22px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .puzzle-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .puzzle-image .placeholder {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    text-align: center;
+    padding: 30px;
+    line-height: 1.7;
+  }
+  .puzzle-image .placeholder code {
+    color: var(--neon-cyan);
+    background: rgba(0, 240, 255, 0.08);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  .answer-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 700px) {
+    .answer-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  .ans-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3em;
+    font-weight: 700;
+    padding: 14px 0;
+    background: rgba(20, 30, 60, 0.7);
+    color: var(--text-primary);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.05em;
+  }
+  .ans-btn:hover:not(:disabled) {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+    transform: translateY(-2px);
+  }
+  .ans-btn:disabled { cursor: default; opacity: 0.5; }
+  .ans-btn.correct {
+    background: rgba(0, 255, 157, 0.18);
+    border-color: var(--neon-green);
+    color: var(--neon-green);
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+  }
+  .ans-btn.wrong {
+    background: rgba(255, 58, 92, 0.18);
+    border-color: var(--neon-red);
+    color: var(--neon-red);
+    opacity: 1;
+  }
+
+  .feedback {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    padding: 10px 14px;
+    background: rgba(10, 16, 36, 0.6);
+    border-left: 3px solid var(--text-dim);
+    min-height: 40px;
+    color: var(--text-secondary);
+  }
+  .feedback.ok    { border-left-color: var(--neon-green); color: var(--neon-green); }
+  .feedback.fail  { border-left-color: var(--neon-red);   color: var(--neon-red); }
+
+  footer {
+    max-width: 1100px;
+    margin: 50px auto 0;
+    text-align: center;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72em;
+    letter-spacing: 0.12em;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 24px;
+  }
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>NEURAL.IQ // MATRIX REASONING</h1>
+  <p class="subtitle">5 puzzles Mensa-style · preview interactive</p>
+  <div class="private-tag">⚿ PAGE PRIVÉE — non liée depuis le site</div>
+</header>
+
+<div class="score-bar">
+  <span class="score-label">// Progression</span>
+  <span><span class="score-val" id="answered">0</span> / 5 · score : <span id="total-score">— / —</span></span>
+</div>
+
+<div class="puzzles" id="puzzles"></div>
+
+<footer>
+  /// matrices Mensa · raisonnement non-verbal · cible : top 2% ///
+</footer>
+
+<script>
+const PUZZLES = [
+  { num: 35, correct: 'C' },
+  { num: 36, correct: 'A' },
+  { num: 37, correct: 'F' },
+  { num: 38, correct: 'A' },
+  { num: 39, correct: 'F' }
+];
+
+const LETTERS = ['A','B','C','D','E','F','G','H'];
+let answered = 0;
+let correctCount = 0;
+let attemptedCount = 0;
+
+function buildPuzzle(p) {
+  const id = `p${p.num}`;
+  const lettersHtml = LETTERS.map(L => `
+    <button class="ans-btn" id="${id}-${L}" data-letter="${L}" onclick="answer(${p.num}, '${L}', '${p.correct}')">${L}</button>
+  `).join('');
+
+  return `
+    <article class="puzzle" id="puzzle-${p.num}">
+      <div class="puzzle-header">
+        <span class="puzzle-num">PUZZLE #${p.num}</span>
+        <span class="puzzle-cat">Matrix Reasoning · Raven-style</span>
+      </div>
+      <div class="puzzle-image">
+        <img src="matrices/matrix-${p.num}.png" alt="Puzzle #${p.num}"
+             onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image attendue à <code>matrices/matrix-${p.num}.png</code><br>(déposez le fichier dans le dossier <code>matrices/</code> à la racine du repo)</div>'">
+      </div>
+      <div class="answer-grid">${lettersHtml}</div>
+      <div class="feedback" id="fb-${p.num}">▸ choisissez une réponse parmi les 8 options</div>
+    </article>
+  `;
+}
+
+function answer(num, chosen, correct) {
+  // already answered ?
+  const existingFb = document.getElementById('fb-' + num);
+  if (existingFb.dataset.done === '1') return;
+
+  const btn = document.getElementById('p' + num + '-' + chosen);
+  const correctBtn = document.getElementById('p' + num + '-' + correct);
+  const fb = document.getElementById('fb-' + num);
+
+  // disable all buttons in this puzzle
+  document.querySelectorAll('#puzzle-' + num + ' .ans-btn').forEach(b => b.disabled = true);
+
+  attemptedCount++;
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    fb.classList.add('ok');
+    fb.textContent = `✓ Correct — réponse ${correct}`;
+    correctCount++;
+  } else {
+    btn.classList.add('wrong');
+    correctBtn.classList.add('correct');
+    fb.classList.add('fail');
+    fb.textContent = `✗ Incorrect — vous avez choisi ${chosen} · réponse correcte : ${correct}`;
+  }
+  fb.dataset.done = '1';
+
+  document.getElementById('answered').textContent = attemptedCount;
+  document.getElementById('total-score').textContent = `${correctCount} / ${attemptedCount}`;
+}
+
+document.getElementById('puzzles').innerHTML = PUZZLES.map(buildPuzzle).join('');
+</script>
+
+</body>
+</html>
