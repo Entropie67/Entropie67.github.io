@@ -1224,8 +1224,8 @@ function estimateIQ(correct, total) {
 // Mapping IQ → tier. Pour chaque tier : image, personnage de référence, univers, et descripteur.
 // Les chemins sont relatifs au fichier HTML.
 const TIERS = [
-  { min: 150, code: "NSI", className: "tier-NSI",
-    label: { fr:"Génie certifié — top 0.1%", en:"Certified genius — top 0.1%", zh:"认证天才 — 全球前 0.1%" },
+  { min: 150, code: "Ω", className: "tier-NSI",
+    label: { fr:"Singularité — top 0.1%", en:"Singularity — top 0.1%", zh:"奇点 — 全球前 0.1%" },
     character: "Makima",
     universe: { fr:"Chainsaw Man", en:"Chainsaw Man", zh:"电锯人" },
     byline: { fr:"Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.",
@@ -1372,7 +1372,7 @@ function renderResults() {
   const avatarContent = tier.img
     ? `<img src="${tier.img}" alt="Avatar tier ${tier.code}">`
     : tier.emoji;
-  const tierDisplay = tier.code === "NSI" ? "NSI-tier" : tier.code;
+  const tierDisplay = tier.code; // 'Ω' for top tier, otherwise A+ / SS / etc.
 
   const elapsedSec = testStartTime ? Math.min(TOTAL_TIME, Math.floor((Date.now() - testStartTime) / 1000)) : 0;
   const timeLabel = timedOut ? `${u.timeoutLabel} — ${formatTime(TOTAL_TIME)}` : formatTime(elapsedSec);
