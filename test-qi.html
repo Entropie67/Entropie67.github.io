@@ -490,6 +490,33 @@
     text-align: left;
     clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
   }
+  .profile-explain {
+    background: rgba(10, 16, 36, 0.5);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-left: 3px solid var(--neon-cyan, #00f0ff);
+    padding: 18px 22px;
+    margin: 24px 0;
+    text-align: left;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  }
+  .profile-explain h3 {
+    margin: 0 0 10px;
+    font-size: 0.95em;
+    letter-spacing: 0.05em;
+  }
+  .profile-explain p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    font-size: 0.92em;
+  }
+  .profile-explain em {
+    color: var(--neon-cyan, #00f0ff);
+    font-style: normal;
+  }
+  .profile-explain strong {
+    color: var(--text-primary);
+  }
   .cat-row {
     display: flex;
     justify-content: space-between;
@@ -827,6 +854,9 @@ const UI = {
     yourAnswer: "Votre réponse",
     correctAnswer: "Bonne réponse",
     restart: "↻ Recommencer",
+    profileHeader: "◆ Type d'intelligence",
+    profileSTR: "Votre intelligence opère sur des structures abstraites : motifs, équations, hiérarchies logiques. Vous décomposez les problèmes en sous-systèmes, manipulez des symboles, anticipez plusieurs coups d'avance. Vous excellez là où la solution est <em>dérivable</em> — code, mathématiques, planification, diagnostic technique, stratégie. <strong>Coût</strong> : friction sociale, parfois aveuglement aux signaux émotionnels qui refusent la formalisation. <strong>Terrains naturels</strong> : ingénierie, recherche, finance quantitative, échecs, sécurité informatique.",
+    profileSOC: "Votre intelligence opère sur des intentions : ce que les gens disent, ce qu'ils veulent dire, ce qu'ils ne s'avouent pas à eux-mêmes. Vous lisez les sous-textes, calibrez votre registre, anticipez les réactions. Vous excellez là où la solution dépend d'un humain — négociation, leadership, persuasion, écriture, médiation, lecture des dynamiques de groupe. <strong>Coût</strong> : les problèmes purement formels peuvent vous fatiguer plus vite que la moyenne, et la sur-empathie reste un risque. <strong>Terrains naturels</strong> : politique, droit, vente, journalisme, psychologie, enseignement, narration.",
     resultDisclaimer: "Cette estimation est <strong>approximative et ludique</strong>. Un véritable QI se mesure avec des tests standardisés (WAIS, Raven, WISC) administrés par un psychologue qualifié."
   },
   en: {
@@ -860,6 +890,9 @@ const UI = {
     yourAnswer: "Your answer",
     correctAnswer: "Correct answer",
     restart: "↻ Restart",
+    profileHeader: "◆ Intelligence type",
+    profileSTR: "Your intelligence operates on abstract structures: patterns, equations, logical hierarchies. You decompose problems into sub-systems, manipulate symbols, anticipate several moves ahead. You excel wherever the solution is <em>derivable</em> — code, mathematics, planning, technical diagnosis, strategy. <strong>Cost</strong>: social friction, sometimes blindness to emotional signals that resist formalization. <strong>Natural fields</strong>: engineering, research, quantitative finance, chess, computer security.",
+    profileSOC: "Your intelligence operates on intentions: what people say, what they mean, what they don't admit to themselves. You read subtext, calibrate your register, anticipate reactions. You excel wherever the solution depends on a human — negotiation, leadership, persuasion, writing, mediation, reading group dynamics. <strong>Cost</strong>: purely formal problems may tire you faster than average, and over-empathy remains a risk. <strong>Natural fields</strong>: politics, law, sales, journalism, psychology, teaching, storytelling.",
     resultDisclaimer: "This estimate is <strong>approximate and recreational</strong>. A real IQ is measured with standardized tests (WAIS, Raven, WISC) administered by a qualified psychologist."
   },
   zh: {
@@ -893,6 +926,9 @@ const UI = {
     yourAnswer: "您的答案",
     correctAnswer: "正确答案",
     restart: "↻ 重新开始",
+    profileHeader: "◆ 智力类型",
+    profileSTR: "您的智力运作于抽象结构之上：模式、方程、逻辑层级。您将问题分解为子系统，操纵符号，预判数步之后。凡解可<em>推导</em>之处——代码、数学、规划、技术诊断、战略——您皆游刃有余。<strong>代价</strong>：社交摩擦，有时会忽视那些无法形式化的情感信号。<strong>天然领域</strong>：工程、科研、量化金融、围棋象棋、网络安全。",
+    profileSOC: "您的智力运作于意图之上：人们说的话、他们想表达的、他们对自己也不愿承认的。您读懂潜台词，校准语域，预判反应。凡解决方案依赖于他人之处——谈判、领导、说服、写作、调解、读懂群体动力——您皆出色。<strong>代价</strong>：纯形式化的问题可能让您比常人更快感到疲劳，过度共情亦是风险。<strong>天然领域</strong>：政治、法律、销售、新闻、心理学、教学、叙事。",
     resultDisclaimer: "本估值<strong>仅为娱乐性近似值</strong>。真正的智商需通过由专业心理学家施行的标准化测试（WAIS、Raven、WISC）测得。"
   }
 };
@@ -1354,12 +1390,12 @@ const TIERS = [
                        en:"You are a blade that has forgotten its sheath. Calm to the point of absence, lucid to the point of vertigo — your attention costs the world that receives it.",
                        zh:"您是一把忘了刀鞘的刀刃。静至消失，洞察至眩晕——您的注视，对承受它的世界而言代价高昂。" },
              img: "proposition%20d'images%20pour%20tier/skirk.png" },
-      SOC: { character:"Ai Hayasaka",
-             universe: { fr:"Kaguya-sama: Love Is War (かぐや様は告らせたい)", en:"Kaguya-sama: Love Is War", zh:"辉夜大小姐想让我告白" },
-             byline: { fr:"Servante par profession, stratège par vocation. Cinq personnalités à votre disposition, chacune adaptée à son interlocuteur. Vous gérez en sous-main une héritière, plusieurs identités, et une fatigue chronique.",
-                       en:"Servant by profession, strategist by calling. Five personalities at your disposal, each tuned to its target. You quietly manage an heiress, several identities, and a chronic exhaustion.",
-                       zh:"以仆从为职业，以谋略为天职。五种人格随时切换，每种都为对应的对象量身定制。您悄悄打理一位千金、数个身份，以及长年的疲惫。" },
-             img: null }
+      SOC: { character:"Rin Tohsaka (遠坂 凛)",
+             universe: { fr:"Fate/stay night", en:"Fate/stay night", zh:"Fate/stay night" },
+             byline: { fr:"Lycéenne modèle le jour, magicienne héritière la nuit. Vous calculez tout — le rituel, le budget, la posture sociale — et vous tranchez vite quand le plan dérape. Deux vies, une seule discipline : ne jamais montrer la fatigue.",
+                       en:"Model student by day, heiress mage by night. You calculate everything — the ritual, the budget, the social posture — and you cut decisively when the plan slips. Two lives, one discipline: never show fatigue.",
+                       zh:"白天是模范高中生，夜里是魔术师继承人。您计算一切——仪式、预算、社交姿态——计划一旦失控，立刻断然出手。两种人生，一种纪律：从不显露疲惫。" },
+             img: "proposition%20d'images%20pour%20tier/Rin.png" }
     } },
 
   { min: 110, code: "B", className: "tier-B", emoji: "😊",
@@ -1388,12 +1424,12 @@ const TIERS = [
                        en:"Sharp, methodical, efficient. You strike before you doubt. For abstract topics, you wait for someone to explain in concrete terms — and then you understand everything.",
                        zh:"锋利、有条理、高效。您先出手，再怀疑。面对抽象问题，您会等别人用具体例子解释——然后就全懂了。" },
              img: null },
-      SOC: { character:"Megumi Katō",
-             universe: { fr:"Saekano (冴えない彼女の育てかた)", en:"Saekano: How to Raise a Boring Girlfriend", zh:"路人女主的养成方法" },
-             byline: { fr:"Vous lisez la pièce avant que les autres ne réalisent qu'il y a une pièce. Banale en surface — c'est précisément votre arme. Personne ne se méfie de la fille discrète.",
-                       en:"You read the room before others realize there is a room. Plain on the surface — that's precisely your weapon. No one suspects the quiet girl.",
-                       zh:"在别人察觉房间存在之前，您已读懂了房间。外表平凡——这正是您的武器。没人会怀疑那个安静的女孩。" },
-             img: null }
+      SOC: { character:"Yelan",
+             universe: { fr:"Genshin Impact — Ministère des Affaires Civiles", en:"Genshin Impact — Ministry of Civil Affairs", zh:"原神 — 民政事务部" },
+             byline: { fr:"Officiellement archiviste, officieusement tout le reste. Vous lisez la pièce avant que les autres ne réalisent qu'il y a une pièce — et vous laissez chacun croire qu'il vous a échappé. La discrétion n'est pas une faiblesse : c'est votre couverture.",
+                       en:"Officially an archivist, unofficially everything else. You read the room before others realize there is one — and you let each person believe they slipped past you. Discretion isn't a weakness: it's your cover.",
+                       zh:"明面上是档案管理员，暗地里包揽其余一切。您比所有人都先读懂房间——再让每个人以为他们瞒过了您。低调不是弱点：那是您的伪装。" },
+             img: "proposition%20d'images%20pour%20tier/yelan.png" }
     } },
 
   { min: 100, code: "D", className: "tier-D", emoji: "😐",
@@ -1405,12 +1441,12 @@ const TIERS = [
                        en:"Raised apart from humans, trained in combat, precision, discipline. Anything requiring social warmth, you avoid or sidestep. It's not that you don't understand — you've simply never learned to care.",
                        zh:"在凡人之外被抚养长大，受训于战斗、精准与纪律。一切需要社交温度的事，您都回避或绕开。不是您不懂——您只是从未学会去在意。" },
              img: null },
-      SOC: { character:"Hitori Gotō (Bocchi)",
-             universe: { fr:"Bocchi the Rock!", en:"Bocchi the Rock!", zh:"孤独摇滚！" },
-             byline: { fr:"Vous saisissez chaque micro-tension de la pièce avant tout le monde — et vous fuyez chaque micro-tension de la pièce avant tout le monde. Votre lucidité sociale est votre prison.",
-                       en:"You catch every micro-tension in the room before anyone else — and flee every micro-tension before anyone else. Your social clarity is your prison.",
-                       zh:"您比所有人都先察觉房间里的每一丝紧张——也比所有人都先逃离每一丝紧张。您的社交敏锐就是您的牢笼。" },
-             img: null }
+      SOC: { character:"Yumiella Dolkness",
+             universe: { fr:"Méchante Niveau 99 (悪役令嬢レベル99)", en:"Villainess Level 99", zh:"恶役千金 LV99" },
+             byline: { fr:"On vous a écrit le rôle de méchante finale ; vous le jouez sans vraiment comprendre pourquoi tout le monde y croit. Surpuissante en chiffres, paumée en sous-texte. Vous lisez la pièce mot à mot — et vous ratez systématiquement le ton.",
+                       en:"You've been cast as the final villain; you play the part without quite understanding why everyone buys it. Overpowered on paper, lost in the subtext. You read the room word by word — and miss the tone every time.",
+                       zh:"剧本把您写成了最终反派；您照着演，却始终搞不懂为什么大家都信。数值上爆表，潜台词上迷路。您逐字逐句读懂房间——却每次都漏掉语气。" },
+             img: "proposition%20d'images%20pour%20tier/yumellia.png" }
     } },
 
   { min: 90, code: "E", className: "tier-E", emoji: "😅",
@@ -1433,12 +1469,12 @@ const TIERS = [
   { min: 80, code: "F", className: "tier-F", emoji: "🥴",
     label: { fr:"Faible", en:"Weak", zh:"较弱" },
     profiles: {
-      STR: { character:"Wonder Woman (Diana de Themyscira)",
-             universe: { fr:"DC Comics", en:"DC Comics", zh:"DC 漫画" },
-             byline: { fr:"Princesse guerrière, force absolue, conviction d'acier. Vous tranchez les nœuds plutôt que de les défaire. La théorie ennuie, l'action règle tout. Quand vous frappez, c'est pour la justice — ou ce que vous croyez en être.",
-                       en:"Warrior princess, absolute strength, steel conviction. You cut knots rather than untie them. Theory bores you; action settles everything. When you strike, it's for justice — or what you believe to be justice.",
-                       zh:"战士公主，绝对力量，钢铁信念。您一刀斩断绳结，而非耐心解开。理论让您觉得乏味，行动解决一切。您出手，是为正义——或您所认为的正义。" },
-             img: null },
+      STR: { character:"Daenerys Targaryen",
+             universe: { fr:"Game of Thrones", en:"Game of Thrones", zh:"权力的游戏" },
+             byline: { fr:"Princesse en exil, conviction de feu, dragons en escorte. Vous tranchez les nœuds plutôt que de les défaire — feu et sang règlent ce que la diplomatie traîne. Quand vous frappez, c'est pour la justice. Du moins, ce que vous avez décidé d'appeler ainsi.",
+                       en:"Exiled princess, fiery conviction, dragons in tow. You cut knots rather than untie them — fire and blood settle what diplomacy drags out. When you strike, it's for justice. Or at least what you've decided to call justice.",
+                       zh:"流亡公主，烈火信念，巨龙护驾。您一刀斩断绳结，而非耐心解开——血与火解决外交拖延之事。您出手，是为正义。或者说，您决定称之为正义的东西。" },
+             img: "proposition%20d'images%20pour%20tier/daenerys.png" },
       SOC: { character:"Yor Forger",
              universe: { fr:"Spy × Family", en:"Spy × Family", zh:"间谍×过家家" },
              byline: { fr:"Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.",
@@ -1579,6 +1615,11 @@ function renderResults() {
         <div class="character-name">${profileData.character}</div>
         <div class="character-universe">${t(profileData.universe)}</div>
         <blockquote class="character-byline">${t(profileData.byline)}</blockquote>
+      </div>
+
+      <div class="profile-explain">
+        <h3>${u.profileHeader}</h3>
+        <p>${profileKey === 'STR' ? u.profileSTR : u.profileSOC}</p>
       </div>
 
       <div class="breakdown">
