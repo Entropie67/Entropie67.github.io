@@ -729,6 +729,16 @@
     text-transform: uppercase;
     margin-bottom: 10px;
   }
+  .character-header .profile-tag {
+    color: var(--neon-cyan);
+    background: rgba(0, 240, 255, 0.08);
+    padding: 2px 8px;
+    margin-left: 4px;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 2px;
+    letter-spacing: 0.12em;
+    font-size: 0.92em;
+  }
   .character-name {
     font-family: 'Orbitron', sans-serif;
     font-size: 1.5em;
@@ -787,7 +797,7 @@ function setLang(lang) {
 
 const UI = {
   fr: {
-    subtitle: "DIAGNOSTIC COGNITIF // 79 QUESTIONS // 40 MIN CHRONOMÉTRÉ",
+    subtitle: "DIAGNOSTIC COGNITIF // 84 QUESTIONS // 40 MIN CHRONOMÉTRÉ",
     introIntro: "Évaluation de vos capacités de raisonnement à travers <strong>5 modules cognitifs</strong> :",
     modNum: "<strong>Suites numériques</strong> — détection de motifs mathématiques",
     modVerb: "<strong>Raisonnement verbal</strong> — analogies, intrus, lexique, expressions",
@@ -820,7 +830,7 @@ const UI = {
     resultDisclaimer: "Cette estimation est <strong>approximative et ludique</strong>. Un véritable QI se mesure avec des tests standardisés (WAIS, Raven, WISC) administrés par un psychologue qualifié."
   },
   en: {
-    subtitle: "COGNITIVE DIAGNOSTIC // 79 QUESTIONS // 40 MIN TIMED",
+    subtitle: "COGNITIVE DIAGNOSTIC // 84 QUESTIONS // 40 MIN TIMED",
     introIntro: "Assessment of your reasoning abilities across <strong>5 cognitive modules</strong>:",
     modNum: "<strong>Number sequences</strong> — mathematical pattern recognition",
     modVerb: "<strong>Verbal reasoning</strong> — analogies, odd-one-out, vocabulary, idioms",
@@ -853,7 +863,7 @@ const UI = {
     resultDisclaimer: "This estimate is <strong>approximate and recreational</strong>. A real IQ is measured with standardized tests (WAIS, Raven, WISC) administered by a qualified psychologist."
   },
   zh: {
-    subtitle: "认知诊断 // 79 题 // 40 分钟计时",
+    subtitle: "认知诊断 // 84 题 // 40 分钟计时",
     introIntro: "通过 <strong>5 个认知模块</strong> 评估您的推理能力：",
     modNum: "<strong>数列推理</strong> — 数学规律识别",
     modVerb: "<strong>语言推理</strong> — 类比、辨异、词汇、成语",
@@ -951,6 +961,47 @@ const questions = [
   { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
     q: { fr:"Frugal est à dépense ce que laconique est à...", en:"Frugal is to spending as laconic is to...", zh:"节俭之于花费，犹简洁之于..." },
     opts: { fr:["Silence","Parole","Discours","Brièveté"], en:["Silence","Speech","Discourse","Brevity"], zh:["沉默","言语","演讲","简短"] }, correct: 1 },
+
+  // ===== Verbal-social (5 — sous-entendu, manipulation, rhétorique, lecture sociale) =====
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Lisez : « Tu as encore réussi un véritable exploit, et même à l'heure ! » Quelle est la nuance la plus probable du locuteur ?",
+         en:"Read: 'You really pulled off a genuine achievement — and on time, no less!' What is the speaker's most likely nuance?",
+         zh:"读：「你居然准时完成了，真是了不起！」说话者最可能的言下之意是？" },
+    opts: { fr:["Félicitations sincères","Sarcasme bienveillant","Reproche déguisé en compliment","Interrogation neutre"],
+            en:["Sincere congratulation","Friendly teasing","Disguised reproach","Neutral curiosity"],
+            zh:["真心祝贺","善意调侃","以赞美包装的批评","中性的疑问"] }, correct: 2 },
+
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"« Si vous êtes vraiment l'expert que vous prétendez être, vous comprendrez cette nuance. » Quelle est la stratégie principale de cette phrase ?",
+         en:"'If you really are the expert you claim to be, you'll grasp this nuance.' What is the main strategy of this sentence?",
+         zh:"「如果你真是你所声称的专家，你应该能理解这个细微之处。」这句话的主要策略是？" },
+    opts: { fr:["Demande sincère d'aide","Flatterie pure","Pression sociale par vanité","Test scientifique"],
+            en:["Sincere request for help","Pure flattery","Social pressure via vanity","Scientific test"],
+            zh:["真诚求助","单纯奉承","通过虚荣施加社交压力","学术测试"] }, correct: 2 },
+
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Lequel de ces énoncés contient un faux dilemme ?",
+         en:"Which of these statements contains a false dilemma?",
+         zh:"下列哪个陈述包含「虚假二分」的逻辑谬误？" },
+    opts: { fr:["Soit vous êtes avec nous, soit contre nous","Il pleut, donc je prends un parapluie","S'il vit à Paris, il est français","Tous les mortels meurent un jour"],
+            en:["Either you're with us or against us","It's raining, so I'll take an umbrella","If he lives in Paris, he's French","All mortals eventually die"],
+            zh:["你要么支持我们，要么反对我们","下雨了，所以我带伞","如果他住在巴黎，他是法国人","凡人皆有一死"] }, correct: 0 },
+
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"A : « Joli appartement. Vous l'avez décoré seul ? »   B : « Avec ma compagne. »   Quel est le principal renseignement implicite obtenu ?",
+         en:"A: 'Nice apartment. Did you decorate it alone?'   B: 'With my partner.'   What is the main piece of implicit information obtained?",
+         zh:"A：「公寓不错，你自己装修的？」 B：「和我的伴侣一起。」 主要获得的隐含信息是？" },
+    opts: { fr:["B vit en couple","B vit seul","L'appartement est petit","B aime décorer"],
+            en:["B is in a relationship","B lives alone","The apartment is small","B enjoys decorating"],
+            zh:["B 与伴侣同居","B 独居","公寓很小","B 喜欢装饰"] }, correct: 0 },
+
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Lequel de ces adverbes transforme une phrase neutre en accusation feutrée ?",
+         en:"Which of these adverbs turns a neutral sentence into a veiled accusation?",
+         zh:"下列哪个副词最能把一句中性陈述变成「委婉的指控」？" },
+    opts: { fr:["Donc","Apparemment","Cependant","Visiblement"],
+            en:["Therefore","Supposedly","However","Clearly"],
+            zh:["因此","据说","然而","显然"] }, correct: 1 },
 
   // ===== RAISONNEMENT SPATIAL (10) =====
   { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
@@ -1223,98 +1274,216 @@ function estimateIQ(correct, total) {
 
 // Mapping IQ → tier. Pour chaque tier : image, personnage de référence, univers, et descripteur.
 // Les chemins sont relatifs au fichier HTML.
+// Chaque tier porte deux profils : STR (stratégique-analytique) et SOC (verbal-social).
+// Le profil affiché est choisi à partir du subscore verbal vs non-verbal du candidat.
 const TIERS = [
-  { min: 150, code: "Ω", className: "tier-NSI",
+  { min: 150, code: "Ω", className: "tier-NSI", emoji: "👑",
     label: { fr:"Singularité — top 0.1%", en:"Singularity — top 0.1%", zh:"奇点 — 全球前 0.1%" },
-    character: "Makima",
-    universe: { fr:"Chainsaw Man", en:"Chainsaw Man", zh:"电锯人" },
-    byline: { fr:"Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.",
-              en:"You see others as contracts. No one lies long in your presence, no one escapes — and you find it almost boring.",
-              zh:"您视他人为合约。无人能在您面前长久撒谎，无人能逃脱——这甚至让您觉得有些无趣。" },
-    emoji: "👑", img: null },
-  { min: 140, code: "SS",  className: "tier-SS",
+    profiles: {
+      STR: { character:"Motoko Kusanagi",
+             universe: { fr:"Ghost in the Shell", en:"Ghost in the Shell", zh:"攻壳机动队" },
+             byline: { fr:"Vous voyez les flux de données comme d'autres voient les flux d'air. Esprit cybernétique, action chirurgicale, conviction sans faille. Vous ne demandez pas — vous calculez.",
+                       en:"You see data flows like others see airflows. Cybernetic mind, surgical action, unwavering conviction. You don't ask — you calculate.",
+                       zh:"您看数据流就像别人看气流。赛博之心、外科精度的行动、毫不动摇的信念。您不询问——您计算。" },
+             img: null },
+      SOC: { character:"Makima",
+             universe: { fr:"Chainsaw Man", en:"Chainsaw Man", zh:"电锯人" },
+             byline: { fr:"Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.",
+                       en:"You see others as contracts. No one lies long in your presence, no one escapes — and you find it almost boring.",
+                       zh:"您视他人为合约。无人能在您面前长久撒谎，无人能逃脱——这甚至让您觉得有些无趣。" },
+             img: null }
+    } },
+
+  { min: 140, code: "SS", className: "tier-SS", emoji: "🧠",
     label: { fr:"Esprit d'élite", en:"Elite mind", zh:"精英智者" },
-    character: "Yumeko Jabami",
-    universe: { fr:"Kakegurui", en:"Kakegurui", zh:"狂赌之渊" },
-    byline: { fr:"Vous lisez les mains avant qu'elles soient jouées. Le risque ne vous fait pas peur — il vous fait sourire. Au contact d'un mensonge, votre pouls s'accélère ; pas par crainte, par excitation.",
-              en:"You read hands before they're played. Risk doesn't scare you — it makes you smile. At the touch of a lie, your pulse quickens; not from fear, from excitement.",
-              zh:"您能在牌打出之前读懂它。风险不让您害怕——它让您微笑。一接触谎言，您的脉搏便加速；不是因为恐惧，而是因为兴奋。" },
-    emoji: "🧠", img: null },
-  { min: 130, code: "S",   className: "tier-S",
+    profiles: {
+      STR: { character:"Maomao",
+             universe: { fr:"Les Carnets de l'apothicaire", en:"The Apothecary Diaries", zh:"药屋少女的呓语" },
+             byline: { fr:"Détective dans une cour qui ne tolère pas les détectives. Vous lisez les poisons, les motifs, les mensonges — toujours avec un sourire qu'on ne déchiffre pas.",
+                       en:"A detective in a court that tolerates none. You read poisons, patterns, lies — always with a smile no one can decode.",
+                       zh:"在不容侦探的宫廷里做侦探。您解读毒药、模式、谎言——脸上始终挂着无人能破译的微笑。" },
+             img: null },
+      SOC: { character:"Yumeko Jabami",
+             universe: { fr:"Kakegurui", en:"Kakegurui", zh:"狂赌之渊" },
+             byline: { fr:"Vous lisez les mains avant qu'elles soient jouées. Le risque ne vous fait pas peur — il vous fait sourire. Au contact d'un mensonge, votre pouls s'accélère ; pas par crainte, par excitation.",
+                       en:"You read hands before they're played. Risk doesn't scare you — it makes you smile. At the touch of a lie, your pulse quickens; not from fear, from excitement.",
+                       zh:"您能在牌打出之前读懂它。风险不让您害怕——它让您微笑。一接触谎言，您的脉搏便加速；不是因为恐惧，而是因为兴奋。" },
+             img: null }
+    } },
+
+  { min: 130, code: "S", className: "tier-S", emoji: "🤓",
     label: { fr:"Très haut niveau", en:"Very high level", zh:"非常高水平" },
-    character: "Baek Ah-jin (Dear X)",
-    universe: { fr:"Dear X — drama coréen, 2025", en:"Dear X — K-drama, 2025", zh:"Dear X — 韩剧，2025" },
-    byline: { fr:"Vous ne mentez jamais. Vous offrez à chacun exactement la version de lui-même qu'il veut voir. Personne ne s'en aperçoit — vous, parfois, vous oubliez aussi.",
-              en:"You never lie. You offer everyone exactly the version of themselves they want to see. No one notices — sometimes you forget too.",
-              zh:"您从不撒谎。您给每个人呈现的，都是他们最想看到的那个自己。无人察觉——有时连您自己也忘了。" },
-    emoji: "🤓", img: null },
-  { min: 120, code: "A+",  className: "tier-Aplus",
+    profiles: {
+      STR: { character:"Lelouch vi Britannia",
+             universe: { fr:"Code Geass", en:"Code Geass", zh:"反叛的鲁路修" },
+             byline: { fr:"Stratège jusqu'au sacrifice de soi. Une plume, un échiquier, un trône — vous voyez le coup avant qu'il ne soit joué, et vous l'avez déjà déplacé.",
+                       en:"A strategist down to self-sacrifice. A pen, a chessboard, a throne — you see the move before it's played, and you've already moved it.",
+                       zh:"战略家——直至自我牺牲。一支笔、一盘棋、一个王座——您看到棋步在它落下之前，并且您已经下完了。" },
+             img: null },
+      SOC: { character:"Baek Ah-jin (Dear X)",
+             universe: { fr:"Dear X — drama coréen, 2025", en:"Dear X — K-drama, 2025", zh:"Dear X — 韩剧，2025" },
+             byline: { fr:"Vous ne mentez jamais. Vous offrez à chacun exactement la version de lui-même qu'il veut voir. Personne ne s'en aperçoit — vous, parfois, vous oubliez aussi.",
+                       en:"You never lie. You offer everyone exactly the version of themselves they want to see. No one notices — sometimes you forget too.",
+                       zh:"您从不撒谎。您给每个人呈现的，都是他们最想看到的那个自己。无人察觉——有时连您自己也忘了。" },
+             img: null }
+    } },
+
+  { min: 120, code: "A+", className: "tier-Aplus", emoji: "🎯",
     label: { fr:"Excellent supérieur", en:"Superior excellent", zh:"卓越上等" },
-    character: "Ye Ping'an (叶平安)",
-    universe: { fr:"à préciser", en:"to be specified", zh:"待定" },
-    byline: { fr:"Calme, posé, méthodique. Vous laissez les autres s'agiter avant de poser votre coup. Une présence qui rassure, un raisonnement qui tranche net — un cran au-dessus du tout-venant.",
-              en:"Calm, composed, methodical. You let others stir before placing your move. A reassuring presence, a sharply cutting reasoning — a notch above the common.",
-              zh:"冷静、从容、有条不紊。您让别人先动，再出手。一种令人安心的存在，一种刀切般精准的推理——比常人高出一筹。" },
-    emoji: "🎯", img: null },
-  { min: 115, code: "A",   className: "tier-A",
+    profiles: {
+      STR: { character:"Ye Ping'an (叶平安)",
+             universe: { fr:"à préciser", en:"to be specified", zh:"待定" },
+             byline: { fr:"Calme, posé, méthodique. Vous laissez les autres s'agiter avant de poser votre coup. Une présence qui rassure, un raisonnement qui tranche net — un cran au-dessus du tout-venant.",
+                       en:"Calm, composed, methodical. You let others stir before placing your move. A reassuring presence, a sharply cutting reasoning — a notch above the common.",
+                       zh:"冷静、从容、有条不紊。您让别人先动，再出手。一种令人安心的存在，一种刀切般精准的推理——比常人高出一筹。" },
+             img: null },
+      SOC: { character:"Zhen Huan (甄嬛)",
+             universe: { fr:"Le Palais des concubines (甄嬛传)", en:"Empresses in the Palace (甄嬛传)", zh:"甄嬛传" },
+             byline: { fr:"Survivre à la cour, c'est lire chaque sourire comme un contrat. Vous montez parce que vous comptez les silences mieux que les autres comptent les mots.",
+                       en:"Surviving the court means reading every smile as a contract. You rise because you count silences better than others count words.",
+                       zh:"在宫中生存，是把每个微笑读作一份契约。您之所以崛起，因为您数沉默比别人数言语更准。" },
+             img: null }
+    } },
+
+  { min: 115, code: "A", className: "tier-A", emoji: "😎",
     label: { fr:"Excellent", en:"Excellent", zh:"优秀" },
-    character: "Raiden Shogun",
-    universe: { fr:"Genshin Impact", en:"Genshin Impact", zh:"原神" },
-    byline: { fr:"Lame éternelle, conviction de marbre. Vous avez une réponse à toute question — et c'est précisément ce qui vous limite. La nuance vous échappe parfois ; mais quand vous tranchez, c'est définitif.",
-              en:"Eternal blade, marble conviction. You have an answer for everything — and that's exactly what limits you. Nuance escapes you sometimes; but when you cut, it's final.",
-              zh:"永恒之刃，磐石之念。您对一切都有答案——而这恰恰是您的局限。微妙之处您有时难以察觉；但您一旦决断，便是终决。" },
-    emoji: "😎", img: null },
-  { min: 110, code: "B",   className: "tier-B",
+    profiles: {
+      STR: { character:"Raiden Shogun",
+             universe: { fr:"Genshin Impact", en:"Genshin Impact", zh:"原神" },
+             byline: { fr:"Lame éternelle, conviction de marbre. Vous avez une réponse à toute question — et c'est précisément ce qui vous limite. La nuance vous échappe parfois ; mais quand vous tranchez, c'est définitif.",
+                       en:"Eternal blade, marble conviction. You have an answer for everything — and that's exactly what limits you. Nuance escapes you sometimes; but when you cut, it's final.",
+                       zh:"永恒之刃，磐石之念。您对一切都有答案——而这恰恰是您的局限。微妙之处您有时难以察觉；但您一旦决断，便是终决。" },
+             img: null },
+      SOC: { character:"Furina de Fontaine",
+             universe: { fr:"Genshin Impact", en:"Genshin Impact", zh:"原神" },
+             byline: { fr:"Comédienne née, vous gouvernez par le théâtre. Chaque larme calculée, chaque applaudissement mérité — et personne ne sait quand le rideau tombe vraiment.",
+                       en:"A born performer, you rule through theater. Every calculated tear, every earned applause — and no one knows when the curtain truly falls.",
+                       zh:"您是天生的演员，以戏剧统治。每一滴泪都精确，每一次掌声都应得——而没人知道真正的幕落时刻。" },
+             img: null }
+    } },
+
+  { min: 110, code: "B", className: "tier-B", emoji: "😊",
     label: { fr:"Très bon", en:"Very good", zh:"很好" },
-    character: "Rias Gremory",
-    universe: { fr:"High School DxD", en:"High School DxD", zh:"恶魔高校 DxD" },
-    byline: { fr:"Charismatique, rusée, dévouée à votre clan. Vous voyez les enjeux, vous les anticipez, vous tranchez vite. Le génie des autres ne vous intimide pas — vous compensez par la cohésion.",
-              en:"Charismatic, cunning, devoted to your clan. You see the stakes, anticipate them, decide quickly. Genius doesn't intimidate you — you compensate with cohesion.",
-              zh:"魅力四射、机智过人，对眷属忠心耿耿。您能看到利害、能预判、能果断。他人的天才并不让您害怕——您用团队凝聚力来弥补。" },
-    emoji: "😊", img: null },
-  { min: 105, code: "C",   className: "tier-C",
+    profiles: {
+      STR: { character:"Maki Zenin",
+             universe: { fr:"Jujutsu Kaisen", en:"Jujutsu Kaisen", zh:"咒术回战" },
+             byline: { fr:"Sans don magique, sans tour de passe-passe. Juste l'effort, la lame, et la rage froide d'avoir été sous-estimée toute une vie. Le talent vous ennuie.",
+                       en:"No magical gift, no sleight of hand. Just effort, the blade, and the cold rage of being underestimated all your life. Talent bores you.",
+                       zh:"没有咒术天赋、没有花招。只有努力、刀刃、和被低估一辈子的冷怒。天才让您觉得无聊。" },
+             img: null },
+      SOC: { character:"Rias Gremory",
+             universe: { fr:"High School DxD", en:"High School DxD", zh:"恶魔高校 DxD" },
+             byline: { fr:"Charismatique, rusée, dévouée à votre clan. Vous voyez les enjeux, vous les anticipez, vous tranchez vite. Le génie des autres ne vous intimide pas — vous compensez par la cohésion.",
+                       en:"Charismatic, cunning, devoted to your clan. You see the stakes, anticipate them, decide quickly. Genius doesn't intimidate you — you compensate with cohesion.",
+                       zh:"魅力四射、机智过人，对眷属忠心耿耿。您能看到利害、能预判、能果断。他人的天才并不让您害怕——您用团队凝聚力来弥补。" },
+             img: null }
+    } },
+
+  { min: 105, code: "C", className: "tier-C", emoji: "🙂",
     label: { fr:"Bon", en:"Good", zh:"良好" },
-    character: "Akame",
-    universe: { fr:"Akame ga Kill", en:"Akame ga Kill", zh:"斩!赤红之瞳" },
-    byline: { fr:"Tranchante, méthodique, efficace. Vous frappez avant de douter. Le sujet abstrait, vous attendez que quelqu'un l'explique en termes concrets — et là, vous comprenez tout.",
-              en:"Sharp, methodical, efficient. You strike before you doubt. For abstract topics, you wait for someone to explain in concrete terms — and then you understand everything.",
-              zh:"锋利、有条理、高效。您先出手，再怀疑。面对抽象问题，您会等别人用具体例子解释——然后就全懂了。" },
-    emoji: "🙂", img: null },
-  { min: 100, code: "D",   className: "tier-D",
+    profiles: {
+      STR: { character:"Akame",
+             universe: { fr:"Akame ga Kill", en:"Akame ga Kill", zh:"斩!赤红之瞳" },
+             byline: { fr:"Tranchante, méthodique, efficace. Vous frappez avant de douter. Le sujet abstrait, vous attendez que quelqu'un l'explique en termes concrets — et là, vous comprenez tout.",
+                       en:"Sharp, methodical, efficient. You strike before you doubt. For abstract topics, you wait for someone to explain in concrete terms — and then you understand everything.",
+                       zh:"锋利、有条理、高效。您先出手，再怀疑。面对抽象问题，您会等别人用具体例子解释——然后就全懂了。" },
+             img: null },
+      SOC: { character:"Megumi Katō",
+             universe: { fr:"Saekano (冴えない彼女の育てかた)", en:"Saekano: How to Raise a Boring Girlfriend", zh:"路人女主的养成方法" },
+             byline: { fr:"Vous lisez la pièce avant que les autres ne réalisent qu'il y a une pièce. Banale en surface — c'est précisément votre arme. Personne ne se méfie de la fille discrète.",
+                       en:"You read the room before others realize there is a room. Plain on the surface — that's precisely your weapon. No one suspects the quiet girl.",
+                       zh:"在别人察觉房间存在之前，您已读懂了房间。外表平凡——这正是您的武器。没人会怀疑那个安静的女孩。" },
+             img: null }
+    } },
+
+  { min: 100, code: "D", className: "tier-D", emoji: "😐",
     label: { fr:"Correct", en:"Correct", zh:"中等" },
-    character: "Shenhe (申鹤)",
-    universe: { fr:"Genshin Impact", en:"Genshin Impact", zh:"原神" },
-    byline: { fr:"Élevée à l'écart des humains, formée au combat, à la précision, à la discipline. Tout ce qui demande de la chaleur sociale, vous l'évitez ou le contournez. Ce n'est pas que vous ne comprenez pas — vous n'avez jamais appris à vous y intéresser.",
-              en:"Raised apart from humans, trained in combat, precision, discipline. Anything requiring social warmth, you avoid or sidestep. It's not that you don't understand — you've simply never learned to care.",
-              zh:"在凡人之外被抚养长大，受训于战斗、精准与纪律。一切需要社交温度的事，您都回避或绕开。不是您不懂——您只是从未学会去在意。" },
-    emoji: "😐", img: null },
-  { min: 90,  code: "E",   className: "tier-E",
+    profiles: {
+      STR: { character:"Shenhe (申鹤)",
+             universe: { fr:"Genshin Impact", en:"Genshin Impact", zh:"原神" },
+             byline: { fr:"Élevée à l'écart des humains, formée au combat, à la précision, à la discipline. Tout ce qui demande de la chaleur sociale, vous l'évitez ou le contournez. Ce n'est pas que vous ne comprenez pas — vous n'avez jamais appris à vous y intéresser.",
+                       en:"Raised apart from humans, trained in combat, precision, discipline. Anything requiring social warmth, you avoid or sidestep. It's not that you don't understand — you've simply never learned to care.",
+                       zh:"在凡人之外被抚养长大，受训于战斗、精准与纪律。一切需要社交温度的事，您都回避或绕开。不是您不懂——您只是从未学会去在意。" },
+             img: null },
+      SOC: { character:"Hitori Gotō (Bocchi)",
+             universe: { fr:"Bocchi the Rock!", en:"Bocchi the Rock!", zh:"孤独摇滚！" },
+             byline: { fr:"Vous saisissez chaque micro-tension de la pièce avant tout le monde — et vous fuyez chaque micro-tension de la pièce avant tout le monde. Votre lucidité sociale est votre prison.",
+                       en:"You catch every micro-tension in the room before anyone else — and flee every micro-tension before anyone else. Your social clarity is your prison.",
+                       zh:"您比所有人都先察觉房间里的每一丝紧张——也比所有人都先逃离每一丝紧张。您的社交敏锐就是您的牢笼。" },
+             img: null }
+    } },
+
+  { min: 90, code: "E", className: "tier-E", emoji: "😅",
     label: { fr:"Passable", en:"Passable", zh:"及格" },
-    character: "Erza Scarlet",
-    universe: { fr:"Fairy Tail", en:"Fairy Tail", zh:"妖精的尾巴" },
-    byline: { fr:"Spectaculaire au combat, perdue devant un casse-tête. Frapper, c'est aussi une réponse — pas la plus subtile, mais elle marche souvent.",
-              en:"Spectacular in combat, lost in front of a puzzle. Striking is also an answer — not the most subtle one, but it works often.",
-              zh:"战斗中光芒万丈，面对谜题却束手无策。挥剑也是一种答案——虽不算最巧妙，但通常奏效。" },
-    emoji: "😅", img: null },
-  { min: 80,  code: "F",   className: "tier-F",
+    profiles: {
+      STR: { character:"Erza Scarlet",
+             universe: { fr:"Fairy Tail", en:"Fairy Tail", zh:"妖精的尾巴" },
+             byline: { fr:"Spectaculaire au combat, perdue devant un casse-tête. Frapper, c'est aussi une réponse — pas la plus subtile, mais elle marche souvent.",
+                       en:"Spectacular in combat, lost in front of a puzzle. Striking is also an answer — not the most subtle one, but it works often.",
+                       zh:"战斗中光芒万丈，面对谜题却束手无策。挥剑也是一种答案——虽不算最巧妙，但通常奏效。" },
+             img: null },
+      SOC: { character:"Misa Amane",
+             universe: { fr:"Death Note", en:"Death Note", zh:"死亡笔记" },
+             byline: { fr:"Dévouement absolu, raisonnement second. Vous aimez d'abord, vous comprenez ensuite — et parfois, vous ne comprenez jamais. Mais vous êtes loyale, infiniment loyale.",
+                       en:"Absolute devotion, secondary reasoning. You love first, understand later — and sometimes never understand. But you are loyal, infinitely loyal.",
+                       zh:"绝对的忠诚，推理只是次要的。您先爱，后理解——有时甚至从不理解。但您忠贞不渝。" },
+             img: null }
+    } },
+
+  { min: 80, code: "F", className: "tier-F", emoji: "🥴",
     label: { fr:"Faible", en:"Weak", zh:"较弱" },
-    character: "Yor Forger",
-    universe: { fr:"Spy × Family", en:"Spy × Family", zh:"间谍×过家家" },
-    byline: { fr:"Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.",
-              en:"Kind, devoted, terrifying with a knife. For everything else, ask Loid — and never bring up relativity, it would only make her sad.",
-              zh:"温柔、忠诚、持刀时令人胆寒。其余之事，请问 Loid——千万别跟她聊相对论，那只会让她伤心。" },
-    emoji: "🥴", img: "proposition%20d'images%20pour%20tier/yor.png" },
-  { min: 0,   code: "G",   className: "tier-G",
+    profiles: {
+      STR: { character:"Son Goku (孙悟空)",
+             universe: { fr:"Dragon Ball", en:"Dragon Ball", zh:"龙珠" },
+             byline: { fr:"Pas le plus rusé, mais le plus déterminé. Vous progressez par la sueur et l'amitié, pas par la stratégie. Le monde se trompe en vous sous-estimant — vos poings finissent toujours par avoir raison.",
+                       en:"Not the cleverest, but the most determined. You progress by sweat and friendship, not strategy. The world is wrong to underestimate you — your fists always end up right.",
+                       zh:"不是最机智的，但是最坚定的。您靠汗水与友情进步，而非战略。世界低估您是错的——您的拳头总能讨回公道。" },
+             img: null },
+      SOC: { character:"Yor Forger",
+             universe: { fr:"Spy × Family", en:"Spy × Family", zh:"间谍×过家家" },
+             byline: { fr:"Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.",
+                       en:"Kind, devoted, terrifying with a knife. For everything else, ask Loid — and never bring up relativity, it would only make her sad.",
+                       zh:"温柔、忠诚、持刀时令人胆寒。其余之事，请问 Loid——千万别跟她聊相对论，那只会让她伤心。" },
+             img: "proposition%20d'images%20pour%20tier/yor.png" }
+    } },
+
+  { min: 0, code: "G", className: "tier-G", emoji: "💢",
     label: { fr:"Diagnostic critique", en:"Critical diagnostic", zh:"诊断危急" },
-    character: "Akeno Himejima",
-    universe: { fr:"High School DxD", en:"High School DxD", zh:"恶魔高校 DxD" },
-    byline: { fr:"Onee-san dans toute sa splendeur — sensuelle, fidèle, redoutable au tonnerre. Mais devant une équation, vous riez doucement et passez la main à Buchou. Le calcul mental, vous laissez ça aux autres ; pourquoi compliquer ?",
-              en:"Onee-san in all her glory — sensual, faithful, deadly with thunder. But faced with an equation, you laugh softly and pass it to Buchou. Mental math, you leave to others; why complicate things?",
-              zh:"完美的姐姐——妩媚、忠诚、雷电之下令人胆寒。但面对方程式，您只会轻笑，然后递给部长。心算之事，留给别人；何必把事情弄复杂？" },
-    emoji: "💢", img: "proposition%20d'images%20pour%20tier/akeno.png" }
+    profiles: {
+      STR: { character:"Power",
+             universe: { fr:"Chainsaw Man", en:"Chainsaw Man", zh:"电锯人" },
+             byline: { fr:"Pure énergie chaotique. Vous mentez, vous criez, vous attaquez — pas par méchanceté, par instinct. Vous comprenez peu de choses, mais ce que vous comprenez, vous le criez très fort.",
+                       en:"Pure chaotic energy. You lie, you scream, you attack — not from malice, but from instinct. You understand few things, but what you understand, you scream loudly.",
+                       zh:"纯粹的混沌能量。您说谎、尖叫、攻击——不是出于恶意，而是出于本能。您懂的不多，但您懂的事，您会大声喊出来。" },
+             img: null },
+      SOC: { character:"Akeno Himejima",
+             universe: { fr:"High School DxD", en:"High School DxD", zh:"恶魔高校 DxD" },
+             byline: { fr:"Onee-san dans toute sa splendeur — sensuelle, fidèle, redoutable au tonnerre. Mais devant une équation, vous riez doucement et passez la main à Buchou. Le calcul mental, vous laissez ça aux autres ; pourquoi compliquer ?",
+                       en:"Onee-san in all her glory — sensual, faithful, deadly with thunder. But faced with an equation, you laugh softly and pass it to Buchou. Mental math, you leave to others; why complicate things?",
+                       zh:"完美的姐姐——妩媚、忠诚、雷电之下令人胆寒。但面对方程式，您只会轻笑，然后递给部长。心算之事，留给别人；何必把事情弄复杂？" },
+             img: "proposition%20d'images%20pour%20tier/akeno.png" }
+    } }
 ];
 
 function getTier(iq) { return TIERS.find(t => iq >= t.min); }
+
+// Calcule le profil dominant (STR vs SOC) à partir des subscores.
+// δ = (verbal correct/total) − (non-verbal correct/total)
+// δ > +0.10 → SOC ; sinon → STR.
+function getProfile(answers, qs) {
+  let vC=0, vT=0, sC=0, sT=0;
+  qs.forEach((q, i) => {
+    const catFr = (q.cat && q.cat.fr) || q.cat || '';
+    const isVerbal = (catFr === 'Raisonnement verbal');
+    const correct = (answers[i] === q.correct);
+    if (isVerbal) { vT++; if (correct) vC++; }
+    else          { sT++; if (correct) sC++; }
+  });
+  const verbalPct = vT ? vC/vT : 0;
+  const stratPct  = sT ? sC/sT : 0;
+  const delta = verbalPct - stratPct;
+  return (delta > 0.10) ? 'SOC' : 'STR';
+}
 
 function renderResults() {
   const u = UI[currentLang];
@@ -1369,10 +1538,18 @@ function renderResults() {
   }).join('');
 
   const tier = getTier(iq);
-  const avatarContent = tier.img
-    ? `<img src="${tier.img}" alt="Avatar tier ${tier.code}">`
+  const profileKey = getProfile(answers, questions);
+  const profileData = tier.profiles[profileKey];
+  const avatarContent = profileData.img
+    ? `<img src="${profileData.img}" alt="Avatar ${profileData.character}">`
     : tier.emoji;
   const tierDisplay = tier.code; // 'Ω' for top tier, otherwise A+ / SS / etc.
+
+  // Profile descriptor (FR/EN/ZH)
+  const profileLabels = {
+    STR: { fr:"Stratégique · Analytique", en:"Strategic · Analytical", zh:"战略 · 分析型" },
+    SOC: { fr:"Sociale · Verbale", en:"Social · Verbal", zh:"社交 · 言语型" }
+  };
 
   const elapsedSec = testStartTime ? Math.min(TOTAL_TIME, Math.floor((Date.now() - testStartTime) / 1000)) : 0;
   const timeLabel = timedOut ? `${u.timeoutLabel} — ${formatTime(TOTAL_TIME)}` : formatTime(elapsedSec);
@@ -1398,10 +1575,10 @@ function renderResults() {
       <p class="iq-summary">${u.score} : <strong>${correctCount}</strong> / ${questions.length} ${u.modulesValidated} : <strong>${timeLabel}</strong></p>
 
       <div class="character-block">
-        <div class="character-header">${u.characterRef}</div>
-        <div class="character-name">${tier.character}</div>
-        <div class="character-universe">${t(tier.universe)}</div>
-        <blockquote class="character-byline">${t(tier.byline)}</blockquote>
+        <div class="character-header">${u.characterRef} · <span class="profile-tag">${t(profileLabels[profileKey])}</span></div>
+        <div class="character-name">${profileData.character}</div>
+        <div class="character-universe">${t(profileData.universe)}</div>
+        <blockquote class="character-byline">${t(profileData.byline)}</blockquote>
       </div>
 
       <div class="breakdown">

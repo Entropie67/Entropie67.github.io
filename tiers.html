@@ -109,15 +109,15 @@
 
   .tier-card {
     display: grid;
-    grid-template-columns: 130px 200px 1fr;
-    gap: 28px;
-    align-items: center;
+    grid-template-columns: 110px 1fr 1fr;
+    gap: 24px;
+    align-items: stretch;
     background: var(--glass);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid var(--glass-border);
     border-left-width: 5px;
-    padding: 22px 28px;
+    padding: 22px 24px;
     border-radius: 4px;
     position: relative;
     transition: transform 0.2s ease, border-color 0.2s ease;
@@ -126,6 +126,37 @@
     transform: translateX(4px);
     border-color: rgba(0, 240, 255, 0.4);
   }
+  @media (max-width: 900px) {
+    .tier-card { grid-template-columns: 1fr; gap: 18px; }
+  }
+
+  .profile-col {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 8px 12px;
+    background: rgba(10, 16, 36, 0.35);
+    border-radius: 3px;
+    position: relative;
+  }
+  @media (max-width: 700px) {
+    .profile-col { grid-template-columns: 1fr; }
+  }
+  .profile-col.str { border-left: 2px solid var(--neon-cyan); }
+  .profile-col.soc { border-left: 2px solid var(--neon-magenta); }
+  .profile-col-tag {
+    position: absolute;
+    top: 8px; right: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62em;
+    letter-spacing: 0.18em;
+    padding: 2px 8px;
+    border: 1px solid;
+    border-radius: 2px;
+  }
+  .profile-col.str .profile-col-tag { color: var(--neon-cyan); border-color: rgba(0, 240, 255, 0.45); background: rgba(0, 240, 255, 0.08); }
+  .profile-col.soc .profile-col-tag { color: var(--neon-magenta); border-color: rgba(255, 43, 214, 0.45); background: rgba(255, 43, 214, 0.08); }
 
   /* Tier-specific accent colors (left border + letter glow) */
   .tier-card.t-NSI { border-left-color: var(--gold); }
@@ -181,8 +212,8 @@
 
   /* Image column */
   .tier-image {
-    width: 200px;
-    height: 240px;
+    width: 130px;
+    height: 175px;
     background: rgba(10, 16, 36, 0.8);
     border: 1px solid rgba(0, 240, 255, 0.15);
     overflow: hidden;
@@ -225,12 +256,15 @@
   }
   .tier-character {
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.5em;
+    font-size: 1.18em;
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: 0.03em;
     margin-bottom: 2px;
+    margin-top: 4px;
   }
+  .profile-col .tier-byline { font-size: 0.95em; line-height: 1.45; padding-left: 10px; }
+  .profile-col .tier-universe { font-size: 0.85em; margin-bottom: 8px; }
   .tier-universe {
     font-family: 'Rajdhani', sans-serif;
     font-size: 0.95em;
@@ -285,7 +319,7 @@
 
 <header>
   <h1>NEURAL.IQ // TIER PREVIEW</h1>
-  <p class="subtitle">Visualisation des 11 paliers cognitifs · image · QI · descripteur</p>
+  <p class="subtitle">11 paliers × 2 profils (STR · SOC) = 22 personnages</p>
   <div class="private-tag">⚿ PAGE PRIVÉE — non liée depuis le site</div>
 </header>
 
@@ -298,14 +332,27 @@
       <div class="tier-iq">QI ≥ 150</div>
       <div class="tier-label">Singularité — top 0.1%</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/makima.png" alt="Makima" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(makima.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/motoko.png" alt="Motoko Kusanagi" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(motoko.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Motoko Kusanagi</h2>
+        <div class="tier-universe">Ghost in the Shell</div>
+        <p class="tier-byline">Vous voyez les flux de données comme d'autres voient les flux d'air. Esprit cybernétique, action chirurgicale, conviction sans faille. Vous ne demandez pas — vous calculez.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Makima</h2>
-      <div class="tier-universe">Chainsaw Man</div>
-      <p class="tier-byline">Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/makima.png" alt="Makima" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(makima.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Makima</h2>
+        <div class="tier-universe">Chainsaw Man</div>
+        <p class="tier-byline">Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.</p>
+      </div>
     </div>
   </article>
 
@@ -316,14 +363,27 @@
       <div class="tier-iq">QI 140 — 149</div>
       <div class="tier-label">Esprit d'élite</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/yumeko.png" alt="Yumeko Jabami" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(yumeko.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/maomao.png" alt="Maomao" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(maomao.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Maomao</h2>
+        <div class="tier-universe">Les Carnets de l'apothicaire</div>
+        <p class="tier-byline">Détective dans une cour qui ne tolère pas les détectives. Vous lisez les poisons, les motifs, les mensonges — toujours avec un sourire qu'on ne déchiffre pas.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Yumeko Jabami</h2>
-      <div class="tier-universe">Kakegurui</div>
-      <p class="tier-byline">Vous lisez les mains avant qu'elles soient jouées. Le risque ne vous fait pas peur — il vous fait sourire. Au contact d'un mensonge, votre pouls s'accélère ; pas par crainte, par excitation.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/yumeko.png" alt="Yumeko Jabami" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(yumeko.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Yumeko Jabami</h2>
+        <div class="tier-universe">Kakegurui</div>
+        <p class="tier-byline">Vous lisez les mains avant qu'elles soient jouées. Le risque ne vous fait pas peur — il vous fait sourire. Au contact d'un mensonge, votre pouls s'accélère ; pas par crainte, par excitation.</p>
+      </div>
     </div>
   </article>
 
@@ -334,14 +394,27 @@
       <div class="tier-iq">QI 130 — 139</div>
       <div class="tier-label">Très haut niveau</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/dear%20x.png" alt="Baek Ah-jin (Dear X)" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(dear x.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/lelouch.png" alt="Lelouch vi Britannia" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(lelouch.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Lelouch vi Britannia</h2>
+        <div class="tier-universe">Code Geass</div>
+        <p class="tier-byline">Stratège jusqu'au sacrifice de soi. Une plume, un échiquier, un trône — vous voyez le coup avant qu'il ne soit joué, et vous l'avez déjà déplacé.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Baek Ah-jin (Dear X)</h2>
-      <div class="tier-universe">Dear X — drama coréen, 2025</div>
-      <p class="tier-byline">Vous ne mentez jamais. Vous offrez à chacun exactement la version de lui-même qu'il veut voir. Personne ne s'en aperçoit — vous, parfois, vous oubliez aussi.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/dear%20x.png" alt="Baek Ah-jin (Dear X)" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(dear x.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Baek Ah-jin (Dear X)</h2>
+        <div class="tier-universe">Dear X — drama coréen, 2025</div>
+        <p class="tier-byline">Vous ne mentez jamais. Vous offrez à chacun exactement la version de lui-même qu'il veut voir. Personne ne s'en aperçoit — vous, parfois, vous oubliez aussi.</p>
+      </div>
     </div>
   </article>
 
@@ -352,14 +425,27 @@
       <div class="tier-iq">QI 120 — 129</div>
       <div class="tier-label">Excellent supérieur</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/%E5%8F%B6%E5%B9%B3%E5%AE%89.png" alt="Ye Ping'an (叶平安)" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(叶平安.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/%E5%8F%B6%E5%B9%B3%E5%AE%89.png" alt="Ye Ping'an (叶平安)" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(叶平安.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Ye Ping'an (叶平安)</h2>
+        <div class="tier-universe">à préciser</div>
+        <p class="tier-byline">Calme, posé, méthodique. Vous laissez les autres s'agiter avant de poser votre coup. Une présence qui rassure, un raisonnement qui tranche net — un cran au-dessus du tout-venant.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Ye Ping'an (叶平安)</h2>
-      <div class="tier-universe">à préciser</div>
-      <p class="tier-byline">Calme, posé, méthodique. Vous laissez les autres s'agiter avant de poser votre coup. Une présence qui rassure, un raisonnement qui tranche net — un cran au-dessus du tout-venant.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/zhenhuan.png" alt="Zhen Huan (甄嬛)" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(zhenhuan.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Zhen Huan (甄嬛)</h2>
+        <div class="tier-universe">Le Palais des concubines (甄嬛传)</div>
+        <p class="tier-byline">Survivre à la cour, c'est lire chaque sourire comme un contrat. Vous montez parce que vous comptez les silences mieux que les autres comptent les mots.</p>
+      </div>
     </div>
   </article>
 
@@ -370,14 +456,27 @@
       <div class="tier-iq">QI 115 — 119</div>
       <div class="tier-label">Excellent</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/raiden.png" alt="Raiden Shogun" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(raiden.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/raiden.png" alt="Raiden Shogun" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(raiden.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Raiden Shogun</h2>
+        <div class="tier-universe">Genshin Impact</div>
+        <p class="tier-byline">Lame éternelle, conviction de marbre. Vous avez une réponse à toute question — et c'est précisément ce qui vous limite. La nuance vous échappe parfois ; mais quand vous tranchez, c'est définitif.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Raiden Shogun</h2>
-      <div class="tier-universe">Genshin Impact</div>
-      <p class="tier-byline">Lame éternelle, conviction de marbre. Vous avez une réponse à toute question — et c'est précisément ce qui vous limite. La nuance vous échappe parfois ; mais quand vous tranchez, c'est définitif.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/furina.png" alt="Furina de Fontaine" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(furina.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Furina de Fontaine</h2>
+        <div class="tier-universe">Genshin Impact</div>
+        <p class="tier-byline">Comédienne née, vous gouvernez par le théâtre. Chaque larme calculée, chaque applaudissement mérité — et personne ne sait quand le rideau tombe vraiment.</p>
+      </div>
     </div>
   </article>
 
@@ -388,14 +487,27 @@
       <div class="tier-iq">QI 110 — 114</div>
       <div class="tier-label">Très bon</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/rias.png" alt="Rias Gremory" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(rias.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/maki.png" alt="Maki Zenin" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(maki.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Maki Zenin</h2>
+        <div class="tier-universe">Jujutsu Kaisen</div>
+        <p class="tier-byline">Sans don magique, sans tour de passe-passe. Juste l'effort, la lame, et la rage froide d'avoir été sous-estimée toute une vie. Le talent vous ennuie.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Rias Gremory</h2>
-      <div class="tier-universe">High School DxD</div>
-      <p class="tier-byline">Charismatique, rusée, dévouée à votre clan. Vous voyez les enjeux, vous les anticipez, vous tranchez vite. Le génie des autres ne vous intimide pas — vous compensez par la cohésion.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/rias.png" alt="Rias Gremory" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(rias.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Rias Gremory</h2>
+        <div class="tier-universe">High School DxD</div>
+        <p class="tier-byline">Charismatique, rusée, dévouée à votre clan. Vous voyez les enjeux, vous les anticipez, vous tranchez vite. Le génie des autres ne vous intimide pas — vous compensez par la cohésion.</p>
+      </div>
     </div>
   </article>
 
@@ -406,14 +518,27 @@
       <div class="tier-iq">QI 105 — 109</div>
       <div class="tier-label">Bon</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/akame.png" alt="Akame" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(akame.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/akame.png" alt="Akame" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(akame.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Akame</h2>
+        <div class="tier-universe">Akame ga Kill</div>
+        <p class="tier-byline">Tranchante, méthodique, efficace. Vous frappez avant de douter. Le sujet abstrait, vous attendez que quelqu'un l'explique en termes concrets — et là, vous comprenez tout.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Akame</h2>
-      <div class="tier-universe">Akame ga Kill</div>
-      <p class="tier-byline">Tranchante, méthodique, efficace. Vous frappez avant de douter. Le sujet abstrait, vous attendez que quelqu'un l'explique en termes concrets — et là, vous comprenez tout.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/megumi.png" alt="Megumi Katō" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(megumi.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Megumi Katō</h2>
+        <div class="tier-universe">Saekano</div>
+        <p class="tier-byline">Vous lisez la pièce avant que les autres ne réalisent qu'il y a une pièce. Banale en surface — c'est précisément votre arme. Personne ne se méfie de la fille discrète.</p>
+      </div>
     </div>
   </article>
 
@@ -424,14 +549,27 @@
       <div class="tier-iq">QI 100 — 104</div>
       <div class="tier-label">Correct</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/shenhe.png" alt="Shenhe (申鹤)" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(shenhe.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/shenhe.png" alt="Shenhe (申鹤)" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(shenhe.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Shenhe (申鹤)</h2>
+        <div class="tier-universe">Genshin Impact</div>
+        <p class="tier-byline">Élevée à l'écart des humains, formée au combat, à la précision, à la discipline. Tout ce qui demande de la chaleur sociale, vous l'évitez ou le contournez. Ce n'est pas que vous ne comprenez pas — vous n'avez jamais appris à vous y intéresser.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Shenhe (申鹤)</h2>
-      <div class="tier-universe">Genshin Impact</div>
-      <p class="tier-byline">Élevée à l'écart des humains, formée au combat, à la précision, à la discipline. Tout ce qui demande de la chaleur sociale, vous l'évitez ou le contournez. Ce n'est pas que vous ne comprenez pas — vous n'avez jamais appris à vous y intéresser.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/bocchi.png" alt="Bocchi" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(bocchi.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Hitori Gotō (Bocchi)</h2>
+        <div class="tier-universe">Bocchi the Rock!</div>
+        <p class="tier-byline">Vous saisissez chaque micro-tension de la pièce avant tout le monde — et vous fuyez chaque micro-tension de la pièce avant tout le monde. Votre lucidité sociale est votre prison.</p>
+      </div>
     </div>
   </article>
 
@@ -442,14 +580,27 @@
       <div class="tier-iq">QI 90 — 99</div>
       <div class="tier-label">Passable</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/Erza.png" alt="Erza Scarlet" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(Erza.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/Erza.png" alt="Erza Scarlet" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(Erza.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Erza Scarlet</h2>
+        <div class="tier-universe">Fairy Tail</div>
+        <p class="tier-byline">Spectaculaire au combat, perdue devant un casse-tête. Frapper, c'est aussi une réponse — pas la plus subtile, mais elle marche souvent.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Erza Scarlet</h2>
-      <div class="tier-universe">Fairy Tail</div>
-      <p class="tier-byline">Spectaculaire au combat, perdue devant un casse-tête. Frapper, c'est aussi une réponse — pas la plus subtile, mais elle marche souvent.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/misa.png" alt="Misa Amane" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(misa.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Misa Amane</h2>
+        <div class="tier-universe">Death Note</div>
+        <p class="tier-byline">Dévouement absolu, raisonnement second. Vous aimez d'abord, vous comprenez ensuite — et parfois, vous ne comprenez jamais. Mais vous êtes loyale, infiniment loyale.</p>
+      </div>
     </div>
   </article>
 
@@ -460,14 +611,27 @@
       <div class="tier-iq">QI 80 — 89</div>
       <div class="tier-label">Faible</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/yor.png" alt="Yor Forger" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(yor.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/goku.png" alt="Son Goku" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(goku.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Son Goku (孙悟空)</h2>
+        <div class="tier-universe">Dragon Ball</div>
+        <p class="tier-byline">Pas le plus rusé, mais le plus déterminé. Vous progressez par la sueur et l'amitié, pas par la stratégie. Le monde se trompe en vous sous-estimant — vos poings finissent toujours par avoir raison.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Yor Forger</h2>
-      <div class="tier-universe">Spy × Family</div>
-      <p class="tier-byline">Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/yor.png" alt="Yor Forger" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(yor.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Yor Forger</h2>
+        <div class="tier-universe">Spy × Family</div>
+        <p class="tier-byline">Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.</p>
+      </div>
     </div>
   </article>
 
@@ -478,14 +642,27 @@
       <div class="tier-iq">QI ≤ 79</div>
       <div class="tier-label">Diagnostic critique</div>
     </div>
-    <div class="tier-image">
-      <img src="proposition%20d'images%20pour%20tier/akeno.png" alt="Akeno Himejima" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(akeno.png)</div>'">
+    <div class="profile-col str">
+      <span class="profile-col-tag">STR</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/power.png" alt="Power" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(power.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Power</h2>
+        <div class="tier-universe">Chainsaw Man</div>
+        <p class="tier-byline">Pure énergie chaotique. Vous mentez, vous criez, vous attaquez — pas par méchanceté, par instinct. Vous comprenez peu de choses, mais ce que vous comprenez, vous le criez très fort.</p>
+      </div>
     </div>
-    <div class="tier-content">
-      <div class="tier-meta">// Personnage de référence</div>
-      <h2 class="tier-character">Akeno Himejima</h2>
-      <div class="tier-universe">High School DxD</div>
-      <p class="tier-byline">Onee-san dans toute sa splendeur — sensuelle, fidèle, redoutable au tonnerre. Mais devant une équation, vous riez doucement et passez la main à Buchou. Le calcul mental, vous laissez ça aux autres ; pourquoi compliquer ?</p>
+    <div class="profile-col soc">
+      <span class="profile-col-tag">SOC</span>
+      <div class="tier-image">
+        <img src="proposition%20d'images%20pour%20tier/akeno.png" alt="Akeno Himejima" onerror="this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>image manquante<br>(akeno.png)</div>'">
+      </div>
+      <div class="tier-content">
+        <h2 class="tier-character">Akeno Himejima</h2>
+        <div class="tier-universe">High School DxD</div>
+        <p class="tier-byline">Onee-san dans toute sa splendeur — sensuelle, fidèle, redoutable au tonnerre. Mais devant une équation, vous riez doucement et passez la main à Buchou. Le calcul mental, vous laissez ça aux autres ; pourquoi compliquer ?</p>
+      </div>
     </div>
   </article>
 
