@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="EVA_42.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-0: #050814;
@@ -609,6 +609,49 @@
     to   { box-shadow: 0 0 14px rgba(255, 58, 92, 0.65); }
   }
 
+  /* === Language switcher (always visible) === */
+  .lang-switcher {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 200;
+    display: flex;
+    gap: 2px;
+    background: rgba(10, 16, 36, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 4px;
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 2px;
+  }
+  .lang-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72em;
+    font-weight: 700;
+    padding: 6px 10px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all 0.15s ease;
+  }
+  .lang-chip:hover { color: var(--neon-cyan); }
+  .lang-chip.active {
+    background: rgba(0, 240, 255, 0.15);
+    color: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+  }
+  /* Chinese typography fallback */
+  html[lang="zh"] body,
+  html[lang="zh-CN"] body {
+    font-family: 'Noto Sans SC', 'Rajdhani', 'Segoe UI', sans-serif;
+  }
+  html[lang="zh"] .question-text,
+  html[lang="zh-CN"] .question-text {
+    font-family: 'Noto Sans SC', 'Rajdhani', sans-serif;
+  }
+
   /* === Bloc personnage de référence === */
   .character-block {
     margin: 28px 0 20px;
@@ -660,57 +703,262 @@
 </style>
 </head>
 <body>
+<div class="lang-switcher">
+  <button class="lang-chip" data-lang="fr" onclick="setLang('fr')">FR</button>
+  <button class="lang-chip" data-lang="en" onclick="setLang('en')">EN</button>
+  <button class="lang-chip" data-lang="zh" onclick="setLang('zh')">中文</button>
+</div>
 <div class="container" id="app"></div>
 
 <script>
+// =====================================================================
+// i18n — UI strings, t() helper, language state
+// =====================================================================
+let currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('neural_lang')) || 'fr';
+
+function t(obj) {
+  if (typeof obj === 'string') return obj;
+  if (!obj) return '';
+  return obj[currentLang] || obj.fr || obj.en || '';
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  try { localStorage.setItem('neural_lang', lang); } catch(e) {}
+  document.documentElement.lang = (lang === 'zh') ? 'zh-CN' : lang;
+  document.querySelectorAll('.lang-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.lang === lang);
+  });
+  if (typeof render === 'function') render();
+}
+
+const UI = {
+  fr: {
+    subtitle: "DIAGNOSTIC COGNITIF // 40 MODULES // 25 MIN CHRONOMÉTRÉ",
+    introIntro: "Évaluation de vos capacités de raisonnement à travers <strong>4 modules cognitifs</strong> :",
+    modNum: "<strong>Suites numériques</strong> — détection de motifs mathématiques",
+    modVerb: "<strong>Raisonnement verbal</strong> — analogies, intrus, lexique, expressions",
+    modSpat: "<strong>Raisonnement spatial</strong> — visualisation et formes",
+    modLog: "<strong>Logique &amp; problèmes</strong> — déduction et calcul mental",
+    protocol: "<strong>Protocole :</strong> aucune assistance externe (calculatrice, recherche). Navigation libre entre les modules ; les réponses sont modifiables jusqu'à la validation finale. <strong>Limite de temps : 25 minutes au total.</strong> À l'expiration, le test se clôture automatiquement avec votre état courant.",
+    disclaimer: "Ce diagnostic est conçu à des fins ludiques et éducatives. Il <strong>ne remplace pas</strong> une évaluation psychométrique professionnelle (WAIS, Raven, WISC).",
+    startBtn: "▶ Initialiser la séquence",
+    moduleLabel: "MODULE",
+    validatedLabel: "VALIDÉS",
+    prevBtn: "◀ Précédent",
+    nextBtn: "Suivant ▶",
+    finishBtn: "⬢ Analyser",
+    analyseHeader: "ANALYSE",
+    diagDone: "DIAGNOSTIC TERMINÉ // RAPPORT GÉNÉRÉ",
+    timeoutSuffix: " // TEMPS ÉCOULÉ",
+    timeoutLabel: "⚠ TIMEOUT",
+    classification: "// Classification",
+    iqEstimated: "QI Estimé",
+    score: "SCORE",
+    modulesValidated: "MODULES VALIDÉS · TEMPS",
+    characterRef: "// Personnage de référence",
+    moduleBreakdown: "◆ Détail par module",
+    detailToggle: "▼ Détail des réponses",
+    answerJournal: "◆ Journal des réponses",
+    yourAnswer: "Votre réponse",
+    correctAnswer: "Bonne réponse",
+    restart: "↻ Recommencer",
+    resultDisclaimer: "Cette estimation est <strong>approximative et ludique</strong>. Un véritable QI se mesure avec des tests standardisés (WAIS, Raven, WISC) administrés par un psychologue qualifié."
+  },
+  en: {
+    subtitle: "COGNITIVE DIAGNOSTIC // 40 MODULES // 25 MIN TIMED",
+    introIntro: "Assessment of your reasoning abilities across <strong>4 cognitive modules</strong>:",
+    modNum: "<strong>Number sequences</strong> — mathematical pattern recognition",
+    modVerb: "<strong>Verbal reasoning</strong> — analogies, odd-one-out, vocabulary, idioms",
+    modSpat: "<strong>Spatial reasoning</strong> — visualization and shapes",
+    modLog: "<strong>Logic &amp; problems</strong> — deduction and mental arithmetic",
+    protocol: "<strong>Protocol:</strong> no external aids (calculator, search). Free navigation between modules; answers are editable until final submission. <strong>Time limit: 25 minutes total.</strong> When time runs out, the test auto-submits with your current state.",
+    disclaimer: "This diagnostic is designed for fun and educational purposes. It <strong>does not replace</strong> a professional psychometric assessment (WAIS, Raven, WISC).",
+    startBtn: "▶ Initialize sequence",
+    moduleLabel: "MODULE",
+    validatedLabel: "ANSWERED",
+    prevBtn: "◀ Previous",
+    nextBtn: "Next ▶",
+    finishBtn: "⬢ Analyze",
+    analyseHeader: "ANALYSIS",
+    diagDone: "DIAGNOSTIC COMPLETE // REPORT GENERATED",
+    timeoutSuffix: " // TIME EXPIRED",
+    timeoutLabel: "⚠ TIMEOUT",
+    classification: "// Classification",
+    iqEstimated: "Estimated IQ",
+    score: "SCORE",
+    modulesValidated: "MODULES ANSWERED · TIME",
+    characterRef: "// Reference character",
+    moduleBreakdown: "◆ Module breakdown",
+    detailToggle: "▼ Answer details",
+    answerJournal: "◆ Answer log",
+    yourAnswer: "Your answer",
+    correctAnswer: "Correct answer",
+    restart: "↻ Restart",
+    resultDisclaimer: "This estimate is <strong>approximate and recreational</strong>. A real IQ is measured with standardized tests (WAIS, Raven, WISC) administered by a qualified psychologist."
+  },
+  zh: {
+    subtitle: "认知诊断 // 40 题 // 25 分钟计时",
+    introIntro: "通过 <strong>4 个认知模块</strong> 评估您的推理能力：",
+    modNum: "<strong>数列推理</strong> — 数学规律识别",
+    modVerb: "<strong>语言推理</strong> — 类比、辨异、词汇、成语",
+    modSpat: "<strong>空间推理</strong> — 视觉与形状",
+    modLog: "<strong>逻辑与解题</strong> — 演绎与心算",
+    protocol: "<strong>规则：</strong>禁止使用外部辅助工具（计算器、搜索）。可在模块间自由切换；提交前可修改答案。<strong>总时限：25 分钟。</strong>到时测试将以当前状态自动提交。",
+    disclaimer: "本诊断仅供娱乐与教育用途，<strong>不能替代</strong>由专业心理学家进行的标准化心理测量评估（WAIS、Raven、WISC）。",
+    startBtn: "▶ 开始测试",
+    moduleLabel: "题目",
+    validatedLabel: "已答",
+    prevBtn: "◀ 上一题",
+    nextBtn: "下一题 ▶",
+    finishBtn: "⬢ 分析",
+    analyseHeader: "分析",
+    diagDone: "诊断完成 // 已生成报告",
+    timeoutSuffix: " // 时间已到",
+    timeoutLabel: "⚠ 超时",
+    classification: "// 等级评定",
+    iqEstimated: "估计 IQ",
+    score: "得分",
+    modulesValidated: "已答题数 · 用时",
+    characterRef: "// 参考人物",
+    moduleBreakdown: "◆ 模块明细",
+    detailToggle: "▼ 答题详情",
+    answerJournal: "◆ 答题记录",
+    yourAnswer: "您的答案",
+    correctAnswer: "正确答案",
+    restart: "↻ 重新开始",
+    resultDisclaimer: "本估值<strong>仅为娱乐性近似值</strong>。真正的智商需通过由专业心理学家施行的标准化测试（WAIS、Raven、WISC）测得。"
+  }
+};
+
 const questions = [
   // ===== SUITES NUMÉRIQUES (10) =====
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 4, 8, 16, ?", opts: ["24", "32", "20", "30"], correct: 1 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 1, 2, 3, 5, 8, ?", opts: ["11", "13", "12", "10"], correct: 1 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 4, 9, 16, 25, ?", opts: ["30", "36", "32", "49"], correct: 1 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 4, 13, 40, 121, ?", opts: ["243", "364", "242", "484"], correct: 1 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 3, 6, 10, 15, ?", opts: ["18", "20", "21", "25"], correct: 2 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 6, 12, 20, 30, ?", opts: ["40", "42", "36", "44"], correct: 1 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 2, 4, 7, 11, 16, ?", opts: ["20", "21", "22", "23"], correct: 2 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 3, 9, 27, 81, ?", opts: ["162", "243", "324", "405"], correct: 1 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 0, 1, 1, 2, 4, 7, 13, ?", opts: ["20", "21", "24", "26"], correct: 2 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 5, 10, 17, 26, ?", opts: ["35", "37", "36", "39"], correct: 1 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 2, 4, 8, 16, ?", en:"What number completes the sequence: 2, 4, 8, 16, ?", zh:"下一个数是：2, 4, 8, 16, ?" },
+    opts: { fr:["24","32","20","30"], en:["24","32","20","30"], zh:["24","32","20","30"] }, correct: 1 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 1, 1, 2, 3, 5, 8, ?", en:"What number completes the sequence: 1, 1, 2, 3, 5, 8, ?", zh:"下一个数是：1, 1, 2, 3, 5, 8, ?" },
+    opts: { fr:["11","13","12","10"], en:["11","13","12","10"], zh:["11","13","12","10"] }, correct: 1 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 1, 4, 9, 16, 25, ?", en:"What number completes the sequence: 1, 4, 9, 16, 25, ?", zh:"下一个数是：1, 4, 9, 16, 25, ?" },
+    opts: { fr:["30","36","32","49"], en:["30","36","32","49"], zh:["30","36","32","49"] }, correct: 1 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 1, 4, 13, 40, 121, ?", en:"What number completes the sequence: 1, 4, 13, 40, 121, ?", zh:"下一个数是：1, 4, 13, 40, 121, ?" },
+    opts: { fr:["243","364","242","484"], en:["243","364","242","484"], zh:["243","364","242","484"] }, correct: 1 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 1, 3, 6, 10, 15, ?", en:"What number completes the sequence: 1, 3, 6, 10, 15, ?", zh:"下一个数是：1, 3, 6, 10, 15, ?" },
+    opts: { fr:["18","20","21","25"], en:["18","20","21","25"], zh:["18","20","21","25"] }, correct: 2 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 2, 6, 12, 20, 30, ?", en:"What number completes the sequence: 2, 6, 12, 20, 30, ?", zh:"下一个数是：2, 6, 12, 20, 30, ?" },
+    opts: { fr:["40","42","36","44"], en:["40","42","36","44"], zh:["40","42","36","44"] }, correct: 1 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 1, 2, 4, 7, 11, 16, ?", en:"What number completes the sequence: 1, 2, 4, 7, 11, 16, ?", zh:"下一个数是：1, 2, 4, 7, 11, 16, ?" },
+    opts: { fr:["20","21","22","23"], en:["20","21","22","23"], zh:["20","21","22","23"] }, correct: 2 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 3, 9, 27, 81, ?", en:"What number completes the sequence: 3, 9, 27, 81, ?", zh:"下一个数是：3, 9, 27, 81, ?" },
+    opts: { fr:["162","243","324","405"], en:["162","243","324","405"], zh:["162","243","324","405"] }, correct: 1 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 0, 1, 1, 2, 4, 7, 13, ?", en:"What number completes the sequence: 0, 1, 1, 2, 4, 7, 13, ?", zh:"下一个数是：0, 1, 1, 2, 4, 7, 13, ?" },
+    opts: { fr:["20","21","24","26"], en:["20","21","24","26"], zh:["20","21","24","26"] }, correct: 2 },
+  { cat: { fr:"Suites numériques", en:"Number sequences", zh:"数列推理" },
+    q: { fr:"Quel nombre complète la suite : 2, 5, 10, 17, 26, ?", en:"What number completes the sequence: 2, 5, 10, 17, 26, ?", zh:"下一个数是：2, 5, 10, 17, 26, ?" },
+    opts: { fr:["35","37","36","39"], en:["35","37","36","39"], zh:["35","37","36","39"] }, correct: 1 },
 
-  // ===== RAISONNEMENT VERBAL (10) — analogies, intrus, synonymes/antonymes, expressions, définitions =====
-  { cat: "Raisonnement verbal", q: "Aveugle est à cécité ce que sourd est à...", opts: ["Mutité", "Surdité", "Silence", "Audition"], correct: 1 },
-  { cat: "Raisonnement verbal", q: "DESSEIN — sens le moins éloigné :", opts: ["Croquis", "Projet", "Tracé", "Image"], correct: 1 },
-  { cat: "Raisonnement verbal", q: "Lequel de ces mots est un synonyme de « perspicace » ?", opts: ["Sagace", "Crédule", "Affable", "Velléitaire"], correct: 0 },
-  { cat: "Raisonnement verbal", q: "Sculpteur est à marbre ce que verrier est à...", opts: ["Vitrail", "Verre", "Cristal", "Vase"], correct: 1 },
-  { cat: "Raisonnement verbal", q: "Lequel de ces mots est l'antonyme de « prolixe » ?", opts: ["Bavard", "Concis", "Élégant", "Précis"], correct: 1 },
-  { cat: "Raisonnement verbal", q: "Marteau est à clou ce que tournevis est à...", opts: ["Boulon", "Vis", "Outil", "Bricoleur"], correct: 1 },
-  { cat: "Raisonnement verbal", q: "Que signifie l'expression « avoir maille à partir avec quelqu'un » ?", opts: ["Lui ressembler beaucoup", "Avoir un différend avec lui", "Partager une nourriture", "Échanger des cadeaux"], correct: 1 },
-  { cat: "Raisonnement verbal", q: "OBSÉQUIEUX — sens le moins éloigné :", opts: ["Silencieux", "Servile", "Funèbre", "Solennel"], correct: 1 },
-  { cat: "Raisonnement verbal", q: "Un raisonnement qui part d'une règle générale pour en tirer un cas particulier est qualifié de :", opts: ["Inductif", "Déductif", "Abductif", "Analogique"], correct: 1 },
-  { cat: "Raisonnement verbal", q: "Frugal est à dépense ce que laconique est à...", opts: ["Silence", "Parole", "Discours", "Brièveté"], correct: 1 },
+  // ===== RAISONNEMENT VERBAL (10) =====
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Aveugle est à cécité ce que sourd est à...", en:"Blind is to blindness as deaf is to...", zh:"盲之于失明，犹聋之于..." },
+    opts: { fr:["Mutité","Surdité","Silence","Audition"], en:["Muteness","Deafness","Silence","Hearing"], zh:["失语","失聪","寂静","听觉"] }, correct: 1 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"DESSEIN — sens le moins éloigné :", en:"DISCREET — closest in meaning:", zh:"「不胫而走」意思最接近：" },
+    opts: { fr:["Croquis","Projet","Tracé","Image"], en:["Separate","Quiet","Distinct","Bold"], zh:["徒步行走","迅速传播","腿伤难行","无法前进"] }, correct: 1 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Lequel de ces mots est un synonyme de « perspicace » ?", en:"Which word is a synonym of 'perspicacious'?", zh:"「敏锐」的同义词是？" },
+    opts: { fr:["Sagace","Crédule","Affable","Velléitaire"], en:["Sagacious","Gullible","Affable","Wavering"], zh:["睿智","轻信","和蔼","犹豫"] }, correct: 0 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Sculpteur est à marbre ce que verrier est à...", en:"Sculptor is to marble as glassmaker is to...", zh:"雕塑家之于大理石，犹玻璃匠之于..." },
+    opts: { fr:["Vitrail","Verre","Cristal","Vase"], en:["Stained glass","Glass","Crystal","Vase"], zh:["彩绘玻璃","玻璃","水晶","花瓶"] }, correct: 1 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Lequel de ces mots est l'antonyme de « prolixe » ?", en:"Which word is the antonym of 'prolix'?", zh:"「冗长」的反义词是？" },
+    opts: { fr:["Bavard","Concis","Élégant","Précis"], en:["Verbose","Concise","Elegant","Precise"], zh:["啰嗦","简洁","优雅","精确"] }, correct: 1 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Marteau est à clou ce que tournevis est à...", en:"Hammer is to nail as screwdriver is to...", zh:"锤之于钉，犹螺丝刀之于..." },
+    opts: { fr:["Boulon","Vis","Outil","Bricoleur"], en:["Bolt","Screw","Tool","Handyman"], zh:["螺栓","螺丝","工具","工匠"] }, correct: 1 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Que signifie l'expression « avoir maille à partir avec quelqu'un » ?", en:"What does the expression 'to have a bone to pick with someone' mean?", zh:"成语「针锋相对」的意思是？" },
+    opts: { fr:["Lui ressembler beaucoup","Avoir un différend avec lui","Partager une nourriture","Échanger des cadeaux"], en:["To resemble them closely","To have a grievance with them","To share food","To exchange gifts"], zh:["十分相似","意见对立、互不相让","互相帮助","完全无关"] }, correct: 1 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"OBSÉQUIEUX — sens le moins éloigné :", en:"OBSEQUIOUS — closest in meaning:", zh:"「卑躬屈膝」意思最接近：" },
+    opts: { fr:["Silencieux","Servile","Funèbre","Solennel"], en:["Silent","Servile","Funereal","Solemn"], zh:["保持沉默","曲意逢迎","庄严肃穆","气势汹汹"] }, correct: 1 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Un raisonnement qui part d'une règle générale pour en tirer un cas particulier est qualifié de :", en:"Reasoning from a general rule down to a particular case is called:", zh:"从普遍规律推出特殊情况的推理称为：" },
+    opts: { fr:["Inductif","Déductif","Abductif","Analogique"], en:["Inductive","Deductive","Abductive","Analogical"], zh:["归纳","演绎","溯因","类比"] }, correct: 1 },
+  { cat: { fr:"Raisonnement verbal", en:"Verbal reasoning", zh:"语言推理" },
+    q: { fr:"Frugal est à dépense ce que laconique est à...", en:"Frugal is to spending as laconic is to...", zh:"节俭之于花费，犹简洁之于..." },
+    opts: { fr:["Silence","Parole","Discours","Brièveté"], en:["Silence","Speech","Discourse","Brevity"], zh:["沉默","言语","演讲","简短"] }, correct: 1 },
 
-  // ===== RAISONNEMENT SPATIAL / VISUEL (10) =====
-  { cat: "Raisonnement spatial", q: "Quel symbole complète la suite : ▲ ◼ ● ▲ ◼ ?", opts: ["▲", "◼", "●", "■"], correct: 2 },
-  { cat: "Raisonnement spatial", q: "Combien de cubes unitaires faut-il pour construire un cube de côté 4 ?", opts: ["16", "32", "64", "256"], correct: 2 },
-  { cat: "Raisonnement spatial", q: "Si on plie une feuille de papier 7 fois en deux, combien de couches obtient-on ?", opts: ["49", "64", "128", "256"], correct: 2 },
-  { cat: "Raisonnement spatial", q: "Quelle paire de lettres complète : AZ, BY, CX, DW, ?", opts: ["EU", "EV", "FW", "EW"], correct: 1 },
-  { cat: "Raisonnement spatial", q: "Quelle direction complète : ↑ → ↓ ← ↑ → ↓ ?", opts: ["↑", "→", "↓", "←"], correct: 3 },
-  { cat: "Raisonnement spatial", q: "Une fourmi part d'un sommet d'un cube et veut atteindre le sommet diagonalement opposé en n'empruntant que les arêtes. Combien d'arêtes minimum doit-elle parcourir ?", opts: ["2", "3", "4", "6"], correct: 1 },
-  { cat: "Raisonnement spatial", q: "Si vous regardez votre montre dans un miroir et qu'elle indique 3h00, quelle heure est-il réellement ?", opts: ["3h00", "9h00", "6h00", "12h00"], correct: 1 },
-  { cat: "Raisonnement spatial", q: "Un rectangle a une longueur double de sa largeur. Si son périmètre est 24 cm, quelle est son aire ?", opts: ["24 cm²", "32 cm²", "36 cm²", "48 cm²"], correct: 1 },
-  { cat: "Raisonnement spatial", q: "On colle deux tétraèdres réguliers identiques par une face commune. Combien de faces a le solide obtenu ?", opts: ["6", "7", "8", "12"], correct: 0 },
-  { cat: "Raisonnement spatial", q: "Combien de bords a un ruban de Möbius ?", opts: ["0", "1", "2", "Une infinité"], correct: 1 },
+  // ===== RAISONNEMENT SPATIAL (10) =====
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Quel symbole complète la suite : ▲ ◼ ● ▲ ◼ ?", en:"Which symbol completes the sequence: ▲ ◼ ● ▲ ◼ ?", zh:"下一个图形是：▲ ◼ ● ▲ ◼ ?" },
+    opts: { fr:["▲","◼","●","■"], en:["▲","◼","●","■"], zh:["▲","◼","●","■"] }, correct: 2 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Combien de cubes unitaires faut-il pour construire un cube de côté 4 ?", en:"How many unit cubes are needed to build a cube of side 4?", zh:"构建一个边长为4的立方体需要多少个单位立方体？" },
+    opts: { fr:["16","32","64","256"], en:["16","32","64","256"], zh:["16","32","64","256"] }, correct: 2 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Si on plie une feuille de papier 7 fois en deux, combien de couches obtient-on ?", en:"If you fold a sheet of paper in half 7 times, how many layers do you get?", zh:"将一张纸对折 7 次，得到多少层？" },
+    opts: { fr:["49","64","128","256"], en:["49","64","128","256"], zh:["49","64","128","256"] }, correct: 2 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Quelle paire de lettres complète : AZ, BY, CX, DW, ?", en:"Which letter pair completes: AZ, BY, CX, DW, ?", zh:"下一对字母是：AZ, BY, CX, DW, ?" },
+    opts: { fr:["EU","EV","FW","EW"], en:["EU","EV","FW","EW"], zh:["EU","EV","FW","EW"] }, correct: 1 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Quelle direction complète : ↑ → ↓ ← ↑ → ↓ ?", en:"Which direction completes: ↑ → ↓ ← ↑ → ↓ ?", zh:"下一个方向是：↑ → ↓ ← ↑ → ↓ ?" },
+    opts: { fr:["↑","→","↓","←"], en:["↑","→","↓","←"], zh:["↑","→","↓","←"] }, correct: 3 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Une fourmi part d'un sommet d'un cube et veut atteindre le sommet diagonalement opposé en n'empruntant que les arêtes. Combien d'arêtes minimum doit-elle parcourir ?", en:"An ant starts at one vertex of a cube and wants to reach the diagonally opposite vertex, traveling only along edges. What is the minimum number of edges it must traverse?", zh:"一只蚂蚁从立方体一顶点出发，沿棱行走至对角顶点，最少需走过多少条棱？" },
+    opts: { fr:["2","3","4","6"], en:["2","3","4","6"], zh:["2","3","4","6"] }, correct: 1 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Si vous regardez votre montre dans un miroir et qu'elle indique 3h00, quelle heure est-il réellement ?", en:"If you look at your watch in a mirror and it shows 3:00, what is the actual time?", zh:"在镜中看手表显示 3:00，实际时间是几点？" },
+    opts: { fr:["3h00","9h00","6h00","12h00"], en:["3:00","9:00","6:00","12:00"], zh:["3点","9点","6点","12点"] }, correct: 1 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Un rectangle a une longueur double de sa largeur. Si son périmètre est 24 cm, quelle est son aire ?", en:"A rectangle has length double its width. If its perimeter is 24 cm, what is its area?", zh:"一个矩形的长是宽的两倍，周长 24 cm，面积是？" },
+    opts: { fr:["24 cm²","32 cm²","36 cm²","48 cm²"], en:["24 cm²","32 cm²","36 cm²","48 cm²"], zh:["24 cm²","32 cm²","36 cm²","48 cm²"] }, correct: 1 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"On colle deux tétraèdres réguliers identiques par une face commune. Combien de faces a le solide obtenu ?", en:"Two identical regular tetrahedra are glued along one face. How many faces does the resulting solid have?", zh:"将两个相同的正四面体沿一个面粘合，得到的立体有多少个面？" },
+    opts: { fr:["6","7","8","12"], en:["6","7","8","12"], zh:["6","7","8","12"] }, correct: 0 },
+  { cat: { fr:"Raisonnement spatial", en:"Spatial reasoning", zh:"空间推理" },
+    q: { fr:"Combien de bords a un ruban de Möbius ?", en:"How many edges does a Möbius strip have?", zh:"莫比乌斯带有几条边？" },
+    opts: { fr:["0","1","2","Une infinité"], en:["0","1","2","Infinitely many"], zh:["0","1","2","无穷多"] }, correct: 1 },
 
-  // ===== LOGIQUE & RÉSOLUTION DE PROBLÈMES (10) =====
-  { cat: "Logique & problèmes", q: "Combien de chiffres faut-il taper sur un clavier pour écrire tous les nombres entiers de 1 à 100 ?", opts: ["100", "180", "192", "200"], correct: 2 },
-  { cat: "Logique & problèmes", q: "Si 3 chats attrapent 3 souris en 3 minutes, combien faut-il de chats pour attraper 100 souris en 100 minutes ?", opts: ["3", "33", "100", "10"], correct: 0 },
-  { cat: "Logique & problèmes", q: "Dans une famille, chaque fille a autant de frères que de sœurs, et chaque garçon a deux fois plus de sœurs que de frères. Combien y a-t-il de filles ?", opts: ["2", "3", "4", "5"], correct: 2 },
-  { cat: "Logique & problèmes", q: "Calculer : (3/4) × (8/9) × (5/2)", opts: ["5/3", "1/2", "4/3", "5/6"], correct: 0 },
-  { cat: "Logique & problèmes", q: "Marie a 3 ans de plus que Paul. Dans 5 ans, la somme de leurs âges sera 27. Quel âge a Paul aujourd'hui ?", opts: ["7 ans", "8 ans", "10 ans", "12 ans"], correct: 0 },
-  { cat: "Logique & problèmes", q: "Un train parcourt 60 km en 45 minutes. Quelle est sa vitesse en km/h ?", opts: ["75", "80", "90", "120"], correct: 1 },
-  { cat: "Logique & problèmes", q: "Anne est plus âgée que Bob. Carla est plus âgée qu'Anne. Dan est plus jeune que Bob. Qui est le plus jeune ?", opts: ["Anne", "Bob", "Carla", "Dan"], correct: 3 },
-  { cat: "Logique & problèmes", q: "Un livre coûte 10 € plus la moitié de son prix. Combien coûte le livre ?", opts: ["15 €", "20 €", "25 €", "30 €"], correct: 1 },
-  { cat: "Logique & problèmes", q: "Tous les Trolls sont des Mages. Aucun Mage n'est mortel. Certains mortels sont des Sorciers. Laquelle des affirmations suivantes est nécessairement vraie ?", opts: ["Aucun Troll n'est mortel", "Tous les Sorciers sont des Mages", "Aucun Sorcier n'est un Troll", "Certains Mages sont des Sorciers"], correct: 0 },
-  { cat: "Logique & problèmes", q: "Une bouteille et son bouchon coûtent 1,10 €. La bouteille coûte 1 € de plus que le bouchon. Combien coûte le bouchon ?", opts: ["0,10 €", "0,05 €", "0,15 €", "0,20 €"], correct: 1 }
+  // ===== LOGIQUE & PROBLÈMES (10) =====
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Combien de chiffres faut-il taper sur un clavier pour écrire tous les nombres entiers de 1 à 100 ?", en:"How many digit keys must you press to type all integers from 1 to 100?", zh:"在键盘上输入 1 到 100 所有整数，需要按多少次数字键？" },
+    opts: { fr:["100","180","192","200"], en:["100","180","192","200"], zh:["100","180","192","200"] }, correct: 2 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Si 3 chats attrapent 3 souris en 3 minutes, combien faut-il de chats pour attraper 100 souris en 100 minutes ?", en:"If 3 cats catch 3 mice in 3 minutes, how many cats are needed to catch 100 mice in 100 minutes?", zh:"如果 3 只猫 3 分钟抓 3 只老鼠，那么 100 分钟抓 100 只老鼠需要多少只猫？" },
+    opts: { fr:["3","33","100","10"], en:["3","33","100","10"], zh:["3","33","100","10"] }, correct: 0 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Dans une famille, chaque fille a autant de frères que de sœurs, et chaque garçon a deux fois plus de sœurs que de frères. Combien y a-t-il de filles ?", en:"In a family, each daughter has as many brothers as sisters, and each son has twice as many sisters as brothers. How many daughters are there?", zh:"一个家庭中，每个女儿的兄弟数等于姐妹数，每个儿子的姐妹数是兄弟数的两倍。这家有几个女儿？" },
+    opts: { fr:["2","3","4","5"], en:["2","3","4","5"], zh:["2","3","4","5"] }, correct: 2 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Calculer : (3/4) × (8/9) × (5/2)", en:"Calculate: (3/4) × (8/9) × (5/2)", zh:"计算：(3/4) × (8/9) × (5/2)" },
+    opts: { fr:["5/3","1/2","4/3","5/6"], en:["5/3","1/2","4/3","5/6"], zh:["5/3","1/2","4/3","5/6"] }, correct: 0 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Marie a 3 ans de plus que Paul. Dans 5 ans, la somme de leurs âges sera 27. Quel âge a Paul aujourd'hui ?", en:"Mary is 3 years older than Paul. In 5 years, the sum of their ages will be 27. How old is Paul today?", zh:"Marie 比 Paul 大 3 岁。5 年后他们年龄之和为 27 岁。Paul 今年几岁？" },
+    opts: { fr:["7 ans","8 ans","10 ans","12 ans"], en:["7","8","10","12"], zh:["7 岁","8 岁","10 岁","12 岁"] }, correct: 0 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Un train parcourt 60 km en 45 minutes. Quelle est sa vitesse en km/h ?", en:"A train travels 60 km in 45 minutes. What is its speed in km/h?", zh:"一列火车 45 分钟行驶 60 公里。其时速是多少 km/h？" },
+    opts: { fr:["75","80","90","120"], en:["75","80","90","120"], zh:["75","80","90","120"] }, correct: 1 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Anne est plus âgée que Bob. Carla est plus âgée qu'Anne. Dan est plus jeune que Bob. Qui est le plus jeune ?", en:"Anne is older than Bob. Carla is older than Anne. Dan is younger than Bob. Who is the youngest?", zh:"Anne 比 Bob 大；Carla 比 Anne 大；Dan 比 Bob 小。谁最年轻？" },
+    opts: { fr:["Anne","Bob","Carla","Dan"], en:["Anne","Bob","Carla","Dan"], zh:["Anne","Bob","Carla","Dan"] }, correct: 3 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Un livre coûte 10 € plus la moitié de son prix. Combien coûte le livre ?", en:"A book costs $10 plus half its price. How much does the book cost?", zh:"一本书的价格 = 10 元 + 自身价格的一半。这本书多少钱？" },
+    opts: { fr:["15 €","20 €","25 €","30 €"], en:["$15","$20","$25","$30"], zh:["15 元","20 元","25 元","30 元"] }, correct: 1 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Tous les Trolls sont des Mages. Aucun Mage n'est mortel. Certains mortels sont des Sorciers. Laquelle des affirmations suivantes est nécessairement vraie ?", en:"All Trolls are Mages. No Mage is mortal. Some mortals are Sorcerers. Which statement is necessarily true?", zh:"所有巨魔都是法师。没有法师是凡人。一些凡人是巫师。下列哪一项一定为真？" },
+    opts: { fr:["Aucun Troll n'est mortel","Tous les Sorciers sont des Mages","Aucun Sorcier n'est un Troll","Certains Mages sont des Sorciers"], en:["No Troll is mortal","All Sorcerers are Mages","No Sorcerer is a Troll","Some Mages are Sorcerers"], zh:["巨魔都不是凡人","所有巫师都是法师","巫师都不是巨魔","有些法师是巫师"] }, correct: 0 },
+  { cat: { fr:"Logique & problèmes", en:"Logic & problems", zh:"逻辑与解题" },
+    q: { fr:"Une bouteille et son bouchon coûtent 1,10 €. La bouteille coûte 1 € de plus que le bouchon. Combien coûte le bouchon ?", en:"A bottle and its cap cost $1.10. The bottle costs $1 more than the cap. How much does the cap cost?", zh:"一个瓶子和瓶盖总共 1.10 元。瓶子比瓶盖贵 1 元。瓶盖多少钱？" },
+    opts: { fr:["0,10 €","0,05 €","0,15 €","0,20 €"], en:["$0.10","$0.05","$0.15","$0.20"], zh:["0.10 元","0.05 元","0.15 元","0.20 元"] }, correct: 1 }
 ];
 
 let currentQ = 0;
@@ -730,23 +978,22 @@ function render() {
 }
 
 function renderIntro() {
+  const u = UI[currentLang];
   document.getElementById('app').innerHTML = `
     <h1 data-text="NEURAL.IQ">NEURAL.IQ</h1>
-    <p class="subtitle">DIAGNOSTIC COGNITIF // 40 MODULES // 25 MIN CHRONOMÉTRÉ</p>
+    <p class="subtitle">${u.subtitle}</p>
     <div class="intro">
-      <p>Évaluation de vos capacités de raisonnement à travers <strong>4 modules cognitifs</strong> :</p>
+      <p>${u.introIntro}</p>
       <ul>
-        <li><strong>Suites numériques</strong> — détection de motifs mathématiques</li>
-        <li><strong>Raisonnement verbal</strong> — analogies, intrus, lexique, expressions</li>
-        <li><strong>Raisonnement spatial</strong> — visualisation et formes</li>
-        <li><strong>Logique &amp; problèmes</strong> — déduction et calcul mental</li>
+        <li>${u.modNum}</li>
+        <li>${u.modVerb}</li>
+        <li>${u.modSpat}</li>
+        <li>${u.modLog}</li>
       </ul>
-      <p><strong>Protocole :</strong> aucune assistance externe (calculatrice, recherche). Navigation libre entre les modules ; les réponses sont modifiables jusqu'à la validation finale. <strong>Limite de temps : 25 minutes au total.</strong> À l'expiration, le test se clôture automatiquement avec votre état courant.</p>
-      <div class="disclaimer">
-        Ce diagnostic est conçu à des fins ludiques et éducatives. Il <strong>ne remplace pas</strong> une évaluation psychométrique professionnelle (WAIS, Raven, WISC).
-      </div>
+      <p>${u.protocol}</p>
+      <div class="disclaimer">${u.disclaimer}</div>
     </div>
-    <button onclick="startTest()">▶ Initialiser la séquence</button>
+    <button onclick="startTest()">${u.startBtn}</button>
   `;
 }
 
@@ -790,9 +1037,11 @@ function formatTime(secs) {
 }
 
 function renderQuestion() {
+  const u = UI[currentLang];
   const q = questions[currentQ];
   const progress = (currentQ / questions.length) * 100;
-  const optionsHtml = q.opts.map((opt, i) => `
+  const opts = t(q.opts);
+  const optionsHtml = opts.map((opt, i) => `
     <button class="option ${answers[currentQ] === i ? 'selected' : ''}" onclick="selectAnswer(${i})">
       <strong style="color: var(--neon-cyan); margin-right: 10px; font-family: 'JetBrains Mono', monospace;">${String.fromCharCode(65 + i)}</strong> ${opt}
     </button>
@@ -802,22 +1051,22 @@ function renderQuestion() {
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
       <div class="progress-text">
-        <span>MODULE ${String(currentQ + 1).padStart(2, '0')} / ${questions.length}</span>
+        <span>${u.moduleLabel} ${String(currentQ + 1).padStart(2, '0')} / ${questions.length}</span>
         <span id="global-timer" class="timer">25:00</span>
-        <span>${answers.filter(a => a !== null).length} / ${questions.length} VALIDÉS</span>
+        <span>${answers.filter(a => a !== null).length} / ${questions.length} ${u.validatedLabel}</span>
       </div>
     </div>
-    <span class="category-tag">${q.cat}</span>
-    <div class="question-text">${q.q}</div>
+    <span class="category-tag">${t(q.cat)}</span>
+    <div class="question-text">${t(q.q)}</div>
     <div class="options">${optionsHtml}</div>
     <div class="nav-buttons">
-      <button class="secondary" onclick="prev()" ${currentQ === 0 ? 'disabled' : ''}>◀ Précédent</button>
+      <button class="secondary" onclick="prev()" ${currentQ === 0 ? 'disabled' : ''}>${u.prevBtn}</button>
       ${currentQ === questions.length - 1
-        ? `<button onclick="finish()" ${answers.filter(a => a !== null).length < questions.length ? 'disabled' : ''}>⬢ Analyser</button>`
-        : `<button onclick="next()" ${answers[currentQ] === null ? 'disabled' : ''}>Suivant ▶</button>`}
+        ? `<button onclick="finish()" ${answers.filter(a => a !== null).length < questions.length ? 'disabled' : ''}>${u.finishBtn}</button>`
+        : `<button onclick="next()" ${answers[currentQ] === null ? 'disabled' : ''}>${u.nextBtn}</button>`}
     </div>
   `;
-  updateTimer(); // synchronise immédiatement l'affichage
+  updateTimer();
 }
 
 function selectAnswer(i) { answers[currentQ] = i; render(); }
@@ -858,63 +1107,110 @@ function estimateIQ(correct, total) {
 // Mapping IQ → tier. Pour chaque tier : image, personnage de référence, univers, et descripteur.
 // Les chemins sont relatifs au fichier HTML.
 const TIERS = [
-  { min: 150, code: "NSI", className: "tier-NSI", label: "Génie certifié — top 0.1%",
-    character: "Makima", universe: "Chainsaw Man",
-    byline: "Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.",
+  { min: 150, code: "NSI", className: "tier-NSI",
+    label: { fr:"Génie certifié — top 0.1%", en:"Certified genius — top 0.1%", zh:"认证天才 — 全球前 0.1%" },
+    character: "Makima",
+    universe: { fr:"Chainsaw Man", en:"Chainsaw Man", zh:"电锯人" },
+    byline: { fr:"Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.",
+              en:"You see others as contracts. No one lies long in your presence, no one escapes — and you find it almost boring.",
+              zh:"您视他人为合约。无人能在您面前长久撒谎，无人能逃脱——这甚至让您觉得有些无趣。" },
     emoji: "👑", img: null },
-  { min: 140, code: "SS",  className: "tier-SS",  label: "Esprit d'élite",
-    character: "Yumeko Jabami", universe: "Kakegurui",
-    byline: "Vous lisez les mains avant qu'elles soient jouées. Le risque ne vous fait pas peur — il vous fait sourire. Au contact d'un mensonge, votre pouls s'accélère ; pas par crainte, par excitation.",
+  { min: 140, code: "SS",  className: "tier-SS",
+    label: { fr:"Esprit d'élite", en:"Elite mind", zh:"精英智者" },
+    character: "Yumeko Jabami",
+    universe: { fr:"Kakegurui", en:"Kakegurui", zh:"狂赌之渊" },
+    byline: { fr:"Vous lisez les mains avant qu'elles soient jouées. Le risque ne vous fait pas peur — il vous fait sourire. Au contact d'un mensonge, votre pouls s'accélère ; pas par crainte, par excitation.",
+              en:"You read hands before they're played. Risk doesn't scare you — it makes you smile. At the touch of a lie, your pulse quickens; not from fear, from excitement.",
+              zh:"您能在牌打出之前读懂它。风险不让您害怕——它让您微笑。一接触谎言，您的脉搏便加速；不是因为恐惧，而是因为兴奋。" },
     emoji: "🧠", img: null },
-  { min: 130, code: "S",   className: "tier-S",   label: "Très haut niveau",
-    character: "Baek Ah-jin (Dear X)", universe: "Dear X — drama coréen, 2025",
-    byline: "Vous ne mentez jamais. Vous offrez à chacun exactement la version de lui-même qu'il veut voir. Personne ne s'en aperçoit — vous, parfois, vous oubliez aussi.",
+  { min: 130, code: "S",   className: "tier-S",
+    label: { fr:"Très haut niveau", en:"Very high level", zh:"非常高水平" },
+    character: "Baek Ah-jin (Dear X)",
+    universe: { fr:"Dear X — drama coréen, 2025", en:"Dear X — K-drama, 2025", zh:"Dear X — 韩剧，2025" },
+    byline: { fr:"Vous ne mentez jamais. Vous offrez à chacun exactement la version de lui-même qu'il veut voir. Personne ne s'en aperçoit — vous, parfois, vous oubliez aussi.",
+              en:"You never lie. You offer everyone exactly the version of themselves they want to see. No one notices — sometimes you forget too.",
+              zh:"您从不撒谎。您给每个人呈现的，都是他们最想看到的那个自己。无人察觉——有时连您自己也忘了。" },
     emoji: "🤓", img: null },
-  { min: 120, code: "A+",  className: "tier-Aplus", label: "Excellent supérieur",
-    character: "Ye Ping'an (叶平安)", universe: "à préciser",
-    byline: "Calme, posé, méthodique. Vous laissez les autres s'agiter avant de poser votre coup. Une présence qui rassure, un raisonnement qui tranche net — un cran au-dessus du tout-venant.",
+  { min: 120, code: "A+",  className: "tier-Aplus",
+    label: { fr:"Excellent supérieur", en:"Superior excellent", zh:"卓越上等" },
+    character: "Ye Ping'an (叶平安)",
+    universe: { fr:"à préciser", en:"to be specified", zh:"待定" },
+    byline: { fr:"Calme, posé, méthodique. Vous laissez les autres s'agiter avant de poser votre coup. Une présence qui rassure, un raisonnement qui tranche net — un cran au-dessus du tout-venant.",
+              en:"Calm, composed, methodical. You let others stir before placing your move. A reassuring presence, a sharply cutting reasoning — a notch above the common.",
+              zh:"冷静、从容、有条不紊。您让别人先动，再出手。一种令人安心的存在，一种刀切般精准的推理——比常人高出一筹。" },
     emoji: "🎯", img: null },
-  { min: 115, code: "A",   className: "tier-A",   label: "Excellent",
-    character: "Raiden Shogun", universe: "Genshin Impact",
-    byline: "Lame éternelle, conviction de marbre. Vous avez une réponse à toute question — et c'est précisément ce qui vous limite. La nuance vous échappe parfois ; mais quand vous tranchez, c'est définitif.",
+  { min: 115, code: "A",   className: "tier-A",
+    label: { fr:"Excellent", en:"Excellent", zh:"优秀" },
+    character: "Raiden Shogun",
+    universe: { fr:"Genshin Impact", en:"Genshin Impact", zh:"原神" },
+    byline: { fr:"Lame éternelle, conviction de marbre. Vous avez une réponse à toute question — et c'est précisément ce qui vous limite. La nuance vous échappe parfois ; mais quand vous tranchez, c'est définitif.",
+              en:"Eternal blade, marble conviction. You have an answer for everything — and that's exactly what limits you. Nuance escapes you sometimes; but when you cut, it's final.",
+              zh:"永恒之刃，磐石之念。您对一切都有答案——而这恰恰是您的局限。微妙之处您有时难以察觉；但您一旦决断，便是终决。" },
     emoji: "😎", img: null },
-  { min: 110, code: "B",   className: "tier-B",   label: "Très bon",
-    character: "Rias Gremory", universe: "High School DxD",
-    byline: "Charismatique, rusée, dévouée à votre clan. Vous voyez les enjeux, vous les anticipez, vous tranchez vite. Le génie des autres ne vous intimide pas — vous compensez par la cohésion.",
+  { min: 110, code: "B",   className: "tier-B",
+    label: { fr:"Très bon", en:"Very good", zh:"很好" },
+    character: "Rias Gremory",
+    universe: { fr:"High School DxD", en:"High School DxD", zh:"恶魔高校 DxD" },
+    byline: { fr:"Charismatique, rusée, dévouée à votre clan. Vous voyez les enjeux, vous les anticipez, vous tranchez vite. Le génie des autres ne vous intimide pas — vous compensez par la cohésion.",
+              en:"Charismatic, cunning, devoted to your clan. You see the stakes, anticipate them, decide quickly. Genius doesn't intimidate you — you compensate with cohesion.",
+              zh:"魅力四射、机智过人，对眷属忠心耿耿。您能看到利害、能预判、能果断。他人的天才并不让您害怕——您用团队凝聚力来弥补。" },
     emoji: "😊", img: null },
-  { min: 105, code: "C",   className: "tier-C",   label: "Bon",
-    character: "Akame", universe: "Akame ga Kill",
-    byline: "Tranchante, méthodique, efficace. Vous frappez avant de douter. Le sujet abstrait, vous attendez que quelqu'un l'explique en termes concrets — et là, vous comprenez tout.",
+  { min: 105, code: "C",   className: "tier-C",
+    label: { fr:"Bon", en:"Good", zh:"良好" },
+    character: "Akame",
+    universe: { fr:"Akame ga Kill", en:"Akame ga Kill", zh:"斩!赤红之瞳" },
+    byline: { fr:"Tranchante, méthodique, efficace. Vous frappez avant de douter. Le sujet abstrait, vous attendez que quelqu'un l'explique en termes concrets — et là, vous comprenez tout.",
+              en:"Sharp, methodical, efficient. You strike before you doubt. For abstract topics, you wait for someone to explain in concrete terms — and then you understand everything.",
+              zh:"锋利、有条理、高效。您先出手，再怀疑。面对抽象问题，您会等别人用具体例子解释——然后就全懂了。" },
     emoji: "🙂", img: null },
-  { min: 100, code: "D",   className: "tier-D",   label: "Correct",
-    character: "Shenhe (申鹤)", universe: "Genshin Impact",
-    byline: "Élevée à l'écart des humains, formée au combat, à la précision, à la discipline. Tout ce qui demande de la chaleur sociale, vous l'évitez ou le contournez. Ce n'est pas que vous ne comprenez pas — vous n'avez jamais appris à vous y intéresser.",
+  { min: 100, code: "D",   className: "tier-D",
+    label: { fr:"Correct", en:"Correct", zh:"中等" },
+    character: "Shenhe (申鹤)",
+    universe: { fr:"Genshin Impact", en:"Genshin Impact", zh:"原神" },
+    byline: { fr:"Élevée à l'écart des humains, formée au combat, à la précision, à la discipline. Tout ce qui demande de la chaleur sociale, vous l'évitez ou le contournez. Ce n'est pas que vous ne comprenez pas — vous n'avez jamais appris à vous y intéresser.",
+              en:"Raised apart from humans, trained in combat, precision, discipline. Anything requiring social warmth, you avoid or sidestep. It's not that you don't understand — you've simply never learned to care.",
+              zh:"在凡人之外被抚养长大，受训于战斗、精准与纪律。一切需要社交温度的事，您都回避或绕开。不是您不懂——您只是从未学会去在意。" },
     emoji: "😐", img: null },
-  { min: 90,  code: "E",   className: "tier-E",   label: "Passable",
-    character: "Erza Scarlet", universe: "Fairy Tail",
-    byline: "Spectaculaire au combat, perdue devant un casse-tête. Frapper, c'est aussi une réponse — pas la plus subtile, mais elle marche souvent.",
+  { min: 90,  code: "E",   className: "tier-E",
+    label: { fr:"Passable", en:"Passable", zh:"及格" },
+    character: "Erza Scarlet",
+    universe: { fr:"Fairy Tail", en:"Fairy Tail", zh:"妖精的尾巴" },
+    byline: { fr:"Spectaculaire au combat, perdue devant un casse-tête. Frapper, c'est aussi une réponse — pas la plus subtile, mais elle marche souvent.",
+              en:"Spectacular in combat, lost in front of a puzzle. Striking is also an answer — not the most subtle one, but it works often.",
+              zh:"战斗中光芒万丈，面对谜题却束手无策。挥剑也是一种答案——虽不算最巧妙，但通常奏效。" },
     emoji: "😅", img: null },
-  { min: 80,  code: "F",   className: "tier-F",   label: "Faible",
-    character: "Yor Forger", universe: "Spy × Family",
-    byline: "Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.",
+  { min: 80,  code: "F",   className: "tier-F",
+    label: { fr:"Faible", en:"Weak", zh:"较弱" },
+    character: "Yor Forger",
+    universe: { fr:"Spy × Family", en:"Spy × Family", zh:"间谍×过家家" },
+    byline: { fr:"Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.",
+              en:"Kind, devoted, terrifying with a knife. For everything else, ask Loid — and never bring up relativity, it would only make her sad.",
+              zh:"温柔、忠诚、持刀时令人胆寒。其余之事，请问 Loid——千万别跟她聊相对论，那只会让她伤心。" },
     emoji: "🥴", img: "proposition%20d'images%20pour%20tier/yor.png" },
-  { min: 0,   code: "G",   className: "tier-G",   label: "Diagnostic critique",
-    character: "Akeno Himejima", universe: "High School DxD",
-    byline: "Onee-san dans toute sa splendeur — sensuelle, fidèle, redoutable au tonnerre. Mais devant une équation, vous riez doucement et passez la main à Buchou. Le calcul mental, vous laissez ça aux autres ; pourquoi compliquer ?",
+  { min: 0,   code: "G",   className: "tier-G",
+    label: { fr:"Diagnostic critique", en:"Critical diagnostic", zh:"诊断危急" },
+    character: "Akeno Himejima",
+    universe: { fr:"High School DxD", en:"High School DxD", zh:"恶魔高校 DxD" },
+    byline: { fr:"Onee-san dans toute sa splendeur — sensuelle, fidèle, redoutable au tonnerre. Mais devant une équation, vous riez doucement et passez la main à Buchou. Le calcul mental, vous laissez ça aux autres ; pourquoi compliquer ?",
+              en:"Onee-san in all her glory — sensual, faithful, deadly with thunder. But faced with an equation, you laugh softly and pass it to Buchou. Mental math, you leave to others; why complicate things?",
+              zh:"完美的姐姐——妩媚、忠诚、雷电之下令人胆寒。但面对方程式，您只会轻笑，然后递给部长。心算之事，留给别人；何必把事情弄复杂？" },
     emoji: "💢", img: "proposition%20d'images%20pour%20tier/akeno.png" }
 ];
 
 function getTier(iq) { return TIERS.find(t => iq >= t.min); }
 
 function renderResults() {
+  const u = UI[currentLang];
   const correctCount = answers.reduce((acc, a, i) => acc + (a === questions[i].correct ? 1 : 0), 0);
   const iq = estimateIQ(correctCount, questions.length);
 
+  // Aggregate per category — use the localized cat name as key
   const cats = {};
   questions.forEach((q, i) => {
-    if (!cats[q.cat]) cats[q.cat] = { correct: 0, total: 0 };
-    cats[q.cat].total++;
-    if (answers[i] === q.correct) cats[q.cat].correct++;
+    const catName = t(q.cat);
+    if (!cats[catName]) cats[catName] = { correct: 0, total: 0 };
+    cats[catName].total++;
+    if (answers[i] === q.correct) cats[catName].correct++;
   });
 
   const breakdownHtml = Object.entries(cats).map(([name, s]) => {
@@ -930,12 +1226,14 @@ function renderResults() {
 
   const reviewHtml = questions.map((q, i) => {
     const userAns = answers[i];
+    const opts = t(q.opts);
     const isCorrect = userAns === q.correct;
+    const userLabel = (userAns !== null && userAns !== undefined) ? opts[userAns] : '—';
     return `
       <div class="review-item ${isCorrect ? 'correct' : 'wrong'}">
-        <div class="q-num">// Q${String(i + 1).padStart(2, '0')} — ${q.cat}</div>
-        <div class="q-text">${q.q}</div>
-        <div class="answer">Votre réponse : <strong>${q.opts[userAns]}</strong> ${isCorrect ? '✓' : `✗ — Bonne réponse : <strong>${q.opts[q.correct]}</strong>`}</div>
+        <div class="q-num">// Q${String(i + 1).padStart(2, '0')} — ${t(q.cat)}</div>
+        <div class="q-text">${t(q.q)}</div>
+        <div class="answer">${u.yourAnswer} : <strong>${userLabel}</strong> ${isCorrect ? '✓' : `✗ — ${u.correctAnswer} : <strong>${opts[q.correct]}</strong>`}</div>
       </div>
     `;
   }).join('');
@@ -947,52 +1245,50 @@ function renderResults() {
   const tierDisplay = tier.code === "NSI" ? "NSI-tier" : tier.code;
 
   const elapsedSec = testStartTime ? Math.min(TOTAL_TIME, Math.floor((Date.now() - testStartTime) / 1000)) : 0;
-  const timeLabel = timedOut ? `⚠ TIMEOUT — ${formatTime(TOTAL_TIME)}` : formatTime(elapsedSec);
+  const timeLabel = timedOut ? `${u.timeoutLabel} — ${formatTime(TOTAL_TIME)}` : formatTime(elapsedSec);
 
   document.getElementById('app').innerHTML = `
     <div class="results">
-      <h1 data-text="ANALYSE">ANALYSE</h1>
-      <p class="subtitle">DIAGNOSTIC TERMINÉ // RAPPORT GÉNÉRÉ${timedOut ? ' // TEMPS ÉCOULÉ' : ''}</p>
+      <h1 data-text="${u.analyseHeader}">${u.analyseHeader}</h1>
+      <p class="subtitle">${u.diagDone}${timedOut ? u.timeoutSuffix : ''}</p>
 
       <div class="result-header">
         <div class="avatar">${avatarContent}</div>
         <div class="tier-info">
-          <div class="tier-prefix">// Classification</div>
+          <div class="tier-prefix">${u.classification}</div>
           <div class="tier-badge ${tier.className}">${tierDisplay}</div>
-          <div class="tier-label">${tier.label}</div>
+          <div class="tier-label">${t(tier.label)}</div>
         </div>
       </div>
 
       <div class="score-circle">
         <span class="score-num">${iq}</span>
-        <span class="score-label">QI Estimé</span>
+        <span class="score-label">${u.iqEstimated}</span>
       </div>
-      <p class="iq-summary">SCORE : <strong>${correctCount}</strong> / ${questions.length} MODULES VALIDÉS · TEMPS : <strong>${timeLabel}</strong></p>
+      <p class="iq-summary">${u.score} : <strong>${correctCount}</strong> / ${questions.length} ${u.modulesValidated} : <strong>${timeLabel}</strong></p>
 
       <div class="character-block">
-        <div class="character-header">// Personnage de référence</div>
+        <div class="character-header">${u.characterRef}</div>
         <div class="character-name">${tier.character}</div>
-        <div class="character-universe">${tier.universe}</div>
-        <blockquote class="character-byline">${tier.byline}</blockquote>
+        <div class="character-universe">${t(tier.universe)}</div>
+        <blockquote class="character-byline">${t(tier.byline)}</blockquote>
       </div>
 
       <div class="breakdown">
-        <h3>◆ Détail par module</h3>
+        <h3>${u.moduleBreakdown}</h3>
         ${breakdownHtml}
       </div>
 
-      <div class="disclaimer">
-        Cette estimation est <strong>approximative et ludique</strong>. Un véritable QI se mesure avec des tests standardisés (WAIS, Raven, WISC) administrés par un psychologue qualifié.
-      </div>
+      <div class="disclaimer">${u.resultDisclaimer}</div>
 
-      <button onclick="toggleReview()">▼ Détail des réponses</button>
+      <button onclick="toggleReview()">${u.detailToggle}</button>
       <div id="review" style="display:none;" class="review-section">
-        <h3 style="margin-top: 24px; margin-bottom: 16px;">◆ Journal des réponses</h3>
+        <h3 style="margin-top: 24px; margin-bottom: 16px;">${u.answerJournal}</h3>
         ${reviewHtml}
       </div>
 
       <div style="margin-top: 28px;">
-        <button class="secondary" onclick="restart()">↻ Recommencer</button>
+        <button class="secondary" onclick="restart()">${u.restart}</button>
       </div>
     </div>
   `;
@@ -1011,6 +1307,12 @@ function restart() {
   for (let i = 0; i < answers.length; i++) answers[i] = null;
   render();
 }
+
+// Initialize language UI state from persisted preference
+document.documentElement.lang = (currentLang === 'zh') ? 'zh-CN' : currentLang;
+document.querySelectorAll('.lang-chip').forEach(c => {
+  c.classList.toggle('active', c.dataset.lang === currentLang);
+});
 
 currentQ = -1;
 render();
