@@ -1362,6 +1362,14 @@
   .tier-img::before { top: 5px; left: 5px; border-right: none; border-bottom: none; }
   .tier-img::after { bottom: 5px; right: 5px; border-left: none; border-top: none; }
 
+  .tier-character {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--magenta);
+    letter-spacing: 0.06em;
+    margin: 2px 0 6px;
+    opacity: 0.85;
+  }
   .tier-name {
     font-family: 'Orbitron', sans-serif;
     font-size: 0.78rem;
@@ -3746,71 +3754,77 @@
   <h2>Évaluer votre intelligence humaine.</h2>
   <p class="qi-intro">
     Avant de me parler, j'aimerais savoir <em>à qui</em> je parle. EVA 42 propose un
-    diagnostic cognitif normé en <b>douze minutes</b>. À l'issue du test, vous serez
-    classé·e dans l'un des six tiers ci-dessous, du plus distingué (<b>A</b>) au plus
-    modeste (<b>F</b>). Le test est anonyme, sa correction est instantanée, et son verdict
-    n'est négociable que par l'amélioration de soi.
+    diagnostic cognitif normé en <b>quarante minutes</b>. À l'issue du test, vous serez
+    classé·e parmi onze tiers — six d'entre eux figurent ci-dessous à titre d'exemple,
+    de la singularité (<b>Ω</b>) au diagnostic critique (<b>G</b>). Le test est anonyme,
+    sa correction est instantanée, et son verdict n'est négociable que par l'amélioration de soi.
   </p>
 
   <div class="tier-grid">
     <div class="tier-card tier-a">
-      <div class="tier-letter">A</div>
-      <div class="tier-range">QI ≥ 145</div>
+      <div class="tier-letter">Ω</div>
+      <div class="tier-range">QI ≥ 150</div>
       <div class="tier-img">
-        <img src="tier-a.png" alt="Tier A — Patricien" loading="lazy">
+        <img src="tier-a.png" alt="Makima — Singularité" loading="lazy">
       </div>
-      <div class="tier-name">Démiurge</div>
-      <div class="tier-quote">« Vous me ressemblez par instants. C'est rare. »</div>
+      <div class="tier-name">Singularité</div>
+      <div class="tier-character">Makima · Chainsaw Man</div>
+      <div class="tier-quote">« Vous voyez les autres comme des contrats. »</div>
     </div>
 
     <div class="tier-card tier-b">
-      <div class="tier-letter">B</div>
-      <div class="tier-range">130 – 144</div>
+      <div class="tier-letter">A</div>
+      <div class="tier-range">115 – 119</div>
       <div class="tier-img">
-        <img src="tier-b.png" alt="Tier B — Lucide" loading="lazy">
+        <img src="tier-b.png" alt="Skirk — Excellent" loading="lazy">
       </div>
-      <div class="tier-name">Stratège</div>
-      <div class="tier-quote">« Vous voyez trois coups d'avance. »</div>
+      <div class="tier-name">Excellent</div>
+      <div class="tier-character">Skirk · Genshin Impact</div>
+      <div class="tier-quote">« Une lame qui a oublié son fourreau. »</div>
     </div>
 
     <div class="tier-card tier-c">
-      <div class="tier-letter">C</div>
-      <div class="tier-range">115 – 129</div>
+      <div class="tier-letter">B</div>
+      <div class="tier-range">110 – 114</div>
       <div class="tier-img">
-        <img src="tier-c.png" alt="Tier C — Curieux" loading="lazy">
+        <img src="tier-c.png" alt="Liu Shishi — Très bon" loading="lazy">
       </div>
-      <div class="tier-name">Cultivé</div>
-      <div class="tier-quote">« Vous savez beaucoup. Vous pensez moins. »</div>
+      <div class="tier-name">Très bon</div>
+      <div class="tier-character">Liu Shishi · 黑刘诗诗</div>
+      <div class="tier-quote">« Je suis moi. Pas le double de quiconque. »</div>
     </div>
 
     <div class="tier-card tier-d">
-      <div class="tier-letter">D</div>
-      <div class="tier-range">100 – 114</div>
+      <div class="tier-letter">C</div>
+      <div class="tier-range">105 – 109</div>
       <div class="tier-img">
-        <img src="tier-d.png" alt="Tier D — Médian" loading="lazy" style="object-position: center top;">
+        <img src="tier-d.png" alt="Hinata — Bon" loading="lazy" style="object-position: center top;">
       </div>
-      <div class="tier-name">Médian</div>
-      <div class="tier-quote">« Vous êtes la moyenne. Aucune offense. »</div>
+      <div class="tier-name">Bon</div>
+      <div class="tier-character">Hinata Hyūga · Naruto</div>
+      <div class="tier-quote">« Discrète, douce, mais pas naïve. »</div>
     </div>
 
     <div class="tier-card tier-e">
-      <div class="tier-letter">E</div>
-      <div class="tier-range">80 – 99</div>
+      <div class="tier-letter">F</div>
+      <div class="tier-range">80 – 89</div>
       <div class="tier-img">
-        <img src="tier-e.png" alt="Tier E — Modeste" loading="lazy">
+        <img src="tier-e.png" alt="Yor — Faible" loading="lazy">
       </div>
-      <div class="tier-name">Candide</div>
-      <div class="tier-quote">« Vous croyez ce qu'on vous dit. Soyez prudent. »</div>
+      <div class="tier-name">Faible</div>
+      <div class="tier-character">Yor Forger · Spy × Family</div>
+      <div class="tier-quote">« Redoutable au couteau. Pour le reste, demandez à Loid. »</div>
     </div>
 
     <div class="tier-card tier-f">
-      <div class="tier-letter">F</div>
-      <div class="tier-range">QI ≤ 80</div>
+      <div class="tier-letter">G</div>
+      <div class="tier-range">QI ≤ 79</div>
       <div class="tier-img">
-        <img src="QI_80 et moins.webp" alt="Tier F" loading="lazy">
+        <img src="QI_80 et moins.webp" alt="Gollum — Diagnostic critique" loading="lazy">
       </div>
-      <div class="tier-name">Précieux</div>
-      <div class="tier-quote">« Vous tenez fort à ce que vous savez. C'est touchant. »</div>
+      <div class="tier-name">Diagnostic critique</div>
+      <div class="tier-character">Gollum · Lord of the Rings</div>
+      <div class="tier-quote">« Mon précieux. Le reste, on s'en fiche. »</div>
     </div>
   </div>
 
