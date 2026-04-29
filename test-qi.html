@@ -490,6 +490,72 @@
     text-align: left;
     clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
   }
+  .cognitive-signature {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.06), rgba(166, 75, 255, 0.04));
+    border: 1px solid rgba(0, 240, 255, 0.35);
+    padding: 18px 22px;
+    margin: 24px 0;
+    text-align: left;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    font-family: var(--font-mono, 'JetBrains Mono', 'Courier New', monospace);
+  }
+  .cognitive-signature .sig-header {
+    color: var(--neon-cyan, #00f0ff);
+    font-size: 0.82em;
+    letter-spacing: 0.12em;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .cognitive-signature .sig-grid {
+    display: grid;
+    gap: 8px;
+  }
+  .cognitive-signature .sig-row {
+    display: grid;
+    grid-template-columns: minmax(140px, max-content) 1fr;
+    gap: 18px;
+    align-items: baseline;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(0, 240, 255, 0.12);
+  }
+  .cognitive-signature .sig-row:last-child {
+    border-bottom: none;
+  }
+  .cognitive-signature .sig-key {
+    color: var(--text-secondary);
+    font-size: 0.78em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .cognitive-signature .sig-val {
+    color: var(--text-primary);
+    font-size: 0.95em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .cognitive-signature .sig-val-dim {
+    opacity: 0.7;
+    font-weight: 500;
+  }
+  .cognitive-signature .sig-row-emphasis {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 240, 255, 0.3);
+    border-bottom: none;
+  }
+  .cognitive-signature .sig-val-codename {
+    font-size: 1.05em;
+    color: var(--neon-cyan, #00f0ff);
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+  }
+  .cognitive-signature .sig-archetype {
+    color: var(--neon-magenta, #ff2bd6);
+    text-shadow: 0 0 8px rgba(255, 43, 214, 0.35);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
   .profile-explain {
     background: rgba(10, 16, 36, 0.5);
     border: 1px solid rgba(0, 240, 255, 0.2);
@@ -844,6 +910,11 @@ const UI = {
     timeoutSuffix: " // TEMPS ÉCOULÉ",
     timeoutLabel: "⚠ TIMEOUT",
     classification: "// Classification",
+    sigHeader: "// SIGNATURE COGNITIVE",
+    sigClassification: "CLASSIFICATION",
+    sigPrimary: "VECTEUR PRIMAIRE",
+    sigSecondary: "VECTEUR SECONDAIRE",
+    sigSignature: "SIGNATURE",
     iqEstimated: "QI Estimé",
     score: "SCORE",
     modulesValidated: "MODULES VALIDÉS · TEMPS",
@@ -880,6 +951,11 @@ const UI = {
     timeoutSuffix: " // TIME EXPIRED",
     timeoutLabel: "⚠ TIMEOUT",
     classification: "// Classification",
+    sigHeader: "// COGNITIVE SIGNATURE",
+    sigClassification: "CLASSIFICATION",
+    sigPrimary: "PRIMARY VECTOR",
+    sigSecondary: "SECONDARY VECTOR",
+    sigSignature: "SIGNATURE",
     iqEstimated: "Estimated IQ",
     score: "SCORE",
     modulesValidated: "MODULES ANSWERED · TIME",
@@ -916,6 +992,11 @@ const UI = {
     timeoutSuffix: " // 时间已到",
     timeoutLabel: "⚠ 超时",
     classification: "// 等级评定",
+    sigHeader: "// 认知签名",
+    sigClassification: "等级",
+    sigPrimary: "主向量",
+    sigSecondary: "副向量",
+    sigSignature: "签名",
     iqEstimated: "估计 IQ",
     score: "得分",
     modulesValidated: "已答题数 · 用时",
@@ -1312,6 +1393,15 @@ function estimateIQ(correct, total) {
 // Les chemins sont relatifs au fichier HTML.
 // Chaque tier porte deux profils : STR (stratégique-analytique) et SOC (verbal-social).
 // Le profil affiché est choisi à partir du subscore verbal vs non-verbal du candidat.
+// Métadonnées par module : code court (1 lettre), label affiché, archétype dérivé du module dominant.
+const CAT_META = {
+  "Suites numériques":    { code:"N", label:{ fr:"NUMÉRIQUE", en:"NUMERIC",  zh:"数列" }, archetype:{ fr:"CRYPTOGRAPHE", en:"CRYPTOGRAPHER", zh:"密码学家" } },
+  "Raisonnement verbal":  { code:"V", label:{ fr:"VERBAL",    en:"VERBAL",   zh:"语言" }, archetype:{ fr:"ORACLE",       en:"ORACLE",        zh:"谕语者"   } },
+  "Raisonnement spatial": { code:"S", label:{ fr:"SPATIAL",   en:"SPATIAL",  zh:"空间" }, archetype:{ fr:"CARTOGRAPHE",  en:"CARTOGRAPHER",  zh:"制图师"   } },
+  "Logique & problèmes":  { code:"L", label:{ fr:"LOGIQUE",   en:"LOGIC",    zh:"逻辑" }, archetype:{ fr:"ARCHITECTE",   en:"ARCHITECT",     zh:"架构师"   } },
+  "Matrices visuelles":   { code:"M", label:{ fr:"MATRICE",   en:"MATRIX",   zh:"矩阵" }, archetype:{ fr:"ANALYSTE",     en:"ANALYST",       zh:"模式分析师" } }
+};
+
 const TIERS = [
   { min: 150, code: "Ω", className: "tier-NSI", emoji: "👑",
     label: { fr:"Singularité — top 0.1%", en:"Singularity — top 0.1%", zh:"奇点 — 全球前 0.1%" },
@@ -1525,15 +1615,35 @@ function renderResults() {
   const u = UI[currentLang];
   const correctCount = answers.reduce((acc, a, i) => acc + (a === questions[i].correct ? 1 : 0), 0);
   const iq = estimateIQ(correctCount, questions.length);
+  const tier = getTier(iq);
 
   // Aggregate per category — use the localized cat name as key
   const cats = {};
+  // Aggregate per canonical FR category — used for signature computation, language-agnostic.
+  const catsRaw = {};
   questions.forEach((q, i) => {
     const catName = t(q.cat);
     if (!cats[catName]) cats[catName] = { correct: 0, total: 0 };
     cats[catName].total++;
     if (answers[i] === q.correct) cats[catName].correct++;
+
+    const rawKey = (q.cat && q.cat.fr) || '';
+    if (!catsRaw[rawKey]) catsRaw[rawKey] = { correct: 0, total: 0 };
+    catsRaw[rawKey].total++;
+    if (answers[i] === q.correct) catsRaw[rawKey].correct++;
   });
+
+  // Tri des modules par % de réussite (ex æquo départagé par nombre brut de réponses correctes).
+  const ranked = Object.entries(catsRaw)
+    .filter(([k]) => CAT_META[k])
+    .map(([k, s]) => ({ key: k, pct: s.total ? s.correct / s.total : 0, correct: s.correct }))
+    .sort((a, b) => b.pct - a.pct || b.correct - a.correct);
+  const primary = ranked[0];
+  const secondary = ranked[1];
+  const primaryMeta = primary ? CAT_META[primary.key] : null;
+  const secondaryMeta = secondary ? CAT_META[secondary.key] : null;
+  const archetypeText = primaryMeta ? t(primaryMeta.archetype) : '';
+  const signatureCode = primaryMeta ? `${tier ? tier.code : '?'}-${iq}-${primaryMeta.code}` : '';
 
   const breakdownHtml = Object.entries(cats).map(([name, s]) => {
     const pct = (s.correct / s.total) * 100;
@@ -1573,7 +1683,6 @@ function renderResults() {
     `;
   }).join('');
 
-  const tier = getTier(iq);
   const profileKey = getProfile(answers, questions);
   const profileData = tier.profiles[profileKey];
   const avatarContent = profileData.img
@@ -1609,6 +1718,30 @@ function renderResults() {
         <span class="score-label">${u.iqEstimated}</span>
       </div>
       <p class="iq-summary">${u.score} : <strong>${correctCount}</strong> / ${questions.length} ${u.modulesValidated} : <strong>${timeLabel}</strong></p>
+
+      ${primaryMeta ? `
+      <div class="cognitive-signature">
+        <div class="sig-header">${u.sigHeader}</div>
+        <div class="sig-grid">
+          <div class="sig-row">
+            <span class="sig-key">${u.sigClassification}</span>
+            <span class="sig-val">${tier.code} · ${iq}</span>
+          </div>
+          <div class="sig-row">
+            <span class="sig-key">${u.sigPrimary}</span>
+            <span class="sig-val">${t(primaryMeta.label)} · ${Math.round(primary.pct * 100)}%</span>
+          </div>
+          ${secondaryMeta ? `
+          <div class="sig-row">
+            <span class="sig-key">${u.sigSecondary}</span>
+            <span class="sig-val sig-val-dim">${t(secondaryMeta.label)} · ${Math.round(secondary.pct * 100)}%</span>
+          </div>` : ''}
+          <div class="sig-row sig-row-emphasis">
+            <span class="sig-key">${u.sigSignature}</span>
+            <span class="sig-val sig-val-codename">${signatureCode} · <span class="sig-archetype">${archetypeText}</span></span>
+          </div>
+        </div>
+      </div>` : ''}
 
       <div class="character-block">
         <div class="character-header">${u.characterRef} · <span class="profile-tag">${t(profileLabels[profileKey])}</span></div>
