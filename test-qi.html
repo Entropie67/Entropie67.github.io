@@ -831,60 +831,77 @@ function finish() {
 
 function estimateIQ(correct, total) {
   const pct = correct / total;
-  if (pct >= 1.0) return 140;
-  if (pct >= 0.95) return 135;
-  if (pct >= 0.90) return 130;
-  if (pct >= 0.85) return 125;
-  if (pct >= 0.80) return 120;
-  if (pct >= 0.75) return 115;
-  if (pct >= 0.65) return 110;
-  if (pct >= 0.55) return 105;
-  if (pct >= 0.45) return 100;
-  if (pct >= 0.35) return 95;
-  if (pct >= 0.25) return 90;
-  if (pct >= 0.15) return 85;
-  return 80;
+  // Calibrage 11 tiers (70 → 150). Sans matrices, 100% plafonne à 148 (NSI hors d'atteinte) ;
+  // l'ajout des matrices déverrouille le seuil 150.
+  if (pct >= 1.0)   return 148;
+  if (pct >= 0.975) return 144;
+  if (pct >= 0.95)  return 140;
+  if (pct >= 0.925) return 136;
+  if (pct >= 0.90)  return 132;
+  if (pct >= 0.85)  return 128;
+  if (pct >= 0.80)  return 124;
+  if (pct >= 0.75)  return 120;
+  if (pct >= 0.70)  return 117;
+  if (pct >= 0.65)  return 113;
+  if (pct >= 0.58)  return 110;
+  if (pct >= 0.50)  return 107;
+  if (pct >= 0.42)  return 103;
+  if (pct >= 0.35)  return 100;
+  if (pct >= 0.28)  return 96;
+  if (pct >= 0.20)  return 92;
+  if (pct >= 0.13)  return 87;
+  if (pct >= 0.08)  return 82;
+  if (pct >= 0.04)  return 76;
+  return 70;
 }
 
 // Mapping IQ → tier. Pour chaque tier : image, personnage de référence, univers, et descripteur.
 // Les chemins sont relatifs au fichier HTML.
 const TIERS = [
-  { min: 130, code: "NSI", className: "tier-NSI", label: "Génie certifié — top 2% mondial",
+  { min: 150, code: "NSI", className: "tier-NSI", label: "Génie certifié — top 0.1%",
     character: "Makima", universe: "Chainsaw Man",
     byline: "Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.",
     emoji: "👑", img: null },
-  { min: 125, code: "SS",  className: "tier-SS",  label: "Esprit d'élite",
+  { min: 140, code: "SS",  className: "tier-SS",  label: "Esprit d'élite",
     character: "Yumeko Jabami", universe: "Kakegurui",
     byline: "Vous lisez les mains avant qu'elles soient jouées. Le risque ne vous fait pas peur — il vous fait sourire. Au contact d'un mensonge, votre pouls s'accélère ; pas par crainte, par excitation.",
     emoji: "🧠", img: null },
-  { min: 115, code: "S",   className: "tier-S",   label: "Très haut niveau",
+  { min: 130, code: "S",   className: "tier-S",   label: "Très haut niveau",
     character: "Baek Ah-jin (Dear X)", universe: "Dear X — drama coréen, 2025",
     byline: "Vous ne mentez jamais. Vous offrez à chacun exactement la version de lui-même qu'il veut voir. Personne ne s'en aperçoit — vous, parfois, vous oubliez aussi.",
     emoji: "🤓", img: null },
-  { min: 110, code: "A",   className: "tier-A",   label: "Excellent",
+  { min: 120, code: "A+",  className: "tier-Aplus", label: "Excellent supérieur",
     character: "Ye Ping'an (叶平安)", universe: "à préciser",
-    byline: "Calme, posé, méthodique. Vous laissez les autres s'agiter avant de poser votre coup. Une présence qui rassure, un raisonnement qui tranche net.",
+    byline: "Calme, posé, méthodique. Vous laissez les autres s'agiter avant de poser votre coup. Une présence qui rassure, un raisonnement qui tranche net — un cran au-dessus du tout-venant.",
+    emoji: "🎯", img: null },
+  { min: 115, code: "A",   className: "tier-A",   label: "Excellent",
+    character: "Raiden Shogun", universe: "Genshin Impact",
+    byline: "Lame éternelle, conviction de marbre. Vous avez une réponse à toute question — et c'est précisément ce qui vous limite. La nuance vous échappe parfois ; mais quand vous tranchez, c'est définitif.",
     emoji: "😎", img: null },
-  { min: 105, code: "B",   className: "tier-B",   label: "Bon",
+  { min: 110, code: "B",   className: "tier-B",   label: "Très bon",
     character: "Rias Gremory", universe: "High School DxD",
     byline: "Charismatique, rusée, dévouée à votre clan. Vous voyez les enjeux, vous les anticipez, vous tranchez vite. Le génie des autres ne vous intimide pas — vous compensez par la cohésion.",
     emoji: "😊", img: null },
-  { min: 100, code: "C",   className: "tier-C",   label: "Correct",
+  { min: 105, code: "C",   className: "tier-C",   label: "Bon",
     character: "Akame", universe: "Akame ga Kill",
     byline: "Tranchante, méthodique, efficace. Vous frappez avant de douter. Le sujet abstrait, vous attendez que quelqu'un l'explique en termes concrets — et là, vous comprenez tout.",
     emoji: "🙂", img: null },
-  { min: 90,  code: "D",   className: "tier-D",   label: "Passable",
+  { min: 100, code: "D",   className: "tier-D",   label: "Correct",
     character: "Shenhe (申鹤)", universe: "Genshin Impact",
     byline: "Élevée à l'écart des humains, formée au combat, à la précision, à la discipline. Tout ce qui demande de la chaleur sociale, vous l'évitez ou le contournez. Ce n'est pas que vous ne comprenez pas — vous n'avez jamais appris à vous y intéresser.",
     emoji: "😐", img: null },
-  { min: 85,  code: "E",   className: "tier-E",   label: "Faible",
+  { min: 90,  code: "E",   className: "tier-E",   label: "Passable",
     character: "Erza Scarlet", universe: "Fairy Tail",
     byline: "Spectaculaire au combat, perdue devant un casse-tête. Frapper, c'est aussi une réponse — pas la plus subtile, mais elle marche souvent.",
     emoji: "😅", img: null },
-  { min: 0,   code: "F",   className: "tier-F",   label: "Diagnostic critique",
+  { min: 80,  code: "F",   className: "tier-F",   label: "Faible",
     character: "Yor Forger", universe: "Spy × Family",
     byline: "Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.",
-    emoji: "🥴", img: "proposition%20d'images%20pour%20tier/yor.png" }
+    emoji: "🥴", img: "proposition%20d'images%20pour%20tier/yor.png" },
+  { min: 0,   code: "G",   className: "tier-G",   label: "Diagnostic critique",
+    character: "Akeno Himejima", universe: "High School DxD",
+    byline: "Onee-san dans toute sa splendeur — sensuelle, fidèle, redoutable au tonnerre. Mais devant une équation, vous riez doucement et passez la main à Buchou. Le calcul mental, vous laissez ça aux autres ; pourquoi compliquer ?",
+    emoji: "💢", img: "proposition%20d'images%20pour%20tier/akeno.png" }
 ];
 
 function getTier(iq) { return TIERS.find(t => iq >= t.min); }
