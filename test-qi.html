@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEURAL.IQ // Diagnostic Cognitif</title>
+<link rel="icon" type="image/png" href="EVA_42.png">
+<link rel="apple-touch-icon" href="EVA_42.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -577,6 +579,84 @@
     .score-circle { width: 170px; height: 170px; }
     .score-circle .score-num { font-size: 3em; }
   }
+
+  /* === Timer global === */
+  .timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--neon-cyan);
+    background: rgba(0, 240, 255, 0.08);
+    padding: 4px 12px;
+    border: 1px solid rgba(0, 240, 255, 0.35);
+    border-radius: 2px;
+    font-variant-numeric: tabular-nums;
+    transition: all 0.2s ease;
+  }
+  .timer.warning {
+    color: var(--neon-yellow);
+    background: rgba(255, 214, 10, 0.12);
+    border-color: rgba(255, 214, 10, 0.5);
+  }
+  .timer.urgent {
+    color: var(--neon-red);
+    background: rgba(255, 58, 92, 0.18);
+    border-color: rgba(255, 58, 92, 0.6);
+    animation: timerPulse 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes timerPulse {
+    from { box-shadow: 0 0 0 rgba(255, 58, 92, 0); }
+    to   { box-shadow: 0 0 14px rgba(255, 58, 92, 0.65); }
+  }
+
+  /* === Bloc personnage de référence === */
+  .character-block {
+    margin: 28px 0 20px;
+    padding: 20px 22px;
+    background: linear-gradient(135deg, rgba(166, 75, 255, 0.10), rgba(255, 43, 214, 0.05));
+    border-left: 3px solid var(--neon-purple);
+    border-radius: 0 4px 4px 0;
+    position: relative;
+  }
+  .character-block::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; width: 60px; height: 60px;
+    background: linear-gradient(225deg, rgba(166, 75, 255, 0.18), transparent);
+    pointer-events: none;
+  }
+  .character-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72em;
+    color: var(--neon-purple);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .character-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+  .character-universe {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95em;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+  .character-byline {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.08em;
+    color: var(--text-primary);
+    border-left: 2px solid rgba(166, 75, 255, 0.45);
+    padding-left: 14px;
+    margin: 0;
+    line-height: 1.55;
+  }
 </style>
 </head>
 <body>
@@ -588,53 +668,59 @@ const questions = [
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 4, 8, 16, ?", opts: ["24", "32", "20", "30"], correct: 1 },
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 1, 2, 3, 5, 8, ?", opts: ["11", "13", "12", "10"], correct: 1 },
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 4, 9, 16, 25, ?", opts: ["30", "36", "32", "49"], correct: 1 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 100, 81, 64, 49, ?", opts: ["36", "32", "40", "25"], correct: 0 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 4, 13, 40, 121, ?", opts: ["243", "364", "242", "484"], correct: 1 },
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 3, 6, 10, 15, ?", opts: ["18", "20", "21", "25"], correct: 2 },
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 6, 12, 20, 30, ?", opts: ["40", "42", "36", "44"], correct: 1 },
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 1, 2, 4, 7, 11, 16, ?", opts: ["20", "21", "22", "23"], correct: 2 },
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 3, 9, 27, 81, ?", opts: ["162", "243", "324", "405"], correct: 1 },
-  { cat: "Suites numériques", q: "Quel nombre complète la suite : 64, 32, 16, 8, ?", opts: ["2", "4", "6", "0"], correct: 1 },
+  { cat: "Suites numériques", q: "Quel nombre complète la suite : 0, 1, 1, 2, 4, 7, 13, ?", opts: ["20", "21", "24", "26"], correct: 2 },
   { cat: "Suites numériques", q: "Quel nombre complète la suite : 2, 5, 10, 17, 26, ?", opts: ["35", "37", "36", "39"], correct: 1 },
 
   // ===== ANALOGIES VERBALES (10) =====
-  { cat: "Analogies verbales", q: "Chien est à chiot ce que chat est à...", opts: ["Chatte", "Chaton", "Félin", "Bébé"], correct: 1 },
+  { cat: "Analogies verbales", q: "Aveugle est à cécité ce que sourd est à...", opts: ["Mutité", "Surdité", "Silence", "Audition"], correct: 1 },
   { cat: "Analogies verbales", q: "Pied est à chaussure ce que main est à...", opts: ["Bague", "Bracelet", "Gant", "Doigt"], correct: 2 },
-  { cat: "Analogies verbales", q: "Médecin est à hôpital ce que professeur est à...", opts: ["Université", "Élève", "École", "Cours"], correct: 2 },
+  { cat: "Analogies verbales", q: "Apiculteur est à abeille ce que viticulteur est à...", opts: ["Vin", "Cep", "Vigne", "Tonneau"], correct: 2 },
   { cat: "Analogies verbales", q: "Oiseau est à voler ce que poisson est à...", opts: ["Eau", "Nager", "Branchies", "Mer"], correct: 1 },
   { cat: "Analogies verbales", q: "Pinceau est à peintre ce que stylo est à...", opts: ["Encre", "Papier", "Écrivain", "Bureau"], correct: 2 },
   { cat: "Analogies verbales", q: "Livre est à bibliothèque ce que tableau est à...", opts: ["Mur", "Peinture", "Musée", "Cadre"], correct: 2 },
-  { cat: "Analogies verbales", q: "Roue est à voiture ce que aile est à...", opts: ["Oiseau", "Avion", "Vol", "Plume"], correct: 1 },
+  { cat: "Analogies verbales", q: "Sculpteur est à marbre ce que verrier est à...", opts: ["Vitrail", "Verre", "Cristal", "Vase"], correct: 1 },
   { cat: "Analogies verbales", q: "Marteau est à clou ce que tournevis est à...", opts: ["Boulon", "Vis", "Outil", "Bricoleur"], correct: 1 },
   { cat: "Analogies verbales", q: "Gland est à chêne ce que pépin est à...", opts: ["Fruit", "Pomme", "Arbre", "Graine"], correct: 1 },
-  { cat: "Analogies verbales", q: "Affamé est à nourriture ce qu'assoiffé est à...", opts: ["Verre", "Soif", "Eau", "Boire"], correct: 2 },
+  { cat: "Analogies verbales", q: "Frugal est à dépense ce que laconique est à...", opts: ["Silence", "Parole", "Discours", "Brièveté"], correct: 1 },
 
   // ===== RAISONNEMENT SPATIAL / VISUEL (10) =====
   { cat: "Raisonnement spatial", q: "Quel symbole complète la suite : ▲ ◼ ● ▲ ◼ ?", opts: ["▲", "◼", "●", "■"], correct: 2 },
-  { cat: "Raisonnement spatial", q: "Combien de faces possède un cube ?", opts: ["4", "6", "8", "12"], correct: 1 },
-  { cat: "Raisonnement spatial", q: "Si on plie une feuille de papier en deux, puis encore en deux, combien de couches obtient-on ?", opts: ["2", "3", "4", "8"], correct: 2 },
+  { cat: "Raisonnement spatial", q: "Combien de cubes unitaires faut-il pour construire un cube de côté 4 ?", opts: ["16", "32", "64", "256"], correct: 2 },
+  { cat: "Raisonnement spatial", q: "Si on plie une feuille de papier 7 fois en deux, combien de couches obtient-on ?", opts: ["49", "64", "128", "256"], correct: 2 },
   { cat: "Raisonnement spatial", q: "Quelle paire de lettres complète : AZ, BY, CX, DW, ?", opts: ["EU", "EV", "FW", "EW"], correct: 1 },
   { cat: "Raisonnement spatial", q: "Quelle direction complète : ↑ → ↓ ← ↑ → ↓ ?", opts: ["↑", "→", "↓", "←"], correct: 3 },
-  { cat: "Raisonnement spatial", q: "Combien d'arêtes possède un cube ?", opts: ["8", "10", "12", "6"], correct: 2 },
+  { cat: "Raisonnement spatial", q: "Une fourmi part d'un sommet d'un cube et veut atteindre le sommet diagonalement opposé en n'empruntant que les arêtes. Combien d'arêtes minimum doit-elle parcourir ?", opts: ["2", "3", "4", "6"], correct: 1 },
   { cat: "Raisonnement spatial", q: "Si vous regardez votre montre dans un miroir et qu'elle indique 3h00, quelle heure est-il réellement ?", opts: ["3h00", "9h00", "6h00", "12h00"], correct: 1 },
-  { cat: "Raisonnement spatial", q: "Un rectangle a une longueur double de sa largeur. Si son périmètre est 24 cm, quelle est sa largeur ?", opts: ["3 cm", "4 cm", "6 cm", "8 cm"], correct: 1 },
-  { cat: "Raisonnement spatial", q: "Combien de sommets possède un triangle ?", opts: ["2", "3", "4", "6"], correct: 1 },
-  { cat: "Raisonnement spatial", q: "Quelle figure ne fait pas partie du même groupe : carré, triangle, cercle, cube ?", opts: ["Carré", "Triangle", "Cercle", "Cube"], correct: 3 },
+  { cat: "Raisonnement spatial", q: "Un rectangle a une longueur double de sa largeur. Si son périmètre est 24 cm, quelle est son aire ?", opts: ["24 cm²", "32 cm²", "36 cm²", "48 cm²"], correct: 1 },
+  { cat: "Raisonnement spatial", q: "On colle deux tétraèdres réguliers identiques par une face commune. Combien de faces a le solide obtenu ?", opts: ["6", "7", "8", "12"], correct: 0 },
+  { cat: "Raisonnement spatial", q: "Combien de bords a un ruban de Möbius ?", opts: ["0", "1", "2", "Une infinité"], correct: 1 },
 
   // ===== LOGIQUE & RÉSOLUTION DE PROBLÈMES (10) =====
-  { cat: "Logique & problèmes", q: "Un fermier a 17 moutons. Tous meurent sauf 9. Combien lui en reste-t-il ?", opts: ["8", "9", "17", "0"], correct: 1 },
+  { cat: "Logique & problèmes", q: "Combien de chiffres faut-il taper sur un clavier pour écrire tous les nombres entiers de 1 à 100 ?", opts: ["100", "180", "192", "200"], correct: 2 },
   { cat: "Logique & problèmes", q: "Si 3 chats attrapent 3 souris en 3 minutes, combien faut-il de chats pour attraper 100 souris en 100 minutes ?", opts: ["3", "33", "100", "10"], correct: 0 },
-  { cat: "Logique & problèmes", q: "Vous participez à une course et dépassez la 2ème personne. À quelle position êtes-vous ?", opts: ["1ère", "2ème", "3ème", "Dernière"], correct: 1 },
-  { cat: "Logique & problèmes", q: "Combien font 2 + 2 × 2 ?", opts: ["6", "8", "4", "10"], correct: 0 },
+  { cat: "Logique & problèmes", q: "Dans une famille, chaque fille a autant de frères que de sœurs, et chaque garçon a deux fois plus de sœurs que de frères. Combien y a-t-il de filles ?", opts: ["2", "3", "4", "5"], correct: 2 },
+  { cat: "Logique & problèmes", q: "Calculer : (3/4) × (8/9) × (5/2)", opts: ["5/3", "1/2", "4/3", "5/6"], correct: 0 },
   { cat: "Logique & problèmes", q: "Marie a 3 ans de plus que Paul. Dans 5 ans, la somme de leurs âges sera 27. Quel âge a Paul aujourd'hui ?", opts: ["7 ans", "8 ans", "10 ans", "12 ans"], correct: 0 },
   { cat: "Logique & problèmes", q: "Un train parcourt 60 km en 45 minutes. Quelle est sa vitesse en km/h ?", opts: ["75", "80", "90", "120"], correct: 1 },
-  { cat: "Logique & problèmes", q: "A est plus grand que B. B est plus grand que C. Qui est le plus petit ?", opts: ["A", "B", "C", "Indéterminé"], correct: 2 },
+  { cat: "Logique & problèmes", q: "Anne est plus âgée que Bob. Carla est plus âgée qu'Anne. Dan est plus jeune que Bob. Qui est le plus jeune ?", opts: ["Anne", "Bob", "Carla", "Dan"], correct: 3 },
   { cat: "Logique & problèmes", q: "Un livre coûte 10 € plus la moitié de son prix. Combien coûte le livre ?", opts: ["15 €", "20 €", "25 €", "30 €"], correct: 1 },
-  { cat: "Logique & problèmes", q: "Si tous les Bloups sont des Glips, et certains Glips sont rouges, alors :", opts: ["Tous les Bloups sont rouges", "Certains Bloups sont rouges", "Aucun Bloup n'est rouge", "On ne peut pas conclure"], correct: 3 },
+  { cat: "Logique & problèmes", q: "Tous les Trolls sont des Mages. Aucun Mage n'est mortel. Certains mortels sont des Sorciers. Laquelle des affirmations suivantes est nécessairement vraie ?", opts: ["Aucun Troll n'est mortel", "Tous les Sorciers sont des Mages", "Aucun Sorcier n'est un Troll", "Certains Mages sont des Sorciers"], correct: 0 },
   { cat: "Logique & problèmes", q: "Une bouteille et son bouchon coûtent 1,10 €. La bouteille coûte 1 € de plus que le bouchon. Combien coûte le bouchon ?", opts: ["0,10 €", "0,05 €", "0,15 €", "0,20 €"], correct: 1 }
 ];
 
 let currentQ = 0;
 const answers = new Array(questions.length).fill(null);
+
+// === Timer global ===
+const TOTAL_TIME = 25 * 60; // 25 minutes en secondes
+let testStartTime = null;
+let timerInterval = null;
+let timedOut = false;
 
 function render() {
   if (currentQ === -1) renderIntro();
@@ -646,7 +732,7 @@ function render() {
 function renderIntro() {
   document.getElementById('app').innerHTML = `
     <h1 data-text="NEURAL.IQ">NEURAL.IQ</h1>
-    <p class="subtitle">DIAGNOSTIC COGNITIF // 40 MODULES // ~25 MIN</p>
+    <p class="subtitle">DIAGNOSTIC COGNITIF // 40 MODULES // 25 MIN CHRONOMÉTRÉ</p>
     <div class="intro">
       <p>Évaluation de vos capacités de raisonnement à travers <strong>4 modules cognitifs</strong> :</p>
       <ul>
@@ -655,7 +741,7 @@ function renderIntro() {
         <li><strong>Raisonnement spatial</strong> — visualisation et formes</li>
         <li><strong>Logique &amp; problèmes</strong> — déduction et calcul mental</li>
       </ul>
-      <p><strong>Protocole :</strong> aucune assistance externe (calculatrice, recherche). Navigation libre entre les modules ; les réponses sont modifiables jusqu'à la validation finale.</p>
+      <p><strong>Protocole :</strong> aucune assistance externe (calculatrice, recherche). Navigation libre entre les modules ; les réponses sont modifiables jusqu'à la validation finale. <strong>Limite de temps : 25 minutes au total.</strong> À l'expiration, le test se clôture automatiquement avec votre état courant.</p>
       <div class="disclaimer">
         Ce diagnostic est conçu à des fins ludiques et éducatives. Il <strong>ne remplace pas</strong> une évaluation psychométrique professionnelle (WAIS, Raven, WISC).
       </div>
@@ -664,7 +750,44 @@ function renderIntro() {
   `;
 }
 
-function startTest() { currentQ = 0; render(); }
+function startTest() {
+  currentQ = 0;
+  timedOut = false;
+  testStartTime = Date.now();
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, 1000);
+  render();
+}
+
+function updateTimer() {
+  const elapsed = Math.floor((Date.now() - testStartTime) / 1000);
+  const remaining = TOTAL_TIME - elapsed;
+
+  if (remaining <= 0) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    timedOut = true;
+    if (currentQ >= 0 && currentQ < questions.length) {
+      finish();
+    }
+    return;
+  }
+
+  const el = document.getElementById('global-timer');
+  if (!el) return;
+
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('urgent', remaining <= 60);
+  el.classList.toggle('warning', remaining <= 300 && remaining > 60);
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
 
 function renderQuestion() {
   const q = questions[currentQ];
@@ -680,6 +803,7 @@ function renderQuestion() {
       <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
       <div class="progress-text">
         <span>MODULE ${String(currentQ + 1).padStart(2, '0')} / ${questions.length}</span>
+        <span id="global-timer" class="timer">25:00</span>
         <span>${answers.filter(a => a !== null).length} / ${questions.length} VALIDÉS</span>
       </div>
     </div>
@@ -693,12 +817,17 @@ function renderQuestion() {
         : `<button onclick="next()" ${answers[currentQ] === null ? 'disabled' : ''}>Suivant ▶</button>`}
     </div>
   `;
+  updateTimer(); // synchronise immédiatement l'affichage
 }
 
 function selectAnswer(i) { answers[currentQ] = i; render(); }
 function next() { if (currentQ < questions.length - 1) { currentQ++; render(); } }
 function prev() { if (currentQ > 0) { currentQ--; render(); } }
-function finish() { currentQ = questions.length; render(); }
+function finish() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  currentQ = questions.length;
+  render();
+}
 
 function estimateIQ(correct, total) {
   const pct = correct / total;
@@ -717,19 +846,45 @@ function estimateIQ(correct, total) {
   return 80;
 }
 
-// Mapping IQ → tier. Pour chaque tier tu peux fournir une image (champ `img`)
-// qui prendra le pas sur l'emoji par défaut.
+// Mapping IQ → tier. Pour chaque tier : image, personnage de référence, univers, et descripteur.
 // Les chemins sont relatifs au fichier HTML.
 const TIERS = [
-  { min: 130, code: "NSI", className: "tier-NSI", label: "Génie certifié — top 2% mondial",  emoji: "👑", img: null },
-  { min: 125, code: "SS",  className: "tier-SS",  label: "Esprit d'élite",                    emoji: "🧠", img: null },
-  { min: 115, code: "S",   className: "tier-S",   label: "Très haut niveau",                  emoji: "🤓", img: null },
-  { min: 110, code: "A",   className: "tier-A",   label: "Excellent",                         emoji: "😎", img: null },
-  { min: 105, code: "B",   className: "tier-B",   label: "Bon",                               emoji: "😊", img: null },
-  { min: 100, code: "C",   className: "tier-C",   label: "Correct",                           emoji: "🙂", img: null },
-  { min: 90,  code: "D",   className: "tier-D",   label: "Passable",                          emoji: "😐", img: null },
-  { min: 85,  code: "E",   className: "tier-E",   label: "Faible",                            emoji: "😅", img: null },
-  { min: 0,   code: "F",   className: "tier-F",   label: "Diagnostic critique",               emoji: "🥴", img: "QI_80%20et%20moins.webp" }
+  { min: 130, code: "NSI", className: "tier-NSI", label: "Génie certifié — top 2% mondial",
+    character: "Makima", universe: "Chainsaw Man",
+    byline: "Vous voyez les autres comme des contrats. Personne ne ment longtemps en votre présence, personne ne s'échappe — et vous trouvez ça presque ennuyeux.",
+    emoji: "👑", img: null },
+  { min: 125, code: "SS",  className: "tier-SS",  label: "Esprit d'élite",
+    character: "Huang Rong (黄蓉)", universe: "La Légende du héros chasseur d'aigles, Jin Yong",
+    byline: "Aiguisée comme une aiguille de jade. Trois coups d'avance, et un piège pour la riposte. On ne vous bat pas — on vous rate.",
+    emoji: "🧠", img: null },
+  { min: 115, code: "S",   className: "tier-S",   label: "Très haut niveau",
+    character: "Wei Yingluo (魏璎珞)", universe: "Story of Yanxi Palace",
+    byline: "Vous lisez les visages, les silences et les protocoles. Aucune cour ne vous résiste très longtemps.",
+    emoji: "🤓", img: null },
+  { min: 110, code: "A",   className: "tier-A",   label: "Excellent",
+    character: "Akame", universe: "Akame ga Kill",
+    byline: "Tranchante, méthodique, pas un mot de trop. Vous ne ratez pas la cible — et vous savez quand ne pas tirer.",
+    emoji: "😎", img: null },
+  { min: 105, code: "B",   className: "tier-B",   label: "Bon",
+    character: "Hinata Hyūga", universe: "Naruto",
+    byline: "Discrète, mais d'une lucidité douce et précise. Vous voyez ce que les autres manquent — vous le dites rarement.",
+    emoji: "😊", img: null },
+  { min: 100, code: "C",   className: "tier-C",   label: "Correct",
+    character: "Wolverine", universe: "X-Men",
+    byline: "Pas docteur en philo, mais un siècle d'expérience. L'instinct vaut souvent les théorèmes — et il fait moins mal aux côtes.",
+    emoji: "🙂", img: null },
+  { min: 90,  code: "D",   className: "tier-D",   label: "Passable",
+    character: "Lucy Heartfilia", universe: "Fairy Tail",
+    byline: "Dans la moyenne, débrouillarde, attachante. Mieux vaut une bonne équipe à vos côtés — vous compenserez par le cœur.",
+    emoji: "😐", img: null },
+  { min: 85,  code: "E",   className: "tier-E",   label: "Faible",
+    character: "Erza Scarlet", universe: "Fairy Tail",
+    byline: "Spectaculaire au combat, perdue devant un casse-tête. Frapper, c'est aussi une réponse — pas la plus subtile, mais elle marche souvent.",
+    emoji: "😅", img: null },
+  { min: 0,   code: "F",   className: "tier-F",   label: "Diagnostic critique",
+    character: "Yor Forger", universe: "Spy × Family",
+    byline: "Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.",
+    emoji: "🥴", img: "QI_80%20et%20moins.webp" }
 ];
 
 function getTier(iq) { return TIERS.find(t => iq >= t.min); }
@@ -774,10 +929,13 @@ function renderResults() {
     : tier.emoji;
   const tierDisplay = tier.code === "NSI" ? "NSI-tier" : tier.code;
 
+  const elapsedSec = testStartTime ? Math.min(TOTAL_TIME, Math.floor((Date.now() - testStartTime) / 1000)) : 0;
+  const timeLabel = timedOut ? `⚠ TIMEOUT — ${formatTime(TOTAL_TIME)}` : formatTime(elapsedSec);
+
   document.getElementById('app').innerHTML = `
     <div class="results">
       <h1 data-text="ANALYSE">ANALYSE</h1>
-      <p class="subtitle">DIAGNOSTIC TERMINÉ // RAPPORT GÉNÉRÉ</p>
+      <p class="subtitle">DIAGNOSTIC TERMINÉ // RAPPORT GÉNÉRÉ${timedOut ? ' // TEMPS ÉCOULÉ' : ''}</p>
 
       <div class="result-header">
         <div class="avatar">${avatarContent}</div>
@@ -792,7 +950,14 @@ function renderResults() {
         <span class="score-num">${iq}</span>
         <span class="score-label">QI Estimé</span>
       </div>
-      <p class="iq-summary">SCORE : <strong>${correctCount}</strong> / ${questions.length} MODULES VALIDÉS</p>
+      <p class="iq-summary">SCORE : <strong>${correctCount}</strong> / ${questions.length} MODULES VALIDÉS · TEMPS : <strong>${timeLabel}</strong></p>
+
+      <div class="character-block">
+        <div class="character-header">// Personnage de référence</div>
+        <div class="character-name">${tier.character}</div>
+        <div class="character-universe">${tier.universe}</div>
+        <blockquote class="character-byline">${tier.byline}</blockquote>
+      </div>
 
       <div class="breakdown">
         <h3>◆ Détail par module</h3>
@@ -822,6 +987,9 @@ function toggleReview() {
 }
 
 function restart() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  testStartTime = null;
+  timedOut = false;
   currentQ = -1;
   for (let i = 0; i < answers.length; i++) answers[i] = null;
   render();
