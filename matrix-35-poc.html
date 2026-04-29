@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC SVG · Puzzle #35</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="EVA_42.png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: #050814;
+    color: #e8f0ff;
+    padding: 40px 20px 80px;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(166, 75, 255, 0.18), transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(0, 240, 255, 0.15), transparent 50%),
+      #050814;
+    z-index: -1;
+  }
+  header {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8em;
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78em;
+    color: #8da4c8;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .private-tag {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 4px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7em;
+    color: #ff2bd6;
+    background: rgba(255, 43, 214, 0.08);
+    border: 1px solid rgba(255, 43, 214, 0.4);
+  }
+
+  .compare {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 800px) { .compare { grid-template-columns: 1fr; } }
+
+  .card {
+    background: rgba(20, 30, 60, 0.5);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(0, 240, 255, 0.18);
+    padding: 24px;
+    border-radius: 4px;
+  }
+  .card h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.95em;
+    color: #00f0ff;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  }
+  .card .img-container {
+    width: 100%;
+    background: #c8e6c9;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .card img, .card svg.full { width: 100%; height: auto; display: block; }
+
+  .candidates-row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    margin-top: 14px;
+  }
+  @media (max-width: 800px) { .candidates-row { grid-template-columns: repeat(4, 1fr); } }
+  .candidate {
+    background: #c8e6c9;
+    padding: 8px 4px 4px;
+    text-align: center;
+    border-radius: 2px;
+  }
+  .candidate svg { width: 100%; max-width: 70px; height: auto; }
+  .candidate .letter {
+    font-family: 'Orbitron', sans-serif;
+    color: #2c5530;
+    font-weight: 700;
+    font-size: 0.9em;
+    margin-top: 2px;
+  }
+  .candidate.correct { box-shadow: 0 0 0 2px #00ff9d, 0 0 18px rgba(0, 255, 157, 0.5); }
+
+  .footer-note {
+    max-width: 1100px;
+    margin: 36px auto 0;
+    padding: 18px 22px;
+    background: rgba(255, 214, 10, 0.06);
+    border-left: 3px solid #ffd60a;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    color: #ffd60a;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>POC SVG — Puzzle #35</h1>
+  <p class="subtitle">Test de fidélité visuelle · SVG procédural vs screenshot</p>
+  <div class="private-tag">⚿ POC PRIVÉE — page de test</div>
+</header>
+
+<div class="compare">
+
+  <div class="card">
+    <h2>① Original (screenshot)</h2>
+    <div class="img-container">
+      <img src="matrices/matrix-35.png" alt="Original puzzle #35"
+           onerror="this.parentElement.innerHTML='<div style=&quot;padding:40px;text-align:center;color:#666;font-family:JetBrains Mono;font-size:0.85em&quot;>screenshot original<br>(à déposer en <code>matrices/matrix-35.png</code>)</div>'">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>② SVG procédural</h2>
+    <div class="img-container" id="svg-target"></div>
+    <div class="candidates-row" id="candidates-row"></div>
+  </div>
+
+</div>
+
+<div class="footer-note">
+  ⚠ Mon encodage cellule par cellule depuis le screenshot est <strong>approximatif</strong> (~80% fiable).<br>
+  Comparez avec l'original côté gauche. Si le rendu diverge, je corrige les cellules manuellement.<br>
+  Si le rendu est jugé acceptable → je continue les puzzles #36-#39 (effort total : ~3h).<br>
+  Sinon → on bascule sur les screenshots dans <code>matrices/</code>, c'est plus simple.
+</div>
+
+<script>
+// ===== Puzzle #35 — encoded grid =====
+// Letters: w=white, b=blue, r=red, g=gray
+// Each mini-grid = array of 3 rows of 3 cells
+
+const PUZZLE_35 = {
+  // 9 mini-grids in reading order. The 9th (index 8) is null = "?"
+  grid: [
+    // Row 1
+    [['w','b','w'],
+     ['r','w','w'],
+     ['r','r','w']],
+
+    [['g','g','g'],
+     ['g','g','g'],
+     ['g','g','g']],
+
+    [['w','r','r'],
+     ['b','w','w'],
+     ['w','w','w']],
+
+    // Row 2
+    [['w','w','w'],
+     ['b','r','r'],
+     ['w','w','w']],
+
+    [['g','g','g'],
+     ['g','g','g'],
+     ['g','g','g']],
+
+    [['w','w','w'],
+     ['r','b','b'],
+     ['w','w','w']],
+
+    // Row 3
+    [['r','b','b'],
+     ['w','w','w'],
+     ['w','w','w']],
+
+    [['w','w','g'],
+     ['w','w','w'],
+     ['g','g','w']],
+
+    null  // unknown — "?"
+  ],
+  candidates: {
+    'A': [['w','w','w'],['w','b','w'],['w','w','w']],
+    'B': [['b','w','w'],['r','w','w'],['w','w','w']],
+    'C': [['w','b','w'],['w','w','r'],['w','w','w']],   // ← answer
+    'D': [['w','b','w'],['w','w','w'],['w','r','w']],
+    'E': [['w','b','w'],['w','w','w'],['w','w','w']],
+    'F': [['w','w','w'],['w','b','w'],['w','r','w']],
+    'G': [['w','w','w'],['w','w','w'],['w','b','r']],
+    'H': [['w','b','w'],['w','w','r'],['w','w','w']]
+  },
+  correct: 'C'
+};
+
+// ===== Color palette (match Mensa.dk) =====
+const COLOR = {
+  w: '#ffffff',
+  r: '#dc2626',
+  b: '#3b82f6',
+  g: '#9ca3af'
+};
+
+// ===== Render a single mini-grid as SVG =====
+function renderMiniGrid(cells, size = 80, isUnknown = false) {
+  if (isUnknown) {
+    return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="${size-4}" height="${size-4}" fill="#ffffff" stroke="#000" stroke-width="3" rx="6"/>
+      <text x="${size/2}" y="${size/2 + size*0.18}" text-anchor="middle" font-family="Arial" font-size="${size*0.55}" font-weight="700" fill="#999">?</text>
+    </svg>`;
+  }
+  const cs = (size - 6) / 3; // cell size with margin for outer border
+  const off = 3;
+  let svg = `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+  // Outer rounded border
+  svg += `<rect x="2" y="2" width="${size-4}" height="${size-4}" fill="#ffffff" stroke="#000" stroke-width="3" rx="2"/>`;
+  // 9 cells
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const fill = COLOR[cells[r][c]] || '#ffffff';
+      svg += `<rect x="${off + c*cs}" y="${off + r*cs}" width="${cs}" height="${cs}" fill="${fill}" stroke="#000" stroke-width="1.2"/>`;
+    }
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+// ===== Build the full puzzle SVG (3x3 of mini-grids) =====
+function buildPuzzleSvg(grid) {
+  const innerSize = 100; // each mini-grid
+  const gap = 30;
+  const padding = 20;
+  const totalW = 3 * innerSize + 2 * gap + 2 * padding;
+  const totalH = totalW;
+  let svg = `<svg class="full" viewBox="0 0 ${totalW} ${totalH}" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<rect width="${totalW}" height="${totalH}" fill="#c8e6c9"/>`;
+  for (let i = 0; i < 9; i++) {
+    const row = Math.floor(i / 3);
+    const col = i % 3;
+    const x = padding + col * (innerSize + gap);
+    const y = padding + row * (innerSize + gap);
+    const cells = grid[i];
+    const inner = renderMiniGrid(cells, innerSize, cells === null);
+    // Strip outer <svg> wrapper from inner and re-wrap in a <g transform>
+    const innerContent = inner.replace(/<svg[^>]*>|<\/svg>/g, '');
+    svg += `<g transform="translate(${x},${y})">${innerContent}</g>`;
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+// Render
+document.getElementById('svg-target').innerHTML = buildPuzzleSvg(PUZZLE_35.grid);
+
+// Build candidates row
+const candEl = document.getElementById('candidates-row');
+const letters = ['A','B','C','D','E','F','G','H'];
+candEl.innerHTML = letters.map(L => `
+  <div class="candidate ${L === PUZZLE_35.correct ? 'correct' : ''}">
+    ${renderMiniGrid(PUZZLE_35.candidates[L], 70)}
+    <div class="letter">${L}${L === PUZZLE_35.correct ? ' ✓' : ''}</div>
+  </div>
+`).join('');
+</script>
+
+</body>
+</html>
