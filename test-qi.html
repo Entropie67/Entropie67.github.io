@@ -490,6 +490,99 @@
     text-align: left;
     clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
   }
+  .cognitive-signature {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.06), rgba(166, 75, 255, 0.04));
+    border: 1px solid rgba(0, 240, 255, 0.35);
+    padding: 18px 22px;
+    margin: 24px 0;
+    text-align: left;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    font-family: var(--font-mono, 'JetBrains Mono', 'Courier New', monospace);
+  }
+  .cognitive-signature .sig-header {
+    color: var(--neon-cyan, #00f0ff);
+    font-size: 0.82em;
+    letter-spacing: 0.12em;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .cognitive-signature .sig-grid {
+    display: grid;
+    gap: 8px;
+  }
+  .cognitive-signature .sig-row {
+    display: grid;
+    grid-template-columns: minmax(140px, max-content) 1fr;
+    gap: 18px;
+    align-items: baseline;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(0, 240, 255, 0.12);
+  }
+  .cognitive-signature .sig-row:last-child {
+    border-bottom: none;
+  }
+  .cognitive-signature .sig-key {
+    color: var(--text-secondary);
+    font-size: 0.78em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .cognitive-signature .sig-val {
+    color: var(--text-primary);
+    font-size: 0.95em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .cognitive-signature .sig-val-dim {
+    opacity: 0.7;
+    font-weight: 500;
+  }
+  .cognitive-signature .sig-row-emphasis {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 240, 255, 0.3);
+    border-bottom: none;
+  }
+  .cognitive-signature .sig-val-codename {
+    font-size: 1.05em;
+    color: var(--neon-cyan, #00f0ff);
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+  }
+  .cognitive-signature .sig-archetype {
+    color: var(--neon-magenta, #ff2bd6);
+    text-shadow: 0 0 8px rgba(255, 43, 214, 0.35);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .profile-explain {
+    background: rgba(10, 16, 36, 0.5);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-left: 3px solid var(--neon-cyan, #00f0ff);
+    padding: 18px 22px;
+    margin: 24px 0;
+    text-align: left;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  }
+  .profile-explain h3 {
+    margin: 0 0 10px;
+    font-size: 0.95em;
+    letter-spacing: 0.05em;
+  }
+  .profile-explain p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    font-size: 0.92em;
+  }
+  .profile-explain em {
+    color: var(--neon-cyan, #00f0ff);
+    font-style: normal;
+  }
+  .profile-explain strong {
+    color: var(--text-primary);
+  }
   .cat-row {
     display: flex;
     justify-content: space-between;
@@ -817,6 +910,11 @@ const UI = {
     timeoutSuffix: " // TEMPS ÉCOULÉ",
     timeoutLabel: "⚠ TIMEOUT",
     classification: "// Classification",
+    sigHeader: "// SIGNATURE COGNITIVE",
+    sigClassification: "CLASSIFICATION",
+    sigPrimary: "VECTEUR PRIMAIRE",
+    sigSecondary: "VECTEUR SECONDAIRE",
+    sigSignature: "SIGNATURE",
     iqEstimated: "QI Estimé",
     score: "SCORE",
     modulesValidated: "MODULES VALIDÉS · TEMPS",
@@ -827,6 +925,9 @@ const UI = {
     yourAnswer: "Votre réponse",
     correctAnswer: "Bonne réponse",
     restart: "↻ Recommencer",
+    profileHeader: "◆ Type d'intelligence",
+    profileSTR: "Votre intelligence opère sur des structures abstraites : motifs, équations, hiérarchies logiques. Vous décomposez les problèmes en sous-systèmes, manipulez des symboles, anticipez plusieurs coups d'avance. Vous excellez là où la solution est <em>dérivable</em> — code, mathématiques, planification, diagnostic technique, stratégie. <strong>Coût</strong> : friction sociale, parfois aveuglement aux signaux émotionnels qui refusent la formalisation. <strong>Terrains naturels</strong> : ingénierie, recherche, finance quantitative, échecs, sécurité informatique.",
+    profileSOC: "Votre intelligence opère sur des intentions : ce que les gens disent, ce qu'ils veulent dire, ce qu'ils ne s'avouent pas à eux-mêmes. Vous lisez les sous-textes, calibrez votre registre, anticipez les réactions. Vous excellez là où la solution dépend d'un humain — négociation, leadership, persuasion, écriture, médiation, lecture des dynamiques de groupe. <strong>Coût</strong> : les problèmes purement formels peuvent vous fatiguer plus vite que la moyenne, et la sur-empathie reste un risque. <strong>Terrains naturels</strong> : politique, droit, vente, journalisme, psychologie, enseignement, narration.",
     resultDisclaimer: "Cette estimation est <strong>approximative et ludique</strong>. Un véritable QI se mesure avec des tests standardisés (WAIS, Raven, WISC) administrés par un psychologue qualifié."
   },
   en: {
@@ -850,6 +951,11 @@ const UI = {
     timeoutSuffix: " // TIME EXPIRED",
     timeoutLabel: "⚠ TIMEOUT",
     classification: "// Classification",
+    sigHeader: "// COGNITIVE SIGNATURE",
+    sigClassification: "CLASSIFICATION",
+    sigPrimary: "PRIMARY VECTOR",
+    sigSecondary: "SECONDARY VECTOR",
+    sigSignature: "SIGNATURE",
     iqEstimated: "Estimated IQ",
     score: "SCORE",
     modulesValidated: "MODULES ANSWERED · TIME",
@@ -860,6 +966,9 @@ const UI = {
     yourAnswer: "Your answer",
     correctAnswer: "Correct answer",
     restart: "↻ Restart",
+    profileHeader: "◆ Intelligence type",
+    profileSTR: "Your intelligence operates on abstract structures: patterns, equations, logical hierarchies. You decompose problems into sub-systems, manipulate symbols, anticipate several moves ahead. You excel wherever the solution is <em>derivable</em> — code, mathematics, planning, technical diagnosis, strategy. <strong>Cost</strong>: social friction, sometimes blindness to emotional signals that resist formalization. <strong>Natural fields</strong>: engineering, research, quantitative finance, chess, computer security.",
+    profileSOC: "Your intelligence operates on intentions: what people say, what they mean, what they don't admit to themselves. You read subtext, calibrate your register, anticipate reactions. You excel wherever the solution depends on a human — negotiation, leadership, persuasion, writing, mediation, reading group dynamics. <strong>Cost</strong>: purely formal problems may tire you faster than average, and over-empathy remains a risk. <strong>Natural fields</strong>: politics, law, sales, journalism, psychology, teaching, storytelling.",
     resultDisclaimer: "This estimate is <strong>approximate and recreational</strong>. A real IQ is measured with standardized tests (WAIS, Raven, WISC) administered by a qualified psychologist."
   },
   zh: {
@@ -883,6 +992,11 @@ const UI = {
     timeoutSuffix: " // 时间已到",
     timeoutLabel: "⚠ 超时",
     classification: "// 等级评定",
+    sigHeader: "// 认知签名",
+    sigClassification: "等级",
+    sigPrimary: "主向量",
+    sigSecondary: "副向量",
+    sigSignature: "签名",
     iqEstimated: "估计 IQ",
     score: "得分",
     modulesValidated: "已答题数 · 用时",
@@ -893,6 +1007,9 @@ const UI = {
     yourAnswer: "您的答案",
     correctAnswer: "正确答案",
     restart: "↻ 重新开始",
+    profileHeader: "◆ 智力类型",
+    profileSTR: "您的智力运作于抽象结构之上：模式、方程、逻辑层级。您将问题分解为子系统，操纵符号，预判数步之后。凡解可<em>推导</em>之处——代码、数学、规划、技术诊断、战略——您皆游刃有余。<strong>代价</strong>：社交摩擦，有时会忽视那些无法形式化的情感信号。<strong>天然领域</strong>：工程、科研、量化金融、围棋象棋、网络安全。",
+    profileSOC: "您的智力运作于意图之上：人们说的话、他们想表达的、他们对自己也不愿承认的。您读懂潜台词，校准语域，预判反应。凡解决方案依赖于他人之处——谈判、领导、说服、写作、调解、读懂群体动力——您皆出色。<strong>代价</strong>：纯形式化的问题可能让您比常人更快感到疲劳，过度共情亦是风险。<strong>天然领域</strong>：政治、法律、销售、新闻、心理学、教学、叙事。",
     resultDisclaimer: "本估值<strong>仅为娱乐性近似值</strong>。真正的智商需通过由专业心理学家施行的标准化测试（WAIS、Raven、WISC）测得。"
   }
 };
@@ -1276,6 +1393,15 @@ function estimateIQ(correct, total) {
 // Les chemins sont relatifs au fichier HTML.
 // Chaque tier porte deux profils : STR (stratégique-analytique) et SOC (verbal-social).
 // Le profil affiché est choisi à partir du subscore verbal vs non-verbal du candidat.
+// Métadonnées par module : code court (1 lettre), label affiché, archétype dérivé du module dominant.
+const CAT_META = {
+  "Suites numériques":    { code:"N", label:{ fr:"NUMÉRIQUE", en:"NUMERIC",  zh:"数列" }, archetype:{ fr:"CRYPTOGRAPHE", en:"CRYPTOGRAPHER", zh:"密码学家" } },
+  "Raisonnement verbal":  { code:"V", label:{ fr:"VERBAL",    en:"VERBAL",   zh:"语言" }, archetype:{ fr:"ORACLE",       en:"ORACLE",        zh:"谕语者"   } },
+  "Raisonnement spatial": { code:"S", label:{ fr:"SPATIAL",   en:"SPATIAL",  zh:"空间" }, archetype:{ fr:"CARTOGRAPHE",  en:"CARTOGRAPHER",  zh:"制图师"   } },
+  "Logique & problèmes":  { code:"L", label:{ fr:"LOGIQUE",   en:"LOGIC",    zh:"逻辑" }, archetype:{ fr:"ARCHITECTE",   en:"ARCHITECT",     zh:"架构师"   } },
+  "Matrices visuelles":   { code:"M", label:{ fr:"MATRICE",   en:"MATRIX",   zh:"矩阵" }, archetype:{ fr:"ANALYSTE",     en:"ANALYST",       zh:"模式分析师" } }
+};
+
 const TIERS = [
   { min: 150, code: "Ω", className: "tier-NSI", emoji: "👑",
     label: { fr:"Singularité — top 0.1%", en:"Singularity — top 0.1%", zh:"奇点 — 全球前 0.1%" },
@@ -1354,12 +1480,12 @@ const TIERS = [
                        en:"You are a blade that has forgotten its sheath. Calm to the point of absence, lucid to the point of vertigo — your attention costs the world that receives it.",
                        zh:"您是一把忘了刀鞘的刀刃。静至消失，洞察至眩晕——您的注视，对承受它的世界而言代价高昂。" },
              img: "proposition%20d'images%20pour%20tier/skirk.png" },
-      SOC: { character:"Ai Hayasaka",
-             universe: { fr:"Kaguya-sama: Love Is War (かぐや様は告らせたい)", en:"Kaguya-sama: Love Is War", zh:"辉夜大小姐想让我告白" },
-             byline: { fr:"Servante par profession, stratège par vocation. Cinq personnalités à votre disposition, chacune adaptée à son interlocuteur. Vous gérez en sous-main une héritière, plusieurs identités, et une fatigue chronique.",
-                       en:"Servant by profession, strategist by calling. Five personalities at your disposal, each tuned to its target. You quietly manage an heiress, several identities, and a chronic exhaustion.",
-                       zh:"以仆从为职业，以谋略为天职。五种人格随时切换，每种都为对应的对象量身定制。您悄悄打理一位千金、数个身份，以及长年的疲惫。" },
-             img: null }
+      SOC: { character:"Yelan",
+             universe: { fr:"Genshin Impact — Ministère des Affaires Civiles", en:"Genshin Impact — Ministry of Civil Affairs", zh:"原神 — 民政事务部" },
+             byline: { fr:"Officiellement archiviste, officieusement tout le reste. Vous lisez la pièce avant que les autres ne réalisent qu'il y a une pièce — et vous laissez chacun croire qu'il vous a échappé. Trois coups d'avance, jamais de trace, et toujours ce demi-sourire qui ne signifie rien.",
+                       en:"Officially an archivist, unofficially everything else. You read the room before others realize there is one — and you let each person believe they slipped past you. Three moves ahead, never a trace, and always that half-smile that means nothing.",
+                       zh:"明面上是档案管理员，暗地里包揽其余一切。您比所有人都先读懂房间——再让每个人以为他们瞒过了您。永远领先三步，从不留痕，脸上始终挂着那抹不代表任何意思的浅笑。" },
+             img: "proposition%20d'images%20pour%20tier/yelan.png" }
     } },
 
   { min: 110, code: "B", className: "tier-B", emoji: "😊",
@@ -1388,12 +1514,12 @@ const TIERS = [
                        en:"Sharp, methodical, efficient. You strike before you doubt. For abstract topics, you wait for someone to explain in concrete terms — and then you understand everything.",
                        zh:"锋利、有条理、高效。您先出手，再怀疑。面对抽象问题，您会等别人用具体例子解释——然后就全懂了。" },
              img: null },
-      SOC: { character:"Megumi Katō",
-             universe: { fr:"Saekano (冴えない彼女の育てかた)", en:"Saekano: How to Raise a Boring Girlfriend", zh:"路人女主的养成方法" },
-             byline: { fr:"Vous lisez la pièce avant que les autres ne réalisent qu'il y a une pièce. Banale en surface — c'est précisément votre arme. Personne ne se méfie de la fille discrète.",
-                       en:"You read the room before others realize there is a room. Plain on the surface — that's precisely your weapon. No one suspects the quiet girl.",
-                       zh:"在别人察觉房间存在之前，您已读懂了房间。外表平凡——这正是您的武器。没人会怀疑那个安静的女孩。" },
-             img: null }
+      SOC: { character:"Rin Tohsaka (遠坂 凛)",
+             universe: { fr:"Fate/stay night", en:"Fate/stay night", zh:"Fate/stay night" },
+             byline: { fr:"Lycéenne modèle, magicienne héritière, et accessoirement la pire négociatrice de Fuyuki dès qu'on parle d'argent. Vous calculez bien, vous lisez correctement la pièce — sauf quand votre orgueil parle plus fort que votre tête. Compétente, mais pas encore intouchable.",
+                       en:"Model student, heiress mage, and incidentally the worst negotiator in Fuyuki the moment money is on the table. You calculate well, you read the room correctly — except when your pride speaks louder than your head. Competent, but not yet untouchable.",
+                       zh:"模范高中生、魔术师继承人，顺便还是冬木市谈钱时最糟糕的谈判者。您算得好，房间也读得准——只是骄傲一开口，脑子就闭嘴。能干，但还远谈不上无懈可击。" },
+             img: "proposition%20d'images%20pour%20tier/Rin.png" }
     } },
 
   { min: 100, code: "D", className: "tier-D", emoji: "😐",
@@ -1405,12 +1531,12 @@ const TIERS = [
                        en:"Raised apart from humans, trained in combat, precision, discipline. Anything requiring social warmth, you avoid or sidestep. It's not that you don't understand — you've simply never learned to care.",
                        zh:"在凡人之外被抚养长大，受训于战斗、精准与纪律。一切需要社交温度的事，您都回避或绕开。不是您不懂——您只是从未学会去在意。" },
              img: null },
-      SOC: { character:"Claire Kagenou",
-             universe: { fr:"The Eminence in Shadow (陰の実力者になりたくて!)", en:"The Eminence in Shadow", zh:"想要成为影之实力者!" },
-             byline: { fr:"Sœur aînée idéale dans votre tête, sœur aînée à côté de la plaque dans la réalité. Vous voyez clair sur tout — sauf sur ce qui se passe juste à côté de vous. Aimante, brillante en société, parfaitement aveugle au surnaturel sous votre nez.",
-                       en:"Perfect older sister in your head, oblivious older sister in reality. You see clearly through everything — except what's happening right next to you. Loving, socially radiant, and utterly blind to the supernatural under your very nose.",
-                       zh:"脑海中的完美姐姐，现实中的迷糊姐姐。您把一切都看得清楚——除了就在身边发生的事。温柔、社交场上光芒四射，却对鼻子底下的超自然一无所觉。" },
-             img: "proposition%20d'images%20pour%20tier/claire%20Kagenou.png" }
+      SOC: { character:"Yumiella Dolkness",
+             universe: { fr:"Méchante Niveau 99 (悪役令嬢レベル99)", en:"Villainess Level 99", zh:"恶役千金 LV99" },
+             byline: { fr:"On vous a écrit le rôle de méchante finale ; vous le jouez sans vraiment comprendre pourquoi tout le monde y croit. Surpuissante en chiffres, paumée en sous-texte. Vous lisez la pièce mot à mot — et vous ratez systématiquement le ton.",
+                       en:"You've been cast as the final villain; you play the part without quite understanding why everyone buys it. Overpowered on paper, lost in the subtext. You read the room word by word — and miss the tone every time.",
+                       zh:"剧本把您写成了最终反派；您照着演，却始终搞不懂为什么大家都信。数值上爆表，潜台词上迷路。您逐字逐句读懂房间——却每次都漏掉语气。" },
+             img: "proposition%20d'images%20pour%20tier/yumellia.png" }
     } },
 
   { min: 90, code: "E", className: "tier-E", emoji: "😅",
@@ -1422,23 +1548,23 @@ const TIERS = [
                        en:"Spectacular in combat, lost in front of a puzzle. Striking is also an answer — not the most subtle one, but it works often.",
                        zh:"战斗中光芒万丈，面对谜题却束手无策。挥剑也是一种答案——虽不算最巧妙，但通常奏效。" },
              img: null },
-      SOC: { character:"Misa Amane",
-             universe: { fr:"Death Note", en:"Death Note", zh:"死亡笔记" },
-             byline: { fr:"Dévouement absolu, raisonnement second. Vous aimez d'abord, vous comprenez ensuite — et parfois, vous ne comprenez jamais. Mais vous êtes loyale, infiniment loyale.",
-                       en:"Absolute devotion, secondary reasoning. You love first, understand later — and sometimes never understand. But you are loyal, infinitely loyal.",
-                       zh:"绝对的忠诚，推理只是次要的。您先爱，后理解——有时甚至从不理解。但您忠贞不渝。" },
-             img: "proposition%20d'images%20pour%20tier/misa.png" }
+      SOC: { character:"Xenovia Quarta",
+             universe: { fr:"High School DxD", en:"High School DxD", zh:"恶魔高校 DxD" },
+             byline: { fr:"Loyale jusqu'à l'aveuglement, droite jusqu'au ridicule. Vous prenez tout au pied de la lettre — y compris les blagues, surtout les blagues. Mais vous êtes la première à dégainer pour ceux que vous aimez.",
+                       en:"Loyal to the point of blindness, upright to the point of ridicule. You take everything literally — including jokes, especially jokes. But you're the first to draw blade for those you love.",
+                       zh:"忠诚至盲目，正直至滑稽。您把一切都当真——包括玩笑，尤其是玩笑。但您是第一个为所爱之人拔剑的人。" },
+             img: "proposition%20d'images%20pour%20tier/xenovia.png" }
     } },
 
   { min: 80, code: "F", className: "tier-F", emoji: "🥴",
     label: { fr:"Faible", en:"Weak", zh:"较弱" },
     profiles: {
-      STR: { character:"Wonder Woman (Diana de Themyscira)",
-             universe: { fr:"DC Comics", en:"DC Comics", zh:"DC 漫画" },
-             byline: { fr:"Princesse guerrière, force absolue, conviction d'acier. Vous tranchez les nœuds plutôt que de les défaire. La théorie ennuie, l'action règle tout. Quand vous frappez, c'est pour la justice — ou ce que vous croyez en être.",
-                       en:"Warrior princess, absolute strength, steel conviction. You cut knots rather than untie them. Theory bores you; action settles everything. When you strike, it's for justice — or what you believe to be justice.",
-                       zh:"战士公主，绝对力量，钢铁信念。您一刀斩断绳结，而非耐心解开。理论让您觉得乏味，行动解决一切。您出手，是为正义——或您所认为的正义。" },
-             img: null },
+      STR: { character:"Daenerys Targaryen",
+             universe: { fr:"Game of Thrones", en:"Game of Thrones", zh:"权力的游戏" },
+             byline: { fr:"Princesse en exil, conviction de feu, dragons en escorte. Vous tranchez les nœuds plutôt que de les défaire — feu et sang règlent ce que la diplomatie traîne. Quand vous frappez, c'est pour la justice. Du moins, ce que vous avez décidé d'appeler ainsi.",
+                       en:"Exiled princess, fiery conviction, dragons in tow. You cut knots rather than untie them — fire and blood settle what diplomacy drags out. When you strike, it's for justice. Or at least what you've decided to call justice.",
+                       zh:"流亡公主，烈火信念，巨龙护驾。您一刀斩断绳结，而非耐心解开——血与火解决外交拖延之事。您出手，是为正义。或者说，您决定称之为正义的东西。" },
+             img: "proposition%20d'images%20pour%20tier/daenerys.png" },
       SOC: { character:"Yor Forger",
              universe: { fr:"Spy × Family", en:"Spy × Family", zh:"间谍×过家家" },
              byline: { fr:"Gentille, dévouée, redoutable avec un couteau. Pour le reste, demandez à Loid — et ne lui parlez surtout pas de relativité, ça la rendrait triste.",
@@ -1489,15 +1615,35 @@ function renderResults() {
   const u = UI[currentLang];
   const correctCount = answers.reduce((acc, a, i) => acc + (a === questions[i].correct ? 1 : 0), 0);
   const iq = estimateIQ(correctCount, questions.length);
+  const tier = getTier(iq);
 
   // Aggregate per category — use the localized cat name as key
   const cats = {};
+  // Aggregate per canonical FR category — used for signature computation, language-agnostic.
+  const catsRaw = {};
   questions.forEach((q, i) => {
     const catName = t(q.cat);
     if (!cats[catName]) cats[catName] = { correct: 0, total: 0 };
     cats[catName].total++;
     if (answers[i] === q.correct) cats[catName].correct++;
+
+    const rawKey = (q.cat && q.cat.fr) || '';
+    if (!catsRaw[rawKey]) catsRaw[rawKey] = { correct: 0, total: 0 };
+    catsRaw[rawKey].total++;
+    if (answers[i] === q.correct) catsRaw[rawKey].correct++;
   });
+
+  // Tri des modules par % de réussite (ex æquo départagé par nombre brut de réponses correctes).
+  const ranked = Object.entries(catsRaw)
+    .filter(([k]) => CAT_META[k])
+    .map(([k, s]) => ({ key: k, pct: s.total ? s.correct / s.total : 0, correct: s.correct }))
+    .sort((a, b) => b.pct - a.pct || b.correct - a.correct);
+  const primary = ranked[0];
+  const secondary = ranked[1];
+  const primaryMeta = primary ? CAT_META[primary.key] : null;
+  const secondaryMeta = secondary ? CAT_META[secondary.key] : null;
+  const archetypeText = primaryMeta ? t(primaryMeta.archetype) : '';
+  const signatureCode = primaryMeta ? `${tier ? tier.code : '?'}-${iq}-${primaryMeta.code}` : '';
 
   const breakdownHtml = Object.entries(cats).map(([name, s]) => {
     const pct = (s.correct / s.total) * 100;
@@ -1537,7 +1683,6 @@ function renderResults() {
     `;
   }).join('');
 
-  const tier = getTier(iq);
   const profileKey = getProfile(answers, questions);
   const profileData = tier.profiles[profileKey];
   const avatarContent = profileData.img
@@ -1574,11 +1719,40 @@ function renderResults() {
       </div>
       <p class="iq-summary">${u.score} : <strong>${correctCount}</strong> / ${questions.length} ${u.modulesValidated} : <strong>${timeLabel}</strong></p>
 
+      ${primaryMeta ? `
+      <div class="cognitive-signature">
+        <div class="sig-header">${u.sigHeader}</div>
+        <div class="sig-grid">
+          <div class="sig-row">
+            <span class="sig-key">${u.sigClassification}</span>
+            <span class="sig-val">${tier.code} · ${iq}</span>
+          </div>
+          <div class="sig-row">
+            <span class="sig-key">${u.sigPrimary}</span>
+            <span class="sig-val">${t(primaryMeta.label)} · ${Math.round(primary.pct * 100)}%</span>
+          </div>
+          ${secondaryMeta ? `
+          <div class="sig-row">
+            <span class="sig-key">${u.sigSecondary}</span>
+            <span class="sig-val sig-val-dim">${t(secondaryMeta.label)} · ${Math.round(secondary.pct * 100)}%</span>
+          </div>` : ''}
+          <div class="sig-row sig-row-emphasis">
+            <span class="sig-key">${u.sigSignature}</span>
+            <span class="sig-val sig-val-codename">${signatureCode} · <span class="sig-archetype">${archetypeText}</span></span>
+          </div>
+        </div>
+      </div>` : ''}
+
       <div class="character-block">
         <div class="character-header">${u.characterRef} · <span class="profile-tag">${t(profileLabels[profileKey])}</span></div>
         <div class="character-name">${profileData.character}</div>
         <div class="character-universe">${t(profileData.universe)}</div>
         <blockquote class="character-byline">${t(profileData.byline)}</blockquote>
+      </div>
+
+      <div class="profile-explain">
+        <h3>${u.profileHeader}</h3>
+        <p>${profileKey === 'STR' ? u.profileSTR : u.profileSOC}</p>
       </div>
 
       <div class="breakdown">
