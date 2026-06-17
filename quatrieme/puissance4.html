@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puissance 4</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:#f5f5f3;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  h1{font-size:22px;font-weight:500;margin-bottom:16px;color:#1a1a18}
+  #legend{display:flex;gap:20px;font-size:13px;color:#888;margin-bottom:10px}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
+  .dot.j1{background:#D85A30}.dot.j2{background:#378ADD}
+  #status{font-size:15px;font-weight:500;min-height:28px;margin:10px 0 6px;color:#1a1a18;text-align:center}
+  .col-wrap{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:420px;width:100%;margin-bottom:6px}
+  .col-btn{width:100%;padding:4px 0;background:#fff;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;color:#666;transition:background 0.1s}
+  .col-btn:hover:not(:disabled){background:#eee}
+  .col-btn:disabled{opacity:0.3;cursor:default}
+  #board{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:12px;background:#e8e6e0;border-radius:12px;max-width:420px;width:100%}
+  .cell{aspect-ratio:1;border-radius:50%;background:#fff;border:1px solid #ccc;transition:background 0.15s}
+  .cell.j1{background:#D85A30;border-color:#b84820}
+  .cell.j2{background:#378ADD;border-color:#1a6ab8}
+  .win-cell{outline:3px solid #EF9F27;outline-offset:-2px}
+  #restart{margin-top:12px;padding:7px 22px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#555}
+  #restart:hover{background:#eee}
+</style>
+</head>
+<body>
+<h1>Puissance 4</h1>
+<div id="legend">
+  <span><span class="dot j1"></span>Joueur 1</span>
+  <span><span class="dot j2"></span>Joueur 2</span>
+</div>
+<div id="status">Joueur 1, choisis une colonne</div>
+<div class="col-wrap" id="btns"></div>
+<div id="board"></div>
+<button id="restart">↺ Recommencer</button>
+<script>
+const NB_L=6,NB_C=7,VIDE=0,J1=1,J2=2;
+let grille,joueur,fini;
+
+function creer(){
+  grille=[];
+  for(let l=0;l<NB_L;l++){let r=[];for(let c=0;c<NB_C;c++)r.push(VIDE);grille.push(r);}
+  joueur=J1;fini=false;
+  render();setStatus('Joueur 1, choisis une colonne');setBtns(true);
+}
+
+function placer(col){
+  for(let l=NB_L-1;l>=0;l--)
+    if(grille[l][col]===VIDE){grille[l][col]=joueur;return {l,c:col};}
+  return null;
+}
+
+function grillePleine(){
+  for(let c=0;c<NB_C;c++)if(grille[0][c]===VIDE)return false;return true;
+}
+
+function verifier(j){
+  for(let l=0;l<NB_L;l++)for(let c=0;c<NB_C-3;c++)
+    if([0,1,2,3].every(i=>grille[l][c+i]===j))return[[l,c],[l,c+1],[l,c+2],[l,c+3]];
+  for(let l=0;l<NB_L-3;l++)for(let c=0;c<NB_C;c++)
+    if([0,1,2,3].every(i=>grille[l+i][c]===j))return[[l,c],[l+1,c],[l+2,c],[l+3,c]];
+  for(let l=0;l<NB_L-3;l++)for(let c=0;c<NB_C-3;c++)
+    if([0,1,2,3].every(i=>grille[l+i][c+i]===j))return[[l,c],[l+1,c+1],[l+2,c+2],[l+3,c+3]];
+  for(let l=3;l<NB_L;l++)for(let c=0;c<NB_C-3;c++)
+    if([0,1,2,3].every(i=>grille[l-i][c+i]===j))return[[l,c],[l-1,c+1],[l-2,c+2],[l-3,c+3]];
+  return null;
+}
+
+function render(){
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  for(let l=0;l<NB_L;l++)for(let c=0;c<NB_C;c++){
+    const d=document.createElement('div');
+    d.className='cell'+(grille[l][c]===J1?' j1':grille[l][c]===J2?' j2':'');
+    d.id=`c${l}-${c}`;board.appendChild(d);
+  }
+}
+
+function setBtns(on){
+  document.querySelectorAll('.col-btn').forEach((b,i)=>{
+    b.disabled=!on||(grille[0][i]!==VIDE);
+  });
+}
+
+function setStatus(txt,color){
+  const s=document.getElementById('status');
+  s.textContent=txt;s.style.color=color||'#1a1a18';
+}
+
+function jouer(col){
+  if(fini)return;
+  if(!placer(col))return;
+  render();
+  const win=verifier(joueur);
+  if(win){
+    fini=true;
+    win.forEach(([l,c])=>document.getElementById(`c${l}-${c}`).classList.add('win-cell'));
+    setStatus(`🎉 Joueur ${joueur} a gagné !`,joueur===J1?'#D85A30':'#378ADD');
+    setBtns(false);return;
+  }
+  if(grillePleine()){fini=true;setStatus('Match nul !');setBtns(false);return;}
+  joueur=joueur===J1?J2:J1;
+  setStatus(`Joueur ${joueur}, choisis une colonne`);setBtns(true);
+}
+
+const wrap=document.getElementById('btns');
+for(let c=0;c<NB_C;c++){
+  const b=document.createElement('button');
+  b.className='col-btn';b.textContent=c;
+  b.addEventListener('click',()=>jouer(c));
+  wrap.appendChild(b);
+}
+document.getElementById('restart').addEventListener('click',creer);
+creer();
+</script>
+</body>
+</html>

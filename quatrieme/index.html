@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Classe Lovelace · Turing — Bilan 4e5 · 2025-2026</title>
+<link rel="icon" type="image/png" href="../EVA_42.png">
+<link rel="apple-touch-icon" href="../EVA_42.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #03040a;
+    --bg-2: #060a18;
+    --cyan: #00fff0;
+    --magenta: #ff2bd6;
+    --violet: #7a2bff;
+    --lime: #c8ff00;
+    --text: #e6f1ff;
+    --muted: #7a8aa8;
+    --glass: rgba(255, 255, 255, 0.04);
+    --border: rgba(0, 255, 240, 0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Background layers */
+  .grid-overlay {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,255,240,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,240,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .aurora::before, .aurora::after {
+    content: ""; position: absolute; width: 60vw; height: 60vw; border-radius: 50%;
+    filter: blur(120px); opacity: 0.45;
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  .aurora::before { background: radial-gradient(circle, var(--violet), transparent 60%); top: -10%; left: -10%; }
+  .aurora::after  { background: radial-gradient(circle, var(--cyan), transparent 60%); bottom: -15%; right: -10%; animation-delay: -8s; }
+  @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(15vw, 10vh) scale(1.15); } }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1rem 2.5rem; display: flex; justify-content: space-between; align-items: center;
+    background: rgba(3, 4, 10, 0.55);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1rem;
+    letter-spacing: 0.22em; color: var(--cyan); text-shadow: 0 0 10px var(--cyan);
+    display: flex; align-items: center; gap: 0.6rem; text-decoration: none;
+  }
+  .logo-mark { width: 22px; height: 22px; border: 2px solid var(--cyan); transform: rotate(45deg); position: relative; }
+  .logo-mark::after { content: ""; position: absolute; inset: 3px; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); }
+  .back-link {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.15em; text-transform: uppercase; transition: color 0.25s;
+  }
+  .back-link:hover { color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
+  .back-link::before { content: "← "; color: var(--magenta); }
+
+  /* Hero */
+  .hero {
+    position: relative; z-index: 5; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 7rem 2rem 4rem; text-align: center;
+  }
+  .binary-line {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: rgba(0,255,240,0.18);
+    letter-spacing: 0.5em; white-space: nowrap; overflow: hidden; max-width: 92vw;
+    margin-bottom: 0.4rem; user-select: none;
+  }
+  .pretitle {
+    font-family: 'JetBrains Mono', monospace; color: var(--lime); font-size: 0.85rem;
+    letter-spacing: 0.4em; text-transform: uppercase; margin: 2rem 0 1.4rem;
+    opacity: 0; animation: fadeInUp 1s ease 0.2s forwards;
+  }
+  .pretitle::before { content: "[ "; color: var(--cyan); }
+  .pretitle::after  { content: " ]"; color: var(--cyan); }
+  .title {
+    font-family: 'Orbitron', sans-serif; font-weight: 900;
+    font-size: clamp(2.8rem, 10vw, 8rem); line-height: 0.95; letter-spacing: 0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--cyan) 35%, var(--magenta) 70%, var(--violet) 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    opacity: 0; animation: fadeInUp 1s ease 0.4s forwards;
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 1.6vw, 1.25rem); color: var(--violet); font-weight: 500;
+    margin-top: 1.6rem; letter-spacing: 0.04em;
+    opacity: 0; animation: fadeInUp 1s ease 0.6s forwards;
+  }
+  .hero-chips {
+    display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center; margin-top: 2.2rem;
+    opacity: 0; animation: fadeInUp 1s ease 0.8s forwards;
+  }
+  .chip {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; padding: 0.5rem 1.1rem; border: 1px solid var(--border);
+    border-radius: 999px; color: var(--cyan); background: rgba(0,255,240,0.05);
+  }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .scroll-hint {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted);
+    letter-spacing: 0.3em; text-transform: uppercase;
+    display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+    opacity: 0; animation: fadeInUp 1s ease 1.2s forwards;
+  }
+  .scroll-line { width: 1px; height: 38px; background: linear-gradient(to bottom, var(--cyan), transparent); position: relative; overflow: hidden; }
+  .scroll-line::after { content: ""; position: absolute; top: -50%; width: 100%; height: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); animation: scrollDown 2s infinite; }
+  @keyframes scrollDown { 0% { top: -50%; } 100% { top: 150%; } }
+
+  /* Sections */
+  section { position: relative; z-index: 5; padding: 6rem 6vw; max-width: 1300px; margin: 0 auto; }
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace; color: var(--magenta); font-size: 0.8rem;
+    letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 0.9rem;
+  }
+  .section-tag::before { content: "// "; color: var(--cyan); }
+  h2 {
+    font-family: 'Orbitron', sans-serif; font-size: clamp(1.8rem, 3.6vw, 3rem); font-weight: 800;
+    letter-spacing: 0.01em; margin-bottom: 0.8rem;
+    background: linear-gradient(135deg, #fff, var(--cyan));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .section-lead { color: var(--muted); font-size: 1.05rem; line-height: 1.7; max-width: 760px; margin-bottom: 3rem; }
+
+  /* Flow (fil rouge) */
+  .flow { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 0.5rem; }
+  .flow-step { display: flex; flex-direction: column; align-items: center; width: 150px; text-align: center; }
+  .flow-arrow { color: var(--cyan); font-size: 1.4rem; align-self: center; margin-top: 28px; opacity: 0.6; }
+  .flow-icon {
+    width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem; color: #fff; box-shadow: 0 0 28px rgba(0,255,240,0.25);
+  }
+  .flow-icon svg { width: 34px; height: 34px; }
+  .fi-1 { background: linear-gradient(135deg, var(--violet), #b06bff); }
+  .fi-2 { background: linear-gradient(135deg, var(--violet), var(--magenta)); }
+  .fi-3 { background: linear-gradient(135deg, var(--magenta), var(--violet)); }
+  .fi-4 { background: linear-gradient(135deg, #00d68f, var(--cyan)); }
+  .fi-5 { background: linear-gradient(135deg, var(--cyan), #1aa6ff); }
+  .flow-num { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--lime); letter-spacing: 0.2em; }
+  .flow-step h3 { font-family: 'Orbitron', sans-serif; font-size: 1.05rem; margin: 0.2rem 0 0.5rem; letter-spacing: 0.04em; }
+  .flow-step p { color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
+
+  /* Card grids */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.4rem; }
+  .card {
+    position: relative; padding: 2rem 1.8rem; background: var(--glass);
+    border: 1px solid var(--border); backdrop-filter: blur(10px);
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    overflow: hidden;
+  }
+  .card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent, var(--cyan)), transparent); }
+  .card:hover { transform: translateY(-5px); border-color: var(--accent, var(--cyan)); box-shadow: 0 16px 50px rgba(0,255,240,0.12); }
+  .card .kicker { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent, var(--cyan)); margin-bottom: 0.7rem; }
+  .card h3 { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin-bottom: 0.7rem; letter-spacing: 0.03em; }
+  .card p { color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
+  .card code { font-family: 'JetBrains Mono', monospace; color: var(--lime); background: rgba(200,255,0,0.08); padding: 0.05em 0.35em; border-radius: 3px; font-size: 0.88em; }
+
+  .accent-cyan { --accent: var(--cyan); }
+  .accent-magenta { --accent: var(--magenta); }
+  .accent-violet { --accent: var(--violet); }
+  .accent-lime { --accent: var(--lime); }
+
+  /* Concours (timeline) */
+  .contest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+  .contest {
+    padding: 2.2rem 2rem; border: 1px solid var(--border); background: var(--glass);
+    backdrop-filter: blur(10px); position: relative;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  }
+  .contest h3 { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; margin-bottom: 0.3rem; color: var(--cyan); letter-spacing: 0.04em; }
+  .contest .ctype { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--magenta); margin-bottom: 1.4rem; }
+  .steps { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.2rem; }
+  .step-pill {
+    flex: 1; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    padding: 0.55rem 0.4rem; border: 1px solid var(--border); border-radius: 6px;
+    background: rgba(0,255,240,0.05); color: var(--text);
+  }
+  .step-pill b { display: block; color: var(--lime); font-size: 0.65rem; letter-spacing: 0.15em; }
+  .step-sep { color: var(--cyan); opacity: 0.6; }
+  .contest p { color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
+
+  /* Project + demo */
+  .project-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+  .project-points { display: flex; flex-direction: column; gap: 1.3rem; }
+  .ppoint { padding-left: 1.2rem; border-left: 2px solid var(--magenta); }
+  .ppoint h4 { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--cyan); letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+  .ppoint p { color: var(--muted); font-size: 0.92rem; line-height: 1.55; }
+
+  .demo-frame { display: flex; flex-direction: column; gap: 1rem; }
+  .device {
+    position: relative; border: 1px solid var(--cyan); border-radius: 14px; overflow: hidden;
+    background: #0a0e1a; box-shadow: 0 0 50px rgba(0,255,240,0.18), inset 0 0 40px rgba(0,0,0,0.5);
+  }
+  .device-bar {
+    display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.9rem;
+    background: rgba(0,255,240,0.06); border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.15em;
+  }
+  .device-bar .dots { display: flex; gap: 0.35rem; }
+  .device-bar .dots span { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); opacity: 0.5; }
+  .device-bar .dots span:nth-child(1) { background: var(--magenta); opacity: 1; }
+  .device-bar .dots span:nth-child(2) { background: var(--lime); opacity: 1; }
+  .device-bar .dots span:nth-child(3) { background: var(--cyan); opacity: 1; }
+  .device-bar .tag { margin-left: auto; color: var(--lime); }
+  .device iframe { display: block; width: 100%; height: 560px; border: 0; background: #f5f5f3; }
+  .demo-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .demo-label b { color: var(--lime); }
+  .play-row { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+  .play-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase;
+    text-decoration: none; padding: 0.7rem 1.3rem; border: 1px solid var(--cyan); color: var(--cyan);
+    background: rgba(0,255,240,0.05); transition: all 0.25s;
+    clip-path: polygon(8% 0, 100% 0, 100% 70%, 92% 100%, 0 100%, 0 30%);
+  }
+  .play-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 25px rgba(0,255,240,0.4); }
+  .play-btn.alt { border-color: var(--magenta); color: var(--magenta); background: rgba(255,43,214,0.05); }
+  .play-btn.alt:hover { background: var(--magenta); color: var(--bg); box-shadow: 0 0 25px rgba(255,43,214,0.4); }
+
+  /* Code block */
+  .code-wrap {
+    border: 1px solid var(--border); background: rgba(3,4,12,0.85); backdrop-filter: blur(8px);
+    overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+  }
+  .code-head {
+    display: flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.2rem;
+    background: rgba(0,255,240,0.05); border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.15em;
+  }
+  .code-head .fname { color: var(--cyan); }
+  .code-head .tag { margin-left: auto; color: var(--lime); }
+  pre.code {
+    margin: 0; padding: 1.6rem 1.8rem; overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; color: #cdd9ec;
+    scrollbar-width: thin; scrollbar-color: var(--cyan) transparent;
+  }
+  pre.code::-webkit-scrollbar { height: 7px; }
+  pre.code::-webkit-scrollbar-thumb { background: linear-gradient(to right, var(--cyan), var(--magenta)); border-radius: 3px; }
+  .k   { color: var(--magenta); }
+  .fn  { color: var(--cyan); }
+  .num { color: var(--lime); }
+  .str { color: #ffb86c; }
+  .com { color: var(--muted); font-style: italic; }
+  .cst { color: var(--violet); }
+
+  /* Skills cards */
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.4rem; }
+  .skill { text-align: center; padding: 2.2rem 1.5rem; }
+  .skill .sk-icon { width: 58px; height: 58px; margin: 0 auto 1.2rem; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 0 24px rgba(0,255,240,0.2); }
+  .skill .sk-icon svg { width: 28px; height: 28px; }
+
+  /* Closing */
+  .closing { text-align: center; padding: 7rem 6vw; position: relative; z-index: 5; }
+  .closing .merci {
+    font-family: 'Orbitron', sans-serif; font-size: clamp(1.3rem, 3vw, 2.2rem); font-weight: 800;
+    background: linear-gradient(135deg, var(--cyan), var(--magenta), var(--violet));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    max-width: 900px; margin: 0 auto; line-height: 1.4;
+  }
+
+  footer {
+    position: relative; z-index: 5; padding: 2.5rem 6vw; border-top: 1px solid var(--border);
+    text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    color: var(--muted); letter-spacing: 0.12em;
+  }
+  footer .sig { color: var(--magenta); }
+
+  @media (max-width: 900px) {
+    nav { padding: 0.9rem 1.4rem; }
+    .project-layout, .contest-grid { grid-template-columns: 1fr; }
+    .device iframe { height: 480px; }
+    .flow-arrow { display: none; }
+    section { padding: 4.5rem 6vw; }
+  }
+</style>
+</head>
+<body>
+  <div class="aurora"></div>
+  <div class="grid-overlay"></div>
+
+  <nav>
+    <a class="logo" href="#top"><span class="logo-mark"></span><span>4E5 · L·T</span></a>
+    <a class="back-link" href="../index.html">Retour EVA·42</a>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" id="top">
+    <div class="binary-line">01 10 11 00 01 10 11 00 01 10 11 00 01 10 11 00 01 10 11 00</div>
+    <div class="binary-line">10 01 00 11 10 01 00 11 10 01 00 11 10 01 00 11 10 01 00 11</div>
+    <div class="pretitle">Classe à projet 4E5</div>
+    <h1 class="title">Lovelace&nbsp;·&nbsp;Turing</h1>
+    <p class="hero-sub">Bilan de l'année informatique — 2025-2026</p>
+    <div class="hero-chips">
+      <span class="chip">Histoire</span>
+      <span class="chip">Algorithmique</span>
+      <span class="chip">Projet final</span>
+    </div>
+    <div class="scroll-hint"><span>Scroll</span><div class="scroll-line"></div></div>
+  </header>
+
+  <!-- FIL ROUGE -->
+  <section id="fil-rouge">
+    <div class="section-tag">Le fil rouge de l'année</div>
+    <h2>De l'histoire de l'informatique à un projet personnel</h2>
+    <p class="section-lead">Cinq étapes pour passer des pionniers de l'informatique à un jeu codé, simplifié et mis en ligne par la classe.</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon fi-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></div>
+        <div class="flow-num">01</div><h3>Comprendre</h3>
+        <p>Lovelace, Turing : les origines et les enjeux de l'informatique</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon fi-2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><text x="3" y="16" font-family="monospace" font-size="9" font-weight="700" fill="currentColor" stroke="none">123</text></svg></div>
+        <div class="flow-num">02</div><h3>Décoder</h3>
+        <p>Le binaire, les algorithmes, premiers exercices guidés</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon fi-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+        <div class="flow-num">03</div><h3>Se mesurer</h3>
+        <p>Concours Algorea et Al Kindi, hors les murs de la classe</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon fi-4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <div class="flow-num">04</div><h3>Approfondir</h3>
+        <p>Bases solides en Python : variables, boucles, fonctions</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon fi-5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="11" x2="10" y2="11"/><line x1="8" y1="9" x2="8" y2="13"/><line x1="15" y1="12" x2="15.01" y2="12"/><line x1="18" y1="10" x2="18.01" y2="10"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg></div>
+        <div class="flow-num">05</div><h3>Créer</h3>
+        <p>Un projet personnel : le jeu Puissance 4</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FONDATIONS -->
+  <section id="fondations">
+    <div class="section-tag">Les fondations · séances 1 à 6</div>
+    <h2>Construire les bases ensemble</h2>
+    <p class="section-lead">Du rôle fondateur des deux pionniers aux premiers défis de programmation, évalués sur notebook.</p>
+    <div class="card-grid">
+      <div class="card accent-violet">
+        <div class="kicker">Histoire</div>
+        <h3>Lovelace &amp; Turing</h3>
+        <p>Histoire de l'informatique, rôle fondateur des deux pionniers, premiers questionnements éthiques.</p>
+      </div>
+      <div class="card accent-cyan">
+        <div class="kicker">Plateforme</div>
+        <h3>France IOI</h3>
+        <p>Prise en main de la plateforme, premiers niveaux d'algorithmique.</p>
+      </div>
+      <div class="card accent-lime">
+        <div class="kicker">Base 2</div>
+        <h3>Le binaire</h3>
+        <p>Codage et décodage, octets, puissances de 2 — travail collectif en classe entière. <code>01101001</code></p>
+      </div>
+      <div class="card accent-magenta">
+        <div class="kicker">Mise en pratique</div>
+        <h3>Premiers défis</h3>
+        <p>Défis de programmation sur papier, puis transposés et évalués sur notebook.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCOURS -->
+  <section id="concours">
+    <div class="section-tag">Se mesurer, progresser</div>
+    <h2>Deux concours nationaux</h2>
+    <p class="section-lead">Mettre les compétences à l'épreuve, hors les murs de la classe, par paliers.</p>
+    <div class="contest-grid">
+      <div class="contest">
+        <h3>Algorea</h3>
+        <div class="ctype">Concours d'algorithmique</div>
+        <div class="steps">
+          <div class="step-pill"><b>01</b>Entraînement</div>
+          <span class="step-sep">→</span>
+          <div class="step-pill"><b>02</b>Tour 1</div>
+          <span class="step-sep">→</span>
+          <div class="step-pill"><b>03</b>Tour 2</div>
+        </div>
+        <p>Une progression par paliers, du simple entraînement aux tours qualificatifs nationaux.</p>
+      </div>
+      <div class="contest">
+        <h3>Al Kindi</h3>
+        <div class="ctype">Concours de cryptanalyse</div>
+        <div class="steps">
+          <div class="step-pill"><b>01</b>Entraînement</div>
+          <span class="step-sep">→</span>
+          <div class="step-pill"><b>02</b>Tour 1</div>
+          <span class="step-sep">→</span>
+          <div class="step-pill"><b>03</b>Tour 2</div>
+        </div>
+        <p>Casser des codes secrets : une autre facette ludique et stimulante de l'informatique.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PYTHON BASES -->
+  <section id="python-bases">
+    <div class="section-tag">Coder en Python · les bases</div>
+    <h2>Les briques indispensables</h2>
+    <p class="section-lead">Les fondamentaux présents dans tout programme.</p>
+    <div class="card-grid">
+      <div class="card accent-cyan">
+        <h3>Entrées / Sorties</h3>
+        <p><code>input()</code> pour dialoguer avec l'utilisateur, <code>print()</code> pour afficher un résultat.</p>
+      </div>
+      <div class="card accent-violet">
+        <h3>Les types</h3>
+        <p>Entiers, flottants, chaînes de caractères, booléens : la nature des données manipulées.</p>
+      </div>
+      <div class="card accent-magenta">
+        <h3>Tests conditionnels</h3>
+        <p><code>if</code> / <code>elif</code> / <code>else</code> pour faire des choix selon une situation.</p>
+      </div>
+      <div class="card accent-lime">
+        <h3>Boucles bornées</h3>
+        <p><code>for</code> : répéter une action un nombre de fois connu à l'avance.</p>
+      </div>
+      <div class="card accent-cyan">
+        <h3>Boucles non bornées</h3>
+        <p><code>while</code> : répéter une action jusqu'à ce qu'une condition change.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- APPROFONDIR -->
+  <section id="approfondir">
+    <div class="section-tag">Approfondir Python</div>
+    <h2>Des outils plus puissants</h2>
+    <p class="section-lead">Des programmes plus ambitieux, entraînés sur de petits jeux.</p>
+    <div class="card-grid">
+      <div class="card accent-violet">
+        <div class="kicker">Structure clé</div>
+        <h3>Les listes</h3>
+        <p>Créer, parcourir, filtrer et trier des collections de données — la structure clé pour manipuler des informations.</p>
+      </div>
+      <div class="card accent-cyan">
+        <div class="kicker">Organisation</div>
+        <h3>Les fonctions</h3>
+        <p>Organiser un programme en blocs réutilisables, plus lisibles et plus faciles à corriger.</p>
+      </div>
+      <div class="card accent-lime">
+        <div class="kicker">Petit jeu</div>
+        <h3>Devine le nombre</h3>
+        <p>Boucles, comparaisons, compteur d'essais.</p>
+      </div>
+      <div class="card accent-magenta">
+        <div class="kicker">Petit jeu</div>
+        <h3>Jeu de Nim</h3>
+        <p>Modulo, fonctions, tour par tour contre l'ordinateur.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJET FINAL + DEMO -->
+  <section id="projet">
+    <div class="section-tag">Le projet final</div>
+    <h2>Puissance 4</h2>
+    <p class="section-lead">De la logique du jeu en Python à une interface jouable en ligne.</p>
+    <div class="project-layout">
+      <div class="project-points">
+        <div class="ppoint">
+          <h4>Conception en Python</h4>
+          <p>Grille, placement des pions, détection des alignements gagnants.</p>
+        </div>
+        <div class="ppoint">
+          <h4>Simplification</h4>
+          <p>Version finale clarifiée, accessible à tous les niveaux de la classe.</p>
+        </div>
+        <div class="ppoint">
+          <h4>Interface graphique</h4>
+          <p>Idée et réalisation d'un élève, avec l'aide de l'IA (Claude), en HTML.</p>
+        </div>
+        <div class="ppoint">
+          <h4>Mise en ligne</h4>
+          <p>Le jeu est hébergé et accessible directement depuis un navigateur.</p>
+        </div>
+      </div>
+
+      <div class="demo-frame">
+        <div class="device">
+          <div class="device-bar">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>puissance4.html</span>
+            <span class="tag">● live</span>
+          </div>
+          <iframe src="puissance4.html" title="Démo Puissance 4 — réalisation élève" loading="lazy"></iframe>
+        </div>
+        <p class="demo-label">Réalisation élève — <b>démo jouable</b> intégrée telle quelle</p>
+        <div class="play-row">
+          <a class="play-btn" href="puissance4.html" target="_blank" rel="noopener">Ouvrir en plein écran ↗</a>
+          <a class="play-btn alt" href="https://lovelace-turing-4e5.tiiny.site" target="_blank" rel="noopener">Version en ligne ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CODE -->
+  <section id="code">
+    <div class="section-tag">Le code complet du Puissance 4</div>
+    <h2>Version finale, telle que programmée par la classe</h2>
+    <p class="section-lead">Le cœur du jeu en Python — expliqué pas à pas, comme en classe.</p>
+    <div class="code-wrap">
+      <div class="code-head">
+        <span class="fname">puissance4.py</span>
+        <span class="tag">Python · 4E5</span>
+      </div>
+<pre class="code"><span class="cst">NB_LIGNES</span>   = <span class="num">6</span>
+<span class="cst">NB_COLONNES</span> = <span class="num">7</span>
+<span class="cst">VIDE</span>    = <span class="num">0</span>
+<span class="cst">JOUEUR1</span> = <span class="num">1</span>
+<span class="cst">JOUEUR2</span> = <span class="num">2</span>
+
+<span class="k">def</span> <span class="fn">creer_grille</span>():                          <span class="com"># fabrique une grille vide de 6 lignes x 7 colonnes</span>
+    grille = []
+    <span class="k">for</span> ligne <span class="k">in</span> <span class="fn">range</span>(NB_LIGNES):
+        une_ligne = []
+        <span class="k">for</span> colonne <span class="k">in</span> <span class="fn">range</span>(NB_COLONNES):
+            une_ligne.<span class="fn">append</span>(VIDE)
+        grille.<span class="fn">append</span>(une_ligne)
+    <span class="k">return</span> grille
+
+<span class="k">def</span> <span class="fn">placer_pion</span>(grille, colonne, joueur):    <span class="com"># fait "tomber" le pion tout en bas de la colonne</span>
+    <span class="k">for</span> ligne <span class="k">in</span> <span class="fn">range</span>(NB_LIGNES-<span class="num">1</span>, -<span class="num">1</span>, -<span class="num">1</span>):
+        <span class="k">if</span> grille[ligne][colonne] == VIDE:
+            grille[ligne][colonne] = joueur
+            <span class="k">return</span>
+
+<span class="k">def</span> <span class="fn">grille_pleine</span>(grille):                   <span class="com"># plus de place pour jouer ?</span>
+    <span class="k">for</span> colonne <span class="k">in</span> <span class="fn">range</span>(NB_COLONNES):
+        <span class="k">if</span> grille[<span class="num">0</span>][colonne] == VIDE:
+            <span class="k">return</span> <span class="k">False</span>
+    <span class="k">return</span> <span class="k">True</span>
+
+<span class="k">def</span> <span class="fn">verifier_victoire</span>(grille, joueur):       <span class="com"># 4 pions alignés ? (horizontal, vertical, diagonales)</span>
+    <span class="k">for</span> l <span class="k">in</span> <span class="fn">range</span>(NB_LIGNES):
+        <span class="k">for</span> c <span class="k">in</span> <span class="fn">range</span>(NB_COLONNES-<span class="num">3</span>):
+            <span class="k">if</span> grille[l][c]==joueur <span class="k">and</span> \
+               grille[l][c+<span class="num">1</span>]==joueur <span class="k">and</span> \
+               grille[l][c+<span class="num">2</span>]==joueur <span class="k">and</span> \
+               grille[l][c+<span class="num">3</span>]==joueur:
+                <span class="k">return</span> <span class="k">True</span>
+    <span class="com"># ... même logique pour : vertical,</span>
+    <span class="com"># diagonale montante, diagonale descendante</span>
+    <span class="k">return</span> <span class="k">False</span>
+
+<span class="k">def</span> <span class="fn">jouer</span>():                                 <span class="com"># boucle principale du jeu</span>
+    grille = <span class="fn">creer_grille</span>()
+    joueur = JOUEUR1
+    <span class="k">while</span> <span class="k">True</span>:
+        colonne = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Choisis une colonne : "</span>))
+        <span class="fn">placer_pion</span>(grille, colonne, joueur)
+        <span class="k">if</span> <span class="fn">verifier_victoire</span>(grille, joueur):
+            <span class="com"># annonce du gagnant</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="fn">grille_pleine</span>(grille):
+            <span class="com"># match nul</span>
+            <span class="k">return</span>
+        joueur = JOUEUR2 <span class="k">if</span> joueur==JOUEUR1 <span class="k">else</span> JOUEUR1
+
+<span class="fn">jouer</span>()</pre>
+    </div>
+  </section>
+
+  <!-- COMPETENCES -->
+  <section id="competences">
+    <div class="section-tag">Ce que la classe a développé</div>
+    <h2>Au-delà du code</h2>
+    <p class="section-lead">Des compétences transversales, construites tout au long de l'année.</p>
+    <div class="skills-grid">
+      <div class="card skill accent-violet">
+        <div class="sk-icon fi-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/><line x1="6.5" y1="10" x2="11" y2="14"/><line x1="17.5" y1="10" x2="13" y2="14"/></svg></div>
+        <h3>Logique algorithmique</h3>
+        <p>Décomposer un problème en étapes claires et rigoureuses.</p>
+      </div>
+      <div class="card skill accent-lime">
+        <div class="sk-icon fi-4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M19 7l-3 2M5 7l3 2M12 6V3M9 3h6M4 13H2M22 13h-2M4.5 18l-2 1M19.5 18l2 1"/></svg></div>
+        <h3>Autonomie face à l'erreur</h3>
+        <p>« On teste, on lit le message, on corrige » : une posture essentielle.</p>
+      </div>
+      <div class="card skill accent-cyan">
+        <div class="sk-icon fi-5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Travail collectif</h3>
+        <p>Avancer ensemble sur un projet commun, partager des idées.</p>
+      </div>
+      <div class="card skill accent-magenta">
+        <div class="sk-icon fi-2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Éthique numérique</h3>
+        <p>Premiers questionnements sur le rôle et les responsabilités de l'informatique.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANNEE PROCHAINE -->
+  <section id="suite">
+    <div class="section-tag">Et l'année prochaine ?</div>
+    <h2>Capitaliser pour aller plus loin</h2>
+    <div class="card-grid">
+      <div class="card accent-cyan">
+        <div class="kicker">Consolider</div>
+        <h3>Approfondir les bases</h3>
+        <p>Maîtriser le langage : structures de données, logique, bonnes pratiques de code.</p>
+      </div>
+      <div class="card accent-lime">
+        <div class="kicker">Grandir</div>
+        <h3>Développer l'autonomie</h3>
+        <p>Aller vers une plus grande indépendance face aux problèmes et aux erreurs de programmation.</p>
+      </div>
+      <div class="card accent-magenta">
+        <div class="kicker">Ensemble</div>
+        <h3>Choisir un nouveau projet</h3>
+        <p>Construire collectivement le prochain défi de programmation de la classe.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <p class="merci">Merci à tous les élèves de la 4e5 pour leur curiosité et leur investissement cette année !</p>
+  </div>
+
+  <footer>
+    <span>Classe à projet 4E5 · Lovelace · Turing — 2025-2026</span> &nbsp;//&nbsp;
+    <span class="sig">EVA·42</span>
+  </footer>
+</body>
+</html>
