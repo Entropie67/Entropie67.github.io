@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Éloge du Hasard — un voyage dans l'entropie : lampes à lave de Cloudflare, réservoir d'entropie de Linux, hasard quantique. Génère ton propre aléa." />
+<title>Éloge du Hasard — l'art de l'imprévisible</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>" />
+</head>
+<body>
+<!-- Fond animé : marches aléatoires + lemniscate -->
+<canvas id="entropy-canvas" aria-hidden="true"></canvas>
+<div class="bg-vignette" aria-hidden="true"></div>
+
+<!-- Navigation -->
+<header class="nav" id="nav">
+  <a class="nav__brand" href="#top">
+    <span class="nav__dot"></span> HASARD
+  </a>
+  <nav class="nav__links">
+    <a href="#nombre">Le nombre</a>
+    <a href="#articles">Articles</a>
+    <a href="#labo">Et toi&nbsp;?</a>
+    <a href="#manifeste">Manifeste</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="nombre">
+    <div class="hero__inner reveal">
+      <p class="eyebrow">É&nbsp;L&nbsp;O&nbsp;G&nbsp;E&nbsp;&nbsp;&nbsp;D&nbsp;U</p>
+      <h1 class="hero__title">HASARD</h1>
+      <p class="hero__lede">
+        À chaque instant, l'univers tire des dés. Voici un nombre que
+        <strong>personne</strong> — ni toi, ni moi, ni aucune machine —
+        n'aurait pu prédire. Il change toutes les 10&nbsp;secondes.
+      </p>
+
+      <!-- Le grand nombre aléatoire -->
+      <div class="bignum" aria-live="polite">
+        <div class="bignum__ringwrap" title="Temps avant le prochain tirage">
+          <svg class="bignum__ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="bignum__ring-bg" cx="60" cy="60" r="54" />
+            <circle class="bignum__ring-fg" id="countdown-ring" cx="60" cy="60" r="54" />
+          </svg>
+          <span class="bignum__count" id="countdown-num">10</span>
+        </div>
+        <div class="bignum__display" id="bignum-display" aria-label="Nombre aléatoire courant"></div>
+      </div>
+
+      <div class="bignum__meta">
+        <span class="chip" id="entropy-source">source&nbsp;: crypto.getRandomValues()</span>
+        <span class="chip chip--mouse" id="mouse-entropy">entropie souris&nbsp;: <b>0</b> bits captés</span>
+        <button class="chip chip--btn" id="reroll-btn" type="button">↻ Tirer maintenant</button>
+      </div>
+
+      <a class="scroll-cue" href="#articles" aria-label="Défiler vers les articles">
+        <span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ INTRO / POURQUOI ============ -->
+  <section class="band">
+    <div class="container reveal">
+      <p class="band__big">
+        Le hasard n'est pas le désordre. C'est la <em>source</em> —
+        celle qui protège tes secrets, départage équitablement,
+        anime la création et empêche le monde de devenir prévisible.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ ARTICLES ============ -->
+  <section class="section" id="articles">
+    <div class="container">
+      <header class="section__head reveal">
+        <p class="eyebrow eyebrow--accent">CHRONIQUES DE L'IMPRÉVISIBLE</p>
+        <h2 class="section__title">Où trouve-t-on du vrai hasard&nbsp;?</h2>
+        <p class="section__sub">
+          Les ordinateurs sont des machines déterministes&nbsp;: livrés à eux-mêmes,
+          ils ne savent <em>pas</em> tirer à pile ou face. Alors les ingénieurs vont
+          chercher le chaos dans le monde physique. Voici leurs plus belles trouvailles.
+        </p>
+      </header>
+
+      <div class="cards">
+
+        <!-- LavaRand -->
+        <article class="card reveal" data-accent="lava">
+          <div class="card__glyph">🌋</div>
+          <h3 class="card__title">Le mur de lampes à lave de Cloudflare</h3>
+          <p class="card__lede">
+            Dans le hall de Cloudflare à San Francisco, une centaine de lampes à lave
+            ondulent en permanence. Une caméra les filme&nbsp;: ce «&nbsp;mur d'entropie&nbsp;»
+            aide à chiffrer une part énorme du trafic web mondial.
+          </p>
+          <div class="card__more">
+            <p>
+              La cire chaude qui monte et retombe est un système chaotique&nbsp;: impossible
+              à prédire. La caméra transforme ce ballet en une image, et chaque image — bruit
+              du capteur compris, reflets, gens qui passent — devient une avalanche de bits
+              imprévisibles. Ces bits viennent <strong>nourrir</strong> le générateur
+              cryptographique des serveurs (ils ne le remplacent pas&nbsp;: ils le renforcent).
+            </p>
+            <p>
+              L'idée n'est pas neuve&nbsp;: «&nbsp;LavaRand&nbsp;» fut breveté par Silicon Graphics
+              dans les années 1990. Cloudflare l'a ressuscité avec panache, et complété par
+              d'autres sources de chaos dans ses autres bureaux — dont des
+              <strong>doubles pendules</strong> à Londres, autres champions de l'imprévisible.
+            </p>
+          </div>
+          <button class="card__toggle" type="button">Lire la suite</button>
+        </article>
+
+        <!-- Linux entropy -->
+        <article class="card reveal" data-accent="cyan">
+          <div class="card__glyph">🐧</div>
+          <h3 class="card__title">Le réservoir d'entropie de Linux</h3>
+          <p class="card__lede">
+            Chaque clic, chaque frappe, chaque micro-délai entre deux interruptions
+            matérielles est avalé par le noyau Linux et versé dans un «&nbsp;réservoir
+            d'entropie&nbsp;». De là coulent <code>/dev/random</code> et <code>/dev/urandom</code>.
+          </p>
+          <div class="card__more">
+            <p>
+              Le noyau récolte le bruit du monde&nbsp;: l'instant exact où arrive un paquet
+              réseau, le tremblement d'une tête de disque, le timing de tes touches. Tout cela
+              est mélangé dans une réserve, puis raffiné par un générateur cryptographique
+              (aujourd'hui basé sur <strong>ChaCha20</strong>).
+            </p>
+            <p>
+              Historiquement, <code>/dev/random</code> se <em>bloquait</em> quand la réserve
+              semblait vide, tandis que <code>/dev/urandom</code> coulait toujours. Les noyaux
+              modernes ont réconcilié les deux&nbsp;: l'appel <code>getrandom()</code> est
+              désormais la bonne porte. Certains processeurs ajoutent même leurs propres
+              instructions matérielles (<code>RDRAND</code>, <code>RDSEED</code>).
+            </p>
+          </div>
+          <button class="card__toggle" type="button">Lire la suite</button>
+        </article>
+
+        <!-- Quantum -->
+        <article class="card reveal" data-accent="violet">
+          <div class="card__glyph">⚛️</div>
+          <h3 class="card__title">Le hasard quantique, le seul vraiment pur</h3>
+          <p class="card__lede">
+            Envoie un photon vers un miroir semi-transparent&nbsp;: passera-t-il au travers
+            ou rebondira-t-il&nbsp;? La physique répond — <em>indéterminé par nature</em>.
+            Pas caché, pas approximé&nbsp;: réellement imprévisible.
+          </p>
+          <div class="card__more">
+            <p>
+              Là où une lampe à lave est «&nbsp;trop compliquée à prédire&nbsp;», la mécanique
+              quantique offre mieux&nbsp;: un aléa <strong>fondamental</strong>, garanti par
+              les lois de la nature elles-mêmes. Un photon face à un séparateur de faisceau,
+              les fluctuations du vide&nbsp;: aucune information cachée ne détermine le résultat.
+            </p>
+            <p>
+              Des générateurs quantiques (QRNG) exploitent ce principe, et l'Université
+              Nationale Australienne diffuse même de l'aléa quantique en direct, mesuré sur
+              les fluctuations du vide. C'est l'étalon-or de l'imprévisible.
+            </p>
+          </div>
+          <button class="card__toggle" type="button">Lire la suite</button>
+        </article>
+
+        <!-- RANDOM.ORG -->
+        <article class="card reveal" data-accent="pink">
+          <div class="card__glyph">📻</div>
+          <h3 class="card__title">RANDOM.ORG écoute le ciel</h3>
+          <p class="card__lede">
+            Depuis 1998, ce service capte le <strong>bruit atmosphérique</strong> entre
+            deux stations de radio — la friture, le grésillement — et le transforme en
+            véritables nombres aléatoires pour des tirages du monde entier.
+          </p>
+          <div class="card__more">
+            <p>
+              Les parasites radio naissent d'innombrables décharges électriques dans
+              l'atmosphère (des orages, partout sur Terre). Impossibles à reproduire,
+              ils forment une source d'aléa de qualité bien supérieure aux algorithmes
+              déterministes classiques.
+            </p>
+            <p>
+              Né à Trinity College Dublin, RANDOM.ORG sert aujourd'hui à des loteries,
+              des tirages au sort de concours et des expériences scientifiques&nbsp;: quand
+              l'équité doit être <em>vérifiable</em>, on préfère le vrai hasard.
+            </p>
+          </div>
+          <button class="card__toggle" type="button">Lire la suite</button>
+        </article>
+
+        <!-- ERNIE -->
+        <article class="card reveal" data-accent="amber">
+          <div class="card__glyph">🎰</div>
+          <h3 class="card__title">ERNIE, la machine qui tire au sort un pays</h3>
+          <p class="card__lede">
+            Au Royaume-Uni, les gains des «&nbsp;Premium Bonds&nbsp;» sont désignés depuis 1957
+            par ERNIE — <em>Electronic Random Number Indicator Equipment</em>. Une légende
+            nationale de l'aléa.
+          </p>
+          <div class="card__more">
+            <p>
+              Le premier ERNIE tirait son hasard du <strong>bruit thermique</strong> de tubes
+              au néon — l'agitation désordonnée des électrons due à la chaleur. Chaque mois,
+              il désignait équitablement des millions de numéros gagnants.
+            </p>
+            <p>
+              La dernière génération, ERNIE&nbsp;5, est passée au <strong>quantique</strong>&nbsp;:
+              elle utilise la lumière pour produire un aléa plus rapide et plus pur. Soixante ans
+              d'imprévisibilité au service de l'équité.
+            </p>
+          </div>
+          <button class="card__toggle" type="button">Lire la suite</button>
+        </article>
+
+        <!-- PRNG vs TRNG -->
+        <article class="card reveal" data-accent="green">
+          <div class="card__glyph">🎭</div>
+          <h3 class="card__title">Faux hasard, vrai hasard</h3>
+          <p class="card__lede">
+            Tout aléa n'est pas égal. Un <em>PRNG</em> imite le hasard avec une formule&nbsp;;
+            un <em>TRNG</em> le puise dans la matière. Confondre les deux peut coûter très cher.
+          </p>
+          <div class="card__more">
+            <p>
+              Un générateur <strong>pseudo-aléatoire</strong> (PRNG, comme le Mersenne Twister)
+              part d'une graine et déroule une suite déterministe&nbsp;: même graine, même suite.
+              Parfait pour un jeu ou une simulation — désastreux pour la cryptographie, car
+              prévisible.
+            </p>
+            <p>
+              Un générateur <strong>vraiment aléatoire</strong> (TRNG) mesure un phénomène
+              physique. Entre les deux, les <strong>CSPRNG</strong> (cryptographiquement sûrs)
+              sont des PRNG semés par du vrai hasard&nbsp;: c'est ce que ton navigateur utilise
+              via <code>crypto.getRandomValues()</code>. Quand le hasard a été bâclé — bug Debian
+              de 2008, Netscape en 1995 — des clés «&nbsp;secrètes&nbsp;» sont devenues devinables.
+            </p>
+          </div>
+          <button class="card__toggle" type="button">Lire la suite</button>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LABO : ET TOI ? ============ -->
+  <section class="section section--labo" id="labo">
+    <div class="container">
+      <header class="section__head reveal">
+        <p class="eyebrow eyebrow--accent">À TON TOUR</p>
+        <h2 class="section__title">Et toi, comment génères-tu du hasard&nbsp;?</h2>
+        <p class="section__sub">
+          Assez lu. Fabrique ton propre aléa. Clique, agite ta souris, capture
+          une graine dans le mur de lave — chaque expérience est réelle et tourne
+          dans ton navigateur.
+        </p>
+      </header>
+
+      <div class="lab">
+
+        <!-- LE MUR DE LAVE -->
+        <article class="lab__card lab__card--wide reveal" data-accent="lava">
+          <div class="lab__head">
+            <h3>🌋 Le mur de lave</h3>
+            <p>Comme Cloudflare&nbsp;: observe le chaos, puis <strong>capture une graine</strong>.</p>
+          </div>
+          <div class="lava">
+            <canvas id="lava-canvas" class="lava__canvas"></canvas>
+            <div class="lava__readout" id="lava-readout">
+              <span class="lava__hint">Le chaos coule…</span>
+            </div>
+          </div>
+          <button class="btn btn--lava" id="lava-capture" type="button">Capturer une graine d'entropie</button>
+        </article>
+
+        <!-- BRUIT DE SOURIS -->
+        <article class="lab__card reveal" data-accent="cyan">
+          <div class="lab__head">
+            <h3>🖱️ Le bruit de ta main</h3>
+            <p>Agite ta souris dans le cadre pour récolter 256&nbsp;bits.</p>
+          </div>
+          <div class="mousepad" id="mousepad" tabindex="0">
+            <div class="mousepad__bar"><span id="mousepad-fill"></span></div>
+            <p class="mousepad__label" id="mousepad-label">0 / 256 bits</p>
+            <code class="mousepad__out" id="mousepad-out">— agite la souris ici —</code>
+          </div>
+        </article>
+
+        <!-- PILE OU FACE -->
+        <article class="lab__card reveal" data-accent="violet">
+          <div class="lab__head">
+            <h3>🪙 Pile ou face</h3>
+            <p>Le geste le plus ancien pour s'en remettre au sort.</p>
+          </div>
+          <div class="coin-wrap">
+            <div class="coin" id="coin"><span id="coin-face">?</span></div>
+          </div>
+          <div class="coin-stats">
+            <span>Pile&nbsp;: <b id="coin-h">0</b></span>
+            <span>Face&nbsp;: <b id="coin-t">0</b></span>
+          </div>
+          <button class="btn" id="coin-flip" type="button">Lancer la pièce</button>
+        </article>
+
+        <!-- DÉS -->
+        <article class="lab__card reveal" data-accent="pink">
+          <div class="lab__head">
+            <h3>🎲 Les dés</h3>
+            <p>Trois dés, six faces, 216 destins possibles.</p>
+          </div>
+          <div class="dice" id="dice">
+            <div class="die" data-v="1"></div>
+            <div class="die" data-v="1"></div>
+            <div class="die" data-v="1"></div>
+          </div>
+          <p class="dice__sum">Somme&nbsp;: <b id="dice-sum">3</b></p>
+          <button class="btn" id="dice-roll" type="button">Lancer les dés</button>
+        </article>
+
+        <!-- QUANTIQUE / CRYPTO -->
+        <article class="lab__card reveal" data-accent="green">
+          <div class="lab__head">
+            <h3>⚛️ Le grain cryptographique</h3>
+            <p>L'aléa sûr de ton navigateur, en direct.</p>
+          </div>
+          <code class="crypto__out" id="crypto-out">— clique pour générer —</code>
+          <button class="btn" id="crypto-gen" type="button">Générer 32 octets</button>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MANIFESTE ============ -->
+  <section class="section section--manifesto" id="manifeste">
+    <div class="container">
+      <header class="section__head reveal">
+        <p class="eyebrow eyebrow--accent">POURQUOI LE PROMOUVOIR</p>
+        <h2 class="section__title">Le hasard est une force, pas un défaut</h2>
+      </header>
+      <div class="manifesto">
+        <div class="manifesto__item reveal">
+          <span class="manifesto__num">01</span>
+          <h3>Équité</h3>
+          <p>Le tirage au sort ne connaît ni faveur ni corruption. Athènes choisissait
+          ses magistrats par le sort&nbsp;; nos loteries et nos jurys s'en remettent encore au hasard pour être justes.</p>
+        </div>
+        <div class="manifesto__item reveal">
+          <span class="manifesto__num">02</span>
+          <h3>Sécurité</h3>
+          <p>Sans bon hasard, pas de secret. Chaque clé, chaque mot de passe, chaque
+          connexion chiffrée naît d'un nombre que l'adversaire ne doit pas pouvoir deviner.</p>
+        </div>
+        <div class="manifesto__item reveal">
+          <span class="manifesto__num">03</span>
+          <h3>Science</h3>
+          <p>Les méthodes de Monte-Carlo lancent des millions de dés virtuels pour
+          explorer ce que les équations ne savent pas résoudre&nbsp;: de la physique des
+          particules à la finance.</p>
+        </div>
+        <div class="manifesto__item reveal">
+          <span class="manifesto__num">04</span>
+          <h3>Création</h3>
+          <p>L'art génératif, la musique aléatoire, l'évolution elle-même&nbsp;: la nouveauté
+          surgit de la mutation et de l'accident. Sans hasard, rien ne bifurque.</p>
+        </div>
+      </div>
+
+      <div class="cta reveal">
+        <p>Le monde a besoin de plus d'imprévisible. Commence ici.</p>
+        <a class="btn btn--big" href="#nombre">Retourner contempler le grand nombre ↑</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <p class="footer__made">Fait avec de l'<span class="footer__entropy">entropie</span> et du code, sans aucune dépendance.</p>
+    <p class="footer__sources">
+      Pour aller plus loin&nbsp;:
+      <a href="https://blog.cloudflare.com/lavarand-in-production-the-nitty-gritty-technical-details/" target="_blank" rel="noopener">Cloudflare LavaRand</a> ·
+      <a href="https://www.random.org/" target="_blank" rel="noopener">RANDOM.ORG</a> ·
+      <a href="https://qrng.anu.edu.au/" target="_blank" rel="noopener">ANU Quantum RNG</a> ·
+      <a href="https://www.kernel.org/doc/html/latest/admin-guide/sysctl/kernel.html" target="_blank" rel="noopener">Linux RNG</a>
+    </p>
+  </div>
+</footer>
+
+<script src="js/background.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
