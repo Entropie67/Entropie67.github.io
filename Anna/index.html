@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anna — Prüfungsvorbereitung Physiotherapie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1420; --bg2:#161d2e; --card:#1c2436; --card2:#222b40;
+  --line:#2c3752; --text:#e8edf6; --muted:#96a3bf; --white:#fff;
+  --atmung:#ff5ea8; --innere:#39c46e; --ausdauer:#f6a11e; --anat:#22b8cf;
+  --komm:#9d7bff; --chir:#a3c644; --neuro:#ff7a45;
+  --accent:#5b8dff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:60px;
+}
+header{
+  position:sticky;top:0;z-index:50;background:rgba(15,20,32,.9);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+}
+.topbar{max-width:1100px;margin:0 auto;padding:14px 20px;display:flex;
+  align-items:center;gap:14px;flex-wrap:wrap;}
+.brand{font-weight:800;font-size:1.15rem;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+.brand .dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--atmung),var(--neuro))}
+.brand small{font-weight:500;color:var(--muted);font-size:.75rem;display:block;letter-spacing:0}
+.search{flex:1;min-width:180px;position:relative}
+.search input{
+  width:100%;background:var(--card);border:1px solid var(--line);color:var(--text);
+  padding:10px 14px 10px 38px;border-radius:10px;font-size:.95rem;font-family:inherit;
+}
+.search input:focus{outline:none;border-color:var(--accent)}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.5}
+.modebtn{background:var(--card);border:1px solid var(--line);color:var(--text);
+  padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.9rem;white-space:nowrap}
+.modebtn:hover{border-color:var(--accent)}
+.modebtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px}
+.hero{padding:14px 4px 22px}
+.hero h1{font-size:1.9rem;font-weight:800;letter-spacing:-.03em;margin-bottom:6px}
+.hero p{color:var(--muted);max-width:640px}
+.stat{color:var(--muted);font-size:.85rem;margin-top:10px}
+.stat b{color:var(--text)}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px}
+.chip{
+  border:1px solid var(--line);background:var(--card);color:var(--muted);
+  padding:7px 14px;border-radius:99px;font-size:.85rem;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:7px;transition:.15s;
+}
+.chip:hover{color:var(--text)}
+.chip .cdot{width:9px;height:9px;border-radius:50%}
+.chip.active{color:#fff;border-color:transparent}
+.chip.active[data-c=all]{background:var(--accent)}
+
+.catblock{margin-top:30px}
+.cathead{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.cathead .bar{width:5px;height:22px;border-radius:3px}
+.cathead h2{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
+.cathead .n{margin-left:auto;color:var(--muted);font-size:.82rem;font-weight:600}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.fiche{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  transition:.15s;border-left:4px solid var(--line);
+}
+.fiche:hover{border-color:var(--accent);transform:translateY(-1px)}
+.fiche summary{
+  list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;gap:10px;
+}
+.fiche summary::-webkit-details-marker{display:none}
+.fiche summary .t{font-weight:700;font-size:1rem;flex:1;letter-spacing:-.01em}
+.fiche summary .sub{color:var(--muted);font-size:.78rem;font-weight:500;display:block;margin-top:2px}
+.fiche summary .arw{color:var(--muted);transition:.2s;font-size:1.1rem}
+.fiche[open] summary .arw{transform:rotate(90deg)}
+.fiche[open]{border-left-color:var(--accent)}
+.body{padding:0 16px 16px;border-top:1px solid var(--line);margin-top:0}
+.sec{margin-top:14px}
+.sec h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);font-weight:700;margin-bottom:6px}
+.sec ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.sec li{position:relative;padding-left:16px;font-size:.9rem;color:#d4dcec}
+.sec li::before{content:"";position:absolute;left:2px;top:9px;width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.6}
+.sec p{font-size:.9rem;color:#d4dcec}
+.sec .kv{display:flex;gap:8px;font-size:.9rem;padding:3px 0}
+.sec .kv b{color:var(--white);min-width:auto}
+.tag{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:6px;
+  padding:1px 7px;font-size:.75rem;color:var(--muted);font-weight:600;margin:2px 3px 0 0}
+mark{background:rgba(91,141,255,.25);color:#fff;border-radius:3px;padding:0 2px}
+.merke{background:rgba(246,161,30,.1);border:1px solid rgba(246,161,30,.35);border-radius:10px;padding:9px 12px;font-size:.86rem;margin-top:12px}
+.merke b{color:var(--ausdauer)}
+
+.empty{text-align:center;color:var(--muted);padding:60px 20px}
+
+/* Flashcard mode */
+#quiz{display:none;padding:20px}
+#quiz.on{display:block}
+.qwrap{max-width:640px;margin:0 auto}
+.qbar{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.85rem;margin-bottom:14px}
+.flash{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;min-height:340px;
+  padding:32px 26px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;
+  position:relative;border-top:5px solid var(--accent);
+}
+.flash .side{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);position:absolute;top:16px;left:26px}
+.flash .q{font-size:1.4rem;font-weight:700;text-align:center;letter-spacing:-.01em}
+.flash .a{margin-top:4px}
+.flash .a .sec{margin-top:12px}
+.flash .hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:var(--muted);font-size:.78rem}
+.qnav{display:flex;gap:10px;margin-top:16px}
+.qnav button{flex:1;background:var(--card);border:1px solid var(--line);color:var(--text);
+  padding:13px;border-radius:12px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.95rem}
+.qnav button:hover{border-color:var(--accent)}
+.qnav button.prim{background:var(--accent);border-color:var(--accent);color:#fff}
+
+footer{text-align:center;color:var(--muted);font-size:.82rem;padding:30px 20px 10px}
+@media(max-width:560px){.hero h1{font-size:1.5rem}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span>
+      <div>Physio-Prüfung<small>Annas Lernkarten · Mannheim</small></div>
+    </div>
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Suchen… (z.B. Asthma, VKB, Schlaganfall)">
+    </div>
+    <button class="modebtn" id="listBtn">📖 Liste</button>
+    <button class="modebtn" id="quizBtn">🎴 Karteikarten</button>
+  </div>
+</header>
+
+<div id="listView">
+  <div class="wrap">
+    <div class="hero">
+      <h1>Prüfungsvorbereitung Physiotherapie</h1>
+      <p>Alle Themen deiner Liste — kompakt und prüfungsorientiert. Klicke auf eine Karte zum Aufklappen, oder wechsle in den Karteikarten-Modus zum Abfragen. Viel Erfolg, Anna! 💪</p>
+      <div class="stat" id="stat"></div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div id="cats"></div>
+    <div class="empty" id="empty" style="display:none">Keine Treffer. Andere Suche versuchen.</div>
+  </div>
+</div>
+
+<div id="quiz">
+  <div class="qwrap">
+    <div class="qbar"><span id="qcount"></span><span id="qcat"></span></div>
+    <div class="flash" id="flash" onclick="flip()">
+      <span class="side" id="fside">Frage</span>
+      <div id="fcontent"></div>
+      <div class="hint">Tippen zum Umdrehen</div>
+    </div>
+    <div class="qnav">
+      <button onclick="prevCard()">← Zurück</button>
+      <button class="prim" onclick="flip()">Umdrehen</button>
+      <button onclick="nextCard()">Weiter →</button>
+    </div>
+  </div>
+</div>
+
+<footer>Erstellt für Annas Physiotherapie-Prüfung · nur zu Lernzwecken</footer>
+
+<script src="data.js"></script>
+<script>
+const CATS = {
+  atmung:{name:"Atmung & Lunge",color:"var(--atmung)"},
+  innere:{name:"Innere Medizin",color:"var(--innere)"},
+  ausdauer:{name:"Ausdauer & Training",color:"var(--ausdauer)"},
+  anat:{name:"Anatomie",color:"var(--anat)"},
+  komm:{name:"Kommunikation",color:"var(--komm)"},
+  chir:{name:"Chirurgie",color:"var(--chir)"},
+  neuro:{name:"Neurologie",color:"var(--neuro)"},
+};
+
+function renderSection(s){
+  let inner='';
+  if(s.items){ inner='<ul>'+s.items.map(i=>'<li>'+i+'</li>').join('')+'</ul>'; }
+  else if(s.kv){ inner=s.kv.map(r=>'<div class="kv"><b>'+r[0]+':</b> '+r[1]+'</div>').join(''); }
+  else if(s.text){ inner='<p>'+s.text+'</p>'; }
+  else if(s.tags){ inner=s.tags.map(t=>'<span class="tag">'+t+'</span>').join(''); }
+  return '<div class="sec"><h4>'+s.h+'</h4>'+inner+'</div>';
+}
+
+function ficheHTML(t){
+  let secs=(t.sections||[]).map(renderSection).join('');
+  if(t.merke) secs+='<div class="merke"><b>Merke:</b> '+t.merke+'</div>';
+  return `<details class="fiche" data-cat="${t.cat}" style="border-left-color:${CATS[t.cat].color}">
+    <summary>
+      <div class="t">${t.title}${t.sub?`<span class="sub">${t.sub}</span>`:''}</div>
+      <span class="arw">›</span>
+    </summary>
+    <div class="body">${secs}</div>
+  </details>`;
+}
+
+let activeCat='all';
+function renderList(filter=''){
+  const f=filter.trim().toLowerCase();
+  const catsEl=document.getElementById('cats');
+  catsEl.innerHTML='';
+  let shown=0;
+  Object.keys(CATS).forEach(ck=>{
+    if(activeCat!=='all' && activeCat!==ck) return;
+    let items=DATA.filter(t=>t.cat===ck);
+    if(f) items=items.filter(t=>(t.title+' '+(t.sub||'')+' '+JSON.stringify(t.sections)).toLowerCase().includes(f));
+    if(!items.length) return;
+    shown+=items.length;
+    const block=document.createElement('div');
+    block.className='catblock';
+    block.innerHTML=`<div class="cathead"><span class="bar" style="background:${CATS[ck].color}"></span>
+      <h2>${CATS[ck].name}</h2><span class="n">${items.length} Themen</span></div>
+      <div class="grid">${items.map(ficheHTML).join('')}</div>`;
+    catsEl.appendChild(block);
+  });
+  document.getElementById('empty').style.display=shown?'none':'block';
+}
+
+// chips
+const chipsEl=document.getElementById('chips');
+chipsEl.innerHTML=`<div class="chip active" data-c="all">Alle</div>`+
+  Object.keys(CATS).map(ck=>`<div class="chip" data-c="${ck}"><span class="cdot" style="background:${CATS[ck].color}"></span>${CATS[ck].name}</div>`).join('');
+chipsEl.addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c) return;
+  activeCat=c.dataset.c;
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active');
+  renderList(document.getElementById('q').value);
+});
+
+document.getElementById('q').addEventListener('input',e=>renderList(e.target.value));
+document.getElementById('stat').innerHTML=`<b>${DATA.length}</b> Lernkarten · <b>${Object.keys(CATS).length}</b> Fachbereiche`;
+
+// ---- Flashcard mode ----
+let deck=[],idx=0,flipped=false;
+function buildDeck(){ deck=DATA.slice(); }
+function showCard(){
+  const t=deck[idx]; if(!t) return;
+  document.getElementById('qcount').textContent=`Karte ${idx+1} / ${deck.length}`;
+  document.getElementById('qcat').textContent=CATS[t.cat].name;
+  document.getElementById('flash').style.borderTopColor=CATS[t.cat].color;
+  if(!flipped){
+    document.getElementById('fside').textContent='Frage';
+    document.getElementById('fcontent').innerHTML=`<div class="q">${t.title}</div>${t.sub?`<p style="text-align:center;color:var(--muted);margin-top:8px">${t.sub}</p>`:''}`;
+  } else {
+    document.getElementById('fside').textContent='Antwort';
+    let secs=(t.sections||[]).map(renderSection).join('');
+    if(t.merke) secs+='<div class="merke"><b>Merke:</b> '+t.merke+'</div>';
+    document.getElementById('fcontent').innerHTML=`<div class="a"><div style="font-weight:700;font-size:1.05rem;text-align:center;margin-bottom:4px">${t.title}</div>${secs}</div>`;
+  }
+}
+function flip(){flipped=!flipped;showCard();}
+function nextCard(){idx=(idx+1)%deck.length;flipped=false;showCard();}
+function prevCard(){idx=(idx-1+deck.length)%deck.length;flipped=false;showCard();}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('quiz').classList.contains('on')){
+    if(e.key==='ArrowRight')nextCard();
+    if(e.key==='ArrowLeft')prevCard();
+    if(e.key===' '){e.preventDefault();flip();}
+  }
+});
+
+const listBtn=document.getElementById('listBtn'),quizBtn=document.getElementById('quizBtn');
+function setMode(m){
+  const quiz=m==='quiz';
+  document.getElementById('quiz').classList.toggle('on',quiz);
+  document.getElementById('listView').style.display=quiz?'none':'block';
+  quizBtn.classList.toggle('active',quiz);
+  listBtn.classList.toggle('active',!quiz);
+  if(quiz){buildDeck();idx=0;flipped=false;showCard();}
+}
+listBtn.onclick=()=>setMode('list');
+quizBtn.onclick=()=>setMode('quiz');
+
+renderList();
+setMode('list');
+</script>
+</body>
+</html>
