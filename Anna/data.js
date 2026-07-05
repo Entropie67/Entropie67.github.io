@@ -100,6 +100,34 @@ const DATA = [
 
 /* ============== INNERE MEDIZIN ============== */
 {
+  cat:"innere", title:"Blutgefäße", sub:"Wandschichten & Gefäßtypen",
+  sections:[
+    {h:"Wandschichten (von innen nach außen)", kv:[["Tunica intima","innerste Schicht (Endothel) — glatt, kann verletzt werden / porös werden"],["Tunica media","mittlere Muskelschicht + elastische Fasern"],["Tunica externa (adventitia)","äußere Bindegewebsschicht"]]},
+    {h:"Prinzip", text:"Arterien, Venen und Kapillaren sind <mark>gleich aufgebaut</mark> (intima–media–externa), unterscheiden sich aber in Dicke und Stärke der Schichten."},
+    {h:"Arterien", items:["Starke Tunica media (viele elastische Fasern) + starke Adventitia","Enges Lumen, halten hohen Druck stand","Transportieren Blut <b>vom Herzen weg</b>"]},
+    {h:"Venen", items:["Schwache Tunica media, starke Adventitia","Venenklappen (Taschenklappen) → Blutfluss in eine Richtung","Kapazitätsgefäß, leiten Blut <b>zum Herzen zurück</b>"]},
+    {h:"Kapillaren", items:["Nur einzelne Schicht Endothelzellen + Basalmembran","Sehr dünne Wand → Austausch von O₂, Nährstoffen & Abfallprodukten zwischen Blut und Gewebe"]},
+  ],
+  merke:"Lagerung: <b>Arterien → tieflagern</b> (Durchblutung fördern), <b>Venen → hochlagern</b> (Rückfluss fördern)."
+},
+{
+  cat:"innere", title:"Blutkreislauf & venöser Rücktransport", sub:"Kreislauf, Windkessel, Rückstrom",
+  sections:[
+    {h:"Zwei Kreisläufe", kv:[["Kleiner Kreislauf","Lungenkreislauf: Blut vom Herzen zur Lunge und zurück"],["Großer Kreislauf","Körperkreislauf: Blut aus dem Körper zurück zum Herzen"]]},
+    {h:"Windkesselfunktion", text:"Die elastische <mark>Aortenwand</mark> speichert in der Systole einen Teil des Schlagvolumens und gibt es in der Diastole wieder ab → wandelt stoßweisen Auswurf in kontinuierlichen Blutfluss um."},
+    {h:"Venöser Rücktransport (6 Mechanismen)", items:["1. Sog des Herzens (Ventilebenenmechanismus)","2. Muskelpumpe (Muskelkontraktion presst Venen aus)","3. Venenklappen (verhindern Rückstrom)","4. Blutdruckgefälle (venöser Druck sehr niedrig)","5. Parallele Anlage von Venen & Arterien (Pulswelle drückt Venen aus)","6. Atemtechnik (Zwerchfell → Druckgefälle, Blut fließt herzwärts)"]},
+  ],
+  merke:"Für <b>venöse</b> Krankheiten ist der Rücktransport zentral: Muskelpumpe, Venenklappen & Hochlagerung unterstützen ihn."
+},
+{
+  cat:"innere", title:"Hormone — Hypophyse", sub:"Hypophysenhormone",
+  sections:[
+    {h:"Definition", text:"Hormone der <mark>Hypophyse</mark> (Hirnanhangsdrüse) steuern viele Körperfunktionen und andere Hormondrüsen."},
+    {h:"Wichtige Hormone", kv:[["ADH (Adiuretin / Vasopressin)","fördert Wasserrückresorption in der Niere → RR-Steigerung"],["Oxytocin","Milcheinschuss (Stillzeit), Kontraktion der Gebärmutter bei der Geburt"],["ACTH (Corticotropin)","stimuliert Nebennierenrinde (Cortisol, Androgene)"],["TSH (Thyreotropin)","stimuliert Schilddrüse (T3, T4)"],["Prolaktin (PRL)","Brustdrüsenwachstum, Milchproduktion"],["FSH / LH","Keimdrüsen: Geschlechtshormone, Fortpflanzung"],["STH (Somatotropin)","Wachstumshormon, Körperwachstum"],["MSH (Melanotropin)","Melaninproduktion → Hautpigment"]]},
+  ],
+  merke:"<b>ADH</b> = Wasser sparen (antidiuretisch). <b>Oxytocin</b> = Geburt & Stillen. <b>TSH/ACTH</b> steuern andere Drüsen."
+},
+{
   cat:"innere", title:"Arteriosklerose", sub:"Arterienverkalkung",
   sections:[
     {h:"Definition", text:"<mark>Systemische Erkrankung der Arterien</mark>: Einlagerung von Lipiden, Kalk und Bindegewebe in die Gefäßwand → Plaques → Gefäß verengt/verhärtet, Elastizität ↓."},
@@ -114,11 +142,13 @@ const DATA = [
   sections:[
     {h:"Definition", text:"<mark>Durchblutungsstörung der Extremitätenarterien</mark> (meist Beine) durch Arteriosklerose → verminderte O₂-Versorgung der Muskulatur."},
     {h:"Leitsymptom", text:"<b>Claudicatio intermittens</b> ('Schaufensterkrankheit'): belastungsabhängiger Wadenschmerz, der zum Stehenbleiben zwingt, in Ruhe verschwindet."},
-    {h:"Stadien nach Fontaine", kv:[["I","beschwerdefrei (Stenose vorhanden)"],["II","Claudicatio (IIa >200m, IIb <200m)"],["III","Ruheschmerz"],["IV","Nekrose / Gangrän"]]},
-    {h:"Symptome", items:["Kalte, blasse Füße","Schwacher/fehlender Puls","Belastungsschmerz Wade","Schlecht heilende Wunden (Stadium IV)"]},
-    {h:"Therapieziele PT", items:["<b>Gehtraining</b> (Kollateralenbildung) — Kernmaßnahme!","Intervallgehtraining bis kurz vor Schmerzgrenze","Gefäßtraining, Ratschow-Lagerung","NICHT: Beine hochlagern bei Ischämie"]},
+    {h:"Ursachen", items:["In 95% Arteriosklerose","Männer 5× häufiger betroffen","Selten: Entzündungen, rezidivierende Thrombembolien"]},
+    {h:"Stadien nach Fontaine", kv:[["I","keine Beschwerden (Stenose, Pulsabschwächung)"],["II","Claudicatio intermittens (IIa >200m, IIb <200m)"],["III","Ruheschmerz"],["IV","Nekrose / Ulkus / Gangrän"]]},
+    {h:"Diagnostik", items:["Anamnese: Risikofaktoren (Nikotin, Hypertonie, Diabetes…)","<b>Gehtest</b>: Zeit/Strecke bis Schmerz stoppen","<b>Ratschow-Lagerungsprobe</b>: Beine hoch + Füße kreisen → bei pAVK Blässe der Fußsohle, verzögerte Rötung/Venenfüllung beim Aufsetzen","Beckentyp: leichte Kniebeugen · Oberschenkeltyp: Zehenstand"]},
+    {h:"Gehtraining — Methoden", items:["Alte Methode: bis Schmerz auftritt (2/3), dann 1/3 Pause","Neue Methode: im Schmerz trainieren (1–3 Sek), dann 1/3 Pause","Stadium I & II: Gehtraining fördert Kollateralen","Stadium III–IV: Medikamente / Rekanalisation"]},
+    {h:"PT muss beachten (wichtig!)", items:["Keine lokale <b>Wärme- oder Kälteanwendung</b> (Gefäße reagieren paradox)","Druck durch Lagerung/Kleidung vermeiden","<b>Keine Antithrombosestrümpfe</b> bei Dopplerdruck < 50 mmHg","Extremität <b>tief</b> lagern"]},
   ],
-  merke:"Gehtraining fördert <b>Kollateralkreisläufe</b>. Bei pAVK Beine <b>tief</b> lagern (nicht hoch!)."
+  merke:"„Umweg\" = Kollateralen (natürlich) oder Bypass (operativ). Bei pAVK Beine <b>tief</b> lagern, <b>keine Wärme</b>, keine engen Strümpfe."
 },
 {
   cat:"innere", title:"Thrombose", sub:"Arterielle & venöse Thrombusbildung",
@@ -142,6 +172,17 @@ const DATA = [
   merke:"Bei akuter TVT: <b>keine kräftigen mechanischen Reize</b> am Bein → Emboliegefahr. Erst nach Freigabe mobilisieren."
 },
 {
+  cat:"innere", title:"Thrombophlebitis", sub:"Oberflächliche Venenentzündung + Thrombus",
+  sections:[
+    {h:"Definition", text:"Die <mark>oberflächliche Vene</mark> ist entzündet und durch einen Thrombus verschlossen. Oft auf Basis von <b>Varikosis</b> (Krampfadern). Abzugrenzen von der tiefen Phlebothrombose (TVT)."},
+    {h:"Ursachen / Formen", kv:[["Bakterielle Form","Gerinnsel mit lokaler Entzündung"],["Arterielle Form","nach Trauma oder Injektion (Spritze) — Risiko hämatogener Aussaat"]]},
+    {h:"Symptome", items:["Druckschmerz entlang der Vene","Rötung, lokale Schwellung","Bei bakteriell: Fieber, Schüttelfrost, eitrige Einschmelzung"]},
+    {h:"Komplikationen", items:["Übergreifen auf tiefe Venen → Gefahr Lungenembolie","Infektion"]},
+    {h:"Diagnostik & Therapie", items:["Klinik, Duplex-Sonographie (Ultraschall)","Keine strenge Bettruhe → Mobilisation!","Kompression, Kühlung, Bewegung","NSAR (nicht-steroidale Antirheumatika = entzündungshemmende Schmerzmittel), ggf. Antikoagulation"]},
+  ],
+  merke:"Anders als bei der TVT: bei oberflächlicher Thrombophlebitis <b>keine Bettruhe</b> — Patienten sollen viel laufen (mit Kompression)."
+},
+{
   cat:"innere", title:"CVI", sub:"Chronisch venöse Insuffizienz",
   sections:[
     {h:"Definition", text:"<mark>Chronische Abflussstörung der Beinvenen</mark> durch Klappeninsuffizienz → venöser Rückstau, erhöhter Venendruck."},
@@ -156,22 +197,24 @@ const DATA = [
   cat:"innere", title:"Diabetes mellitus", sub:"Zuckerkrankheit",
   sections:[
     {h:"Definition", text:"Chronische Stoffwechselerkrankung mit <mark>erhöhtem Blutzucker</mark> (Hyperglykämie) durch Insulinmangel oder Insulinresistenz."},
-    {h:"Typen", kv:[["Typ 1","Autoimmun, absoluter Insulinmangel, junge Menschen, insulinpflichtig"],["Typ 2","Insulinresistenz, Lebensstil, häufigste Form"]]},
+    {h:"Typen", kv:[["Typ 1","Beginn im Kindes-/Jugendalter, erblich, ~5% der Fälle, β-Zellen produzieren kein Insulin → <b>absoluter Insulinmangel</b> (schlank)"],["Typ 2","meist Erwachsene, ~85%, Bewegungsmangel/falsche Ernährung/Übergewicht → Zellen resistent = <b>relativer Insulinmangel</b> (Downregulation → Insulinresistenz)"]]},
     {h:"Symptome (Hyperglykämie)", items:["Starker Durst (Polydipsie)","Häufiges Wasserlassen (Polyurie)","Müdigkeit, Gewichtsverlust","Schlechte Wundheilung"]},
     {h:"Folgeschäden", items:["Diabetische Neuropathie (Sensibilität ↓)","Diabetischer Fuß (Ulzera)","Retinopathie, Nephropathie","Makroangiopathie (KHK, pAVK)"]},
     {h:"Notfall Hypoglykämie", items:["Zittern, Schwitzen, Heißhunger","Verwirrtheit, Bewusstlosigkeit","→ Sofort Zucker geben (wenn wach)!"]},
-    {h:"Therapieziele PT", items:["Bewegung senkt Blutzucker (Muskelarbeit)","Ausdauer- & Krafttraining","Fußkontrolle/-schulung (Neuropathie)","Vor Sport: Hypoglykämie-Risiko beachten"]},
+    {h:"Therapieziele PT", items:["Bewegung senkt Blutzucker (Muskelarbeit)","Typ 2: statische Dehnung, Kraft- & Ausdauertraining (z.B. Laufband, Theraband)","Fußkontrolle/-schulung (Neuropathie)","Vor Sport: Hypoglykämie-Risiko beachten"]},
   ],
-  merke:"<b>Muskelarbeit senkt den Blutzucker</b> — vor dem Training BZ beachten, bei Hypo sofort Zucker geben."
+  merke:"<b>Muskelarbeit senkt den Blutzucker</b> — vor dem Training BZ beachten, bei Hypo sofort Zucker geben. Typ 1 = schlank/absolut, Typ 2 = Übergewicht/relativ."
 },
 {
   cat:"innere", title:"Hypertonie", sub:"Bluthochdruck",
   sections:[
     {h:"Definition", text:"Dauerhaft <mark>erhöhter arterieller Blutdruck ≥ 140/90 mmHg</mark>. Normwert ~120/80 mmHg."},
     {h:"Werte", kv:[["Optimal","< 120 / 80"],["Normal","< 130 / 85"],["Hypertonie Grad 1","140–159 / 90–99"],["Grad 2","160–179 / 100–109"],["Grad 3","≥ 180 / 110"]]},
-    {h:"Formen", items:["Primär/essenziell (~90%, keine erkennbare Ursache)","Sekundär (Folge z.B. von Nieren-/Hormonerkrankung)"]},
+    {h:"Arten", kv:[["Primär / essenziell","~90%, multifaktoriell, keine erkennbare Ursache (genetisch, Ernährung, Konsum, Stress)"],["Sekundär","~10%, Folge z.B. von Schlafapnoe, Nierenerkrankung, hormoneller Störung, Aortenisthmusstenose"],["Renal","über das RAAS (reguliert Blutdruck & Wasserhaushalt)"],["Endokrin","Phäochromozytom (Adrenalin↑), Cushing (Cortisol↑), Conn (Aldosteron↑ → Na⁺-Retention)"]]},
+    {h:"Metabolisches Syndrom", text:"Hypertonie zählt — wie Adipositas, Diabetes Typ 2, Fettstoffwechselstörungen & Gicht — zum <mark>metabolischen Syndrom</mark>."},
     {h:"Risiken / Folgen", items:["Herzinfarkt, Schlaganfall","Herzinsuffizienz, Linksherzhypertrophie","Nierenschäden, Arteriosklerose"]},
-    {h:"Therapieziele PT", items:["Ausdauertraining (senkt RR)","Dynamische statt isometrischer Belastung","Pressatmung vermeiden (RR-Spitzen!)","Entspannung, Stressreduktion"]},
+    {h:"Therapieziele PT", items:["Dosiertes Ausdauertraining (Spazieren, Nordic Walking, Joggen, Schwimmen)","Dynamische statt isometrischer Belastung","<b>Pressatmung (Valsalva) vermeiden</b> → gefährliche systolische Spitzen","Entspannungstechniken, Atemkontrolle"]},
+    {h:"Basistherapie / Lebensstil", items:["Gewicht normalisieren","Mediterrane Ernährung, Salzreduktion","Rauchen einstellen, Kaffee/Alkohol einschränken","Regelmäßige Bewegung"]},
   ],
   merke:"Beim Training <b>Pressatmung vermeiden</b> (Valsalva → RR-Anstieg). Dynamische Ausdauer statt schwerer statischer Belastung."
 },
@@ -205,6 +248,18 @@ const DATA = [
     {h:"PT nach Infarkt (Reha)", items:["Frühmobilisation im Krankenhaus","Stufenweiser Belastungsaufbau (Herzgruppe)","HF- und Borg-gesteuertes Ausdauertraining","Sekundärprävention: Risikofaktoren"]},
   ],
   merke:"Unterschied zur Angina: Infarktschmerz hält an, ist stärker und spricht <b>nicht auf Nitro</b> an → Gewebe stirbt ab."
+},
+{
+  cat:"innere", title:"Herzreha — Mobilisationsstufen", sub:"Belastungsaufbau nach Herzinfarkt/-OP",
+  sections:[
+    {h:"Prinzip", text:"Stufenweiser Belastungsaufbau (<mark>Mobstufe 0 → 3</mark>). Vorgabe der Stufe erfolgt <b>durch den behandelnden Arzt</b>. Vor jeder Einheit: Ruhepuls & Blutdruck messen."},
+    {h:"Die Stufen", kv:[["Mobstufe 0","Bettruhe: passiv-aktiv, Atemtherapie, Muskelpumpe, Lagerung — HF max +10/Min über Ruhepuls"],["Mobstufe 1","Sitz Bettkante: Transfer RL–SL–Sitz, Schinkengehen, Sitzbalance — HF max +15/Min"],["Mobstufe 2","Gehen in der Ebene: Zimmer/Flur, Koordination, Ausdauer — HF max +20/Min"],["Mobstufe 3","Treppe: Gehstrecke & -zeit steigern, Treppe — HF max +30/Min"]]},
+    {h:"Kontraindikationen (alle Stufen)", items:["Keine Isometrie","Keine Bauchpresse / Pressatmung (Valsalva)","Keine Pectoralisdehnung","Keine massive Vorlasterhöhung"]},
+    {h:"Belastungsparameter überwachen", items:["Puls, Blutdruck, Atmung, ggf. Monitor-EKG, SO₂","Anstrengungsgefühl, Schwitzen, Hautfarbe (Blässe/Zyanose)","Retrosternales Druckgefühl / Angina pectoris","Schwindel, Übelkeit, Schwäche → abbrechen"]},
+    {h:"Nach Herzkatheter / Stent (Leiste)", text:"Solange der Druckverband besteht: <b>Hüftgelenk nicht beugen</b> (Einführung über die Leiste, Gefäßwand muss verheilen)."},
+    {h:"Nach Bypass-OP / Klappenersatz", items:["Keine gegengleichen Armbewegungen","Keine Flexion über 90° der Arme","Keine Seitlage, keine Bettgalgennutzung","Kein Druck/Zug auf die (Sternum-)Narbe"]},
+  ],
+  merke:"Stufe kommt <b>vom Arzt</b>. Immer: keine Isometrie, keine Pressatmung. Nach Katheter: Hüfte nicht beugen. Nach Bypass: Sternum-Narbe schonen."
 },
 
 /* ============== AUSDAUER & TRAINING ============== */
