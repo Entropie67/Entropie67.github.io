@@ -234,8 +234,8 @@
     content:"";position:absolute;left:max(1rem,5vw);top:0;bottom:0;width:2px;
     background:linear-gradient(to bottom,
       rgba(233,228,216,.25) 0%,
-      rgba(233,228,216,.25) 38%,
-      var(--signal) 55%,
+      rgba(233,228,216,.25) 31%,
+      var(--signal) 42%,
       var(--signal) 100%);
     opacity:.5;
   }
@@ -324,9 +324,116 @@
     font-size:clamp(2.5rem,9vw,6rem);color:var(--signal);
     text-shadow:0 0 30px rgba(31,92,255,.6);
   }
+  .ev-drop-next{
+    margin-top:1.6rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);
+  }
 
   /* =========================================================
-     SCÈNE 5 — LE FIL DIRECTEUR
+     SCÈNE 5 — RÉINTERROGER NOS CATÉGORIES
+     Le cœur intellectuel de l'accroche : on confronte les verdicts
+     d'impossibilité (2020-2023) aux faits (2026), puis on retourne
+     la question vers les mots que nous employons.
+     ========================================================= */
+  .epist{
+    position:absolute;inset:0;z-index:29;background:var(--ink);color:var(--paper);
+    opacity:0;pointer-events:none;transition:opacity .5s ease;
+    display:flex;flex-direction:column;
+  }
+  .epist.on{opacity:1;pointer-events:auto}
+  .ep-head{
+    flex:0 0 auto;padding:clamp(.8rem,2.4vh,1.5rem) clamp(1rem,4vw,3rem) .8rem;
+    border-bottom:1px solid rgba(233,228,216,.12);
+    display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;
+  }
+  .ep-eyebrow{
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.45rem;
+  }
+  .ep-title{
+    font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.25rem,3.6vw,2.6rem);
+  }
+  .ep-head-scroll{
+    flex:0 0 auto;font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted);animation:bob 1.8s ease-in-out infinite;
+  }
+  .ep-track{
+    flex:1 1 auto;overflow-y:auto;scroll-behavior:smooth;
+    padding:clamp(1rem,3vh,2rem) clamp(1rem,4vw,3rem) clamp(2rem,6vh,4rem);
+  }
+
+  /* --- la confrontation --- */
+  .ep-duel{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3.5vw,3rem);align-items:start}
+  .ep-col-h{
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+    padding-bottom:.5rem;margin-bottom:1.1rem;border-bottom:2px solid;
+  }
+  .ep-then .ep-col-h{color:#c9c2b2;border-color:rgba(233,228,216,.28)}
+  .ep-now  .ep-col-h{color:#7fa0ff;border-color:var(--signal)}
+  .ep-item{margin-bottom:1.05rem;padding-left:.9rem;border-left:2px solid}
+  .ep-then .ep-item{border-left-color:rgba(233,228,216,.16)}
+  .ep-now  .ep-item{border-left-color:rgba(31,92,255,.55)}
+  .ep-when{
+    font-family:var(--mono);font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem;
+  }
+  .ep-say{font-family:var(--serif);font-weight:700;line-height:1.22;
+    font-size:clamp(.97rem,1.85vw,1.22rem)}
+  .ep-then .ep-say{color:#c9c2b2}
+  .ep-now  .ep-say{color:var(--paper)}
+  .ep-sub{margin-top:.3rem;font-size:clamp(.8rem,1.35vw,.94rem);line-height:1.45;color:#a9a294}
+  .ep-en{font-style:italic;color:var(--muted)}
+
+  /* --- la question --- */
+  .ep-q{
+    margin:clamp(1.4rem,4.5vh,2.8rem) 0 clamp(1.2rem,3.5vh,2rem);
+    padding:clamp(1.1rem,3vh,2rem) clamp(1rem,3vw,2.5rem);
+    border-top:1px solid rgba(233,228,216,.15);
+    border-bottom:1px solid rgba(233,228,216,.15);
+    text-align:center;
+  }
+  .ep-q-lead{
+    font-family:var(--serif);font-style:italic;color:#b9c6e0;
+    font-size:clamp(.92rem,1.7vw,1.12rem);line-height:1.5;
+    max-width:78ch;margin:0 auto .9rem;
+  }
+  .ep-q-big{
+    font-family:var(--display);text-transform:uppercase;color:var(--signal);
+    font-size:clamp(1.5rem,5vw,3.4rem);line-height:1;
+    text-shadow:0 0 30px rgba(31,92,255,.5);
+  }
+  .ep-q-big em{font-style:normal;color:var(--paper);text-shadow:none}
+
+  /* --- le garde-fou intellectuel + l'échelle de Tao --- */
+  .ep-foot{display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(1.2rem,3vw,2.5rem);align-items:start}
+  .ep-care{
+    border-left:3px solid var(--alarm);padding-left:clamp(.9rem,2vw,1.4rem);
+  }
+  .ep-care-h{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+    color:#ff6a4d;margin-bottom:.6rem;
+  }
+  .ep-care p{font-size:clamp(.85rem,1.5vw,1rem);line-height:1.55;color:#c9c2b2;margin-bottom:.6rem}
+  .ep-care strong{color:var(--paper)}
+
+  .ep-scale{border:1px solid rgba(233,228,216,.15);padding:clamp(.9rem,2vw,1.3rem)}
+  .ep-scale-h{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.8rem;
+  }
+  .ep-step{font-family:var(--serif);line-height:1.3;font-size:clamp(.88rem,1.5vw,1rem);color:#c9c2b2}
+  .ep-step b{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;
+    color:var(--muted);margin-bottom:.2rem}
+  .ep-arrow{color:var(--signal);font-size:1.3rem;line-height:1;margin:.5rem 0}
+  .ep-scale .now{color:var(--paper);font-weight:700}
+
+  @media (max-width:900px){
+    .ep-duel,.ep-foot{grid-template-columns:1fr}
+  }
+
+  /* =========================================================
+     SCÈNE 6 — LE FIL DIRECTEUR
      ========================================================= */
   .thread{
     position:absolute;inset:0;z-index:30;background:var(--paper);
@@ -372,7 +479,7 @@
   }
 
   /* =========================================================
-     SCÈNE 6 — ACTIVITÉ PÉDAGOIA
+     SCÈNE 7 — ACTIVITÉ PÉDAGOIA
      ========================================================= */
   .activity{
     position:absolute;inset:0;z-index:32;
@@ -406,7 +513,7 @@
   .activity .cta small{display:block;font-size:.66rem;color:rgba(255,255,255,.7);letter-spacing:.1em}
 
   /* =========================================================
-     SCÈNE 7 — CES IA, QUI SONT-ELLES ?
+     SCÈNE 8 — CES IA, QUI SONT-ELLES ?
      ========================================================= */
   .whoswho{
     position:absolute;inset:0;z-index:34;background:var(--paper);color:var(--ink);
@@ -610,6 +717,36 @@
         </div>
       </article>
 
+      <article class="ev cold" data-year="2020">
+        <div class="ev-year">2020</div>
+        <div class="ev-body">
+          <div class="ev-tag">📄 ACL 2020 · Emily Bender &amp; Alexander Koller</div>
+          <h3 class="ev-title">« Un modèle entraîné uniquement sur la <em>forme</em> ne peut pas, en principe, apprendre le <em>sens</em>. »</h3>
+          <p class="ev-note">Un article de recherche très influent. Ce n'est pas «&nbsp;il comprend mal&nbsp;»&nbsp;: c'est une <strong>impossibilité de principe</strong>. <span class="ev-en">“…cannot in principle lead to learning of meaning.”</span></p>
+          <a class="ev-src" href="https://aclanthology.org/2020.acl-main.463/" target="_blank" rel="noopener">aclanthology.org ↗</a>
+        </div>
+      </article>
+
+      <article class="ev cold" data-year="2020">
+        <div class="ev-year">2020</div>
+        <div class="ev-body">
+          <div class="ev-tag">Forbes · juillet 2020</div>
+          <h3 class="ev-title">« Il ne peut pas raisonner&nbsp;; il ne comprend pas la langue qu'il produit. »</h3>
+          <p class="ev-note"><span class="ev-en">“It cannot reason; it does not understand the language it generates.”</span> — GPT-3 n'aurait ni représentation réelle du sens des mots, ni capacité de raisonnement abstrait.</p>
+          <a class="ev-src" href="https://www.forbes.com/sites/robtoews/2020/07/19/gpt-3-is-amazingand-overhyped/" target="_blank" rel="noopener">forbes.com ↗</a>
+        </div>
+      </article>
+
+      <article class="ev cold" data-year="2021">
+        <div class="ev-year">2021</div>
+        <div class="ev-body">
+          <div class="ev-tag">🦜 Bender, Gebru <em>et al.</em> — l'expression qui restera</div>
+          <h3 class="ev-title">« Perroquets stochastiques »</h3>
+          <p class="ev-note">Les grands modèles produiraient une forme linguistique extraordinairement convaincante — sans compréhension ni intention de communiquer. Un perroquet qui tire ses mots au sort.</p>
+          <a class="ev-src" href="https://doi.org/10.1145/3442188.3445922" target="_blank" rel="noopener">doi.org ↗</a>
+        </div>
+      </article>
+
       <article class="ev cold" data-year="2023">
         <div class="ev-year">2023</div>
         <div class="ev-body">
@@ -628,12 +765,41 @@
         </div>
       </article>
 
+      <article class="ev cold" data-year="2023">
+        <div class="ev-year">2023</div>
+        <div class="ev-body">
+          <div class="ev-tag">arXiv · Konstantine Arkoudas — c'est le titre de l'article</div>
+          <h3 class="ev-title">« GPT-4 CAN'T REASON »</h3>
+          <p class="ev-note">Pas «&nbsp;il a des difficultés&nbsp;»&nbsp;: il le juge <span class="ev-en">“utterly incapable of reasoning”</span> — <strong>totalement incapable de raisonner</strong>, malgré quelques éclairs impressionnants.</p>
+          <a class="ev-src" href="https://arxiv.org/abs/2308.03762" target="_blank" rel="noopener">arxiv.org ↗</a>
+        </div>
+      </article>
+
+      <article class="ev cold" data-year="2023">
+        <div class="ev-year">2023</div>
+        <div class="ev-body">
+          <div class="ev-tag">PNAS — une position radicale du débat</div>
+          <h3 class="ev-title">« …même s'il était entraîné jusqu'à la mort thermique de l'Univers. »</h3>
+          <p class="ev-note">Un système entraîné sur le seul langage ne s'approcherait <em>jamais</em> de l'intelligence humaine. <strong>Attention&nbsp;:</strong> PNAS rapporte ici la position d'un camp du débat — ce n'est pas le consensus scientifique.</p>
+          <a class="ev-src" href="https://doi.org/10.1073/pnas.2215907120" target="_blank" rel="noopener">doi.org ↗</a>
+        </div>
+      </article>
+
       <!-- ---- CHARNIÈRE ---- -->
       <div class="ev-turn">
         <span>puis tout s'accélère</span>
       </div>
 
       <!-- ---- PHASE VERTIGINEUSE ---- -->
+      <article class="ev hot" data-year="2024">
+        <div class="ev-year">2024</div>
+        <div class="ev-body">
+          <div class="ev-tag">📏 Terence Tao (médaille Fields) — le thermomètre</div>
+          <h3 class="ev-title">« Un étudiant de troisième cycle médiocre — mais pas totalement incompétent. »</h3>
+          <p class="ev-note">Retenez cette phrase&nbsp;: c'est l'étalon. On va la comparer à ce que le même mathématicien dira deux ans plus tard.</p>
+        </div>
+      </article>
+
       <article class="ev hot" data-year="2024">
         <div class="ev-year">2024</div>
         <div class="ev-body">
@@ -675,6 +841,16 @@
       <article class="ev hot" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
+          <div class="ev-tag">📏 Terence Tao · mars 2026 — le même thermomètre, deux ans après</div>
+          <h3 class="ev-title">« Ready for primetime. »</h3>
+          <p class="ev-note">En maths et en physique théorique, les modèles lui font désormais <strong>gagner plus de temps qu'ils ne lui en font perdre</strong>. On est passé de l'étudiant médiocre au collègue utilisable.</p>
+          <a class="ev-src" href="https://forum.openai.com/en/public/blogs/terence-tao-ai-is-ready-for-primetime-in-math-and-theoretical-physics-2026-03-10" target="_blank" rel="noopener">forum.openai.com ↗</a>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
           <div class="ev-tag">Numerama · avril 2026</div>
           <h3 class="ev-title">Un problème d'Erdős vieux de 60 ans résolu avec l'aide de ChatGPT</h3>
           <p class="ev-note">Erdős #1196. Le modèle emprunte une voie que les spécialistes n'avaient pas explorée ; Terence Tao participe ensuite à l'analyse et à la simplification de la preuve.</p>
@@ -690,7 +866,40 @@
         </div>
       </article>
 
-      <!-- ---- CLIMAX 1 : TERENCE TAO ---- -->
+      <article class="ev hot" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">OpenAI · mai 2026</div>
+          <h3 class="ev-title">Une conjecture posée en 1946 est <em>réfutée</em> par un modèle</h3>
+          <p class="ev-note">Conjecture d'Erdős sur les distances unitaires&nbsp;: 80 ans que la question était ouverte. Le modèle ne la démontre pas — il montre qu'elle est <strong>fausse</strong>.</p>
+          <a class="ev-src" href="https://openai.com/index/model-disproves-discrete-geometry-conjecture/" target="_blank" rel="noopener">openai.com ↗</a>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">OpenAI · août 2026</div>
+          <h3 class="ev-title">Dix résultats d'un coup sur des problèmes ouverts</h3>
+          <p class="ev-note">Dix problèmes anciens de mathématiques et d'informatique théorique résolus ou substantiellement avancés. Ce n'est plus l'exploit isolé&nbsp;: c'est devenu une production régulière.</p>
+          <a class="ev-src" href="https://openai.com/index/ten-advances-in-mathematics/" target="_blank" rel="noopener">openai.com ↗</a>
+        </div>
+      </article>
+
+      <!-- ---- CLIMAX 1 : RIEMANN ---- -->
+      <article class="ev tao" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">Anthropic · 10 août 2026 — la consigne donnée à Claude</div>
+          <h3 class="ev-title tao-title">« Take a real stab at the Riemann hypothesis. »</h3>
+          <p class="ev-note">«&nbsp;Vas-y, attaque-toi sérieusement à l'hypothèse de Riemann.&nbsp;» — le plus célèbre problème ouvert des mathématiques.<br><br>
+          Claude <strong>ne l'a pas démontrée</strong>. Mais en essayant, il a trouvé comment améliorer un résultat associé&nbsp;: la meilleure borne publiée pour la proportion de zéros dont on sait prouver qu'ils sont sur la droite critique passe de <strong>41,6&nbsp;% à 67,2&nbsp;%</strong>. Deux mathématiciens d'Anthropic ont ensuite étudié et validé l'argument — la technique ne semble pas mener pour autant à la démonstration complète.<br><br>
+          <em>Trois ans plus tôt, on écrivait qu'il était «&nbsp;totalement incapable de raisonner&nbsp;».</em></p>
+          <a class="ev-src" href="https://www.anthropic.com/research/riemann-zeta" target="_blank" rel="noopener">anthropic.com ↗</a>
+        </div>
+      </article>
+
+      <!-- ---- CLIMAX 2 : TERENCE TAO ---- -->
       <article class="ev tao" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
@@ -700,7 +909,7 @@
         </div>
       </article>
 
-      <!-- ---- CLIMAX 2 : L'INCIDENT CYBER ---- -->
+      <!-- ---- CLIMAX 3 : L'INCIDENT CYBER ---- -->
       <article class="ev tao cyber" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
@@ -715,12 +924,121 @@
       <div class="ev-drop">
         <div class="ev-drop-q">« Les œufs de vache »&nbsp;→ «&nbsp;elle trouve une faille pour sortir de sa prison informatique&nbsp;».<br>Combien de temps entre les deux&nbsp;?</div>
         <div class="ev-drop-a">Trois ans.</div>
+        <div class="ev-drop-next">Et si la vraie question n'était pas «&nbsp;jusqu'où ira-t-elle&nbsp;?&nbsp;»&nbsp;… →</div>
       </div>
 
     </div><!-- /tl-track -->
   </div>
 
-  <!-- ============ SCÈNE 5 : FIL DIRECTEUR ============ -->
+  <!-- ============ SCÈNE 5 : RÉINTERROGER NOS CATÉGORIES ============ -->
+  <div class="epist" id="epist">
+    <div class="ep-head">
+      <div>
+        <div class="ep-eyebrow">Le vrai sujet de cette accroche</div>
+        <h2 class="ep-title">Et si le problème,<br>c'était nos mots&nbsp;?</h2>
+      </div>
+      <span class="ep-head-scroll">défilez ↓</span>
+    </div>
+
+    <div class="ep-track" id="epTrack">
+
+      <div class="ep-duel">
+
+        <!-- ---- CE QU'ON DÉMONTRAIT ---- -->
+        <div class="ep-side ep-then">
+          <div class="ep-col-h">Ce que des chercheurs sérieux affirmaient · 2020&nbsp;→&nbsp;2023</div>
+
+          <div class="ep-item">
+            <div class="ep-when">2020 · ACL — Bender &amp; Koller</div>
+            <div class="ep-say">« Apprendre sur la seule forme ne peut pas, <em>en principe</em>, mener au sens. »</div>
+            <p class="ep-sub">Pas un constat de performance&nbsp;: une <strong>impossibilité de principe</strong>.</p>
+          </div>
+
+          <div class="ep-item">
+            <div class="ep-when">2020 · Forbes</div>
+            <div class="ep-say">« Il ne peut pas raisonner. »</div>
+            <p class="ep-sub"><span class="ep-en">“It cannot reason; it does not understand the language it generates.”</span></p>
+          </div>
+
+          <div class="ep-item">
+            <div class="ep-when">2021 · Bender, Gebru <em>et al.</em></div>
+            <div class="ep-say">« Perroquet stochastique. »</div>
+            <p class="ep-sub">De la forme convaincante, sans compréhension ni intention.</p>
+          </div>
+
+          <div class="ep-item">
+            <div class="ep-when">2023 · Arkoudas</div>
+            <div class="ep-say">« GPT-4 CAN'T REASON. »</div>
+            <p class="ep-sub"><span class="ep-en">“Utterly incapable of reasoning.”</span> — totalement incapable.</p>
+          </div>
+
+          <div class="ep-item">
+            <div class="ep-when">2023 · PNAS (position d'un camp du débat)</div>
+            <div class="ep-say">« …même entraîné jusqu'à la mort thermique de l'Univers. »</div>
+            <p class="ep-sub">Jamais il ne s'approcherait de l'intelligence humaine.</p>
+          </div>
+        </div>
+
+        <!-- ---- CE QUI S'EST PASSÉ ---- -->
+        <div class="ep-side ep-now">
+          <div class="ep-col-h">Ce que la même famille de systèmes a produit · 2026</div>
+
+          <div class="ep-item">
+            <div class="ep-when">mars 2026 · Terence Tao, médaille Fields</div>
+            <div class="ep-say">« Ready for primetime » en maths et en physique théorique.</div>
+            <p class="ep-sub">Parce qu'ils lui font gagner plus de temps qu'ils ne lui en font perdre.</p>
+          </div>
+
+          <div class="ep-item">
+            <div class="ep-when">mai 2026 · OpenAI</div>
+            <div class="ep-say">Une conjecture d'Erdős posée en 1946 est réfutée.</div>
+            <p class="ep-sub">80 ans d'attente. Le modèle montre qu'elle est fausse.</p>
+          </div>
+
+          <div class="ep-item">
+            <div class="ep-when">août 2026 · OpenAI</div>
+            <div class="ep-say">Dix problèmes ouverts résolus ou substantiellement avancés.</div>
+            <p class="ep-sub">Maths et informatique théorique. Ce n'est plus l'exploit isolé.</p>
+          </div>
+
+          <div class="ep-item">
+            <div class="ep-when">10 août 2026 · Anthropic — Claude</div>
+            <div class="ep-say">« Take a real stab at the Riemann hypothesis. »</div>
+            <p class="ep-sub">Riemann n'est pas démontrée. Mais une borne du problème passe de <strong>41,6&nbsp;%</strong> à <strong>67,2&nbsp;%</strong> — argument étudié et validé par deux mathématiciens.</p>
+          </div>
+        </div>
+
+      </div><!-- /ep-duel -->
+
+      <!-- ---- LA QUESTION ---- -->
+      <div class="ep-q">
+        <p class="ep-q-lead">Entre les deux colonnes&nbsp;: <strong>trois ans</strong>. Et la même famille technologique. Alors la bonne question n'est pas «&nbsp;qui avait raison&nbsp;?&nbsp;» — c'est&nbsp;:</p>
+        <div class="ep-q-big">Que veut dire<br><em>exactement</em> raisonner&nbsp;?</div>
+      </div>
+
+      <!-- ---- GARDE-FOU + ÉCHELLE ---- -->
+      <div class="ep-foot">
+        <div class="ep-care">
+          <div class="ep-care-h">⚠ Ce qu'il ne faut surtout pas conclure</div>
+          <p>La conclusion n'est <strong>pas</strong> «&nbsp;ces chercheurs avaient tort&nbsp;». Ce serait trop simple. <strong>Comprendre</strong>, <strong>raisonner</strong>, <strong>être intelligent</strong>, <strong>être conscient</strong> sont quatre choses différentes — et les objections philosophiques sur le sens restent parfaitement discutables.</p>
+          <p>Ce qui a changé est ailleurs&nbsp;: les <strong>comportements observables</strong> de la machine ont évolué si vite qu'ils nous obligent à réinterroger les <strong>catégories</strong> avec lesquelles nous croyions pouvoir la décrire.</p>
+          <p>Une prédiction d'impossibilité tient à la définition qu'on met derrière le mot. Changez la définition, la prédiction change. C'est ça, le vrai sujet.</p>
+        </div>
+
+        <div class="ep-scale">
+          <div class="ep-scale-h">Le thermomètre de Terence Tao</div>
+          <div class="ep-step"><b>2024</b>« Un étudiant de troisième cycle médiocre — mais pas totalement incompétent. »</div>
+          <div class="ep-arrow">↓</div>
+          <div class="ep-step now"><b>mars 2026</b>« Ready for primetime. »</div>
+          <div class="ep-arrow">↓</div>
+          <div class="ep-step now"><b>2026</b>« The job description is changing. »</div>
+        </div>
+      </div>
+
+    </div><!-- /ep-track -->
+  </div>
+
+  <!-- ============ SCÈNE 6 : FIL DIRECTEUR ============ -->
   <div class="thread" id="thread">
     <div class="eyebrow">Chapitre 1 · Notre fil rouge de l'année</div>
     <h3>On ne peut pas juger<br>ce qu'on ne comprend pas.</h3>
@@ -734,7 +1052,7 @@
     <p class="thread-rabbit">Suivons le lapin blanc dans cette boîte noire qu'on appelle «&nbsp;l'IA&nbsp;». 🐇</p>
   </div>
 
-  <!-- ============ SCÈNE 6 : ACTIVITÉ PÉDAGOIA ============ -->
+  <!-- ============ SCÈNE 7 : ACTIVITÉ PÉDAGOIA ============ -->
   <div class="activity" id="activity">
     <div class="activity-inner">
       <div class="tag">Première activité</div>
@@ -748,7 +1066,7 @@
     </div>
   </div>
 
-  <!-- ============ SCÈNE 7 : QUI SONT CES IA ? ============ -->
+  <!-- ============ SCÈNE 8 : QUI SONT CES IA ? ============ -->
   <div class="whoswho" id="whoswho">
     <div class="ww-head">
       <div class="eyebrow">Culture générale</div>
@@ -856,6 +1174,7 @@
     <div class="dot" data-i="4"></div>
     <div class="dot" data-i="5"></div>
     <div class="dot" data-i="6"></div>
+    <div class="dot" data-i="7"></div>
   </div>
   <button class="btn" id="next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
@@ -868,10 +1187,14 @@
   const timeline = document.getElementById('timeline');
   const thread   = document.getElementById('thread');
   const activity = document.getElementById('activity');
+  const epist    = document.getElementById('epist');
   const whoswho  = document.getElementById('whoswho');
   const dots     = [...document.querySelectorAll('.dot')];
-  let scene = 0;   // 0 chaos·1 révélation·2 accél·3 timeline·4 fil·5 activité·6 qui
-  const MAX = 6;
+  let scene = 0;   // 0 chaos·1 révélation·2 accél·3 frise·4 catégories·5 fil·6 activité·7 qui
+  const MAX = 7;
+  // scènes défilables : la molette/les flèches ↑↓ y font défiler le contenu
+  // au lieu de changer de diapo, et le clic n'avance pas.
+  const SCROLLABLE = {3:'tlTrack', 4:'epTrack'};
 
   // (les coupures restent fixes après leur chute)
 
@@ -879,15 +1202,17 @@
     reveal.classList.toggle('on',   scene >= 1);
     accel.classList.toggle('on',    scene === 2);
     timeline.classList.toggle('on', scene === 3);
-    thread.classList.toggle('on',   scene === 4);
-    activity.classList.toggle('on', scene === 5);
-    whoswho.classList.toggle('on',  scene === 6);
+    epist.classList.toggle('on',    scene === 4);
+    thread.classList.toggle('on',   scene === 5);
+    activity.classList.toggle('on', scene === 6);
+    whoswho.classList.toggle('on',  scene === 7);
     dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
     const hint = document.getElementById('hint');
-    if(hint) hint.textContent = (scene === 3)
-      ? '↑↓ défiler la frise · → suite'
+    if(hint) hint.textContent = SCROLLABLE[scene]
+      ? '↑↓ défiler · → suite'
       : '↔ flèches · espace · clic';
     if(scene === 3 && typeof window.resetTimeline === 'function') window.resetTimeline();
+    if(scene === 4){ const t = document.getElementById('epTrack'); if(t) t.scrollTop = 0; }
   }
   function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
 
@@ -896,22 +1221,22 @@
   dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
 
   window.addEventListener('keydown', e=>{
-    // Sur la timeline : haut/bas font défiler, ne changent pas de scène.
-    if(scene === 3 && ['ArrowUp','ArrowDown'].includes(e.key)){
+    // Sur une scène défilable : haut/bas font défiler, ne changent pas de scène.
+    if(SCROLLABLE[scene] && ['ArrowUp','ArrowDown'].includes(e.key)){
       e.preventDefault();
-      const track = document.getElementById('tlTrack');
+      const track = document.getElementById(SCROLLABLE[scene]);
       track.scrollBy({top: e.key==='ArrowDown' ? 260 : -260, behavior:'smooth'});
       return;
     }
     if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
-    if(e.key==='ArrowDown' && scene!==3){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowDown' && !SCROLLABLE[scene]){e.preventDefault();go(scene+1);}
     if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
-    if(e.key==='ArrowUp' && scene!==3){e.preventDefault();go(scene-1);}
+    if(e.key==='ArrowUp' && !SCROLLABLE[scene]){e.preventDefault();go(scene-1);}
   });
-  // clic sur la scène (hors boutons/lien/timeline) = avancer
+  // clic sur la scène (hors boutons/liens/scènes défilables) = avancer
   document.querySelector('.stage').addEventListener('click', e=>{
     if(e.target.closest('a,button')) return;
-    if(scene === 3 && e.target.closest('#timeline')) return; // laisse scroller/lire
+    if(SCROLLABLE[scene] && e.target.closest('#timeline,#epist')) return; // laisse scroller/lire
     go(scene+1);
   });
 
