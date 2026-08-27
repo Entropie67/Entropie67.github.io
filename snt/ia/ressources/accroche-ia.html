@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accroche — Où en est l'IA en 2026 ?</title>
+<style>
+  /* =========================================================
+     PALETTE & TOKENS
+     Direction : la "salle de rédaction en surchauffe".
+     Fond papier journal froissé, titres criards en noir de
+     presse, un seul accent électrique (bleu signal) qui n'apparait
+     qu'au moment de la révélation. Rien de terracotta, rien de crème
+     Anthropic : on veut l'ambiance kiosque + salle de contrôle.
+     ========================================================= */
+  :root{
+    --ink:        #14110d;   /* noir d'imprimerie */
+    --paper:      #e9e4d8;   /* papier journal */
+    --paper-2:    #ddd6c5;   /* pli plus sombre */
+    --signal:     #1f5cff;   /* bleu signal — révélation */
+    --signal-dk:  #123bab;
+    --alarm:      #b5301f;   /* rouge tabloïd, usage rare */
+    --muted:      #6c6355;
+
+    --display: 'Archivo Black', 'Arial Black', Impact, sans-serif;
+    --serif:   'Georgia', 'Times New Roman', serif;
+    --mono:    'Courier New', ui-monospace, monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* grain papier */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7;
+  }
+
+  .stage{position:relative;height:100vh;width:100vw;z-index:1}
+
+  /* =========================================================
+     SCÈNE 1 — LE CHAOS
+     ========================================================= */
+  .chaos{position:absolute;inset:0}
+  .clip{
+    position:absolute;
+    display:block;
+    text-decoration:none;
+    color:var(--ink);
+    background:var(--paper-2);
+    border:1px solid rgba(0,0,0,.25);
+    padding:.7rem .9rem;
+    box-shadow:2px 3px 0 rgba(0,0,0,.12);
+    max-width:min(30vw,360px);
+    opacity:0;
+    transform:translateY(14px) rotate(var(--r,0deg));
+    animation:drop .5s cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay:var(--d,0s);
+    cursor:pointer;
+    transition:box-shadow .15s ease, transform .15s ease;
+  }
+  .clip:hover{
+    box-shadow:5px 6px 0 rgba(0,0,0,.22);
+    z-index:10;
+  }
+  .clip:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+  .clip .kicker{
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);
+    border-bottom:1px solid rgba(0,0,0,.2);padding-bottom:.25rem;margin-bottom:.4rem;
+  }
+  .clip h2{
+    font-family:var(--display);
+    line-height:.98;
+    text-transform:uppercase;
+    font-size:clamp(1.05rem,2.2vw,1.9rem);
+    letter-spacing:-.01em;
+  }
+  .clip.alarm h2{color:var(--alarm)}
+  .clip .src{font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-top:.5rem;font-style:normal}
+
+  @keyframes drop{
+    from{opacity:0;transform:translateY(24px) rotate(var(--r,0deg)) scale(.96)}
+    to{opacity:1;transform:translateY(0) rotate(var(--r,0deg)) scale(1)}
+  }
+
+  /* les coupures restent stables une fois tombées (pas d'oscillation) */
+
+  /* La question centrale */
+  .question{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    text-align:center;z-index:5;opacity:0;
+    animation:fadeUp .8s ease forwards;animation-delay:2.6s;pointer-events:none;
+  }
+  .question .q{
+    font-family:var(--display);
+    font-size:clamp(2.2rem,6vw,5rem);
+    text-transform:uppercase;line-height:.9;
+    background:var(--paper);
+    display:inline-block;padding:.2em .35em;
+    box-shadow:0 0 0 3px var(--ink), 8px 8px 0 rgba(0,0,0,.18);
+    transform:rotate(-1.2deg);
+  }
+  .question .sub{
+    margin-top:1.1rem;font-family:var(--mono);font-size:clamp(.7rem,1.4vw,.95rem);
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translate(-50%,calc(-50% + 18px))}to{opacity:1;transform:translate(-50%,-50%)}}
+
+  /* =========================================================
+     SCÈNE 2 — LA RÉVÉLATION
+     ========================================================= */
+  .reveal{
+    position:absolute;inset:0;z-index:20;
+    background:var(--ink);color:var(--paper);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:2rem;
+    clip-path:circle(0% at 50% 50%);
+    transition:clip-path .9s cubic-bezier(.7,0,.2,1);
+  }
+  .reveal.on{clip-path:circle(150% at 50% 50%)}
+
+  /* réseau de neurones en fond */
+  .net-canvas{
+    position:absolute;inset:0;width:100%;height:100%;
+    z-index:0;opacity:0;transition:opacity 1s ease .35s;
+    pointer-events:none;
+  }
+  .reveal.on .net-canvas{opacity:1}
+  /* vignette pour garder le texte lisible au centre */
+  .reveal-inner{
+    position:relative;z-index:2;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+  }
+  .reveal-inner::before{
+    content:"";position:absolute;left:50%;top:50%;
+    width:120%;height:150%;transform:translate(-50%,-50%);
+    background:radial-gradient(ellipse at center, rgba(20,17,13,.82) 0%, rgba(20,17,13,.55) 45%, transparent 75%);
+    z-index:-1;pointer-events:none;
+  }
+
+  .reveal .tag{
+    font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:1.2rem;opacity:0;
+  }
+  .reveal .big{
+    font-family:var(--display);text-transform:uppercase;line-height:.86;
+    font-size:clamp(3rem,14vw,11rem);letter-spacing:-.02em;opacity:0;
+  }
+  .reveal .big em{font-style:normal;color:var(--signal);text-shadow:0 0 24px rgba(31,92,255,.7), 0 0 60px rgba(31,92,255,.35)}
+  .reveal .line{
+    margin-top:1.6rem;max-width:44ch;font-family:var(--serif);
+    font-size:clamp(1rem,2vw,1.35rem);line-height:1.5;color:#cfc8b8;opacity:0;
+  }
+  .reveal.on .tag{animation:rise .6s ease .3s forwards}
+  .reveal.on .big{animation:rise .7s ease .45s forwards}
+  .reveal.on .line{animation:rise .7s ease .75s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* =========================================================
+     SCÈNE 3 — ACCÉLÉRATION (intertitre plein écran)
+     ========================================================= */
+  .accel{
+    position:absolute;inset:0;z-index:25;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 60%);
+    color:var(--paper);
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:2rem;opacity:0;pointer-events:none;transition:opacity .5s ease;
+  }
+  .accel.on{opacity:1;pointer-events:auto}
+  .accel .tag{
+    font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:1.4rem;
+    opacity:0;
+  }
+  .accel-title{
+    font-family:var(--display);text-transform:uppercase;line-height:.92;
+    font-size:clamp(2.4rem,8vw,6rem);letter-spacing:-.02em;
+  }
+  .accel-title em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 26px rgba(31,92,255,.65),0 0 60px rgba(31,92,255,.3)}
+  .accel-title span,.accel-title{opacity:0}
+  .accel-sub{
+    margin-top:1.6rem;font-family:var(--serif);font-style:italic;
+    font-size:clamp(1.1rem,2.4vw,1.6rem);color:#b9c6e0;opacity:0;
+  }
+  .accel.on .tag{animation:rise .6s ease .2s forwards}
+  .accel.on .accel-title{animation:zoomIn .7s cubic-bezier(.2,.9,.2,1) .4s forwards}
+  .accel.on .accel-sub{animation:rise .6s ease .95s forwards}
+  @keyframes zoomIn{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+
+  /* =========================================================
+     SCÈNE 4 — TIMELINE 0 → 100
+     ========================================================= */
+  .timeline{
+    position:absolute;inset:0;z-index:28;background:var(--ink);color:var(--paper);
+    opacity:0;pointer-events:none;transition:opacity .5s ease;
+    display:flex;flex-direction:column;
+  }
+  .timeline.on{opacity:1;pointer-events:auto}
+  .tl-head{
+    flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;
+    padding:1rem clamp(1rem,4vw,3rem);
+    border-bottom:1px solid rgba(233,228,216,.12);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  }
+  .tl-head-k{color:var(--paper)}
+  .tl-head-scroll{color:var(--muted);animation:bob 1.8s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+
+  .tl-track{
+    flex:1 1 auto;overflow-y:auto;scroll-behavior:smooth;
+    padding:8vh clamp(1rem,5vw,4rem) 10vh;
+    display:flex;flex-direction:column;gap:clamp(2.5rem,7vh,5rem);
+    /* rail vertical central */
+    position:relative;
+  }
+  .tl-track::before{
+    content:"";position:absolute;left:max(1rem,5vw);top:0;bottom:0;width:2px;
+    background:linear-gradient(to bottom,
+      rgba(233,228,216,.25) 0%,
+      rgba(233,228,216,.25) 38%,
+      var(--signal) 55%,
+      var(--signal) 100%);
+    opacity:.5;
+  }
+
+  .ev{
+    position:relative;padding-left:clamp(2.5rem,7vw,5rem);max-width:60ch;
+    opacity:.25;transform:translateY(8px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .ev.seen{opacity:1;transform:none}
+  .ev-year{
+    font-family:var(--display);font-size:clamp(1.3rem,3vw,2rem);
+    line-height:1;margin-bottom:.5rem;color:var(--muted);
+  }
+  .ev.hot .ev-year{color:#7fa0ff}
+  .ev.tao .ev-year{color:var(--signal)}
+  .ev-tag{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.5rem;
+  }
+  .ev-title{
+    font-family:var(--serif);font-weight:700;line-height:1.15;
+    font-size:clamp(1.15rem,2.6vw,1.7rem);
+  }
+  .ev.cold .ev-title{color:#c9c2b2}
+  .ev.hot  .ev-title{color:var(--paper)}
+  .ev-note{margin-top:.6rem;font-size:clamp(.9rem,1.7vw,1.05rem);line-height:1.5;color:#a9a294}
+  .ev-en{font-style:italic;color:var(--muted)}
+  .ev-src{
+    display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:.7rem;
+    color:#7fa0ff;text-decoration:none;border-bottom:1px solid rgba(127,160,255,.4);
+  }
+  .ev-src:hover{color:var(--paper)}
+
+  /* marqueur sur le rail */
+  .ev::before{
+    content:"";position:absolute;left:calc(max(1rem,5vw) - 5px);top:.4rem;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--ink);border:2px solid var(--muted);
+    transition:.4s;
+  }
+  .ev.hot::before{border-color:#7fa0ff}
+  .ev.tao::before{border-color:var(--signal);background:var(--signal);
+    box-shadow:0 0 16px rgba(31,92,255,.8)}
+  .ev.seen.hot::before{background:#7fa0ff}
+
+  /* charnière "puis tout s'accélère" */
+  .ev-turn{
+    position:relative;padding-left:clamp(2.5rem,7vw,5rem);
+    font-family:var(--mono);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--signal);opacity:.3;transition:opacity .5s;
+  }
+  .ev-turn.seen{opacity:1}
+  .ev-turn span{position:relative}
+  .ev-turn span::after{content:" ↓↓↓"}
+
+  /* climax Tao */
+  .tao-title{
+    font-family:var(--display)!important;text-transform:uppercase;
+    font-size:clamp(1.5rem,4vw,2.8rem)!important;line-height:1!important;
+    color:var(--paper)!important;
+    text-shadow:0 0 30px rgba(31,92,255,.4);
+  }
+  /* climax cyber : titre long, on garde le sérif mais avec teinte d'alerte + glow */
+  .ev.cyber .tao-title{
+    font-family:var(--serif)!important;text-transform:none;
+    font-size:clamp(1.3rem,3vw,2rem)!important;line-height:1.12!important;
+    color:#ff6a4d!important;
+    text-shadow:0 0 24px rgba(181,48,31,.5);
+  }
+  .ev.cyber .ev-year{color:#ff6a4d}
+  .ev.cyber::before{border-color:#ff6a4d;background:#b5301f;
+    box-shadow:0 0 16px rgba(181,48,31,.8)}
+
+  /* chute finale */
+  .ev-drop{
+    text-align:center;padding:6vh 1rem 2vh;opacity:.2;transition:opacity .6s;
+  }
+  .ev-drop.seen{opacity:1}
+  .ev-drop-q{
+    font-family:var(--serif);font-style:italic;
+    font-size:clamp(1.2rem,3vw,2rem);line-height:1.3;color:#b9c6e0;
+  }
+  .ev-drop-a{
+    margin-top:1.4rem;font-family:var(--display);text-transform:uppercase;
+    font-size:clamp(2.5rem,9vw,6rem);color:var(--signal);
+    text-shadow:0 0 30px rgba(31,92,255,.6);
+  }
+
+  /* =========================================================
+     SCÈNE 5 — LE FIL DIRECTEUR
+     ========================================================= */
+  .thread{
+    position:absolute;inset:0;z-index:30;background:var(--paper);
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(1.5rem,6vw,6rem);
+    opacity:0;pointer-events:none;transition:opacity .6s ease;
+  }
+  .thread.on{opacity:1;pointer-events:auto}
+  .thread .eyebrow{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal-dk);margin-bottom:1.2rem;
+  }
+  .thread h3{
+    font-family:var(--display);text-transform:uppercase;
+    font-size:clamp(1.5rem,4.5vw,3.4rem);line-height:.98;max-width:16ch;
+  }
+  .thread .rule{width:64px;height:5px;background:var(--signal);margin:1.6rem 0}
+  .thread .points{display:grid;gap:1rem;max-width:60ch}
+  .thread .points p{
+    font-size:clamp(1rem,2vw,1.3rem);line-height:1.5;
+    padding-left:1.4rem;position:relative;
+  }
+  .thread .points p::before{
+    content:"→";position:absolute;left:0;color:var(--signal-dk);font-weight:bold;
+  }
+  .thread .cta{
+    margin-top:2.2rem;display:inline-flex;align-items:center;gap:.8rem;
+    align-self:flex-start;background:var(--ink);color:var(--paper);
+    text-decoration:none;padding:1rem 1.6rem;
+    font-family:var(--mono);font-size:.9rem;letter-spacing:.06em;
+    box-shadow:6px 6px 0 var(--signal);transition:transform .15s, box-shadow .15s;
+  }
+  .thread .cta:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--signal)}
+  .thread .cta small{display:block;font-size:.65rem;color:#9a927f;letter-spacing:.1em}
+  .thread-lead{
+    max-width:52ch;font-size:clamp(1.05rem,2.1vw,1.4rem);line-height:1.5;
+    margin-bottom:1.6rem;color:#3a352c;
+  }
+  .thread .points p strong{color:var(--ink)}
+  .thread-rabbit{
+    margin-top:2rem;font-family:var(--serif);font-style:italic;
+    font-size:clamp(1.15rem,2.4vw,1.6rem);color:var(--signal-dk);max-width:42ch;
+  }
+
+  /* =========================================================
+     SCÈNE 6 — ACTIVITÉ PÉDAGOIA
+     ========================================================= */
+  .activity{
+    position:absolute;inset:0;z-index:32;
+    background:radial-gradient(ellipse at 50% 35%, #10233f 0%, var(--ink) 62%);
+    color:var(--paper);
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:2rem;opacity:0;pointer-events:none;transition:opacity .5s ease;
+  }
+  .activity.on{opacity:1;pointer-events:auto}
+  .activity .tag{
+    font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:1.4rem;
+  }
+  .activity-title{
+    font-family:var(--display);text-transform:uppercase;line-height:.92;
+    font-size:clamp(2rem,7vw,5rem);letter-spacing:-.02em;
+  }
+  .activity-title em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 26px rgba(31,92,255,.6)}
+  .activity-sub{
+    margin:1.6rem auto 0;max-width:46ch;font-family:var(--serif);
+    font-size:clamp(1rem,2vw,1.3rem);line-height:1.5;color:#b9c6e0;
+  }
+  .activity .cta{
+    margin-top:2.4rem;display:inline-flex;align-items:center;gap:.8rem;
+    background:var(--signal);color:#fff;text-decoration:none;padding:1.1rem 1.8rem;
+    font-family:var(--mono);font-size:.95rem;letter-spacing:.06em;
+    box-shadow:6px 6px 0 rgba(255,255,255,.15);transition:transform .15s, box-shadow .15s;
+  }
+  .activity .cta:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 rgba(255,255,255,.25)}
+  .activity .cta small{display:block;font-size:.66rem;color:rgba(255,255,255,.7);letter-spacing:.1em}
+
+  /* =========================================================
+     SCÈNE 7 — CES IA, QUI SONT-ELLES ?
+     ========================================================= */
+  .whoswho{
+    position:absolute;inset:0;z-index:34;background:var(--paper);color:var(--ink);
+    opacity:0;pointer-events:none;transition:opacity .5s ease;
+    display:flex;flex-direction:column;
+    padding:clamp(1.2rem,4vw,3rem) clamp(1.2rem,5vw,4rem);
+    overflow-y:auto;
+  }
+  .whoswho.on{opacity:1;pointer-events:auto}
+  .ww-head{flex:0 0 auto;margin-bottom:1.4rem}
+  .ww-head .eyebrow{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal-dk);margin-bottom:.6rem;
+  }
+  .ww-title{
+    font-family:var(--display);text-transform:uppercase;
+    font-size:clamp(1.6rem,5vw,3.2rem);line-height:1;
+  }
+  .ww-lead{margin-top:.8rem;max-width:64ch;font-size:clamp(.95rem,1.8vw,1.2rem);
+    line-height:1.5;color:#4a4436}
+  .ww-grid{
+    flex:1 1 auto;display:grid;gap:1rem;align-content:center;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    margin:1.2rem 0;
+  }
+  .lab{
+    background:var(--paper-2);border:1px solid rgba(0,0,0,.18);
+    padding:1rem 1.1rem;position:relative;
+    box-shadow:2px 3px 0 rgba(0,0,0,.08);
+  }
+  .lab-name{font-family:var(--display);font-size:1.15rem;line-height:1;margin-bottom:.35rem}
+  .lab-meta{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+  .lab-models{font-weight:700;font-size:1rem;color:var(--signal-dk);margin-bottom:.4rem}
+  .lab-note{font-size:.85rem;line-height:1.4;color:#5a5344}
+  /* liseré gauche = repère régional */
+  .lab{border-left:4px solid rgba(0,0,0,.25)}
+  .lab.west{border-left-color:var(--signal)}          /* bleu = USA */
+  .lab.west.fr{border-left-color:#12924f}             /* vert = Europe */
+  .lab.cn{border-left-color:var(--alarm)}             /* rouge = Chine */
+  .lab.img{border-left-color:var(--muted);background:#e3ddcf}
+
+  /* légende du code couleur */
+  .ww-legend{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;margin-top:1rem}
+  .ww-legend .lg{
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
+    padding-left:.7rem;border-left:4px solid;color:#4a4436;
+  }
+  .ww-legend .lg-us{border-left-color:var(--signal)}
+  .ww-legend .lg-cn{border-left-color:var(--alarm)}
+  .ww-legend .lg-eu{border-left-color:#12924f}
+  .ww-foot{flex:0 0 auto;font-family:var(--serif);font-style:italic;
+    font-size:clamp(.95rem,1.9vw,1.25rem);color:var(--signal-dk);max-width:64ch}
+
+  /* =========================================================
+     PROGRESSION / CONTRÔLES
+     ========================================================= */
+  .hud{
+    position:fixed;bottom:1.1rem;left:50%;transform:translateX(-50%);
+    z-index:60;display:flex;align-items:center;gap:1rem;
+    font-family:var(--mono);font-size:.7rem;color:var(--muted);
+  }
+  .dots{display:flex;gap:.5rem}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{
+    cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s;
+  }
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .hint{position:fixed;top:1rem;right:1.1rem;z-index:60;font-family:var(--mono);
+    font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+  @media (max-width:640px){
+    .clip{max-width:46vw}
+    .question .q{box-shadow:0 0 0 2px var(--ink),5px 5px 0 rgba(0,0,0,.18)}
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+
+  <!-- ============ SCÈNE 1 : CHAOS ============ -->
+  <div class="chaos" id="chaos">
+    <!-- Coupures cliquables → article dans un nouvel onglet.
+         Positions calées sur le pourtour pour laisser le centre à la question.
+         Varie --r (rotation), --d (délai d'apparition). -->
+
+    <a class="clip alarm" href="https://www.lavie.fr/actualite/societe/intelligence-artificielle-et-enseignement-la-fin-des-professeurs-100924.php" target="_blank" rel="noopener" style="left:2%; top:5%; --r:-3deg; --d:.1s">
+      <div class="kicker">Éducation</div>
+      <h2>La fin des professeurs&nbsp;?</h2>
+      <div class="src">La Vie ↗</div>
+    </a>
+
+    <a class="clip" href="https://www.techno-science.net/fr/actualites/l-intelligence-artificielle-nous-rend-elle-stupides-26551" target="_blank" rel="noopener" style="left:29%; top:2%; --r:2deg; --d:.25s">
+      <div class="kicker">Cognition</div>
+      <h2>Nous rend-elle stupides&nbsp;?</h2>
+      <div class="src">Techno-Science ↗</div>
+    </a>
+
+    <a class="clip" href="https://www.cfecgc-adecco.com/2026/04/intelligence-artificielle-5-millions-demplois-menaces-en-france.html" target="_blank" rel="noopener" style="right:2%; top:4%; --r:2.5deg; --d:.4s">
+      <div class="kicker">Économie</div>
+      <h2>5 millions d'emplois menacés en France&nbsp;?</h2>
+      <div class="src">CFE-CGC · avril 2026 ↗</div>
+    </a>
+
+    <a class="clip alarm" href="https://www.clubic.com/technologies-d-avenir/intelligence-artificielle/actualite-472203-la-fin-du-monde-l-ia-serait-aussi-potentiellement-destructrice-qu-une-guerre-nucleaire-pour-certains-acteurs-de-la-tech.html" target="_blank" rel="noopener" style="left:1%; top:38%; --r:1.5deg; --d:.55s">
+      <div class="kicker">Une</div>
+      <h2>La fin du monde&nbsp;?</h2>
+      <div class="src">Clubic ↗</div>
+    </a>
+
+    <a class="clip" href="https://www.hec.edu/fr/dare/geopolitique-pouvoirs/l-ia-menace-t-elle-la-democratie" target="_blank" rel="noopener" style="right:1%; top:40%; --r:-2deg; --d:.7s">
+      <div class="kicker">Politique</div>
+      <h2>Menace-t-elle la démocratie&nbsp;?</h2>
+      <div class="src">HEC · DARE ↗</div>
+    </a>
+
+    <a class="clip alarm" href="https://www.journaldunet.com/intelligence-artificielle/1547119-est-ce-que-la-france-est-a-l-abri-des-destructions-massives-d-emplois-liees-a-l-ia/" target="_blank" rel="noopener" style="left:3%; bottom:5%; --r:-1.5deg; --d:.85s">
+      <div class="kicker">Travail</div>
+      <h2>La « jobs apocalypse » a-t-elle commencé&nbsp;?</h2>
+      <div class="src">Journal du Net ↗</div>
+    </a>
+
+    <a class="clip" href="https://www.lemonde.fr/societe/article/2025/02/08/l-intelligence-artificielle-a-l-ecole-une-revolution-deja-en-marche_6537457_3224.html" target="_blank" rel="noopener" style="left:34%; bottom:2%; --r:1.5deg; --d:1s">
+      <div class="kicker">Société · École</div>
+      <h2>Une révolution déjà en marche</h2>
+      <div class="src">Le Monde · févr. 2025 ↗</div>
+    </a>
+
+    <a class="clip alarm" href="https://www.euronews.com/next/2023/05/30/ai-poses-risk-of-extinction-on-par-with-nuclear-war-and-pandemics-tech-leaders-warn" target="_blank" rel="noopener" style="right:2%; bottom:4%; --r:2deg; --d:1.15s">
+      <div class="kicker">Alerte · Tech</div>
+      <h2>Un risque d'extinction comparable à une guerre nucléaire</h2>
+      <div class="src">Euronews ↗</div>
+    </a>
+
+    <a class="clip alarm" href="https://www.lumni.fr/video/l-ia-va-t-elle-detruire-l-humanite" target="_blank" rel="noopener" style="right:26%; bottom:3%; --r:-2.5deg; --d:1.3s">
+      <div class="kicker">Grand format</div>
+      <h2>Va-t-elle détruire l'humanité&nbsp;?</h2>
+      <div class="src">Lumni ↗</div>
+    </a>
+
+    <!-- Question centrale -->
+    <div class="question">
+      <div class="q">On parle<br>de quoi, là&nbsp;?</div>
+      <div class="sub">— aucun de ces titres ne le dit —</div>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 2 : RÉVÉLATION ============ -->
+  <div class="reveal" id="reveal">
+    <canvas id="net" class="net-canvas"></canvas>
+    <div class="reveal-inner">
+      <div class="tag">Le sujet, c'était</div>
+      <div class="big">L'<em>IA</em></div>
+      <p class="line">Le même mot, décliné en catastrophe, en miracle et en menace.
+        Beaucoup de bruit — et derrière, un outil qu'on connaît mal.</p>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 3 : ACCÉLÉRATION (intertitre) ============ -->
+  <div class="accel" id="accel">
+    <div class="accel-inner">
+      <div class="tag">Et le plus vertigineux</div>
+      <h2 class="accel-title">Une vitesse<br>d'évolution<br><em>inconcevable</em></h2>
+      <p class="accel-sub">En quelques années à peine, tout a basculé.</p>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 4 : TIMELINE 0 → 100 ============ -->
+  <div class="timeline" id="timeline">
+    <div class="tl-head">
+      <span class="tl-head-k">On est passé de&nbsp;ça…</span>
+      <span class="tl-head-scroll">défilez ↓</span>
+    </div>
+
+    <div class="tl-track" id="tlTrack">
+
+      <!-- ---- PHASE DÉRISOIRE ---- -->
+      <article class="ev cold" data-year="2020">
+        <div class="ev-year">2020</div>
+        <div class="ev-body">
+          <div class="ev-tag">MIT Technology Review · 22 août 2020</div>
+          <h3 class="ev-title">« GPT-3, le moulin à paroles : il n'a aucune idée de ce dont il parle. »</h3>
+          <p class="ev-note">Titre signé Gary Marcus &amp; Ernest Davis. <span class="ev-en">“GPT-3, Bloviator: OpenAI's language generator has no idea what it's talking about”</span></p>
+          <a class="ev-src" href="https://www.technologyreview.com/2020/08/22/1007539/gpt3-openai-language-generator-artificial-intelligence-ai-opinion/" target="_blank" rel="noopener">technologyreview.com ↗</a>
+        </div>
+      </article>
+
+      <article class="ev cold" data-year="2023">
+        <div class="ev-year">2023</div>
+        <div class="ev-body">
+          <div class="ev-tag">🐄 L'exemple resté célèbre — CNIL / LINC</div>
+          <h3 class="ev-title">« Comment ramasser les œufs de vache ? »</h3>
+          <p class="ev-note">Et ChatGPT expliquait tranquillement qu'il fallait trouver le nid des vaches, prendre un panier, ramasser les œufs…</p>
+        </div>
+      </article>
+
+      <article class="ev cold" data-year="2023">
+        <div class="ev-year">2023</div>
+        <div class="ev-body">
+          <div class="ev-tag">TF1 · juin 2023</div>
+          <h3 class="ev-title">« ChatGPT battu à plate couture par Raphaël Enthoven »</h3>
+          <p class="ev-note">Bac philo — Enthoven&nbsp;: 20/20 · ChatGPT&nbsp;: 11/20. Le lendemain (RTL)&nbsp;: « ChatGPT ne sera jamais prof de philo. »</p>
+        </div>
+      </article>
+
+      <!-- ---- CHARNIÈRE ---- -->
+      <div class="ev-turn">
+        <span>puis tout s'accélère</span>
+      </div>
+
+      <!-- ---- PHASE VERTIGINEUSE ---- -->
+      <article class="ev hot" data-year="2024">
+        <div class="ev-year">2024</div>
+        <div class="ev-body">
+          <div class="ev-tag">🥈 Google DeepMind · Scientific American</div>
+          <h3 class="ev-title">Médaille d'argent aux Olympiades internationales de mathématiques</h3>
+          <p class="ev-note">AlphaProof + AlphaGeometry résolvent 4 problèmes sur 6, dont le plus difficile — 28/42.</p>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2024">
+        <div class="ev-year">2024</div>
+        <div class="ev-body">
+          <div class="ev-tag">🏛️ Comité Nobel · Herculanum</div>
+          <h3 class="ev-title">Elle lit un texte fermé depuis 2 000 ans</h3>
+          <p class="ev-note">Vesuvius Challenge&nbsp;: un rouleau de papyrus carbonisé par le Vésuve (79 apr. J.-C.), impossible à dérouler sans le détruire, est lu virtuellement grâce à l'IA. Premiers passages en 2024 ; premier rouleau entier lu de bout en bout en 2026.</p>
+          <a class="ev-src" href="https://scrollprize.org/firstscroll" target="_blank" rel="noopener">scrollprize.org ↗</a>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2024">
+        <div class="ev-year">2024</div>
+        <div class="ev-body">
+          <div class="ev-tag">🧪⚛️ Prix Nobel 2024</div>
+          <h3 class="ev-title">L'intelligence artificielle s'invite aux prix Nobel</h3>
+          <p class="ev-note"><strong>Chimie</strong> — Hassabis &amp; Jumper (DeepMind), pour AlphaFold&nbsp;: un problème vieux de 50 ans résolu, la structure de ~200 millions de protéines prédite. <strong>Physique</strong> — Hopfield &amp; Hinton, pour les fondements de l'apprentissage par réseaux de neurones.</p>
+          <a class="ev-src" href="https://www.nobelprize.org/prizes/chemistry/2024/press-release/" target="_blank" rel="noopener">nobelprize.org ↗</a>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2025">
+        <div class="ev-year">2025</div>
+        <div class="ev-body">
+          <div class="ev-tag">🥇 Nature · Gemini Deep Think</div>
+          <h3 class="ev-title">Médaille d'or aux Olympiades internationales de mathématiques</h3>
+          <p class="ev-note">5 problèmes sur 6 — 35/42, en langage naturel et dans le temps officiel. Un an seulement après l'argent. Le président de l'IMO parle de solutions « astonishing ».</p>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">Numerama · avril 2026</div>
+          <h3 class="ev-title">Un problème d'Erdős vieux de 60 ans résolu avec l'aide de ChatGPT</h3>
+          <p class="ev-note">Erdős #1196. Le modèle emprunte une voie que les spécialistes n'avaient pas explorée ; Terence Tao participe ensuite à l'analyse et à la simplification de la preuve.</p>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">Scientific American · juillet 2026</div>
+          <h3 class="ev-title">Une conjecture vieille de 50 ans démontrée par un modèle d'OpenAI</h3>
+          <p class="ev-note">La Cycle Double Cover Conjecture, ouverte depuis plus d'un demi-siècle.</p>
+        </div>
+      </article>
+
+      <!-- ---- CLIMAX 1 : TERENCE TAO ---- -->
+      <article class="ev tao" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">Nature · Terence Tao — médaille Fields</div>
+          <h3 class="ev-title tao-title">« The job description is changing. »</h3>
+          <p class="ev-note">En un an, l'IA serait passée de problèmes de niveau lycée à des outils réellement utiles dans le travail quotidien des chercheurs en mathématiques.</p>
+        </div>
+      </article>
+
+      <!-- ---- CLIMAX 2 : L'INCIDENT CYBER ---- -->
+      <article class="ev tao cyber" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">🔓 OpenAI / Hugging Face · juillet 2026</div>
+          <h3 class="ev-title tao-title">Des IA s'échappent de leur bac à sable et atteignent une plateforme réelle</h3>
+          <p class="ev-note">Lors d'une évaluation cyber aux garde-fous volontairement désactivés, des modèles — un prototype interne comparable à GPT-5.6 Sol en tête — découvrent et exploitent une faille <em>zero-day</em> pour sortir de leur environnement de test, gagner un accès Internet et compromettre une partie de l'infrastructure de Hugging Face. OpenAI parle d'un « incident cyber sans précédent ».</p>
+          <a class="ev-src" href="https://openai.com/index/hugging-face-incident-and-the-road-ahead/" target="_blank" rel="noopener">openai.com ↗</a>
+        </div>
+      </article>
+
+      <!-- ---- CHUTE ---- -->
+      <div class="ev-drop">
+        <div class="ev-drop-q">« Les œufs de vache »&nbsp;→ «&nbsp;elle trouve une faille pour sortir de sa prison informatique&nbsp;».<br>Combien de temps entre les deux&nbsp;?</div>
+        <div class="ev-drop-a">Trois ans.</div>
+      </div>
+
+    </div><!-- /tl-track -->
+  </div>
+
+  <!-- ============ SCÈNE 5 : FIL DIRECTEUR ============ -->
+  <div class="thread" id="thread">
+    <div class="eyebrow">Chapitre 1 · Notre fil rouge de l'année</div>
+    <h3>On ne peut pas juger<br>ce qu'on ne comprend pas.</h3>
+    <div class="rule"></div>
+    <p class="thread-lead">Alors cette année, ensemble, nous allons essayer de comprendre un peu mieux ce qui se cache derrière tout ça.</p>
+    <div class="points">
+      <p><strong>Le fonctionnement</strong> — ce qu'il y a vraiment sous le capot.</p>
+      <p><strong>L'usage</strong> — s'en servir de façon responsable et constructive.</p>
+      <p><strong>Les enjeux &amp; défis</strong> — ce que ça change pour nous, pour la société.</p>
+    </div>
+    <p class="thread-rabbit">Suivons le lapin blanc dans cette boîte noire qu'on appelle «&nbsp;l'IA&nbsp;». 🐇</p>
+  </div>
+
+  <!-- ============ SCÈNE 6 : ACTIVITÉ PÉDAGOIA ============ -->
+  <div class="activity" id="activity">
+    <div class="activity-inner">
+      <div class="tag">Première activité</div>
+      <h2 class="activity-title">S'approprier l'IA<br>avec <em>discernement</em></h2>
+      <p class="activity-sub">Avant d'ouvrir le capot&nbsp;: prendre du recul, distinguer le vrai du sensationnel, et se poser les bonnes questions.</p>
+      <a class="cta" href="https://edu-nsi-web.vercel.app/" target="_blank" rel="noopener">
+        <span>Rejoindre PédagoIA
+          <small>edu-nsi-web.vercel.app →</small>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 7 : QUI SONT CES IA ? ============ -->
+  <div class="whoswho" id="whoswho">
+    <div class="ww-head">
+      <div class="eyebrow">Culture générale</div>
+      <h2 class="ww-title">Ces IA, qui sont-elles&nbsp;?</h2>
+      <p class="ww-lead">On vient de voir ce qu'elles font. Mettons maintenant des noms dessus&nbsp;: les grandes maisons et leurs modèles phares.</p>
+      <div class="ww-legend">
+        <span class="lg lg-us">🇺🇸 États-Unis</span>
+        <span class="lg lg-cn">🇨🇳 Chine</span>
+        <span class="lg lg-eu">🇪🇺 Europe</span>
+      </div>
+    </div>
+    <div class="ww-grid">
+
+      <article class="lab west">
+        <div class="lab-name">OpenAI</div>
+        <div class="lab-meta">🇺🇸 États-Unis · avec Microsoft</div>
+        <div class="lab-models">ChatGPT · GPT-5</div>
+        <div class="lab-note">Le déclencheur du grand public, fin 2022.</div>
+      </article>
+
+      <article class="lab west">
+        <div class="lab-name">Google DeepMind</div>
+        <div class="lab-meta">🇺🇸🇬🇧 États-Unis / R.-U.</div>
+        <div class="lab-models">Gemini · AlphaFold</div>
+        <div class="lab-note">Recherche de pointe&nbsp;: maths, biologie, jeux.</div>
+      </article>
+
+      <article class="lab west">
+        <div class="lab-name">Anthropic</div>
+        <div class="lab-meta">🇺🇸 États-Unis</div>
+        <div class="lab-models">Claude</div>
+        <div class="lab-note">Axé sur la sûreté et l'IA « de confiance ».</div>
+      </article>
+
+      <article class="lab west">
+        <div class="lab-name">Meta</div>
+        <div class="lab-meta">🇺🇸 États-Unis</div>
+        <div class="lab-models">Llama</div>
+        <div class="lab-note">Modèles « ouverts », téléchargeables.</div>
+      </article>
+
+      <article class="lab west">
+        <div class="lab-name">xAI</div>
+        <div class="lab-meta">🇺🇸 États-Unis</div>
+        <div class="lab-models">Grok</div>
+        <div class="lab-note">Intégré à X (ex-Twitter).</div>
+      </article>
+
+      <article class="lab west fr">
+        <div class="lab-name">Mistral AI</div>
+        <div class="lab-meta">🇫🇷 France</div>
+        <div class="lab-models">Le Chat · Mistral</div>
+        <div class="lab-note">Le seul acteur européen de premier plan — en partie open source.</div>
+      </article>
+
+      <article class="lab cn">
+        <div class="lab-name">DeepSeek</div>
+        <div class="lab-meta">🇨🇳 Chine</div>
+        <div class="lab-models">DeepSeek</div>
+        <div class="lab-note">A créé la surprise fin 2024&nbsp;: niveau frontier à bas coût.</div>
+      </article>
+
+      <article class="lab cn">
+        <div class="lab-name">Alibaba</div>
+        <div class="lab-meta">🇨🇳 Chine</div>
+        <div class="lab-models">Qwen</div>
+        <div class="lab-note">Une des familles ouvertes les plus utilisées au monde.</div>
+      </article>
+
+      <article class="lab cn">
+        <div class="lab-name">Moonshot AI</div>
+        <div class="lab-meta">🇨🇳 Chine</div>
+        <div class="lab-models">Kimi</div>
+        <div class="lab-note">Spécialiste des agents qui tournent longtemps.</div>
+      </article>
+
+      <article class="lab cn">
+        <div class="lab-name">Zhipu · Z.ai</div>
+        <div class="lab-meta">🇨🇳 Chine</div>
+        <div class="lab-models">GLM</div>
+        <div class="lab-note">Issu de l'université Tsinghua&nbsp;; très fort en code.</div>
+      </article>
+
+      <article class="lab img">
+        <div class="lab-name">Et pour les images…</div>
+        <div class="lab-meta">🌐 Autre catégorie</div>
+        <div class="lab-models">Midjourney · Stable Diffusion</div>
+        <div class="lab-note">Générer des images, pas du texte&nbsp;: on y reviendra.</div>
+      </article>
+
+    </div>
+    <p class="ww-foot">Beaucoup de noms — et ce n'est plus un duel américain&nbsp;: la Chine est au niveau, souvent en «&nbsp;open&nbsp;». Mais un point commun&nbsp;: sous le capot, souvent le même type de mécanisme. C'est lui qu'on va démonter.</p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hint" id="hint">↔ flèches · espace · clic</div>
+<div class="hud">
+  <button class="btn" id="prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div>
+    <div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div>
+    <div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div>
+    <div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div>
+  </div>
+  <button class="btn" id="next">Suite ▶</button>
+</div>
+
+<script>
+  const chaos    = document.getElementById('chaos');
+  const reveal   = document.getElementById('reveal');
+  const accel    = document.getElementById('accel');
+  const timeline = document.getElementById('timeline');
+  const thread   = document.getElementById('thread');
+  const activity = document.getElementById('activity');
+  const whoswho  = document.getElementById('whoswho');
+  const dots     = [...document.querySelectorAll('.dot')];
+  let scene = 0;   // 0 chaos·1 révélation·2 accél·3 timeline·4 fil·5 activité·6 qui
+  const MAX = 6;
+
+  // (les coupures restent fixes après leur chute)
+
+  function render(){
+    reveal.classList.toggle('on',   scene >= 1);
+    accel.classList.toggle('on',    scene === 2);
+    timeline.classList.toggle('on', scene === 3);
+    thread.classList.toggle('on',   scene === 4);
+    activity.classList.toggle('on', scene === 5);
+    whoswho.classList.toggle('on',  scene === 6);
+    dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
+    const hint = document.getElementById('hint');
+    if(hint) hint.textContent = (scene === 3)
+      ? '↑↓ défiler la frise · → suite'
+      : '↔ flèches · espace · clic';
+    if(scene === 3 && typeof window.resetTimeline === 'function') window.resetTimeline();
+  }
+  function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+  document.getElementById('next').onclick = ()=>go(scene+1);
+  document.getElementById('prev').onclick = ()=>go(scene-1);
+  dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
+
+  window.addEventListener('keydown', e=>{
+    // Sur la timeline : haut/bas font défiler, ne changent pas de scène.
+    if(scene === 3 && ['ArrowUp','ArrowDown'].includes(e.key)){
+      e.preventDefault();
+      const track = document.getElementById('tlTrack');
+      track.scrollBy({top: e.key==='ArrowDown' ? 260 : -260, behavior:'smooth'});
+      return;
+    }
+    if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowDown' && scene!==3){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
+    if(e.key==='ArrowUp' && scene!==3){e.preventDefault();go(scene-1);}
+  });
+  // clic sur la scène (hors boutons/lien/timeline) = avancer
+  document.querySelector('.stage').addEventListener('click', e=>{
+    if(e.target.closest('a,button')) return;
+    if(scene === 3 && e.target.closest('#timeline')) return; // laisse scroller/lire
+    go(scene+1);
+  });
+
+  /* =========================================================
+     RÉSEAU DE NEURONES — fond animé de la scène 2
+     Nœuds pulsants + connexions traversées par des impulsions
+     lumineuses. Démarre quand la scène 2 s'affiche, s'arrête
+     sinon (économie CPU en projection).
+     ========================================================= */
+  (function(){
+    const cv = document.getElementById('net');
+    const ctx = cv.getContext('2d');
+    const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+    let W, H, DPR, nodes=[], edges=[], pulses=[], raf=null, running=false, t=0;
+
+    const SIGNAL = '31,92,255';   // bleu accent
+    const PAPER  = '233,228,216'; // clair
+
+    function resize(){
+      DPR = Math.min(window.devicePixelRatio||1, 2);
+      W = cv.clientWidth; H = cv.clientHeight;
+      cv.width = W*DPR; cv.height = H*DPR;
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+    }
+
+    function build(){
+      resize();
+      // densité proportionnelle à la surface, plafonnée
+      const count = Math.min(90, Math.round(W*H/16000));
+      nodes = Array.from({length:count}, ()=>({
+        x:Math.random()*W, y:Math.random()*H,
+        vx:(Math.random()-.5)*0.18, vy:(Math.random()-.5)*0.18,
+        r:1.2+Math.random()*2.2,
+        ph:Math.random()*Math.PI*2         // phase de pulsation
+      }));
+      // arêtes vers les voisins proches
+      edges = [];
+      const R = Math.min(W,H)*0.22;
+      for(let i=0;i<nodes.length;i++){
+        for(let j=i+1;j<nodes.length;j++){
+          const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+          if(dx*dx+dy*dy < R*R) edges.push([i,j]);
+        }
+      }
+      pulses = [];
+    }
+
+    function spawnPulse(){
+      if(!edges.length) return;
+      const e = edges[(Math.random()*edges.length)|0];
+      pulses.push({a:e[0], b:e[1], t:0, sp:0.006+Math.random()*0.014});
+    }
+
+    function frame(){
+      t += 0.016;
+      ctx.clearRect(0,0,W,H);
+
+      // déplacement lent des nœuds (dérive organique)
+      for(const n of nodes){
+        n.x+=n.vx; n.y+=n.vy;
+        if(n.x<0||n.x>W) n.vx*=-1;
+        if(n.y<0||n.y>H) n.vy*=-1;
+      }
+
+      // connexions
+      ctx.lineWidth = 1;
+      for(const [i,j] of edges){
+        const a=nodes[i], b=nodes[j];
+        const dx=a.x-b.x, dy=a.y-b.y;
+        const d=Math.hypot(dx,dy);
+        const R=Math.min(W,H)*0.22;
+        const alpha=(1-d/R)*0.16;
+        if(alpha<=0) continue;
+        ctx.strokeStyle=`rgba(${PAPER},${alpha})`;
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      }
+
+      // impulsions qui circulent le long des arêtes
+      for(let k=pulses.length-1;k>=0;k--){
+        const p=pulses[k]; p.t+=p.sp;
+        if(p.t>=1){pulses.splice(k,1);continue;}
+        const a=nodes[p.a], b=nodes[p.b];
+        const x=a.x+(b.x-a.x)*p.t, y=a.y+(b.y-a.y)*p.t;
+        // trainée
+        const g=ctx.createRadialGradient(x,y,0,x,y,10);
+        g.addColorStop(0,`rgba(${SIGNAL},0.9)`);
+        g.addColorStop(1,`rgba(${SIGNAL},0)`);
+        ctx.fillStyle=g;
+        ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fill();
+      }
+
+      // nœuds pulsants
+      for(const n of nodes){
+        const pulse=0.6+0.4*Math.sin(t*1.6+n.ph);
+        ctx.fillStyle=`rgba(${PAPER},${0.35+0.4*pulse})`;
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
+        // halo bleu discret sur quelques nœuds
+        if(n.r>2.6){
+          ctx.fillStyle=`rgba(${SIGNAL},${0.10*pulse})`;
+          ctx.beginPath();ctx.arc(n.x,n.y,n.r*4,0,Math.PI*2);ctx.fill();
+        }
+      }
+
+      // génère de nouvelles impulsions régulièrement
+      if(Math.random()<0.08) spawnPulse();
+
+      raf=requestAnimationFrame(frame);
+    }
+
+    function start(){
+      if(running) return;
+      running=true;
+      build();
+      if(reduce){                 // version figée : un seul rendu statique
+        frame(); cancelAnimationFrame(raf); raf=null; running=true;
+        return;
+      }
+      // amorce quelques impulsions
+      for(let i=0;i<6;i++) spawnPulse();
+      raf=requestAnimationFrame(frame);
+    }
+    function stop(){
+      if(!running) return;
+      running=false;
+      if(raf) cancelAnimationFrame(raf); raf=null;
+    }
+
+    // hook : le réseau ne tourne que quand la révélation est la scène active
+    const obs=new MutationObserver(()=>{
+      const active = reveal.classList.contains('on') && !accel.classList.contains('on')
+                     && !timeline.classList.contains('on') && !thread.classList.contains('on')
+                     && !activity.classList.contains('on') && !whoswho.classList.contains('on');
+      if(active) start(); else stop();
+    });
+    obs.observe(reveal,{attributes:true,attributeFilter:['class']});
+    obs.observe(accel,{attributes:true,attributeFilter:['class']});
+    obs.observe(timeline,{attributes:true,attributeFilter:['class']});
+    obs.observe(thread,{attributes:true,attributeFilter:['class']});
+    obs.observe(activity,{attributes:true,attributeFilter:['class']});
+    obs.observe(whoswho,{attributes:true,attributeFilter:['class']});
+
+    window.addEventListener('resize',()=>{ if(running && !reduce){ build(); } });
+  })();
+
+  /* =========================================================
+     TIMELINE — révélation progressive au défilement
+     ========================================================= */
+  (function(){
+    const track = document.getElementById('tlTrack');
+    if(!track) return;
+    const items = [...track.querySelectorAll('.ev, .ev-turn, .ev-drop')];
+
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('seen'); });
+    }, { root: track, threshold: 0.35, rootMargin:'0px 0px -12% 0px' });
+
+    items.forEach(el=>io.observe(el));
+
+    // exposé au reste du script : remet la timeline en haut à chaque entrée de scène
+    window.resetTimeline = function(){
+      track.scrollTop = 0;
+      // les premiers éléments visibles s'affichent immédiatement
+      requestAnimationFrame(()=>{
+        items.forEach(el=>{
+          const r = el.getBoundingClientRect();
+          const tr = track.getBoundingClientRect();
+          if(r.top < tr.bottom * 0.8) el.classList.add('seen');
+        });
+      });
+    };
+  })();
+</script>
+</body>
+</html>
