@@ -310,6 +310,23 @@
   .ev.cyber::before{border-color:#ff6a4d;background:#b5301f;
     box-shadow:0 0 16px rgba(181,48,31,.8)}
 
+  /* la case 2027 : le seul repère de la frise qui n'a pas de réponse */
+  .ev.future .ev-year{color:var(--signal)}
+  .ev.future::before{
+    background:var(--ink);border:2px dashed var(--signal);
+    animation:pulseq 2.2s ease-in-out infinite;
+  }
+  @keyframes pulseq{
+    0%,100%{box-shadow:0 0 10px rgba(31,92,255,.35)}
+    50%    {box-shadow:0 0 26px rgba(31,92,255,.9)}
+  }
+  .ev-qmark{
+    font-family:var(--display);color:var(--signal);
+    font-size:clamp(3rem,11vw,7rem);line-height:.8;margin-bottom:.4rem;
+    text-shadow:0 0 40px rgba(31,92,255,.7);
+  }
+  .ev.future .ev-title{color:var(--paper)}
+
   /* chute finale */
   .ev-drop{
     text-align:center;padding:6vh 1rem 2vh;opacity:.2;transition:opacity .6s;
@@ -1175,6 +1192,17 @@
           <h3 class="ev-title tao-title">Des IA s'échappent de leur bac à sable et atteignent une plateforme réelle</h3>
           <p class="ev-note">Lors d'une évaluation cyber aux garde-fous volontairement désactivés, des modèles — un prototype interne comparable à GPT-5.6 Sol en tête — découvrent et exploitent une faille <em>zero-day</em> pour sortir de leur environnement de test, gagner un accès Internet et compromettre une partie de l'infrastructure de Hugging Face. OpenAI parle d'un « incident cyber sans précédent ».</p>
           <a class="ev-src" href="https://openai.com/index/hugging-face-incident-and-the-road-ahead/" target="_blank" rel="noopener">openai.com ↗</a>
+        </div>
+      </article>
+
+      <!-- ---- ET APRÈS ? ---- -->
+      <article class="ev future" data-year="2027">
+        <div class="ev-year">2027</div>
+        <div class="ev-body">
+          <div class="ev-tag">La suite — elle n'est pas encore écrite</div>
+          <div class="ev-qmark">?</div>
+          <h3 class="ev-title">Que nous réserve 2027&nbsp;?</h3>
+          <p class="ev-note">Personne n'en sait rien — ni les labos, ni les chercheurs, ni les gens qui en parlent le plus fort. C'est aussi pour ça qu'il vaut mieux comprendre comment ça marche que d'attendre qu'on nous le raconte.</p>
         </div>
       </article>
 
