@@ -35,6 +35,9 @@
     font-family:var(--serif);
     overflow:hidden;
     -webkit-font-smoothing:antialiased;
+    /* colonne : la scène en haut, la barre de navigation en dessous
+       (hors des slides, pour rester lisible quel que soit le fond) */
+    display:flex;flex-direction:column;
   }
 
   /* grain papier */
@@ -47,7 +50,7 @@
     mix-blend-mode:multiply;opacity:.7;
   }
 
-  .stage{position:relative;height:100vh;width:100vw;z-index:1}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
 
   /* =========================================================
      SCÈNE 1 — LE CHAOS
@@ -462,8 +465,12 @@
      PROGRESSION / CONTRÔLES
      ========================================================= */
   .hud{
-    position:fixed;bottom:1.1rem;left:50%;transform:translateX(-50%);
-    z-index:60;display:flex;align-items:center;gap:1rem;
+    position:relative;flex:0 0 auto;z-index:60;
+    display:flex;align-items:center;justify-content:center;gap:1rem;
+    padding:.65rem 1.1rem;
+    background:var(--paper-2);
+    border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);
     font-family:var(--mono);font-size:.7rem;color:var(--muted);
   }
   .dots{display:flex;gap:.5rem}
@@ -475,11 +482,16 @@
     padding:.5rem .9rem;transition:.2s;
   }
   .btn:hover{background:var(--ink);color:var(--paper)}
-  .hint{position:fixed;top:1rem;right:1.1rem;z-index:60;font-family:var(--mono);
-    font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+  .hint{
+    position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em;
+  }
 
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+  @media (max-width:900px){
+    .hint{display:none}
   }
   @media (max-width:640px){
     .clip{max-width:46vw}
@@ -833,8 +845,7 @@
 
 </div>
 
-<!-- HUD -->
-<div class="hint" id="hint">↔ flèches · espace · clic</div>
+<!-- HUD — barre de navigation, hors de la scène -->
 <div class="hud">
   <button class="btn" id="prev">◀ Retour</button>
   <div class="dots">
@@ -847,6 +858,7 @@
     <div class="dot" data-i="6"></div>
   </div>
   <button class="btn" id="next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
 <script>
