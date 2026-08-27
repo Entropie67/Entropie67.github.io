@@ -554,12 +554,7 @@
     vertical-align:super;
   }
   article.lab .lab-name::after{content:""}
-  .lab-links{margin-top:.5rem;display:flex;flex-wrap:wrap;gap:.2rem .8rem}
-  .lab-links a{
-    font-family:var(--mono);font-size:.7rem;color:var(--signal-dk);
-    text-decoration:none;border-bottom:1px solid rgba(18,59,171,.35);
-  }
-  .lab-links a:hover{color:var(--ink)}
+  a.lab:active{transform:none}
   .lab-name{font-family:var(--display);font-size:1.02rem;line-height:1;margin-bottom:.3rem}
   .lab-meta{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;
     text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
@@ -570,7 +565,6 @@
   .lab.west{border-left-color:var(--signal)}          /* bleu = USA */
   .lab.west.fr{border-left-color:#12924f}             /* vert = Europe */
   .lab.cn{border-left-color:var(--alarm)}             /* rouge = Chine */
-  .lab.img{border-left-color:var(--muted);background:#e3ddcf}
 
   /* légende du code couleur */
   .ww-legend{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;margin-top:1rem}
@@ -703,6 +697,23 @@
   .hb.first .hb-fill{background:var(--alarm)}
   .hb.first .hb-name{color:#ff6a4d}
 
+  /* la ligne « 2027 ? » : une barre hachurée qui sort du cadre */
+  .hb.future{margin-top:.5rem;align-items:center}
+  .hb.future .hb-name{font-family:var(--display);font-size:clamp(.85rem,1.8vw,1.2rem);
+    color:var(--signal);letter-spacing:0}
+  .hb.future .hb-track{height:clamp(20px,3.4vh,32px);background:transparent;
+    border:1px dashed rgba(31,92,255,.45)}
+  .hb-q{
+    background:repeating-linear-gradient(135deg,
+      rgba(31,92,255,.55) 0 8px, rgba(31,92,255,.12) 8px 16px);
+  }
+  .hb-qmark{
+    font-family:var(--display)!important;color:var(--signal)!important;
+    font-size:clamp(1.5rem,4.5vw,2.8rem)!important;line-height:.9;
+    text-shadow:0 0 26px rgba(31,92,255,.8);
+  }
+  .hb-group.future{color:var(--signal);opacity:.9}
+
   .hlec-foot{
     margin-top:auto;padding-top:clamp(.9rem,2.5vh,1.5rem);display:grid;
     grid-template-columns:1.2fr 1fr;gap:clamp(1rem,3vw,2rem);align-items:start;
@@ -723,6 +734,96 @@
   @media (max-width:900px){
     .hle-body,.hlec-foot{grid-template-columns:1fr}
     .hle-stats{grid-template-columns:repeat(2,1fr)}
+  }
+
+  /* =========================================================
+     SCÈNE 11 — GPQA DIAMOND : où se situe un doctorant ?
+     ========================================================= */
+  .gpqa{
+    position:absolute;inset:0;z-index:40;background:var(--ink);color:var(--paper);
+    opacity:0;pointer-events:none;transition:opacity .5s ease;
+    display:flex;flex-direction:column;overflow-y:auto;
+    padding:clamp(1rem,3vh,1.8rem) clamp(1.2rem,4vw,3.5rem) clamp(1.2rem,3vh,2rem);
+  }
+  .gpqa.on{opacity:1;pointer-events:auto}
+  .gq-eyebrow{
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.45rem;
+  }
+  .gq-title{
+    font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.6vw,3.2rem);
+  }
+  .gq-lead{
+    font-family:var(--serif);color:#c9c2b2;margin-top:.6rem;max-width:88ch;
+    font-size:clamp(.88rem,1.6vw,1.08rem);line-height:1.5;
+  }
+  .gq-lead strong{color:var(--paper)}
+  .gq-lead em{color:#7fa0ff;font-style:normal}
+
+  .gq-chart{margin:clamp(1.1rem,3.5vh,2rem) 0 clamp(.8rem,2vh,1.2rem);
+    flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .gq-row{display:flex;align-items:center;gap:.9rem;margin-bottom:clamp(.45rem,1.5vh,.9rem)}
+  .gq-name{
+    flex:0 0 clamp(9rem,27%,17rem);text-align:right;
+    font-family:var(--mono);font-size:clamp(.62rem,1.15vw,.78rem);line-height:1.3;
+    color:#c9c2b2;
+  }
+  .gq-name small{display:block;color:var(--muted);font-size:.9em;letter-spacing:.02em}
+  .gq-track{
+    flex:1 1 auto;height:clamp(18px,3vh,28px);
+    background:rgba(233,228,216,.06);position:relative;
+  }
+  /* repère vertical « niveau des experts » (65 %), tracé dans chaque piste */
+  .gq-track::after{
+    content:"";position:absolute;left:65%;top:calc(-1 * clamp(.45rem,1.5vh,.9rem) / 2 - 1px);
+    bottom:calc(-1 * clamp(.45rem,1.5vh,.9rem) / 2 - 1px);
+    border-left:2px dashed rgba(63,190,125,.8);z-index:3;pointer-events:none;
+  }
+  .gq-fill{height:100%;background:#6b6455;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .gq-val{flex:0 0 4.2rem;font-family:var(--mono);
+    font-size:clamp(.68rem,1.3vw,.9rem);color:#a9a294}
+
+  /* la ligne d'étiquette du repère, alignée sur la même grille */
+  .gq-reflab{margin-bottom:.25rem}
+  .gq-reflab .gq-track{background:none;height:1rem}
+  .gq-reflab .gq-track::after{display:none}
+  .gq-reflab .gq-track span{
+    position:absolute;left:65%;bottom:0;transform:translateX(-50%);
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+    color:#3fbe7d;white-space:nowrap;
+  }
+
+  .gq-row.human .gq-fill{background:#12924f}
+  .gq-row.human .gq-name{color:#7fe0ac}
+  .gq-row.human .gq-val{color:#7fe0ac}
+  .gq-row.old .gq-fill{background:#6b6455}
+  .gq-row.now .gq-fill{background:var(--signal);box-shadow:0 0 18px rgba(31,92,255,.6)}
+  .gq-row.now .gq-name,.gq-row.now .gq-val{color:var(--paper)}
+
+  .gq-foot{
+    margin-top:auto;padding-top:clamp(.8rem,2.5vh,1.4rem);
+    display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(1rem,3vw,2.2rem);align-items:start;
+    border-top:1px solid rgba(233,228,216,.15);
+  }
+  .gq-punch{
+    font-family:var(--display);text-transform:uppercase;color:var(--signal);
+    font-size:clamp(1rem,2.6vw,1.75rem);line-height:1.08;
+    text-shadow:0 0 26px rgba(31,92,255,.45);
+  }
+  .gq-punch em{font-style:normal;color:var(--paper);text-shadow:none}
+  .gq-echo{
+    margin-top:.8rem;font-family:var(--serif);font-style:italic;color:#b9c6e0;
+    font-size:clamp(.82rem,1.4vw,1rem);line-height:1.5;
+  }
+  .gq-echo b{font-style:normal;color:#ff6a4d}
+  .gq-warn{border-left:3px solid var(--alarm);padding-left:.9rem}
+  .gq-warn p{font-size:clamp(.72rem,1.25vw,.86rem);line-height:1.45;color:#a9a294;margin-bottom:.45rem}
+  .gq-warn strong{color:#ff6a4d}
+  .gq-warn a{color:#7fa0ff;text-decoration:none;border-bottom:1px solid rgba(127,160,255,.35)}
+
+  @media (max-width:900px){
+    .gq-foot{grid-template-columns:1fr}
   }
 
   /* =========================================================
@@ -1307,16 +1408,6 @@
         <div class="lab-note">Issu de l'université Tsinghua&nbsp;; très fort en code.</div>
       </a>
 
-      <article class="lab img">
-        <div class="lab-name">Et pour les images…</div>
-        <div class="lab-meta">🌐 Autre catégorie</div>
-        <div class="lab-models">Midjourney · Stable Diffusion</div>
-        <div class="lab-note">Générer des images, pas du texte&nbsp;: on y reviendra.</div>
-        <div class="lab-links">
-          <a href="https://www.midjourney.com" target="_blank" rel="noopener">midjourney.com ↗</a>
-          <a href="https://stability.ai" target="_blank" rel="noopener">stability.ai ↗</a>
-        </div>
-      </article>
 
     </div>
     <p class="ww-foot"><span class="ww-click">Chaque fiche est cliquable&nbsp;: elle ouvre le site officiel du labo. </span>Beaucoup de noms — et ce n'est plus un duel américain&nbsp;: la Chine est au niveau, souvent en «&nbsp;open&nbsp;». Mais un point commun&nbsp;: sous le capot, souvent le même type de mécanisme. C'est lui qu'on va démonter.</p>
@@ -1454,6 +1545,13 @@
         <div class="hb-val">55,5&nbsp;%</div>
       </div>
 
+    <div class="hb-group future">Et en 2027&nbsp;?</div>
+      <div class="hb future">
+        <div class="hb-name">2027</div>
+        <div class="hb-track"><div class="hb-fill hb-q" style="width:100%"></div></div>
+        <div class="hb-val hb-qmark">?</div>
+      </div>
+
     <div class="hlec-foot">
       <div>
         <div class="hlec-punch">De 2,7&nbsp;% à 55&nbsp;%<br><em>en dix-neuf mois.</em></div>
@@ -1463,6 +1561,54 @@
         <p><strong>Avec outils</strong> (recherche web, exécution de code), certains classements annoncent plus de <strong>60&nbsp;%</strong> — ce n'est plus le même exercice.</p>
         <p><strong>Et l'examen n'est pas «&nbsp;fini&nbsp;»&nbsp;:</strong> il reste près de la moitié des questions ratées.</p>
         <p><a href="https://agi.safe.ai/" target="_blank" rel="noopener">agi.safe.ai ↗</a> · <a href="https://artificialanalysis.ai/evaluations/humanitys-last-exam" target="_blank" rel="noopener">artificialanalysis.ai ↗</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 11 : GPQA DIAMOND ============ -->
+  <div class="gpqa" id="gpqa">
+    <div class="gq-eyebrow">Un deuxième thermomètre — et celui-là situe les humains</div>
+    <h2 class="gq-title">GPQA Diamond</h2>
+    <p class="gq-lead"><em>Graduate-Level Google-Proof Q&amp;A</em> — 198 questions de physique, chimie et biologie, écrites par des spécialistes. <strong>«&nbsp;Google-proof&nbsp;»</strong> veut dire&nbsp;: chercher sur Internet ne suffit pas. Et surtout, à la création du test en 2023, on a fait passer l'examen <strong>à de vrais humains</strong> — c'est ce qui rend ce graphique lisible.</p>
+
+    <div class="gq-chart">
+      <div class="gq-row gq-reflab">
+        <div class="gq-name"></div>
+        <div class="gq-track"><span>niveau des experts&nbsp;: 65&nbsp;%</span></div>
+        <div class="gq-val"></div>
+      </div>
+      <div class="gq-row old">
+        <div class="gq-name">Non-spécialistes très compétents<small>Internet libre, 30 min et plus</small></div>
+        <div class="gq-track"><div class="gq-fill" style="width:34.0%"></div></div>
+        <div class="gq-val">34&nbsp;%</div>
+      </div>
+      <div class="gq-row old">
+        <div class="gq-name">GPT-4<small>2023 — à la création du test</small></div>
+        <div class="gq-track"><div class="gq-fill" style="width:39.0%"></div></div>
+        <div class="gq-val">39&nbsp;%</div>
+      </div>
+      <div class="gq-row human">
+        <div class="gq-name">Experts du domaine 🎓<small>docteurs ou doctorants de la discipline</small></div>
+        <div class="gq-track"><div class="gq-fill" style="width:65.0%"></div></div>
+        <div class="gq-val">65&nbsp;%</div>
+      </div>
+      <div class="gq-row now">
+        <div class="gq-name">GPT-5.6 Sol<small>juillet 2026</small></div>
+        <div class="gq-track"><div class="gq-fill" style="width:94.6%"></div></div>
+        <div class="gq-val">94,6&nbsp;%</div>
+      </div>
+    </div>
+
+    <div class="gq-foot">
+      <div>
+        <div class="gq-punch">En 2023, elle faisait jeu égal avec un amateur muni de&nbsp;Google.<br><em>En 2026, elle dépasse les docteurs de trente points.</em></div>
+        <p class="gq-echo">Et rappelez-vous la diapo d'avant&nbsp;: en 2023, le titre d'un article de recherche était <b>«&nbsp;GPT-4 CAN'T REASON&nbsp;»</b>. Trois ans plus tard&nbsp;: 94,6&nbsp;% à un test conçu pour mettre en difficulté des doctorants.</p>
+      </div>
+      <div class="gq-warn">
+        <p><strong>À lire avec précaution.</strong> Les protocoles d'évaluation de 2023 et de 2026 ne sont pas parfaitement identiques&nbsp;: pas de comparaison au dixième de point. Ce qui est incontestable, c'est que ce test a <strong>cessé d'être une frontière</strong>.</p>
+        <p>Les 65&nbsp;% des experts montent à <strong>74&nbsp;%</strong> si l'on écarte les erreurs qu'ils ont eux-mêmes reconnues après coup. Ça ne change pas le verdict.</p>
+        <p>En août 2026, le haut du classement est à environ <strong>95,5&nbsp;%</strong>. Il ne reste plus grand-chose à gagner&nbsp;: ce benchmark est <em>saturé</em> — il faudra en inventer un autre. Comme pour le MMLU. Comme, un jour, pour Humanity's Last Exam.</p>
+        <p><a href="https://arxiv.org/abs/2311.12022" target="_blank" rel="noopener">arxiv.org/abs/2311.12022 ↗</a></p>
       </div>
     </div>
   </div>
@@ -1483,6 +1629,7 @@
     <div class="dot" data-i="7"></div>
     <div class="dot" data-i="8"></div>
     <div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div>
   </div>
   <button class="btn" id="next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
@@ -1499,10 +1646,11 @@
   const whoswho  = document.getElementById('whoswho');
   const hle      = document.getElementById('hle');
   const hlec     = document.getElementById('hlec');
+  const gpqa     = document.getElementById('gpqa');
   const dots     = [...document.querySelectorAll('.dot')];
   let scene = 0;   // 0 chaos·1 révélation·2 accél·3 frise·4 catégories
-                   // 5 fil·6 activité·7 qui·8 HLE·9 scores HLE
-  const MAX = 9;
+                   // 5 fil·6 activité·7 qui·8 HLE·9 scores HLE·10 GPQA
+  const MAX = 10;
   // scènes défilables : la molette/les flèches ↑↓ y font défiler le contenu
   // au lieu de changer de diapo, et le clic n'avance pas.
   const SCROLLABLE = {3:'tlTrack', 4:'epTrack'};
@@ -1519,6 +1667,7 @@
     whoswho.classList.toggle('on',  scene === 7);
     hle.classList.toggle('on',      scene === 8);
     hlec.classList.toggle('on',     scene === 9);
+    gpqa.classList.toggle('on',     scene === 10);
     dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
     const hint = document.getElementById('hint');
     if(hint) hint.textContent = SCROLLABLE[scene]
@@ -1526,14 +1675,16 @@
       : '↔ flèches · espace · clic';
     if(scene === 3 && typeof window.resetTimeline === 'function') window.resetTimeline();
     if(scene === 4){ const t = document.getElementById('epTrack'); if(t) t.scrollTop = 0; }
-    if(scene === 9){
-      // les barres se remplissent à l'entrée sur la scène
-      const fills = [...document.querySelectorAll('#hlec .hb-fill')];
-      fills.forEach(f=>{ if(!f.dataset.w) f.dataset.w = f.style.width; f.style.width = '0%'; });
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        fills.forEach((f,i)=>setTimeout(()=>{ f.style.width = f.dataset.w; }, i*45));
-      }));
-    }
+    // les barres des graphiques se remplissent à l'entrée sur la scène
+    if(scene === 9)  fillBars('#hlec .hb-fill', 45);
+    if(scene === 10) fillBars('#gpqa .gq-fill', 130);
+  }
+  function fillBars(sel, step){
+    const fills = [...document.querySelectorAll(sel)];
+    fills.forEach(f=>{ if(!f.dataset.w) f.dataset.w = f.style.width; f.style.width = '0%'; });
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      fills.forEach((f,i)=>setTimeout(()=>{ f.style.width = f.dataset.w; }, i*step));
+    }));
   }
   function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
 
