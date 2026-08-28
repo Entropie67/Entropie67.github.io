@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zoologie de l'IA</title>
+<style>
+  /* =========================================================
+     PALETTE & TOKENS — identiques à la séance 1 (intro.html)
+     pour que les deux cours forment une série cohérente :
+     ambiance kiosque + salle de contrôle.
+     ========================================================= */
+  :root{
+    --ink:        #14110d;
+    --paper:      #e9e4d8;
+    --paper-2:    #ddd6c5;
+    --signal:     #1f5cff;
+    --signal-dk:  #123bab;
+    --alarm:      #b5301f;
+    --muted:      #6c6355;
+
+    --display: 'Archivo Black', 'Arial Black', Impact, sans-serif;
+    --serif:   'Georgia', 'Times New Roman', serif;
+    --mono:    'Courier New', ui-monospace, monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;
+  }
+
+  /* grain papier */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7;
+  }
+
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  /* =========================================================
+     BASE COMMUNE DES SCÈNES
+     ========================================================= */
+  .pane{
+    position:absolute;inset:0;z-index:10;
+    opacity:0;pointer-events:none;transition:opacity .5s ease;
+    display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1.1rem,3.2vh,2.2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.55rem;
+  }
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{
+    font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.6rem,4.6vw,3.3rem);
+  }
+
+  /* =========================================================
+     SCÈNE 0 — OUVERTURE
+     ========================================================= */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%);}
+  .intro .back{
+    position:absolute;top:1rem;left:1.2rem;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;
+    color:#8f9cb8;text-decoration:none;border-bottom:1px solid rgba(143,156,184,.35);
+  }
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{
+    font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:1.2rem;
+    opacity:0;animation:rise .6s ease .2s forwards;
+  }
+  .intro .big{
+    font-family:var(--display);text-transform:uppercase;line-height:.86;
+    font-size:clamp(2.6rem,12vw,9rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards;
+  }
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{
+    margin-top:1.5rem;max-width:56ch;font-family:var(--serif);
+    font-size:clamp(1rem,2vw,1.3rem);line-height:1.5;color:#cfc8b8;
+    opacity:0;animation:rise .7s ease .6s forwards;
+  }
+  .intro .kick{
+    margin-top:1.4rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);
+    opacity:0;animation:rise .7s ease .85s forwards;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* =========================================================
+     SCÈNE 1 — FRISE HISTORIQUE (réutilise la mécanique séance 1)
+     ========================================================= */
+  .timeline{
+    position:absolute;inset:0;z-index:10;background:var(--ink);color:var(--paper);
+    opacity:0;pointer-events:none;transition:opacity .5s ease;
+    display:flex;flex-direction:column;
+  }
+  .timeline.on{opacity:1;pointer-events:auto}
+  .tl-head{
+    flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;
+    padding:1rem clamp(1rem,4vw,3rem);
+    border-bottom:1px solid rgba(233,228,216,.12);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  }
+  .tl-head-k{color:var(--paper)}
+  .tl-head-scroll{color:var(--muted);animation:bob 1.8s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+
+  .tl-track{
+    flex:1 1 auto;overflow-y:auto;scroll-behavior:smooth;
+    padding:7vh clamp(1rem,5vw,4rem) 9vh;
+    display:flex;flex-direction:column;gap:clamp(2.4rem,6.5vh,4.6rem);
+    position:relative;
+  }
+  .tl-track::before{
+    content:"";position:absolute;left:max(1rem,5vw);top:0;bottom:0;width:2px;
+    background:linear-gradient(to bottom,
+      rgba(233,228,216,.25) 0%,
+      rgba(233,228,216,.25) 34%,
+      var(--signal) 46%,
+      var(--signal) 100%);
+    opacity:.5;
+  }
+  .ev{
+    position:relative;padding-left:clamp(2.5rem,7vw,5rem);max-width:64ch;
+    opacity:.25;transform:translateY(8px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .ev.seen{opacity:1;transform:none}
+  .ev-year{
+    font-family:var(--display);font-size:clamp(1.3rem,3vw,2rem);
+    line-height:1;margin-bottom:.5rem;color:var(--muted);
+  }
+  .ev.hot .ev-year{color:#7fa0ff}
+  .ev.climax .ev-year{color:var(--signal)}
+  .ev-tag{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.5rem;
+  }
+  .ev-title{
+    font-family:var(--serif);font-weight:700;line-height:1.15;
+    font-size:clamp(1.15rem,2.6vw,1.7rem);
+  }
+  .ev.cold .ev-title{color:#c9c2b2}
+  .ev.hot  .ev-title{color:var(--paper)}
+  .ev-note{margin-top:.6rem;font-size:clamp(.9rem,1.7vw,1.05rem);line-height:1.5;color:#a9a294}
+  .ev-note b{color:var(--paper)}
+  .ev-en{font-style:italic;color:var(--muted)}
+  .ev::before{
+    content:"";position:absolute;left:calc(max(1rem,5vw) - 5px);top:.4rem;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--ink);border:2px solid var(--muted);transition:.4s;
+  }
+  .ev.hot::before{border-color:#7fa0ff}
+  .ev.seen.hot::before{background:#7fa0ff}
+  .ev.climax::before{border-color:var(--signal);background:var(--signal);
+    box-shadow:0 0 16px rgba(31,92,255,.8)}
+  .climax-title{
+    font-family:var(--display)!important;text-transform:uppercase;
+    font-size:clamp(1.4rem,3.6vw,2.4rem)!important;line-height:1!important;
+    color:var(--paper)!important;text-shadow:0 0 30px rgba(31,92,255,.4);
+  }
+  /* charnière "les hivers de l'IA" */
+  .ev-turn{
+    position:relative;padding-left:clamp(2.5rem,7vw,5rem);max-width:64ch;
+    opacity:.3;transition:opacity .5s;
+  }
+  .ev-turn.seen{opacity:1}
+  .ev-turn .k{
+    font-family:var(--mono);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;
+    color:#7db0ff;
+  }
+  .ev-turn p{margin-top:.5rem;font-size:clamp(.9rem,1.7vw,1.05rem);line-height:1.5;color:#9fb0c8}
+  .ev-turn::before{
+    content:"";position:absolute;left:calc(max(1rem,5vw) - 4px);top:.35rem;
+    width:10px;height:10px;background:#7db0ff;transform:rotate(45deg);
+    box-shadow:0 0 14px rgba(125,176,255,.7);
+  }
+
+  /* =========================================================
+     SCÈNE 2 — COUPURES DE PRESSE (ChatGPT, fin 2022–2023)
+     ========================================================= */
+  .presse .pintro{flex:0 0 auto}
+  .presse .plead{
+    font-family:var(--serif);color:#5a5344;max-width:80ch;margin-top:.5rem;
+    font-size:clamp(.9rem,1.7vw,1.1rem);line-height:1.5;
+  }
+  .pgrid{
+    flex:1 1 auto;display:flex;flex-wrap:wrap;gap:.9rem;
+    align-content:center;justify-content:center;margin:1rem 0;
+  }
+  .pcard{
+    background:var(--paper-2);border:1px solid rgba(0,0,0,.22);
+    padding:.75rem .95rem;max-width:min(30vw,340px);
+    box-shadow:2px 3px 0 rgba(0,0,0,.12);
+    transform:rotate(var(--r,0deg));
+  }
+  .pcard .kick{
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.35rem;
+  }
+  .pcard h3{
+    font-family:var(--serif);font-weight:700;line-height:1.15;
+    font-size:clamp(1rem,2vw,1.35rem);
+  }
+  .pcard.alarm h3{color:var(--alarm)}
+  .pcard .src{margin-top:.4rem;font-family:var(--mono);font-size:.62rem;color:#7a715f}
+  .pfoot{
+    flex:0 0 auto;font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;
+    color:var(--muted);border-top:1px solid rgba(0,0,0,.15);padding-top:.7rem;
+  }
+
+  /* =========================================================
+     SCÈNE 3 — LE GRAND PARTAGE (symbolique vs apprentissage)
+     ========================================================= */
+  .split{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .split-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3.5vw,3rem);
+    margin:clamp(1rem,3vh,1.8rem) 0;align-items:stretch;
+  }
+  .branch{
+    border:1px solid rgba(0,0,0,.18);background:var(--paper-2);
+    padding:clamp(1rem,2.6vw,1.6rem);position:relative;
+    border-top:5px solid var(--muted);
+  }
+  .branch.sym{border-top-color:#8a8172}
+  .branch.ml{border-top-color:var(--signal)}
+  .branch h3{
+    font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.1rem,2.6vw,1.7rem);margin-bottom:.2rem;
+  }
+  .branch .fr{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.8rem}
+  .branch p{font-size:clamp(.88rem,1.6vw,1.05rem);line-height:1.5;margin-bottom:.6rem;color:#4a4436}
+  .branch p b{color:var(--ink)}
+  .branch .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);letter-spacing:.02em}
+  .split-punch{
+    text-align:center;border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.9rem,2.5vh,1.4rem);
+    font-family:var(--serif);font-size:clamp(1rem,2.1vw,1.35rem);line-height:1.45;max-width:82ch;
+    margin:0 auto;color:#3a352c;
+  }
+  .split-punch b{color:var(--signal-dk)}
+
+  /* =========================================================
+     SCÈNE 4 — DIAGRAMME DE VENN (poupées russes)
+     ========================================================= */
+  .venn .vhead{flex:0 0 auto}
+  .venn .vlead{
+    font-family:var(--serif);color:#c9c2b2;max-width:84ch;margin-top:.5rem;
+    font-size:clamp(.88rem,1.6vw,1.08rem);line-height:1.5;
+  }
+  .vbody{
+    flex:1 1 auto;display:grid;grid-template-columns:1.25fr 1fr;
+    gap:clamp(1rem,3vw,2.4rem);align-items:center;margin-top:clamp(.6rem,2vh,1.2rem);
+  }
+  .vsvg{width:100%;height:auto;max-height:64vh;display:block}
+  .vsvg text{font-family:var(--mono)}
+  .vlegend{display:flex;flex-direction:column;gap:.6rem}
+  .vrow{padding-left:.9rem;border-left:4px solid}
+  .vrow .n{font-weight:700;font-size:clamp(.9rem,1.5vw,1.05rem);line-height:1.2}
+  .vrow .d{font-size:clamp(.78rem,1.35vw,.92rem);line-height:1.4;color:#a9a294;margin-top:.15rem}
+  .vrow .d em{color:#c9c2b2;font-style:normal}
+  .vrow.sym{border-left-color:#b8b0a0}   .vrow.sym .n{color:#d8d0c0}
+  .vrow.ml{border-left-color:#7fa0ff}    .vrow.ml .n{color:#9fb8ff}
+  .vrow.dl{border-left-color:var(--signal)} .vrow.dl .n{color:#bcd0ff}
+  .vrow.gen{border-left-color:#ff6a4d}    .vrow.gen .n{color:#ffb9a8}
+  .vcare{margin-top:.4rem;border-top:1px solid rgba(233,228,216,.14);padding-top:.7rem;
+    display:flex;flex-direction:column;gap:.55rem}
+  .vcare p{font-size:clamp(.74rem,1.3vw,.86rem);line-height:1.45;color:#a9a294}
+  .vcare p b{color:#ff8a72}
+
+  /* =========================================================
+     SCÈNE 5 — TROIS FAÇONS D'APPRENDRE
+     ========================================================= */
+  .learn{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,2.5vw,2rem);
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .lcard{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);
+    padding:clamp(1rem,2.4vw,1.5rem);border-top:5px solid var(--signal)}
+  .lcard .num{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;color:var(--muted)}
+  .lcard h3{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1rem,2.2vw,1.5rem);margin:.25rem 0 .1rem}
+  .lcard .an{font-family:var(--serif);font-style:italic;color:var(--signal-dk);
+    font-size:clamp(.82rem,1.5vw,1rem);margin-bottom:.7rem}
+  .lcard p{font-size:clamp(.82rem,1.5vw,1rem);line-height:1.5;color:#4a4436;margin-bottom:.55rem}
+  .lcard p b{color:var(--ink)}
+  .lcard .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .lnote{text-align:center;font-family:var(--serif);color:#3a352c;max-width:84ch;margin:0 auto;
+    font-size:clamp(.9rem,1.7vw,1.1rem);line-height:1.45}
+  .lnote b{color:var(--signal-dk)}
+
+  /* =========================================================
+     SCÈNE 6 — GÉNÉRATIF vs DISCRIMINATIF (coupe transversale)
+     ========================================================= */
+  .gd{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .gd .glead{font-family:var(--serif);color:#3a352c;max-width:84ch;margin-top:.5rem;
+    font-size:clamp(.9rem,1.7vw,1.1rem);line-height:1.5}
+  .gd .glead b{color:var(--alarm)}
+  .gdgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3.5vw,3rem);
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .gdcard{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);
+    padding:clamp(1rem,2.4vw,1.5rem);display:flex;flex-direction:column;gap:.6rem}
+  .gdcard.disc{border-top:5px solid var(--signal)}
+  .gdcard.gen{border-top:5px solid var(--alarm)}
+  .gdcard h3{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.05rem,2.4vw,1.6rem)}
+  .gdcard .q{font-family:var(--serif);font-style:italic;font-size:clamp(.9rem,1.6vw,1.1rem);
+    color:var(--ink)}
+  .gdcard p{font-size:clamp(.82rem,1.5vw,1rem);line-height:1.5;color:#4a4436}
+  .gdcard p b{color:var(--ink)}
+  .gdcard .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk)}
+  .gdcard.gen .ex{color:var(--alarm)}
+  .mini{width:100%;height:auto;max-height:26vh;background:#f2eee2;border:1px solid rgba(0,0,0,.12)}
+  .gdfoot{text-align:center;font-family:var(--serif);color:#3a352c;max-width:88ch;margin:0 auto;
+    font-size:clamp(.88rem,1.6vw,1.08rem);line-height:1.45}
+  .gdfoot b{color:var(--ink)}
+
+  /* =========================================================
+     SCÈNE 7 — ACTIVITÉ
+     ========================================================= */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%);}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.95;
+    font-size:clamp(1.8rem,6vw,4rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:1rem;max-width:64ch;font-size:clamp(.95rem,1.9vw,1.25rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .crit{
+    margin:1.5rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.5rem;
+  }
+  .act .crit li{list-style:none;padding-left:1.7rem;position:relative;
+    font-size:clamp(.85rem,1.6vw,1.02rem);line-height:1.45;color:#d7d0c0}
+  .act .crit li::before{content:"▸";position:absolute;left:0;color:var(--signal);font-weight:bold}
+  .act .crit li b{color:var(--paper)}
+  .act .bareme{margin-top:1.3rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted)}
+
+  /* =========================================================
+     HUD (barre de navigation, hors scène) — identique séance 1
+     ========================================================= */
+  .hud{
+    position:relative;flex:0 0 auto;z-index:60;
+    display:flex;align-items:center;justify-content:center;gap:1rem;
+    padding:.65rem 1.1rem;background:var(--paper-2);
+    border-top:2px solid var(--ink);box-shadow:0 -6px 18px rgba(0,0,0,.18);
+    font-family:var(--mono);font-size:.7rem;color:var(--muted);
+  }
+  .dots{display:flex;gap:.5rem}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{
+    cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s;
+  }
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+  @media (max-width:900px){
+    .hint{display:none}
+    .split-grid,.vbody,.gdgrid{grid-template-columns:1fr}
+    .lgrid{grid-template-columns:1fr}
+    .pcard{max-width:46vw}
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+
+  <!-- ============ SCÈNE 0 : OUVERTURE ============ -->
+  <div class="pane dark intro on" id="intro">
+    <a class="back" href="intro.html">◂ Séance 1 · Où en est l'IA&nbsp;?</a>
+    <div class="tag">SNT · Enseignement IA · Séance 2</div>
+    <h1 class="big">Zoologie<br>de l'<em>IA</em></h1>
+    <p class="line">Deux questions simples&nbsp;: <strong style="color:#fff">d'où ça vient</strong>, et <strong style="color:#fff">comment on range tout ce zoo</strong>. Deep Blue, les hivers, ChatGPT… puis une carte pour ne plus jamais confondre «&nbsp;IA&nbsp;», «&nbsp;machine learning&nbsp;» et «&nbsp;deep learning&nbsp;».</p>
+    <div class="kick">La semaine dernière&nbsp;: où on en est. Aujourd'hui&nbsp;: on ouvre le capot.</div>
+  </div>
+
+  <!-- ============ SCÈNE 1 : FRISE HISTORIQUE ============ -->
+  <div class="timeline" id="frise">
+    <div class="tl-head">
+      <span class="tl-head-k">Soixante-dix ans en accéléré</span>
+      <span class="tl-head-scroll">défilez ↓</span>
+    </div>
+    <div class="tl-track" id="tlTrack">
+
+      <article class="ev cold" data-year="1956">
+        <div class="ev-year">1956</div>
+        <div class="ev-body">
+          <div class="ev-tag">Dartmouth College — acte de naissance</div>
+          <h3 class="ev-title">Le terme «&nbsp;intelligence artificielle&nbsp;» est inventé</h3>
+          <p class="ev-note">Un séminaire d'été réunit les pionniers du domaine. L'idée est déjà là&nbsp;: faire faire à des machines ce qui, chez l'humain, demande de l'intelligence. Le mot est né&nbsp;; la réalité mettra des décennies.</p>
+        </div>
+      </article>
+
+      <article class="ev cold" data-year="1997">
+        <div class="ev-year">1997</div>
+        <div class="ev-body">
+          <div class="ev-tag">IBM Deep Blue · échecs</div>
+          <h3 class="ev-title">Une machine bat le champion du monde d'échecs</h3>
+          <p class="ev-note">Deep Blue bat Garry Kasparov. Choc mondial — mais attention&nbsp;: la machine ne «&nbsp;comprend&nbsp;» rien. Elle <b>calcule des millions de coups</b> à l'aide de règles écrites par des humains. C'est de l'IA… <b>sans le moindre apprentissage</b>. Gardez ça en tête pour la suite.</p>
+        </div>
+      </article>
+
+      <!-- charnière : les hivers -->
+      <div class="ev-turn">
+        <div class="k">Les deux hivers de l'IA</div>
+        <p>Années 1970, puis fin 1980–1990&nbsp;: deux fois, les promesses dépassent les résultats, les financements sont coupés, le domaine hiberne. L'IA a bien failli disparaître — deux fois.</p>
+      </div>
+
+      <article class="ev hot" data-year="2012">
+        <div class="ev-year">2012</div>
+        <div class="ev-body">
+          <div class="ev-tag">AlexNet · concours ImageNet</div>
+          <h3 class="ev-title">La vision par ordinateur bascule</h3>
+          <p class="ev-note">Un réseau de neurones profond, <b>AlexNet</b>, pulvérise le concours de reconnaissance d'images ImageNet. C'est le vrai coup d'envoi du <b>deep learning</b>&nbsp;: on arrête d'écrire les règles à la main, on laisse la machine les apprendre à partir d'exemples.</p>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2016">
+        <div class="ev-year">2016</div>
+        <div class="ev-body">
+          <div class="ev-tag">Google DeepMind · AlphaGo</div>
+          <h3 class="ev-title">AlphaGo gagne au jeu de Go</h3>
+          <p class="ev-note">Le Go était réputé hors de portée des machines&nbsp;: trop de combinaisons pour tout calculer. AlphaGo bat un champion en <b>apprenant par essai-erreur</b> (apprentissage par renforcement). Un mot à retenir&nbsp;: on y revient dans dix minutes.</p>
+        </div>
+      </article>
+
+      <article class="ev hot" data-year="2017">
+        <div class="ev-year">2017</div>
+        <div class="ev-body">
+          <div class="ev-tag">Google · « Attention Is All You Need »</div>
+          <h3 class="ev-title">L'invention des «&nbsp;transformers&nbsp;»</h3>
+          <p class="ev-note">Une nouvelle architecture de réseau de neurones. Discrète, technique — et pourtant décisive&nbsp;: c'est le <b>«&nbsp;T&nbsp;» de Chat<span style="color:#fff">GPT</span></b> (<span class="ev-en">Generative Pre-trained Transformer</span>). Sans elle, rien de ce qui suit n'existe.</p>
+        </div>
+      </article>
+
+      <article class="ev climax" data-year="2022">
+        <div class="ev-year">2022</div>
+        <div class="ev-body">
+          <div class="ev-tag">OpenAI · 30 novembre 2022</div>
+          <h3 class="ev-title climax-title">ChatGPT</h3>
+          <p class="ev-note">Le grand public découvre l'<b>IA générative</b>. <b>100 millions d'utilisateurs en deux mois</b>&nbsp;: le produit le plus vite adopté de l'histoire. En réalité, l'aboutissement de tout ce qui précède — Dartmouth, le deep learning de 2012, les transformers de 2017.</p>
+        </div>
+      </article>
+
+    </div><!-- /tl-track -->
+  </div>
+
+  <!-- ============ SCÈNE 2 : COUPURES DE PRESSE ============ -->
+  <div class="pane light presse pad" id="presse">
+    <div class="pintro">
+      <div class="eyebrow">Fin 2022 – 2023 · l'onde de choc</div>
+      <h2 class="stitle">Comment la presse<br>a vu débarquer ChatGPT</h2>
+      <p class="plead">En quelques semaines, un outil de laboratoire devient un sujet de société. Petit florilège de réactions — toutes bien réelles.</p>
+    </div>
+
+    <div class="pgrid">
+      <div class="pcard" style="--r:-2deg">
+        <div class="kick">Éducation · janvier 2023</div>
+        <h3>New York interdit ChatGPT dans ses écoles publiques</h3>
+        <div class="src">décision du rectorat de la ville</div>
+      </div>
+      <div class="pcard alarm" style="--r:1.5deg">
+        <div class="kick">Silicon Valley · décembre 2022</div>
+        <h3>Google déclare un «&nbsp;code rouge&nbsp;» en interne</h3>
+        <div class="src">rapporté par la presse américaine</div>
+      </div>
+      <div class="pcard" style="--r:-1deg">
+        <div class="kick">Examens · 2023</div>
+        <h3>Il réussit l'examen du barreau, un test de médecine, un MBA</h3>
+        <div class="src">plusieurs universités</div>
+      </div>
+      <div class="pcard alarm" style="--r:2.2deg">
+        <div class="kick">Vie privée · mars 2023</div>
+        <h3>L'Italie bloque temporairement ChatGPT</h3>
+        <div class="src">autorité de protection des données</div>
+      </div>
+      <div class="pcard" style="--r:-2.4deg">
+        <div class="kick">Alerte · mars 2023</div>
+        <h3>Une lettre ouverte réclame de «&nbsp;suspendre&nbsp;» les IA géantes</h3>
+        <div class="src">signée par des chercheurs et des industriels</div>
+      </div>
+      <div class="pcard" style="--r:1.2deg">
+        <div class="kick">Société · 2023</div>
+        <h3>Va-t-il tuer la dissertation&nbsp;? Les profs face à la triche</h3>
+        <div class="src">un débat qui n'a jamais cessé depuis</div>
+      </div>
+      <div class="pcard alarm" style="--r:-1.6deg">
+        <div class="kick">Record · janvier 2023</div>
+        <h3>100&nbsp;millions d'utilisateurs en deux mois</h3>
+        <div class="src">l'adoption la plus rapide de l'histoire</div>
+      </div>
+    </div>
+
+    <div class="pfoot">Panique, fascination, interdictions&nbsp;: exactement le «&nbsp;chaos&nbsp;» de la séance&nbsp;1. Reste une question — <span style="color:var(--signal-dk)">qu'y a-t-il vraiment sous le capot&nbsp;?</span></div>
+  </div>
+
+  <!-- ============ SCÈNE 3 : LE GRAND PARTAGE ============ -->
+  <div class="pane light pad" id="partage">
+    <div class="eyebrow">Taxonomie · le premier embranchement</div>
+    <h2 class="stitle">Deux façons de rendre<br>une machine «&nbsp;intelligente&nbsp;»</h2>
+
+    <div class="split">
+      <div class="split-grid">
+        <div class="branch sym">
+          <h3>IA symbolique</h3>
+          <div class="fr">les règles écrites à la main</div>
+          <p>On <b>dit à la machine quoi faire</b>, règle après règle. «&nbsp;Si… alors…&nbsp;». Ce sont les systèmes experts, les moteurs de règles — et Deep Blue.</p>
+          <p><b>Force&nbsp;:</b> c'est explicable, on sait pourquoi elle répond ça.<br><b>Limite&nbsp;:</b> il faut <b>tout prévoir à l'avance</b>&nbsp;; face à un cas nouveau, elle est perdue.</p>
+          <div class="ex">◦ Deep Blue · systèmes experts · moteurs de règles</div>
+        </div>
+        <div class="branch ml">
+          <h3>Apprentissage</h3>
+          <div class="fr">machine learning · la machine apprend</div>
+          <p>On ne donne <b>pas</b> les règles&nbsp;: on donne des <b>exemples</b>, et la machine trouve les règles toute seule. «&nbsp;Voici 10&nbsp;000 photos de chats et de chiens&nbsp;: débrouille-toi.&nbsp;»</p>
+          <p><b>Force&nbsp;:</b> elle gère des cas qu'on n'avait pas prévus.<br><b>Limite&nbsp;:</b> c'est une «&nbsp;boîte noire&nbsp;», et il faut <b>beaucoup de données</b>.</p>
+          <div class="ex">◦ AlexNet · AlphaGo · ChatGPT · Claude</div>
+        </div>
+      </div>
+      <p class="split-punch">À retenir&nbsp;: «&nbsp;IA&nbsp;» n'est <b>pas</b> un synonyme de «&nbsp;machine learning&nbsp;». Un système à base de règles, c'est de l'IA <b>sans le moindre apprentissage</b>. C'est précisément ce qu'on va lire sur la carte.</p>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 4 : DIAGRAMME DE VENN ============ -->
+  <div class="pane dark venn pad" id="venn">
+    <div class="vhead">
+      <div class="eyebrow">La carte à retenir</div>
+      <h2 class="stitle">Des poupées russes,<br>pas des rivales</h2>
+      <p class="vlead">«&nbsp;IA&nbsp;», «&nbsp;machine learning&nbsp;», «&nbsp;deep learning&nbsp;», «&nbsp;IA générative&nbsp;» ne sont ni des concurrents ni des synonymes&nbsp;: ils <em style="color:#fff;font-style:normal">s'emboîtent</em>.</p>
+    </div>
+
+    <div class="vbody">
+      <svg class="vsvg" viewBox="0 0 660 520" role="img" aria-label="Diagramme de Venn emboîté : IA contient machine learning, qui contient deep learning ; IA générative chevauche le deep learning en débordant un peu ; l'IA symbolique est dans l'IA mais hors du machine learning.">
+        <!-- IA -->
+        <ellipse cx="330" cy="262" rx="312" ry="245" fill="rgba(233,228,216,.035)" stroke="#b8b0a0" stroke-width="2"/>
+        <!-- Machine learning -->
+        <ellipse cx="372" cy="280" rx="238" ry="188" fill="rgba(127,160,255,.08)" stroke="#7fa0ff" stroke-width="2"/>
+        <!-- Deep learning -->
+        <ellipse cx="402" cy="298" rx="156" ry="122" fill="rgba(31,92,255,.16)" stroke="#1f5cff" stroke-width="2.5"/>
+        <!-- IA générative (déborde volontairement du deep learning) -->
+        <circle cx="470" cy="300" r="104" fill="rgba(255,106,77,.18)" stroke="#ff6a4d" stroke-width="2.5"/>
+
+        <!-- étiquettes -->
+        <text x="26" y="34" fill="#d8d0c0" font-size="19" letter-spacing="1.5">INTELLIGENCE ARTIFICIELLE</text>
+        <text x="30" y="250" fill="#cfc8b8" font-size="15" font-weight="bold">IA symbolique</text>
+        <text x="30" y="270" fill="#9a927f" font-size="11">règles écrites</text>
+        <text x="30" y="284" fill="#9a927f" font-size="11">à la main</text>
+
+        <text x="352" y="116" fill="#9fb8ff" font-size="17" font-weight="bold">Machine learning</text>
+        <text x="330" y="203" fill="#bcd0ff" font-size="15" font-weight="bold">Deep learning</text>
+
+        <text x="470" y="298" fill="#ffd9cf" font-size="16" font-weight="bold" text-anchor="middle">IA générative</text>
+        <text x="470" y="318" fill="#ffb9a8" font-size="11" text-anchor="middle">LLM · diffusion</text>
+      </svg>
+
+      <div class="vlegend">
+        <div class="vrow sym">
+          <div class="n">IA symbolique</div>
+          <div class="d">Dans l'IA, <em>hors</em> machine learning. On écrit les règles. <em>Deep Blue, systèmes experts.</em></div>
+        </div>
+        <div class="vrow ml">
+          <div class="n">Machine learning (hors deep)</div>
+          <div class="d">La machine apprend, mais sans réseau profond. <em>Régression, arbres de décision, k-means.</em></div>
+        </div>
+        <div class="vrow dl">
+          <div class="n">Deep learning</div>
+          <div class="d">Apprentissage par réseaux de neurones à plusieurs couches. <em>AlexNet, reconnaissance vocale.</em></div>
+        </div>
+        <div class="vrow gen">
+          <div class="n">IA générative</div>
+          <div class="d">Produit du nouveau contenu. <em>ChatGPT, Claude (texte), Midjourney (images).</em></div>
+        </div>
+        <div class="vcare">
+          <p><b>«&nbsp;IA&nbsp;» ≠ «&nbsp;machine learning&nbsp;».</b> La preuve est à gauche&nbsp;: l'IA symbolique est de l'IA sans aucun apprentissage.</p>
+          <p><b>Pourquoi le cercle orange déborde&nbsp;?</b> Presque toute l'IA générative de 2026 est du deep learning — mais pas <em>par définition</em>&nbsp;: il a existé du génératif «&nbsp;non profond&nbsp;» (chaînes de Markov, n-grammes). D'où le petit débordement.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 5 : TROIS FAÇONS D'APPRENDRE ============ -->
+  <div class="pane light pad" id="apprendre">
+    <div class="eyebrow">Zoom sur la branche «&nbsp;apprentissage&nbsp;»</div>
+    <h2 class="stitle">Trois façons d'apprendre</h2>
+
+    <div class="learn">
+      <div class="lgrid">
+        <div class="lcard">
+          <div class="num">01</div>
+          <h3>Supervisé</h3>
+          <div class="an">« apprendre avec un corrigé »</div>
+          <p>Les données sont <b>étiquetées</b>&nbsp;: chaque photo vient avec la bonne réponse (photo → «&nbsp;chat&nbsp;»). La machine apprend à relier l'un à l'autre.</p>
+          <div class="ex">▸ trier les mails spam / non-spam<br>▸ reconnaître un chiffre manuscrit</div>
+        </div>
+        <div class="lcard">
+          <div class="num">02</div>
+          <h3>Non&#8209;supervisé</h3>
+          <div class="an">« ranger sans consigne »</div>
+          <p>Les données sont <b>brutes</b>, sans étiquette. La machine cherche seule des <b>regroupements</b>, des structures cachées.</p>
+          <div class="ex">▸ regrouper des clients par comportement<br>▸ compresser, détecter l'anomalie</div>
+        </div>
+        <div class="lcard">
+          <div class="num">03</div>
+          <h3>Renforcement</h3>
+          <div class="an">« apprendre par récompense »</div>
+          <p>Un <b>agent</b> agit, puis gagne ou perd des points. Par <b>essai-erreur</b>, il apprend la stratégie qui rapporte le plus.</p>
+          <div class="ex">▸ AlphaGo, robots qui marchent<br>▸ le «&nbsp;RLHF&nbsp;» qui a poli ChatGPT</div>
+        </div>
+      </div>
+      <p class="lnote">Trois régimes différents pour une même idée&nbsp;: <b>apprendre à partir de données</b> plutôt que de règles écrites à la main.</p>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 6 : GÉNÉRATIF vs DISCRIMINATIF ============ -->
+  <div class="pane light pad" id="gendisc">
+    <div class="eyebrow">Une coupe transversale — ⚠ ce n'est PAS une poupée russe</div>
+    <h2 class="stitle">Discriminatif<br>ou génératif&nbsp;?</h2>
+    <p class="glead">Ces deux-là ne s'emboîtent pas&nbsp;: c'est une autre façon de trancher un modèle d'apprentissage, selon <b>ce qu'il apprend</b>.</p>
+
+    <div class="gd">
+      <div class="gdgrid">
+        <div class="gdcard disc">
+          <h3>Discriminatif</h3>
+          <div class="q">« Chat ou chien&nbsp;? »</div>
+          <svg class="mini" viewBox="0 0 240 150" role="img" aria-label="Deux nuages de points séparés par une droite.">
+            <line x1="35" y1="140" x2="205" y2="20" stroke="#1f5cff" stroke-width="3"/>
+            <g fill="#123bab">
+              <circle cx="55" cy="55" r="6"/><circle cx="80" cy="42" r="6"/><circle cx="70" cy="80" r="6"/>
+              <circle cx="100" cy="60" r="6"/><circle cx="52" cy="90" r="6"/><circle cx="92" cy="92" r="6"/>
+            </g>
+            <g fill="#b5301f">
+              <circle cx="150" cy="60" r="6"/><circle cx="175" cy="80" r="6"/><circle cx="160" cy="100" r="6"/>
+              <circle cx="190" cy="105" r="6"/><circle cx="140" cy="95" r="6"/><circle cx="185" cy="60" r="6"/>
+            </g>
+          </svg>
+          <p>Il apprend la <b>frontière</b> entre les catégories. Il sait <b>séparer</b>, pas dessiner.</p>
+          <div class="ex">▸ filtre anti-spam · «&nbsp;tumeur / pas tumeur&nbsp;»</div>
+        </div>
+        <div class="gdcard gen">
+          <h3>Génératif</h3>
+          <div class="q">« Dessine-moi un chat. »</div>
+          <svg class="mini" viewBox="0 0 240 150" role="img" aria-label="Un nuage de points modélisé par une distribution, d'où l'on tire un nouveau point.">
+            <ellipse cx="95" cy="80" rx="62" ry="42" fill="rgba(181,48,31,.12)" stroke="#b5301f" stroke-width="2" stroke-dasharray="5 5"/>
+            <g fill="#123bab">
+              <circle cx="70" cy="70" r="5"/><circle cx="95" cy="60" r="5"/><circle cx="110" cy="85" r="5"/>
+              <circle cx="80" cy="95" r="5"/><circle cx="120" cy="70" r="5"/><circle cx="95" cy="90" r="5"/>
+            </g>
+            <circle cx="185" cy="70" r="8" fill="#b5301f"/>
+            <text x="185" y="100" fill="#b5301f" font-family="Courier New,monospace" font-size="12" text-anchor="middle">nouveau&nbsp;!</text>
+            <path d="M150 75 L172 71" stroke="#b5301f" stroke-width="2" marker-end="url(#ah)"/>
+            <defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0 0 L6 3 L0 6 Z" fill="#b5301f"/></marker></defs>
+          </svg>
+          <p>Il apprend <b>à quoi ressemblent</b> les données — pour en <b>produire de nouvelles</b>.</p>
+          <div class="ex">▸ ChatGPT, Claude · Midjourney</div>
+        </div>
+      </div>
+      <p class="gdfoot">Presque tout le bruit de 2026 est <b>génératif</b>. Mais un anti-spam ou un diagnostic «&nbsp;oui / non&nbsp;», c'est <b>discriminatif</b> — souvent la même techno (du deep learning), un but différent.</p>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 7 : ACTIVITÉ ============ -->
+  <div class="pane dark act" id="activite">
+    <div class="tag">Activité de la séance</div>
+    <h2>Votre <em>zoologie</em><br>de l'IA</h2>
+    <p class="sub">Par groupes&nbsp;: réalisez une <strong style="color:#fff">infographie claire et belle</strong> qui range tout ce zoo. Le but&nbsp;: qu'un élève de 3<sup>e</sup> comprenne d'un coup d'œil.</p>
+    <ul class="crit">
+      <li>L'emboîtement <b>IA ⊃ machine learning ⊃ deep learning</b> — et où se glisse le génératif.</li>
+      <li>La distinction <b>symbolique / apprentissage</b> (montrez qu'«&nbsp;IA&nbsp;» ≠ «&nbsp;machine learning&nbsp;»).</li>
+      <li>Les <b>trois façons d'apprendre</b>, avec une image pour chacune.</li>
+      <li>Au moins <b>un exemple réel par case</b> (Deep Blue, anti-spam, AlexNet, ChatGPT…).</li>
+      <li><b>Bonus&nbsp;:</b> la coupe génératif / discriminatif, à part.</li>
+    </ul>
+    <div class="bareme">Notée sur&nbsp;: exactitude · lisibilité · esthétique</div>
+  </div>
+
+</div>
+
+<!-- HUD — barre de navigation, hors de la scène -->
+<div class="hud">
+  <button class="btn" id="prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div>
+    <div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div>
+    <div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div>
+    <div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div>
+    <div class="dot" data-i="7"></div>
+  </div>
+  <button class="btn" id="next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+  const intro     = document.getElementById('intro');
+  const frise     = document.getElementById('frise');
+  const presse    = document.getElementById('presse');
+  const partage   = document.getElementById('partage');
+  const venn      = document.getElementById('venn');
+  const apprendre = document.getElementById('apprendre');
+  const gendisc   = document.getElementById('gendisc');
+  const activite  = document.getElementById('activite');
+  const dots      = [...document.querySelectorAll('.dot')];
+  let scene = 0;   // 0 ouverture·1 frise·2 presse·3 partage·4 venn·5 apprendre·6 gén/disc·7 activité
+  const MAX = 7;
+  // scènes défilables : ↑↓ y font défiler le contenu, le clic n'avance pas.
+  const SCROLLABLE = {1:'tlTrack'};
+
+  function render(){
+    intro.classList.toggle('on',     scene === 0);
+    frise.classList.toggle('on',     scene === 1);
+    presse.classList.toggle('on',    scene === 2);
+    partage.classList.toggle('on',   scene === 3);
+    venn.classList.toggle('on',      scene === 4);
+    apprendre.classList.toggle('on', scene === 5);
+    gendisc.classList.toggle('on',   scene === 6);
+    activite.classList.toggle('on',  scene === 7);
+    dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
+    const hint = document.getElementById('hint');
+    if(hint) hint.textContent = SCROLLABLE[scene] ? '↑↓ défiler · → suite' : '↔ flèches · espace · clic';
+    if(scene === 1 && typeof window.resetTimeline === 'function') window.resetTimeline();
+  }
+  function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+  document.getElementById('next').onclick = ()=>go(scene+1);
+  document.getElementById('prev').onclick = ()=>go(scene-1);
+  dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
+
+  window.addEventListener('keydown', e=>{
+    if(SCROLLABLE[scene] && ['ArrowUp','ArrowDown'].includes(e.key)){
+      e.preventDefault();
+      const track = document.getElementById(SCROLLABLE[scene]);
+      track.scrollBy({top: e.key==='ArrowDown' ? 260 : -260, behavior:'smooth'});
+      return;
+    }
+    if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowDown' && !SCROLLABLE[scene]){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
+    if(e.key==='ArrowUp' && !SCROLLABLE[scene]){e.preventDefault();go(scene-1);}
+  });
+  // clic sur la scène (hors boutons/liens/scènes défilables) = avancer
+  document.querySelector('.stage').addEventListener('click', e=>{
+    if(e.target.closest('a,button')) return;
+    if(SCROLLABLE[scene] && e.target.closest('#frise')) return; // laisse lire la frise
+    go(scene+1);
+  });
+
+  /* =========================================================
+     FRISE — révélation progressive au défilement
+     ========================================================= */
+  (function(){
+    const track = document.getElementById('tlTrack');
+    if(!track) return;
+    const items = [...track.querySelectorAll('.ev, .ev-turn')];
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('seen'); });
+    }, { root: track, threshold: 0.35, rootMargin:'0px 0px -12% 0px' });
+    items.forEach(el=>io.observe(el));
+    window.resetTimeline = function(){
+      track.scrollTop = 0;
+      requestAnimationFrame(()=>{
+        items.forEach(el=>{
+          const r = el.getBoundingClientRect();
+          const tr = track.getBoundingClientRect();
+          if(r.top < tr.bottom * 0.8) el.classList.add('seen');
+        });
+      });
+    };
+  })();
+</script>
+</body>
+</html>
