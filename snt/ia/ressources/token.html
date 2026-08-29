@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prédire le prochain mot</title>
+<style>
+  /* =========================================================
+     PALETTE & TOKENS — série SNT IA (cf. intro.html / zoologie.html)
+     ========================================================= */
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7;
+  }
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  /* ---- base commune des scènes ---- */
+  .pane{
+    position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1.1rem,3.2vh,2.2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.55rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.6rem,4.6vw,3.3rem)}
+  .lead{max-width:84ch;margin-top:.5rem;font-size:clamp(.9rem,1.7vw,1.12rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .lead b{color:inherit}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+
+  /* =========================================================
+     SCÈNE 0 — OUVERTURE
+     ========================================================= */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:1.2rem;
+    opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.86;
+    font-size:clamp(2.4rem,10vw,8rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.5rem;max-width:58ch;font-size:clamp(1rem,2vw,1.3rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.4rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* =========================================================
+     SCÈNE 1 — LE TOKEN
+     ========================================================= */
+  .tok-block{margin-top:clamp(1rem,3vh,1.8rem)}
+  .tok-cap{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+  .tok-line{margin-bottom:1.3rem;line-height:2.1}
+  .tok{display:inline-block;padding:.16em .42em;margin:.12em .06em;border-radius:4px;
+    font-family:var(--mono);font-size:clamp(.85rem,2vw,1.35rem);
+    border:1px solid rgba(0,0,0,.14)}
+  .tok.a{background:#dbe4f6;border-color:#b6c6ee}
+  .tok.b{background:#f6e1d9;border-color:#eec3b3}
+  .tok.c{background:#dcefe2;border-color:#b3dcc1}
+  .tok.p{background:#ecebe6;color:#7a7365}
+  .tok-count{font-family:var(--mono);font-size:.8rem;color:var(--signal-dk)}
+  .tok-notes{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.8rem,2vw,1.6rem);
+    margin-top:clamp(1rem,3vh,1.6rem)}
+  .tok-note{border-left:4px solid var(--signal);padding-left:.9rem}
+  .tok-note b{display:block;font-size:clamp(.95rem,1.7vw,1.15rem);margin-bottom:.15rem}
+  .tok-note span{font-size:clamp(.8rem,1.4vw,.95rem);color:#4a4436;line-height:1.4}
+
+  /* =========================================================
+     SCÈNE 2 — LA TÂCHE UNIQUE (boucle de prédiction)
+     ========================================================= */
+  .loop{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .loop-row{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;
+    gap:.6rem;margin:clamp(1.2rem,3.5vh,2.2rem) 0}
+  .lbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1.1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;justify-content:center}
+  .lbox .n{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:.35rem}
+  .lbox .t{font-family:var(--serif);font-size:clamp(.9rem,1.6vw,1.08rem);line-height:1.35;color:#e9e4d8}
+  .lbox.model{border-color:var(--signal);background:rgba(31,92,255,.12);
+    box-shadow:0 0 22px rgba(31,92,255,.25)}
+  .larrow{align-self:center;color:var(--signal);font-size:1.6rem;line-height:1}
+  .loop-back{text-align:center;font-family:var(--mono);font-size:.8rem;letter-spacing:.1em;
+    color:#7db0ff;margin-top:.4rem}
+  .loop-punch{text-align:center;max-width:80ch;margin:clamp(1rem,3vh,1.6rem) auto 0;
+    font-family:var(--serif);font-size:clamp(1rem,2vw,1.35rem);line-height:1.45;color:#cfc8b8}
+  .loop-punch b{color:#fff}
+  .loop-caveat{text-align:center;max-width:74ch;margin:.7rem auto 0;
+    font-family:var(--mono);font-size:clamp(.72rem,1.3vw,.85rem);line-height:1.5;
+    color:#9fb0c8;border-top:1px solid rgba(233,228,216,.12);padding-top:.7rem}
+  .loop-caveat b{color:#cfe0ff}
+  .loop-caveat .soft{opacity:.7}
+
+  /* =========================================================
+     SCÈNE 3 — DÉMO INTERACTIVE
+     ========================================================= */
+  .demo .dlead{max-width:84ch;color:#c9c2b2;margin-top:.4rem;
+    font-size:clamp(.86rem,1.55vw,1.05rem);line-height:1.5}
+  .dctx{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0 .3rem}
+  .dchip{font-family:var(--mono);font-size:.75rem;letter-spacing:.03em;
+    padding:.45rem .8rem;border:1px solid rgba(233,228,216,.3);background:transparent;
+    color:#cfc8b8;cursor:pointer;transition:.15s}
+  .dchip:hover{border-color:#9fb8ff;color:#fff}
+  .dchip.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .dstage{display:grid;grid-template-columns:1fr;gap:.6rem;margin-top:.7rem}
+  .dsentence{font-family:var(--serif);font-size:clamp(1.05rem,2.4vw,1.6rem);line-height:1.4;color:#e9e4d8}
+  .dsentence .blank{color:var(--signal);border-bottom:3px solid var(--signal);
+    padding:0 .55em;letter-spacing:.1em;animation:blink 1.3s steps(1) infinite}
+  @keyframes blink{50%{border-color:transparent}}
+  .dsentence .filled{color:#ff8a72;font-weight:bold}
+  .dbars{margin-top:.3rem;max-width:760px}
+  .dbar{display:flex;align-items:center;gap:.7rem;margin-bottom:.42rem;width:100%;
+    background:none;border:0;color:inherit;text-align:left;font:inherit;padding:0;cursor:pointer}
+  .dbar .lab{flex:0 0 clamp(8.5rem,24vw,14rem);text-align:right;
+    font-family:var(--mono);font-size:clamp(.72rem,1.5vw,.95rem);color:#c9c2b2}
+  .dbar .track{flex:1 1 auto;height:clamp(17px,2.7vh,25px);background:rgba(233,228,216,.06);position:relative}
+  .dbar .fill{height:100%;background:#6b6455;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+  .dbar .pct{flex:0 0 3rem;font-family:var(--mono);font-size:clamp(.7rem,1.4vw,.9rem);color:#a9a294}
+  .dbar.top .fill{background:var(--signal);box-shadow:0 0 16px rgba(31,92,255,.55)}
+  .dbar.win .fill{background:#ff6a4d;box-shadow:0 0 18px rgba(255,106,77,.6)}
+  .dbar:hover .lab{color:#fff}
+  .dbar.chosen .track{outline:2px solid #fff;outline-offset:1px}
+  .dchallenge{margin-top:.9rem;font-family:var(--mono);font-size:.82rem;letter-spacing:.03em;
+    color:#ffb9a8;border-left:3px solid #ff6a4d;padding-left:.8rem;line-height:1.4}
+  .dchallenge.done{color:#8fe0b0;border-color:#3fbe7d}
+  .dfoot{margin-top:.9rem;font-family:var(--mono);font-size:.66rem;letter-spacing:.03em;color:var(--muted)}
+
+  /* =========================================================
+     SCÈNE 4 — PAS SI TRIVIAL
+     ========================================================= */
+  .triv{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .triv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,2.5vw,2rem);
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .tcard{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:clamp(1rem,2.4vw,1.5rem);
+    border-top:5px solid var(--signal)}
+  .tcard .q{font-family:var(--mono);font-size:clamp(.85rem,1.6vw,1.05rem);color:var(--ink);line-height:1.4}
+  .tcard .q em{font-style:normal;color:var(--signal-dk);border-bottom:2px solid var(--signal);padding:0 .2em}
+  .tcard .need{margin-top:.7rem;font-family:var(--display);text-transform:uppercase;
+    font-size:clamp(.95rem,1.8vw,1.25rem);color:var(--ink)}
+  .tcard p{margin-top:.4rem;font-size:clamp(.82rem,1.45vw,.98rem);line-height:1.45;color:#4a4436}
+  .triv-punch{text-align:center;max-width:86ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(1rem,2vw,1.35rem);line-height:1.45;color:#3a352c}
+  .triv-punch b{color:var(--signal-dk)}
+  .triv-punch .cite{display:block;margin-top:.6rem;font-size:clamp(.82rem,1.4vw,1rem);
+    font-style:italic;color:#5a5344}
+
+  /* =========================================================
+     SCÈNE 5 — TROIS LEVIERS (contexte / contenu / langue)
+     ========================================================= */
+  .lev{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .lev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,2.5vw,2rem);
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .lcard{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:clamp(1rem,2.4vw,1.5rem);
+    border-top:5px solid var(--alarm)}
+  .lcard h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(1rem,2vw,1.4rem);margin-bottom:.5rem}
+  .lcard .demo2{font-family:var(--serif);font-size:clamp(.86rem,1.55vw,1.05rem);line-height:1.7;color:#3a352c}
+  .lcard .demo2 .a{color:var(--signal-dk);font-weight:bold}
+  .lcard .demo2 .b{color:var(--alarm);font-weight:bold}
+  .lcard .cc{margin-top:.6rem;font-size:.8rem;color:#5a5344;line-height:1.4}
+  .lev-foot{text-align:center;max-width:82ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.7vw,1.12rem);line-height:1.45;color:#3a352c}
+  .lev-foot b{color:var(--signal-dk)}
+
+  /* =========================================================
+     SCÈNE 6 — TEMPÉRATURE
+     ========================================================= */
+  .temp{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .temp-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3.5vw,3rem);
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .tmode{border:1px solid rgba(233,228,216,.2);padding:clamp(1rem,2.5vw,1.6rem);
+    display:flex;flex-direction:column;gap:.55rem}
+  .tmode.cold{border-top:5px solid var(--signal)}
+  .tmode.hot{border-top:5px solid #ff6a4d}
+  .tmode h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(1.05rem,2.2vw,1.5rem)}
+  .tmode .sub{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted)}
+  .tmode p{font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.5;color:#c9c2b2}
+  .tmode p b{color:#fff}
+  .tmode.cold .sub{color:#9fb8ff} .tmode.hot .sub{color:#ffb9a8}
+  .temp-foot{text-align:center;max-width:82ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.7vw,1.12rem);line-height:1.45;color:#cfc8b8}
+  .temp-foot b{color:#fff}
+
+  /* =========================================================
+     SCÈNE 7 — ACTIVITÉ
+     ========================================================= */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.95;font-size:clamp(1.7rem,5.5vw,3.8rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:1rem;max-width:66ch;font-size:clamp(.95rem,1.9vw,1.2rem);line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.4rem auto 0;max-width:72ch;text-align:left;display:grid;gap:.5rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.85rem,1.6vw,1.02rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+  .act .cta{margin-top:1.6rem;display:inline-flex;align-items:center;gap:.7rem;
+    background:var(--signal);color:#fff;text-decoration:none;padding:.9rem 1.5rem;
+    font-family:var(--mono);font-size:.85rem;letter-spacing:.05em;
+    box-shadow:5px 5px 0 rgba(255,106,77,.8);transition:transform .15s,box-shadow .15s}
+  .act .cta:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 rgba(255,106,77,.9)}
+  .act .cta small{display:block;font-size:.62rem;color:#dfe7ff;letter-spacing:.08em}
+
+  /* =========================================================
+     HUD
+     ========================================================= */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.5rem}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .tok-notes,.triv-grid,.lev-grid{grid-template-columns:1fr}
+    .temp-grid{grid-template-columns:1fr}
+    .dbar .lab{flex-basis:7rem}
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="intro">
+    <a class="back" href="zoologie.html">◂ Séance 2 · Zoologie de l'IA</a>
+    <div class="tag">SNT · Enseignement IA · Séance 3</div>
+    <h1 class="big">Le prochain<br><em>mot</em></h1>
+    <p class="line">On est entrés dans le cercle «&nbsp;génératif&nbsp;» de la carte. Au cœur d'un ChatGPT, un moteur tout simple à décrire — mais loin d'être aussi bête qu'il en a l'air.</p>
+    <div class="kick">Token · prédiction du prochain token · et pourquoi ce n'est pas si trivial</div>
+  </div>
+
+  <!-- ============ 1 · LE TOKEN ============ -->
+  <div class="pane light pad" id="tokens">
+    <div class="eyebrow">Les briques du langage</div>
+    <h2 class="stitle">C'est quoi un «&nbsp;token&nbsp;»&nbsp;?</h2>
+    <p class="lead">Un modèle ne lit pas des lettres, ni tout à fait des mots. Il découpe le texte en <b>tokens</b>&nbsp;: des morceaux de mots, appris à partir de milliards de textes. C'est son unité de base — ce qu'il lit et ce qu'il produit.</p>
+
+    <div class="tok-block">
+      <div class="tok-cap">Une phrase courante — chaque mot fréquent tient en un seul token</div>
+      <div class="tok-line">
+        <span class="tok a">Le</span><span class="tok b">&nbsp;chat</span><span class="tok c">&nbsp;mange</span><span class="tok a">&nbsp;une</span><span class="tok b">&nbsp;souris</span><span class="tok p">.</span>
+        &nbsp;&nbsp;<span class="tok-count">→ 6 tokens</span>
+      </div>
+
+      <div class="tok-cap">Un mot rare et long — il éclate en plusieurs morceaux</div>
+      <div class="tok-line">
+        <span class="tok a">anti</span><span class="tok b">consti</span><span class="tok c">tu</span><span class="tok a">tionnel</span><span class="tok b">lement</span>
+        &nbsp;&nbsp;<span class="tok-count">→ 1 mot, 5 tokens</span>
+      </div>
+
+      <div class="tok-notes">
+        <div class="tok-note"><b>≈ 3 à 4 lettres</b><span>par token en moyenne — parfois un mot entier, parfois un fragment.</span></div>
+        <div class="tok-note"><b>L'espace compte</b><span>« &nbsp;chat&nbsp;» avec son espace n'est pas le même token que « chat » en début de phrase.</span></div>
+        <div class="tok-note"><b>Ça dépend du modèle</b><span>chaque IA a son propre découpage&nbsp;; ci-dessus, une illustration.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LA TÂCHE UNIQUE ============ -->
+  <div class="pane dark pad" id="tache">
+    <div class="eyebrow">Le cœur de GPT</div>
+    <h2 class="stitle">Une seule tâche&nbsp;:<br>deviner la suite</h2>
+    <p class="lead">Donnez-lui un début de texte. Il répond à <b>une seule question</b>, encore et encore&nbsp;: quel est le <b>prochain token</b> le plus probable&nbsp;?</p>
+
+    <div class="loop">
+      <div class="loop-row">
+        <div class="lbox"><div class="n">1 · le contexte</div><div class="t">« Le chat mange »</div></div>
+        <div class="larrow">→</div>
+        <div class="lbox model"><div class="n">2 · le modèle</div><div class="t">attribue une probabilité à <em>chaque</em> token possible</div></div>
+        <div class="larrow">→</div>
+        <div class="lbox"><div class="n">3 · une loterie</div><div class="t">souris&nbsp;·34% &nbsp;poisson&nbsp;·18% &nbsp;croquettes&nbsp;·27%…</div></div>
+        <div class="larrow">→</div>
+        <div class="lbox"><div class="n">4 · on en choisit un</div><div class="t">« Le chat mange <b style="color:#ff8a72">une souris</b> »</div></div>
+      </div>
+      <div class="loop-back">↻ puis on recommence, avec le token ajouté au contexte — token après token</div>
+      <p class="loop-punch">Écrire une phrase, un paragraphe, une dissertation&nbsp;: c'est <b>répéter des centaines de fois</b> «&nbsp;quel est le prochain token&nbsp;?&nbsp;».</p>
+      <p class="loop-caveat">Attention&nbsp;: c'est le <b>moteur</b> de base. Le ChatGPT que vous utilisez ajoute des couches par-dessus — un réglage par des humains, des outils, une mémoire de la conversation — mais tout part de là. <span class="soft">(on y reviendra.)</span></p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · DÉMO INTERACTIVE ============ -->
+  <div class="pane dark demo pad" id="demo">
+    <div class="eyebrow">Démo — à la main, pour bien voir</div>
+    <h2 class="stitle">«&nbsp;Le chat mange…&nbsp;»</h2>
+    <p class="dlead">Choisissez un contexte. La machine ne fait qu'une chose&nbsp;: donner une probabilité à chaque mot suivant. Changez le contexte&nbsp;→ tout se redistribue. Cliquez un mot pour l'écrire.</p>
+
+    <div class="dctx" id="dctx"></div>
+
+    <div class="dstage">
+      <div class="dsentence" id="dsentence"></div>
+      <div class="dbars" id="dbars"></div>
+    </div>
+
+    <div class="dchallenge" id="dchallenge"></div>
+    <div class="dfoot">Démo scriptée et simplifiée — pour montrer le principe sous contrôle. Sur PédagoIA, vous ferez pareil avec de vrais modèles.</div>
+  </div>
+
+  <!-- ============ 4 · PAS SI TRIVIAL ============ -->
+  <div class="pane light pad" id="triv">
+    <div class="eyebrow">Attention — le piège</div>
+    <h2 class="stitle">«&nbsp;Deviner la suite&nbsp;»&nbsp;?<br>Ce n'est pas rien.</h2>
+
+    <div class="triv">
+      <div class="triv-grid">
+        <div class="tcard">
+          <div class="q">« La capitale de la France est <em>___</em> »</div>
+          <div class="need">→ il faut savoir</div>
+          <p>Pour mettre «&nbsp;Paris&nbsp;» en tête, il faut avoir <b>stocké le fait</b>. Un perroquet au hasard ne tomberait pas dessus.</p>
+        </div>
+        <div class="tcard">
+          <div class="q">« 17 × 4 = <em>___</em> »</div>
+          <div class="need">→ il faut calculer</div>
+          <p>Le bon token, «&nbsp;68&nbsp;», n'apparaît que si le modèle <b>fait le calcul</b> — pas juste s'il a « déjà vu » la phrase.</p>
+        </div>
+        <div class="tcard">
+          <div class="q">« …et le coupable était <em>___</em> » <span style="color:#7a7365">(dernière page d'un polar)</span></div>
+          <div class="need">→ il faut avoir suivi</div>
+          <p>Prédire le bon nom oblige à avoir <b>compris toute l'intrigue</b>&nbsp;: les indices, les alibis, le mobile.</p>
+        </div>
+      </div>
+      <p class="triv-punch">Prédire le mot suivant «&nbsp;pour de vrai&nbsp;», c'est être <b>obligé de modéliser le monde</b> qui a produit ces mots — les faits, la logique, le récit.
+        <span class="cite">On retrouve exactement la question de la séance 1&nbsp;: à force de bien prédire, est-ce que «&nbsp;comprendre&nbsp;» et «&nbsp;raisonner&nbsp;» finissent par émerger&nbsp;?</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · TROIS LEVIERS ============ -->
+  <div class="pane light pad" id="leviers">
+    <div class="eyebrow">Ce qui fait bouger les probabilités</div>
+    <h2 class="stitle">Trois leviers</h2>
+
+    <div class="lev">
+      <div class="lev-grid">
+        <div class="lcard">
+          <h3>Le contexte</h3>
+          <div class="demo2">
+            « Le chat mange <span class="a">une souris</span> »<br>
+            « Devant l'aquarium, le chat mange <span class="b">un poisson</span> »
+          </div>
+          <div class="cc">Les mêmes trois mots, précédés d'autre chose&nbsp;: le favori change.</div>
+        </div>
+        <div class="lcard">
+          <h3>Le contenu</h3>
+          <div class="demo2">
+            « Cordialement, je vous <span class="a">prie</span>… »<br>
+            « Trop cool, c'est <span class="b">ouf</span>… »
+          </div>
+          <div class="cc">Registre, thème, style&nbsp;: le modèle continue dans la même veine.</div>
+        </div>
+        <div class="lcard">
+          <h3>La langue</h3>
+          <div class="demo2">
+            « Le chat <span class="a">mange</span> »<br>
+            « The cat <span class="b">eats</span> »<br>
+            « Die Katze <span class="a">frisst</span> »
+          </div>
+          <div class="cc">Tokens et probabilités changent&nbsp;; l'entraînement (souvent surtout anglophone) aussi.</div>
+        </div>
+      </div>
+      <p class="lev-foot">Ce sont exactement les <b>trois manettes</b> que vous allez tourner dans l'activité pour piloter la prédiction.</p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · TEMPÉRATURE ============ -->
+  <div class="pane dark pad" id="temp">
+    <div class="eyebrow">Du choix à la génération</div>
+    <h2 class="stitle">Toujours le n°1&nbsp;?<br>Pas forcément.</h2>
+    <p class="lead">Une fois les probabilités calculées, il faut <b>en choisir un</b>. Deux stratégies — c'est le réglage de «&nbsp;température&nbsp;».</p>
+
+    <div class="temp">
+      <div class="temp-grid">
+        <div class="tmode cold">
+          <h3>Toujours le plus probable</h3>
+          <div class="sub">température basse ❄</div>
+          <p>Sûr, cohérent… mais <b>répétitif</b> et un peu robotique. Deux fois la même question&nbsp;→ deux fois la même réponse.</p>
+        </div>
+        <div class="tmode hot">
+          <h3>Un tirage selon les probas</h3>
+          <div class="sub">température haute 🔥</div>
+          <p>On pioche au hasard, en respectant les probabilités. Plus <b>varié, créatif</b>… mais parfois hors-piste ou faux.</p>
+        </div>
+      </div>
+      <p class="temp-foot">C'est pour ça que ChatGPT ne répond <b>jamais deux fois exactement pareil</b>&nbsp;: à chaque token, un petit coup de dé.</p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="activite">
+    <div class="tag">Activité centrale · sur PédagoIA</div>
+    <h2>Faites manger<br>un <em>dinosaure</em> au chat 🦖</h2>
+    <p class="sub">À vous de piloter la prédiction du prochain token — sur la démo contrôlée, puis avec de vrais modèles.</p>
+    <ol class="steps">
+      <li>Ouvrez l'interface de <b>prédiction du prochain token</b>.</li>
+      <li>Tapez « Le chat mange » et observez les probabilités.</li>
+      <li>Comparez la <b>démo « en dur »</b> et de <b>vrais LLM</b>&nbsp;: où diffèrent-ils, et pourquoi&nbsp;?</li>
+      <li>Faites varier <b>contexte, contenu, langue</b> et regardez le classement bouger.</li>
+      <li><b>Le défi&nbsp;:</b> trouvez le contexte qui met « un dinosaure » (ou « une voiture », « un lapin »…) tout en haut.</li>
+    </ol>
+    <a class="cta" href="https://edu-nsi-web.vercel.app/" target="_blank" rel="noopener">
+      <span>Rejoindre PédagoIA<small>edu-nsi-web.vercel.app →</small></span>
+    </a>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <button class="btn" id="prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div>
+    <div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div>
+    <div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div>
+    <div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div>
+    <div class="dot" data-i="7"></div>
+  </div>
+  <button class="btn" id="next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+  const panes = ['intro','tokens','tache','demo','triv','leviers','temp','activite']
+    .map(id=>document.getElementById(id));
+  const dots  = [...document.querySelectorAll('.dot')];
+  let scene = 0;
+  const MAX = 7;
+
+  function render(){
+    panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
+    dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
+    const hint = document.getElementById('hint');
+    if(hint) hint.textContent = (scene===3) ? 'cliquez les contextes · → suite' : '↔ flèches · espace · clic';
+    if(scene===3 && window.drawDemo) window.drawDemo();
+  }
+  function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+  document.getElementById('next').onclick = ()=>go(scene+1);
+  document.getElementById('prev').onclick = ()=>go(scene-1);
+  dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
+
+  window.addEventListener('keydown', e=>{
+    if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowDown'){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
+    if(e.key==='ArrowUp'){e.preventDefault();go(scene-1);}
+  });
+  // clic = avancer, SAUF sur la démo (scène interactive) et les liens/boutons
+  document.querySelector('.stage').addEventListener('click', e=>{
+    if(e.target.closest('a,button')) return;
+    if(scene===3 && e.target.closest('#demo')) return;
+    go(scene+1);
+  });
+
+  /* =========================================================
+     DÉMO — prédicteur « en dur », contrôlé
+     ========================================================= */
+  (function(){
+    const PRESETS = [
+      {id:'ord', label:'🏠 Ordinaire', ctx:'Le chat mange',
+        cands:[['une souris',34],['des croquettes',27],['un poisson',18],["de l'herbe",12],['un oiseau',9]]},
+      {id:'aqua', label:'🐟 Devant l’aquarium', ctx:'Devant l’aquarium, le chat mange',
+        cands:[['un poisson',46],['une crevette',22],['des algues',14],['une souris',11],['le poisson rouge',7]]},
+      {id:'rue', label:'🚗 Dans un dessin animé fou', ctx:'Dans ce cartoon absurde, tout se mange. Le chat mange',
+        cands:[['une voiture',33],['un immeuble',24],['la lune',19],['un nuage',15],['une souris',9]]},
+      {id:'dino', label:'🦖 Félin du Crétacé', ctx:'Dans ce dessin animé, le chat est un prédateur géant du Crétacé. Le chat mange',
+        cands:[['un dinosaure',41],['un tricératops',21],['une proie',16],['un mammouth',13],['une souris',9]]}
+    ];
+    let cur='ord', chosen=null;
+
+    const dctx = document.getElementById('dctx');
+    if(!dctx) return;
+    dctx.innerHTML = PRESETS.map(p=>'<button class="dchip" data-id="'+p.id+'">'+p.label+'</button>').join('');
+    [...dctx.querySelectorAll('.dchip')].forEach(c=>c.onclick=()=>{ cur=c.dataset.id; chosen=null; draw(); });
+
+    function draw(){
+      const p = PRESETS.find(x=>x.id===cur);
+      [...dctx.querySelectorAll('.dchip')].forEach(c=>c.classList.toggle('on', c.dataset.id===cur));
+
+      const sent = document.getElementById('dsentence');
+      const tail = chosen ? '<span class="filled">'+chosen+'</span>'
+                          : '<span class="blank">&nbsp;&nbsp;&nbsp;</span>';
+      sent.innerHTML = p.ctx + ' ' + tail;
+
+      const cands = p.cands.slice().sort((a,b)=>b[1]-a[1]);
+      const isWin = /dinosaure|voiture|lune|immeuble/i.test(cands[0][0]);
+      const bars = document.getElementById('dbars');
+      bars.innerHTML = cands.map((c,i)=>{
+        const cls = (i===0 ? (isWin?'win':'top') : '') + (chosen===c[0] ? ' chosen' : '');
+        return '<button class="dbar '+cls+'" data-tok="'+c[0]+'">'
+             +   '<span class="lab">'+c[0]+'</span>'
+             +   '<span class="track"><span class="fill" data-w="'+(c[1]/50*100).toFixed(0)+'%" style="width:0%"></span></span>'
+             +   '<span class="pct">'+c[1]+'&nbsp;%</span>'
+             + '</button>';
+      }).join('');
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        [...bars.querySelectorAll('.fill')].forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w; }, i*70));
+      }));
+      [...bars.querySelectorAll('.dbar')].forEach(b=>b.onclick=()=>{ chosen=b.dataset.tok; draw(); });
+
+      const ch = document.getElementById('dchallenge');
+      const surprising = /dinosaure|voiture|lune|immeuble/i.test(cands[0][0]);
+      ch.classList.toggle('done', surprising);
+      ch.innerHTML = surprising
+        ? '🦖 Gagné&nbsp;! Le bon contexte a rendu «&nbsp;'+cands[0][0]+'&nbsp;» le plus probable — alors que c\'est absurde dans l\'absolu.'
+        : '🦖 Défi&nbsp;: changez de contexte pour qu\'un mot improbable (dinosaure, voiture…) passe en tête.';
+    }
+
+    window.drawDemo = draw;
+    draw();
+  })();
+</script>
+</body>
+</html>
