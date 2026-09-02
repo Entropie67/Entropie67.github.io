@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nombres complexes — Forme algébrique · Terminale maths expertes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{
+  --indigo:#1E1B3A; --ink:#2D2A45; --violet:#7C4DFF; --violet-soft:#B79CFF;
+  --amber:#F0A202; --paper:#FAF8FF; --paper-dim:#EDE9F7; --muted:#9B95C4;
+  --line:rgba(183,156,255,.22); --green:#3ECF8E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--indigo);color:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
+
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5.5vh 8vw;opacity:0;transition:opacity .4s ease}
+.slide.active{display:flex;opacity:1}
+.slide.scroll{justify-content:flex-start;overflow-y:auto}
+
+/* section divider slides */
+.slide.section{justify-content:center}
+.slide.section .num-big{font-family:'Fraunces';font-size:clamp(4rem,12vw,10rem);color:rgba(183,156,255,.18);line-height:.8;font-weight:600}
+.slide.section h1{margin-top:-2rem}
+
+.eyebrow{font-size:clamp(.7rem,1.05vw,.92rem);font-weight:600;color:var(--violet-soft);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.eyebrow .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--amber)}
+
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.2rem,5.5vw,4.6rem);line-height:1.02;letter-spacing:-.015em}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.3vw,2.7rem);line-height:1.1;margin-bottom:1.3rem;letter-spacing:-.01em}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.1rem,1.7vw,1.35rem);margin:0 0 .5rem;color:var(--violet-soft)}
+.lead{font-size:clamp(.95rem,1.45vw,1.28rem);line-height:1.55;max-width:64ch}
+.sm{font-size:clamp(.85rem,1.2vw,1.05rem);line-height:1.5}
+.muted{color:var(--muted)}
+.result{color:var(--amber);font-weight:600}
+.imag{color:var(--violet-soft);font-weight:600}
+
+.card{background:rgba(124,77,255,.08);border-left:3px solid var(--violet);border-radius:0 14px 14px 0;padding:1.3rem 1.6rem;max-width:66ch}
+.card.amber{background:rgba(240,162,2,.09);border-left-color:var(--amber)}
+.card.demo{background:rgba(255,255,255,.03);border-left-color:var(--muted)}
+.card + .card{margin-top:.9rem}
+.tag{font-size:.75rem;font-weight:600;letter-spacing:.04em;color:var(--violet-soft);text-transform:uppercase;display:block;margin-bottom:.45rem}
+.card.amber .tag{color:var(--amber)}
+.card.demo .tag{color:var(--muted)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}
+.two-col.top{align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+.katex{font-size:1.04em}
+[data-tex-display]{margin:.5rem 0}
+.ex{font-size:clamp(.95rem,1.4vw,1.22rem);line-height:1.9}
+.ex .step{opacity:.5}
+.props li{margin:.35rem 0;list-style:none}
+.props{padding:0}
+
+/* plan complexe */
+.plane-wrap{display:flex;justify-content:center;align-items:center}
+svg.plane{width:min(40vw,480px);height:auto;overflow:visible}
+.plane .axis{stroke:var(--muted);stroke-width:1.5}
+.plane .grid{stroke:var(--line);stroke-width:1}
+.plane .ax-re{stroke:var(--amber)} .plane .ax-im{stroke:var(--violet)}
+.plane .lbl{font-family:'Inter';font-size:15px;fill:var(--paper)}
+.plane .lbl-re{fill:var(--amber);font-weight:600}
+.plane .lbl-im{fill:var(--violet-soft);font-weight:600}
+.plane .proj{stroke:var(--violet-soft);stroke-width:1.4;stroke-dasharray:5 5;opacity:0}
+.plane .pt{fill:var(--paper)} .plane .pt-halo{fill:var(--violet);opacity:.25}
+.slide[data-anim].active .proj{animation:draw .5s ease forwards}
+.slide[data-anim].active .proj.p1{animation-delay:.3s}
+.slide[data-anim].active .proj.p2{animation-delay:.6s}
+.slide[data-anim].active .ptgroup{opacity:0;animation:pop .4s ease .9s forwards}
+@keyframes draw{to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+.ptgroup{transform-origin:center;transform-box:fill-box}
+
+/* controls */
+.controls{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;align-items:center;background:rgba(45,42,69,.85);backdrop-filter:blur(10px);padding:.45rem .6rem;border-radius:100px;border:1px solid var(--line);z-index:50;font-size:.85rem}
+.controls button{font-family:inherit;font-size:.85rem;background:transparent;color:var(--paper);border:none;cursor:pointer;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.controls button:hover{background:rgba(124,77,255,.25)}
+.controls .num{color:var(--muted);min-width:3.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.controls .sep{width:1px;height:1.3rem;background:var(--line)}
+.toggle{display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.toggle:hover{background:rgba(124,77,255,.25)}
+.toggle input{display:none}
+.toggle .track{width:32px;height:17px;border-radius:100px;background:rgba(255,255,255,.2);position:relative;transition:background .2s}
+.toggle .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--paper);transition:transform .2s}
+.toggle input:checked + .track{background:var(--amber)}
+.toggle input:checked + .track::after{transform:translateX(15px)}
+
+/* progress */
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--violet);z-index:60;transition:width .3s}
+
+/* mode élève */
+.blank{color:transparent;background:rgba(183,156,255,.14);border-bottom:2px solid var(--violet-soft);border-radius:3px;padding:0 .15em}
+body:not(.eleve) .blank{color:inherit;background:transparent;border-bottom:none;padding:0}
+.hint-print{display:none}
+
+@media print{
+  @page{size:A4 portrait;margin:15mm 14mm}
+  html,body{height:auto;overflow:visible;background:#fff;color:var(--ink)}
+  .controls,.progress{display:none !important}
+  .deck{position:static}
+  .slide{position:static;display:block !important;opacity:1 !important;padding:0;margin:0 0 6mm;break-inside:avoid}
+  .slide.section{margin:8mm 0 4mm;border-bottom:2px solid var(--violet);padding-bottom:2mm;break-before:page}
+  .slide.section:first-of-type{break-before:avoid}
+  .slide.section .num-big{font-size:20pt;color:var(--violet);display:inline;margin-right:3mm}
+  .slide.section h1{display:inline;font-size:19pt;margin:0}
+  .slide.cover{border-bottom:2px solid var(--violet);padding-bottom:4mm;margin-bottom:6mm;break-after:avoid;break-before:avoid}
+  .eyebrow{color:var(--violet);margin-bottom:.25rem;font-size:8pt}
+  h1{font-size:22pt;color:var(--ink)} h2{font-size:14pt;color:var(--violet);margin:0 0 2.5mm} h3{font-size:11pt;color:var(--violet)}
+  .lead,.sm,.ex{font-size:10pt;color:var(--ink);max-width:none;line-height:1.5}
+  .two-col,.grid2{grid-template-columns:1fr;gap:0}
+  .card{background:#F4F0FF;border-left:3px solid var(--violet);color:var(--ink);max-width:none;padding:2.5mm 4mm;border-radius:0 5px 5px 0;margin-bottom:2mm}
+  .card.amber{background:#FDF6E7;border-left-color:var(--amber)}
+  .card.demo{background:#F6F6FA;border-left-color:#999}
+  .tag{color:var(--violet)} .card.amber .tag{color:#B8730C}
+  .result{color:#B8730C} .imag{color:#6B3FD6}
+  .plane-wrap{page-break-inside:avoid} svg.plane{width:62mm}
+  .plane .lbl{fill:var(--ink)}
+  .proj,.ptgroup{opacity:1 !important}
+  body.eleve .blank{color:transparent;background:transparent;border-bottom:1.1px solid var(--ink);min-width:2.5em;display:inline-block}
+  .hint-print{display:block;font-size:8pt;color:#999;font-style:italic;margin-top:1.5mm}
+  .result-tex{color:#B8730C}
+}
+.result-tex{color:var(--amber)}
+
+/* ---- diagramme des ensembles emboîtés ---- */
+:root{--n:#B79CFF;--z:#FF8CB4;--d:#78B4FF;--q:#3ECF8E;--r:#F0A202;--cc:#7C4DFF}
+.sets-wrap{display:flex;justify-content:center;align-items:center}
+.sets-svg{width:min(38vw,440px);height:auto}
+.sets-svg .setlbl{font-family:'Fraunces',serif;font-size:22px;font-weight:600;text-anchor:middle}
+.sets-svg .setnum{font-family:'Inter';font-size:13px;fill:var(--paper);text-anchor:middle;opacity:.85}
+.setlist li{display:flex;align-items:center;gap:.6rem;margin:.3rem 0}
+.setlist .chip{width:.85rem;height:.85rem;border-radius:4px;background:var(--c);flex:none}
+.openbox{margin-top:1.1rem;padding:.7rem .9rem;border:1px dashed var(--muted);border-radius:10px;max-width:52ch}
+/* animation : révélation de N vers C */
+.slide[data-sets] .layer{opacity:0}
+.slide[data-sets] .setnum{opacity:0}
+.slide[data-sets].active .layer{animation:setin .5s ease forwards}
+.slide[data-sets].active .setnum{animation:setin .4s ease forwards}
+.slide[data-sets].active .lN{animation-delay:.15s}.slide[data-sets].active .lZ{animation-delay:.35s}
+.slide[data-sets].active .lD{animation-delay:.55s}.slide[data-sets].active .lQ{animation-delay:.75s}
+.slide[data-sets].active .lR{animation-delay:.95s}.slide[data-sets].active .lC{animation-delay:1.15s}
+.slide[data-sets].active .lH{animation-delay:1.4s}
+@keyframes setin{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.slide[data-sets] .layer,.slide[data-sets] .setnum{animation:none;opacity:1}}
+@media print{
+  .sets-svg{width:70mm}
+  .sets-svg .setlbl{font-size:11pt}.sets-svg .setnum{fill:var(--ink);font-size:8pt}
+  .slide[data-sets] .layer,.slide[data-sets] .setnum{opacity:1 !important;animation:none}
+  .sets-svg .lN ellipse,.layer{fill-opacity:1}
+  .openbox{border-color:#bbb}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="prog"></div>
+<div class="deck">
+
+<!-- ===== COUVERTURE ===== -->
+<section class="slide cover active">
+  <div class="eyebrow"><span class="dot"></span>Maths expertes · Terminale</div>
+  <h1>Nombres complexes<br><span style="color:var(--violet-soft)">forme algébrique</span></h1>
+  <p class="lead" style="margin-top:1.5rem">Un nouvel ensemble de nombres, noté <span style="font-family:Fraunces">ℂ</span>, où l'équation <span data-tex>x^2=-1</span> a enfin des solutions.</p>
+  <p class="muted" style="margin-top:2.2rem;font-size:.95rem">Gymnase Jean Sturm · M. Elophe · 2026–2027</p>
+</section>
+
+<!-- ===== §1 SECTION ===== -->
+<section class="slide section">
+  <div class="num-big">1</div>
+  <h1>Présentation<br>des nombres complexes</h1>
+</section>
+
+<!-- 1.0 diagramme des ensembles emboîtés -->
+<section class="slide sets" data-sets>
+  <div class="two-col top">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Une histoire d'inclusions</div>
+      <h2>Chaque ensemble<br>en contient un autre</h2>
+      <p class="lead" style="margin-bottom:1.1rem"><span data-tex>\mathbb{N}\subset\mathbb{Z}\subset\mathbb{D}\subset\mathbb{Q}\subset\mathbb{R}\subset\mathbb{C}</span></p>
+      <ul class="props sm setlist">
+        <li><span class="chip" style="--c:var(--n)"></span><span data-tex>\mathbb{N}</span> entiers naturels <span class="muted">— <span data-tex>0,\ 7</span></span></li>
+        <li><span class="chip" style="--c:var(--z)"></span><span data-tex>\mathbb{Z}</span> entiers relatifs <span class="muted">— <span data-tex>-3</span></span></li>
+        <li><span class="chip" style="--c:var(--d)"></span><span data-tex>\mathbb{D}</span> décimaux <span class="muted">— <span data-tex>1{,}25</span></span></li>
+        <li><span class="chip" style="--c:var(--q)"></span><span data-tex>\mathbb{Q}</span> rationnels <span class="muted">— <span data-tex>\tfrac13</span></span></li>
+        <li><span class="chip" style="--c:var(--r)"></span><span data-tex>\mathbb{R}</span> réels <span class="muted">— <span data-tex>\sqrt2,\ \pi</span></span></li>
+        <li><span class="chip" style="--c:var(--cc)"></span><span data-tex>\mathbb{C}</span> complexes <span class="muted">— <span data-tex>2+3\mathrm{i}</span></span></li>
+      </ul>
+      <p class="sm muted openbox">Pour les curieux : au-delà de <span data-tex>\mathbb{C}</span> vivent les <span class="imag">quaternions</span> <span data-tex>\mathbb{H}</span> (dimension 4, la multiplication n'y est plus commutative !).</p>
+    </div>
+
+    <div class="sets-wrap">
+      <svg class="sets-svg" viewBox="0 0 420 400" role="img" aria-label="Ensembles de nombres emboîtés de N à C">
+        <!-- H : ouverture curieux (pointillé) -->
+        <rect class="layer lH" x="6" y="6" width="408" height="388" rx="26" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="6 6"/>
+        <text class="setlbl" x="28" y="386" fill="var(--muted)" style="font-size:16px">ℍ</text>
+        <!-- C -->
+        <ellipse class="layer lC" cx="210" cy="205" rx="196" ry="168" fill="rgba(124,77,255,.10)" stroke="var(--cc)" stroke-width="2"/>
+        <text class="setlbl" x="210" y="60" fill="var(--cc)">ℂ</text>
+        <!-- R -->
+        <ellipse class="layer lR" cx="210" cy="218" rx="168" ry="140" fill="rgba(240,162,2,.10)" stroke="var(--r)" stroke-width="2"/>
+        <text class="setlbl" x="210" y="98" fill="var(--r)">ℝ</text>
+        <!-- Q -->
+        <ellipse class="layer lQ" cx="210" cy="230" rx="140" ry="112" fill="rgba(62,207,142,.10)" stroke="var(--q)" stroke-width="2"/>
+        <text class="setlbl" x="210" y="134" fill="var(--q)">ℚ</text>
+        <!-- D -->
+        <ellipse class="layer lD" cx="210" cy="242" rx="112" ry="86" fill="rgba(120,180,255,.10)" stroke="var(--d)" stroke-width="2"/>
+        <text class="setlbl" x="210" y="170" fill="var(--d)">𝔻</text>
+        <!-- Z -->
+        <ellipse class="layer lZ" cx="210" cy="254" rx="84" ry="62" fill="rgba(255,140,180,.10)" stroke="var(--z)" stroke-width="2"/>
+        <text class="setlbl" x="210" y="205" fill="var(--z)">ℤ</text>
+        <!-- N -->
+        <ellipse class="layer lN" cx="210" cy="266" rx="52" ry="38" fill="rgba(183,156,255,.16)" stroke="var(--n)" stroke-width="2"/>
+        <text class="setlbl" x="210" y="272" fill="var(--n)">ℕ</text>
+        <!-- exemples de nombres, un par couronne -->
+        <text class="setnum" x="210" y="250">7</text>
+        <text class="setnum" x="210" y="300">−3</text>
+        <text class="setnum" x="210" y="332">1,25</text>
+        <text class="setnum" x="145" y="300">⅓</text>
+        <text class="setnum" x="210" y="356">√2</text>
+        <text class="setnum" x="330" y="150" fill="var(--violet-soft)">2+3i</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 1.1 plan complexe animé -->
+<section class="slide" data-anim>
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Le plan complexe</div>
+      <h2>À chaque point du plan,<br>un nombre</h2>
+      <p class="lead">Le plan est muni d'un repère orthonormé direct <span data-tex>(O,\vec u,\vec v)</span>. À tout point <span data-tex>M(x\,;\,y)</span> on associe le nombre <span data-tex>z_M=x+\mathrm{i}\,y</span>.</p>
+      <p class="lead" style="margin-top:.9rem"><span data-tex>z_M</span> est <span class="result">l'affixe</span> de <span data-tex>M</span> ; <span data-tex>M</span> est <span class="result">l'image</span> de <span data-tex>z_M</span>.</p>
+    </div>
+    <div class="plane-wrap">
+      <svg class="plane" viewBox="-40 -170 300 300">
+        <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--paper)"/></marker></defs>
+        <g class="grid"><line x1="60" y1="-160" x2="60" y2="20"/><line x1="120" y1="-160" x2="120" y2="20"/><line x1="180" y1="-160" x2="180" y2="20"/><line x1="0" y1="-40" x2="220" y2="-40"/><line x1="0" y1="-80" x2="220" y2="-80"/><line x1="0" y1="-120" x2="220" y2="-120"/></g>
+        <line class="axis ax-re" x1="-20" y1="0" x2="230" y2="0" marker-end="url(#arrow)"/>
+        <line class="axis ax-im" x1="0" y1="20" x2="0" y2="-165" marker-end="url(#arrow)"/>
+        <text class="lbl lbl-re" x="205" y="18">axe réel</text>
+        <text class="lbl lbl-im" x="8" y="-155">axe imaginaire</text>
+        <circle cx="60" cy="0" r="2.5" class="pt"/><text class="lbl" x="55" y="16">1</text>
+        <circle cx="0" cy="-40" r="2.5" class="pt"/><text class="lbl lbl-im" x="-14" y="-36">i</text>
+        <line class="proj p1" x1="150" y1="0" x2="150" y2="-120"/>
+        <line class="proj p2" x1="0" y1="-120" x2="150" y2="-120"/>
+        <text class="lbl lbl-re proj p1" x="140" y="17">x</text>
+        <text class="lbl lbl-im proj p2" x="-16" y="-116">y</text>
+        <g class="ptgroup"><circle cx="150" cy="-120" r="9" class="pt-halo"/><circle cx="150" cy="-120" r="3.5" class="pt"/><text class="lbl" x="158" y="-124" style="font-family:Fraunces;font-style:italic">M</text></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 1.2 le corps des complexes -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Le corps ℂ</div>
+  <h2>Un ensemble qui prolonge ℝ</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="lead">L'ensemble <span data-tex>\mathbb{C}</span> contient <span data-tex>\mathbb{R}</span> et vérifie :</p>
+    <ul class="props sm" style="margin-top:.5rem">
+      <li>• une addition et une multiplication qui <span class="blank">prolongent</span> celles de <span data-tex>\mathbb{R}</span> ;</li>
+      <li>• il existe un élément <span data-tex>\mathrm{i}</span> tel que <span data-tex>\mathrm{i}^2=\htmlClass{result-tex}{-1}</span> ;</li>
+      <li>• tout <span data-tex>z</span> s'écrit de manière <span class="blank">unique</span> <span data-tex>z=x+\mathrm{i}y</span> avec <span data-tex>x,y\in\mathbb{R}</span>.</li>
+    </ul>
+    <p class="hint-print">prolongent … i²=−1 … unique</p>
+  </div>
+  <div class="card amber" style="margin-top:1rem">
+    <span class="tag">Vocabulaire</span>
+    <p class="sm"><span data-tex>x=\operatorname{Re}(z)</span> : <span class="blank">partie réelle</span> · <span data-tex>y=\operatorname{Im}(z)</span> : <span class="blank">partie imaginaire</span> (un réel !). Si <span data-tex>x=0</span> : <span class="blank">imaginaire pur</span> ; si <span data-tex>y=0</span> : <span class="blank">réel</span>.</p>
+    <p class="hint-print">partie réelle · partie imaginaire · imaginaire pur · réel</p>
+  </div>
+</section>
+
+<!-- 1.2 unicité — égalité -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Conséquence de l'unicité</div>
+  <h2>Égalité de deux complexes</h2>
+  <div class="card amber">
+    <span class="tag">Propriété</span>
+    <p class="lead">Deux complexes sont égaux si et seulement s'ils ont la même partie réelle <span class="muted">et</span> la même partie imaginaire :</p>
+    <div data-tex-display>z=z' \iff \operatorname{Re}(z)=\operatorname{Re}(z') \ \text{ et } \ \operatorname{Im}(z)=\operatorname{Im}(z')</div>
+  </div>
+  <div class="card demo" style="margin-top:1rem">
+    <span class="tag">Démonstration — unicité</span>
+    <p class="sm">Si <span data-tex>x+\mathrm{i}y=0</span> avec <span data-tex>(x,y)\neq(0,0)</span> : si <span data-tex>y\neq0</span>, alors <span data-tex>\mathrm{i}=-\tfrac{x}{y}\in\mathbb{R}</span> — absurde. Donc <span data-tex>y=0</span>, puis <span data-tex>x=0</span>. L'écriture est unique.</p>
+  </div>
+</section>
+
+<!-- ===== §2 SECTION ===== -->
+<section class="slide section">
+  <div class="num-big">2</div>
+  <h1>Opérations<br>dans ℂ</h1>
+</section>
+
+<!-- 2.1 addition multiplication -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Addition et multiplication</div>
+  <h2>On calcule comme dans ℝ,<br>avec <span data-tex>\mathrm{i}^2=-1</span></h2>
+  <div class="card">
+    <span class="tag">Propriété</span>
+    <p class="sm">Pour <span data-tex>z=x+\mathrm{i}y</span> et <span data-tex>z'=x'+\mathrm{i}y'</span> :</p>
+    <div data-tex-display>z+z' = (x+x') + \mathrm{i}(y+y')</div>
+    <div data-tex-display>z\times z' = \htmlClass{result-tex}{(xx'-yy')} + \mathrm{i}\,(xy'+yx')</div>
+  </div>
+  <div class="card demo" style="margin-top:.9rem">
+    <span class="tag">Démonstration — produit</span>
+    <p class="sm"><span data-tex>(x+\mathrm{i}y)(x'+\mathrm{i}y')=xx'+\mathrm{i}xy'+\mathrm{i}yx'+\mathrm{i}^2yy'=(xx'-yy')+\mathrm{i}(xy'+yx')</span> car <span data-tex>\mathrm{i}^2=-1</span>.</p>
+  </div>
+</section>
+
+<!-- 2.1 exemples -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Applications</div>
+  <h2>Quelques calculs</h2>
+  <div class="ex">
+    <div data-tex-display>\mathrm{i}-(3+2\mathrm{i}) = \htmlClass{result-tex}{-3-\mathrm{i}}</div>
+    <div data-tex-display>(1+\mathrm{i})^2 = 1+2\mathrm{i}+\mathrm{i}^2 = \htmlClass{result-tex}{2\mathrm{i}}</div>
+    <div data-tex-display>\frac{1-\mathrm{i}}{1+\mathrm{i}} = \frac{(1-\mathrm{i})^2}{(1+\mathrm{i})(1-\mathrm{i})} = \frac{-2\mathrm{i}}{2} = \htmlClass{result-tex}{-\mathrm{i}}</div>
+  </div>
+  <p class="sm muted" style="margin-top:1rem">Le dernier calcul annonce la <span class="imag">technique de l'expression conjuguée</span> (§3).</p>
+</section>
+
+<!-- 2 remarquables -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Identités remarquables</div>
+  <h2>Elles restent valables dans ℂ</h2>
+  <div class="card amber">
+    <span class="tag">Conséquences</span>
+    <div data-tex-display>(a+\mathrm{i}b)^2 = a^2-b^2+2\mathrm{i}ab</div>
+    <div data-tex-display>(a-\mathrm{i}b)^2 = a^2-b^2-2\mathrm{i}ab</div>
+    <div data-tex-display>(a+\mathrm{i}b)(a-\mathrm{i}b) = \htmlClass{result-tex}{a^2+b^2}</div>
+  </div>
+  <p class="sm muted" style="margin-top:1rem">La dernière est la clé pour diviser : le produit d'un complexe par son conjugué est un <span class="result">réel positif</span>.</p>
+</section>
+
+<!-- ===== §3 SECTION ===== -->
+<section class="slide section">
+  <div class="num-big">3</div>
+  <h1>Conjugué,<br>inverse et quotient</h1>
+</section>
+
+<!-- 3 conjugué def + illustration -->
+<section class="slide" >
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Conjugué</div>
+      <h2>Le reflet par l'axe réel</h2>
+      <div class="card">
+        <span class="tag">Définition</span>
+        <p class="lead">Le conjugué de <span data-tex>z=x+\mathrm{i}y</span> est</p>
+        <div data-tex-display>\bar z = x - \mathrm{i}y</div>
+      </div>
+      <p class="sm muted" style="margin-top:.8rem"><span data-tex>N(\bar z)</span> est le symétrique de <span data-tex>M(z)</span> par rapport à l'<span class="result">axe réel</span>.</p>
+    </div>
+    <div class="plane-wrap">
+      <svg class="plane" viewBox="-40 -140 300 300">
+        <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--paper)"/></marker></defs>
+        <line class="axis ax-re" x1="-20" y1="0" x2="220" y2="0" marker-end="url(#arrow2)"/>
+        <line class="axis ax-im" x1="0" y1="120" x2="0" y2="-135" marker-end="url(#arrow2)"/>
+        <circle cx="60" cy="0" r="2.5" class="pt"/><text class="lbl" x="55" y="16">1</text>
+        <line x1="150" y1="-100" x2="150" y2="100" stroke="var(--line)" stroke-dasharray="4 4"/>
+        <g><circle cx="150" cy="-100" r="8" class="pt-halo"/><circle cx="150" cy="-100" r="3.5" class="pt"/><text class="lbl" x="158" y="-102" style="font-family:Fraunces;font-style:italic">M(z)</text></g>
+        <g><circle cx="150" cy="100" r="8" class="pt-halo" style="fill:var(--amber);opacity:.25"/><circle cx="150" cy="100" r="3.5" class="pt"/><text class="lbl lbl-re" x="158" y="106" style="font-family:Fraunces;font-style:italic">N(z̄)</text></g>
+        <text class="lbl lbl-im" x="-16" y="-96">y</text><text class="lbl lbl-re" x="-20" y="106">−y</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 3 propriétés conjugué -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Propriétés du conjugué</div>
+  <h2>Un outil de calcul</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Caractérisations</span>
+      <ul class="props sm">
+        <li>• <span data-tex>z\times\bar z = \operatorname{Re}(z)^2+\operatorname{Im}(z)^2</span></li>
+        <li>• <span data-tex>z+\bar z = 2\operatorname{Re}(z)</span></li>
+        <li>• <span data-tex>z-\bar z = 2\mathrm{i}\operatorname{Im}(z)</span></li>
+        <li>• <span data-tex>z\in\mathbb{R}\iff</span> <span class="blank">z̄=z</span></li>
+        <li>• <span data-tex>z\in\mathrm{i}\mathbb{R}\iff</span> <span class="blank">z̄=−z</span></li>
+      </ul>
+      <p class="hint-print">z̄=z · z̄=−z</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Compatibilité opérations</span>
+      <ul class="props sm">
+        <li>• <span data-tex>\overline{z+z'} = \bar z+\bar z'</span></li>
+        <li>• <span data-tex>\overline{z\times z'} = \bar z\times\bar z'</span></li>
+        <li>• <span data-tex>\overline{\left(\tfrac{z}{z'}\right)} = \tfrac{\bar z}{\bar z'}</span></li>
+        <li>• <span data-tex>\overline{z^n} = (\bar z)^n</span></li>
+        <li>• <span data-tex>\overline{kz}=k\bar z</span> <span data-tex>(k\in\mathbb{R})</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3 inverse et quotient -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Inverse et quotient</div>
+  <h2>Diviser par l'expression conjuguée</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Pour <span data-tex>z\neq0</span>, l'inverse <span data-tex>\tfrac1z</span> vérifie <span data-tex>z\times\tfrac1z=1</span>. On multiplie par <span class="result">le conjugué du dénominateur</span> :</p>
+    <div data-tex-display>\frac1z=\frac{\bar z}{z\bar z}=\frac{x-\mathrm{i}y}{x^2+y^2}</div>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Exemple</span>
+    <div data-tex-display>\frac{2+3\mathrm{i}}{3-\mathrm{i}}=\frac{(2+3\mathrm{i})(3+\mathrm{i})}{(3-\mathrm{i})(3+\mathrm{i})}=\frac{3+11\mathrm{i}}{10}=\htmlClass{result-tex}{0{,}3+1{,}1\,\mathrm{i}}</div>
+  </div>
+</section>
+
+<!-- 3 méthode équations conjugué -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Méthode</div>
+  <h2>Résoudre une équation avec <span data-tex>\bar z</span></h2>
+  <div class="card">
+    <span class="tag">Deux cas</span>
+    <p class="sm"><b class="imag">1.</b> Si <span data-tex>\bar z</span> intervient seul : on isole <span data-tex>\bar z</span> comme dans une équation du 1<sup>er</sup> degré, puis on conjugue (<span data-tex>\overline{\bar z}=z</span>).</p>
+    <p class="sm" style="margin-top:.5rem"><b class="imag">2.</b> Si <span data-tex>z</span> et <span data-tex>\bar z</span> interviennent : on pose <span data-tex>z=x+\mathrm{i}y</span> et on identifie parties réelle et imaginaire.</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Exemple — cas 2</span>
+    <p class="sm"><span data-tex>2z+\mathrm{i}\bar z=5-2\mathrm{i}</span> avec <span data-tex>z=x+\mathrm{i}y</span> donne <span data-tex>\begin{cases}2x+y=5\\ x+2y=-2\end{cases}</span> d'où <span data-tex>z=\htmlClass{result-tex}{4-3\mathrm{i}}</span>.</p>
+  </div>
+</section>
+
+<!-- ===== §4 SECTION ===== -->
+<section class="slide section">
+  <div class="num-big">4</div>
+  <h1>Équations<br>du deuxième degré</h1>
+</section>
+
+<!-- 4 discriminant -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Discriminant</div>
+  <h2>Toujours résoluble dans ℂ</h2>
+  <div class="card amber">
+    <span class="tag">Théorème</span>
+    <p class="sm"><span data-tex>az^2+bz+c=0</span> (<span data-tex>a,b,c</span> réels, <span data-tex>a\neq0</span>), <span data-tex>\Delta=b^2-4ac</span> :</p>
+    <ul class="props sm" style="margin-top:.4rem">
+      <li>• <span data-tex>\Delta>0</span> : deux racines réelles <span data-tex>\tfrac{-b\pm\sqrt\Delta}{2a}</span></li>
+      <li>• <span data-tex>\Delta=0</span> : une racine <span data-tex>\tfrac{-b}{2a}</span></li>
+      <li>• <span data-tex>\Delta<0</span> : deux racines <span class="blank">complexes conjuguées</span> <span data-tex>z=\htmlClass{result-tex}{\dfrac{-b\pm\mathrm{i}\sqrt{-\Delta}}{2a}}</span></li>
+    </ul>
+    <p class="hint-print">complexes conjuguées</p>
+  </div>
+</section>
+
+<!-- 4 exemple + démo canonique -->
+<section class="slide">
+  <div class="two-col top">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Exemple</div>
+      <h2 style="margin-bottom:.9rem">Cas <span data-tex>\Delta<0</span></h2>
+      <div class="ex">
+        <p class="sm">Résoudre <span data-tex>z^2+z+1=0</span>.</p>
+        <div data-tex-display>\Delta = 1-4 = -3 < 0</div>
+        <div data-tex-display>z_1=\frac{-1-\mathrm{i}\sqrt3}{2},\quad z_2=\bar{z_1}=\frac{-1+\mathrm{i}\sqrt3}{2}</div>
+      </div>
+    </div>
+    <div class="card demo">
+      <span class="tag">Démonstration (Δ<0)</span>
+      <p class="sm">Forme canonique : <span data-tex>a\!\left(z+\tfrac{b}{2a}\right)^2-\tfrac{\Delta}{4a}</span>. Comme <span data-tex>\Delta<0</span>, on écrit <span data-tex>\Delta=\mathrm{i}^2(-\Delta)</span> et on factorise par identité remarquable, d'où les deux racines conjuguées.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== §5 SECTION ===== -->
+<section class="slide section">
+  <div class="num-big">5</div>
+  <h1>Polynômes<br>de degré n</h1>
+</section>
+
+<!-- 5 racine et factorisation -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Racines et factorisation</div>
+  <h2>Une racine, un facteur</h2>
+  <div class="card amber">
+    <span class="tag">Propriété</span>
+    <p class="sm">Pour un polynôme <span data-tex>P</span> de degré <span data-tex>n\geq1</span> et <span data-tex>a\in\mathbb{C}</span> :</p>
+    <div data-tex-display>a\text{ racine de }P \iff P(z)=(z-a)\,Q(z)</div>
+    <p class="sm"><span data-tex>Q</span> est de degré <span class="blank">n−1</span>.</p>
+    <p class="hint-print">n−1</p>
+  </div>
+  <div class="card" style="margin-top:.8rem">
+    <span class="tag">Deux conséquences</span>
+    <p class="sm">• Un polynôme de degré <span data-tex>n</span> admet <span class="blank">au plus n</span> racines.<br>• On peut résoudre par <span class="result">racine évidente</span> puis factorisation.</p>
+    <p class="hint-print">au plus n</p>
+  </div>
+</section>
+
+<!-- 5 démo télescopage -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>L'outil clé</div>
+  <h2>La factorisation de <span data-tex>z^n-a^n</span></h2>
+  <div class="card demo">
+    <span class="tag">Identité (télescopage)</span>
+    <div data-tex-display>z^n-a^n=(z-a)\sum_{k=0}^{n-1} z^{\,n-1-k}a^{k}</div>
+    <p class="sm">En développant, tous les termes se simplifient deux à deux sauf <span data-tex>z^n</span> et <span data-tex>-a^n</span>. C'est cette identité qui fonde la propriété « une racine → un facteur ».</p>
+  </div>
+</section>
+
+<!-- 5 Viète -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Relations coefficients–racines</div>
+  <h2>Les formules de Viète</h2>
+  <div class="card amber">
+    <span class="tag">Propriété (admise)</span>
+    <p class="sm">Pour <span data-tex>P(z)=\sum_{k=0}^{n}\alpha_k z^k</span> (degré <span data-tex>n</span>, <span data-tex>\alpha_n\neq0</span>) :</p>
+    <div data-tex-display>\text{somme des racines} = -\frac{\alpha_{n-1}}{\alpha_n}</div>
+    <div data-tex-display>\text{produit des racines} = (-1)^n\frac{\alpha_0}{\alpha_n}</div>
+  </div>
+</section>
+
+<!-- 5 exemple Viète -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application</div>
+  <h2>Racine évidente + Viète</h2>
+  <div class="ex">
+    <p class="sm"><span data-tex>P(z)=z^3-2z^2+z-2</span>. Racine évidente : <span data-tex>P(2)=0</span>.</p>
+    <div data-tex-display>z_1+z_2 = 0 \quad\text{et}\quad z_1 z_2 = 1 \;\Rightarrow\; z_1=\mathrm{i},\ z_2=-\mathrm{i}</div>
+    <div data-tex-display>P(z)=\htmlClass{result-tex}{(z-\mathrm{i})(z+\mathrm{i})(z-2)}</div>
+  </div>
+  <p class="sm muted" style="margin-top:1rem">Dans <span data-tex>\mathbb{R}</span> : <span data-tex>P(z)=(z^2+1)(z-2)</span>.</p>
+</section>
+
+<!-- ===== L'ESSENTIEL ===== -->
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Fiche de révision</div>
+  <h2>L'essentiel du chapitre</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Forme algébrique</span>
+      <p class="sm"><span data-tex>z=x+\mathrm{i}y</span> unique, <span data-tex>\mathrm{i}^2=-1</span>. Égalité ⟺ mêmes parties réelle et imaginaire.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Conjugué</span>
+      <p class="sm"><span data-tex>\bar z=x-\mathrm{i}y</span>. Sert à l'inverse et au quotient (expression conjuguée).</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Second degré</span>
+      <p class="sm"><span data-tex>\Delta<0</span> : deux racines conjuguées <span data-tex>\tfrac{-b\pm\mathrm{i}\sqrt{-\Delta}}{2a}</span>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Polynômes</span>
+      <p class="sm">Degré <span data-tex>n</span> ⟹ au plus <span data-tex>n</span> racines. Racine <span data-tex>a</span> ⟹ facteur <span data-tex>(z-a)</span>. Viète pour somme/produit.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="controls">
+  <button id="prev">‹</button>
+  <span class="num"><span id="cur">1</span>/<span id="tot">1</span></span>
+  <button id="next">›</button>
+  <span class="sep"></span>
+  <label class="toggle" title="Masquer les mots-clés"><input type="checkbox" id="eleveToggle"><span class="track"></span><span>Mode élève</span></label>
+  <span class="sep"></span>
+  <button id="printBtn" title="Imprimer en PDF A4">Imprimer PDF</button>
+</div>
+
+<script>
+function renderMath(){
+  document.querySelectorAll('[data-tex]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+  document.querySelectorAll('[data-tex-display]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{displayMode:true,throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+}
+window.addEventListener('load',()=>setTimeout(renderMath,150));
+
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+const cur=document.getElementById('cur'),tot=document.getElementById('tot'),prog=document.getElementById('prog');
+tot.textContent=slides.length;
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));cur.textContent=i+1;prog.style.width=((i+1)/slides.length*100)+'%';if(slides[i].scrollTop!==undefined)slides[i].scrollTop=0;}
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('prev').onclick=()=>show(i-1);
+document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
+document.getElementById('eleveToggle').addEventListener('change',e=>document.body.classList.toggle('eleve',e.target.checked));
+document.getElementById('printBtn').onclick=()=>window.print();
+show(0);
+</script>
+</body>
+</html>
