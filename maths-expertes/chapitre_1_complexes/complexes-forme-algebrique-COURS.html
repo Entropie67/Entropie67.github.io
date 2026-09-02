@@ -98,9 +98,8 @@ svg.plane{width:min(40vw,480px);height:auto;overflow:visible}
 /* progress */
 .progress{position:fixed;top:0;left:0;height:3px;background:var(--violet);z-index:60;transition:width .3s}
 
-/* mode élève */
-.blank{color:transparent;background:rgba(183,156,255,.14);border-bottom:2px solid var(--violet-soft);border-radius:3px;padding:0 .15em}
-body:not(.eleve) .blank{color:inherit;background:transparent;border-bottom:none;padding:0}
+/* mots-clés du cours : rendus en texte normal (l'ancien « mode élève » à trous a été retiré) */
+.blank{color:inherit}
 .hint-print{display:none}
 
 @media print{
@@ -126,7 +125,6 @@ body:not(.eleve) .blank{color:inherit;background:transparent;border-bottom:none;
   .plane-wrap{page-break-inside:avoid} svg.plane{width:62mm}
   .plane .lbl{fill:var(--ink)}
   .proj,.ptgroup{opacity:1 !important}
-  body.eleve .blank{color:transparent;background:transparent;border-bottom:1.1px solid var(--ink);min-width:2.5em;display:inline-block}
   .hint-print{display:block;font-size:8pt;color:#999;font-style:italic;margin-top:1.5mm}
   .result-tex{color:#B8730C}
 }
@@ -137,28 +135,95 @@ body:not(.eleve) .blank{color:inherit;background:transparent;border-bottom:none;
 .sets-wrap{display:flex;justify-content:center;align-items:center}
 .sets-svg{width:min(38vw,440px);height:auto}
 .sets-svg .setlbl{font-family:'Fraunces',serif;font-size:22px;font-weight:600;text-anchor:middle}
-.sets-svg .setnum{font-family:'Inter';font-size:13px;fill:var(--paper);text-anchor:middle;opacity:.85}
 .setlist li{display:flex;align-items:center;gap:.6rem;margin:.3rem 0}
 .setlist .chip{width:.85rem;height:.85rem;border-radius:4px;background:var(--c);flex:none}
 .openbox{margin-top:1.1rem;padding:.7rem .9rem;border:1px dashed var(--muted);border-radius:10px;max-width:52ch}
 /* animation : révélation de N vers C */
 .slide[data-sets] .layer{opacity:0}
-.slide[data-sets] .setnum{opacity:0}
 .slide[data-sets].active .layer{animation:setin .5s ease forwards}
-.slide[data-sets].active .setnum{animation:setin .4s ease forwards}
 .slide[data-sets].active .lN{animation-delay:.15s}.slide[data-sets].active .lZ{animation-delay:.35s}
 .slide[data-sets].active .lD{animation-delay:.55s}.slide[data-sets].active .lQ{animation-delay:.75s}
 .slide[data-sets].active .lR{animation-delay:.95s}.slide[data-sets].active .lC{animation-delay:1.15s}
 .slide[data-sets].active .lH{animation-delay:1.4s}
 @keyframes setin{from{opacity:0}to{opacity:1}}
-@media (prefers-reduced-motion:reduce){.slide[data-sets] .layer,.slide[data-sets] .setnum{animation:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.slide[data-sets] .layer{animation:none;opacity:1}}
 @media print{
   .sets-svg{width:70mm}
-  .sets-svg .setlbl{font-size:11pt}.sets-svg .setnum{fill:var(--ink);font-size:8pt}
-  .slide[data-sets] .layer,.slide[data-sets] .setnum{opacity:1 !important;animation:none}
+  .sets-svg .setlbl{font-size:11pt}
+  .slide[data-sets] .layer{opacity:1 !important;animation:none}
   .sets-svg .lN ellipse,.layer{fill-opacity:1}
   .openbox{border-color:#bbb}
 }
+
+/* ================= SOMMAIRE ================= */
+.toc-back{position:fixed;inset:0;background:rgba(20,18,40,.62);backdrop-filter:blur(3px);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+.toc-back.open{opacity:1;pointer-events:auto}
+.toc{position:fixed;z-index:71;left:50%;top:50%;transform:translate(-50%,-46%) scale(.97);width:min(430px,92vw);max-height:76vh;overflow-y:auto;
+     background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1.1rem 1.2rem;
+     opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.toc.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.toc h4{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--violet-soft);margin-bottom:.6rem;padding-left:.5rem}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc button{width:100%;display:flex;gap:.75rem;align-items:baseline;text-align:left;background:transparent;border:none;cursor:pointer;
+            font-family:inherit;font-size:.97rem;line-height:1.35;color:var(--paper);padding:.62rem .55rem;border-radius:9px;transition:background .18s}
+.toc button:hover,.toc button:focus-visible{background:rgba(124,77,255,.22);outline:none}
+.toc .tnum{color:var(--violet-soft);font-weight:600;font-size:.8rem;min-width:1.1rem;flex:none}
+
+/* ================= MODE PORTABLE ================= */
+body.mobile{overflow:visible;height:auto;min-height:100%;-webkit-text-size-adjust:100%}
+body.mobile .deck{position:static;inset:auto}
+body.mobile .slide{position:static;inset:auto;display:flex !important;opacity:1 !important;overflow:visible;
+                   justify-content:flex-start;padding:1.7rem 1.15rem 1.9rem;border-bottom:1px solid var(--line);scroll-margin-top:0}
+body.mobile .slide:last-of-type{border-bottom:none;padding-bottom:6.5rem}
+
+/* couverture et intertitres */
+body.mobile .slide.cover{padding-top:3rem;padding-bottom:2.6rem}
+body.mobile .slide.section{background:rgba(124,77,255,.09);border-bottom:none;padding:2.2rem 1.15rem 1.6rem;align-items:flex-start}
+body.mobile .slide.section .num-big{font-size:3.4rem;line-height:.8;margin-bottom:.3rem}
+body.mobile .slide.section h1{margin-top:0}
+
+/* typographie : tailles fixes, plus de vw */
+body.mobile h1{font-size:1.95rem;line-height:1.12}
+body.mobile .slide.cover h1{font-size:2.25rem}
+body.mobile h2{font-size:1.42rem;margin-bottom:.85rem}
+body.mobile h3{font-size:1.05rem}
+body.mobile .lead{font-size:1.02rem;line-height:1.6;max-width:none}
+body.mobile .sm{font-size:.95rem;line-height:1.55}
+body.mobile .ex{font-size:1rem;line-height:1.8}
+body.mobile .eyebrow{font-size:.78rem;margin-bottom:.7rem}
+
+/* une seule colonne, cartes pleine largeur */
+body.mobile .two-col,body.mobile .grid2{grid-template-columns:1fr;gap:1.3rem}
+body.mobile .card{max-width:none;padding:1rem 1.1rem;border-radius:0 12px 12px 0}
+body.mobile .openbox{max-width:none}
+
+/* figures : pleine largeur */
+body.mobile .sets-wrap,body.mobile .plane-wrap{margin-top:.4rem}
+body.mobile svg.plane{width:min(84vw,420px)}
+body.mobile .sets-svg{width:min(86vw,430px)}
+
+/* formules longues : scroll horizontal plutôt que débordement */
+body.mobile [data-tex-display],body.mobile .katex-display{overflow-x:auto;overflow-y:hidden;padding-bottom:.35rem}
+body.mobile .katex-display>.katex{text-align:left}
+
+/* barre d'outils compacte, collée en bas */
+body.mobile .controls{left:0;right:0;bottom:0;transform:none;width:100%;border-radius:0;border-left:none;border-right:none;border-bottom:none;
+                      justify-content:space-between;gap:.3rem;
+                      padding:.5rem max(.8rem,env(safe-area-inset-left)) calc(.5rem + env(safe-area-inset-bottom)) max(.8rem,env(safe-area-inset-right))}
+body.mobile #prev,body.mobile #next,body.mobile .num,body.mobile #printBtn,body.mobile .sep{display:none}
+body.mobile .controls button,body.mobile .toggle{padding:.55rem .8rem}
+
+/* sommaire en feuille depuis le bas */
+body.mobile .toc{top:auto;bottom:0;left:0;width:100%;max-height:72vh;transform:translateY(14px);
+                 border-radius:18px 18px 0 0;border-bottom:none;padding-bottom:calc(1.3rem + env(safe-area-inset-bottom))}
+body.mobile .toc.open{transform:translateY(0)}
+body.mobile .toc button{padding:.75rem .55rem;font-size:1rem}
+
+/* toutes les diapos étant affichées, les animations « au passage » sont figées en état final */
+body.mobile .slide[data-sets] .layer{opacity:1;animation:none}
+body.mobile .plane .proj,body.mobile .ptgroup{opacity:1 !important;animation:none}
+
+@media print{.toc,.toc-back{display:none !important}}
 </style>
 </head>
 <body>
@@ -220,13 +285,6 @@ body:not(.eleve) .blank{color:inherit;background:transparent;border-bottom:none;
         <!-- N -->
         <ellipse class="layer lN" cx="210" cy="266" rx="52" ry="38" fill="rgba(183,156,255,.16)" stroke="var(--n)" stroke-width="2"/>
         <text class="setlbl" x="210" y="272" fill="var(--n)">ℕ</text>
-        <!-- exemples de nombres, un par couronne -->
-        <text class="setnum" x="210" y="250">7</text>
-        <text class="setnum" x="210" y="300">−3</text>
-        <text class="setnum" x="210" y="332">1,25</text>
-        <text class="setnum" x="145" y="300">⅓</text>
-        <text class="setnum" x="210" y="356">√2</text>
-        <text class="setnum" x="330" y="150" fill="var(--violet-soft)">2+3i</text>
       </svg>
     </div>
   </div>
@@ -242,7 +300,7 @@ body:not(.eleve) .blank{color:inherit;background:transparent;border-bottom:none;
       <p class="lead" style="margin-top:.9rem"><span data-tex>z_M</span> est <span class="result">l'affixe</span> de <span data-tex>M</span> ; <span data-tex>M</span> est <span class="result">l'image</span> de <span data-tex>z_M</span>.</p>
     </div>
     <div class="plane-wrap">
-      <svg class="plane" viewBox="-40 -170 300 300">
+      <svg class="plane" viewBox="-30 -178 300 207">
         <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--paper)"/></marker></defs>
         <g class="grid"><line x1="60" y1="-160" x2="60" y2="20"/><line x1="120" y1="-160" x2="120" y2="20"/><line x1="180" y1="-160" x2="180" y2="20"/><line x1="0" y1="-40" x2="220" y2="-40"/><line x1="0" y1="-80" x2="220" y2="-80"/><line x1="0" y1="-120" x2="220" y2="-120"/></g>
         <line class="axis ax-re" x1="-20" y1="0" x2="230" y2="0" marker-end="url(#arrow)"/>
@@ -364,7 +422,7 @@ body:not(.eleve) .blank{color:inherit;background:transparent;border-bottom:none;
       <p class="sm muted" style="margin-top:.8rem"><span data-tex>N(\bar z)</span> est le symétrique de <span data-tex>M(z)</span> par rapport à l'<span class="result">axe réel</span>.</p>
     </div>
     <div class="plane-wrap">
-      <svg class="plane" viewBox="-40 -140 300 300">
+      <svg class="plane" viewBox="-30 -145 260 272">
         <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--paper)"/></marker></defs>
         <line class="axis ax-re" x1="-20" y1="0" x2="220" y2="0" marker-end="url(#arrow2)"/>
         <line class="axis ax-im" x1="0" y1="120" x2="0" y2="-135" marker-end="url(#arrow2)"/>
@@ -568,10 +626,18 @@ body:not(.eleve) .blank{color:inherit;background:transparent;border-bottom:none;
   <span class="num"><span id="cur">1</span>/<span id="tot">1</span></span>
   <button id="next">›</button>
   <span class="sep"></span>
-  <label class="toggle" title="Masquer les mots-clés"><input type="checkbox" id="eleveToggle"><span class="track"></span><span>Mode élève</span></label>
+  <button id="tocBtn" title="Aller à une partie">Sommaire</button>
+  <span class="sep"></span>
+  <label class="toggle" title="Affichage optimisé pour smartphone"><input type="checkbox" id="mobileToggle"><span class="track"></span><span>Mode portable</span></label>
   <span class="sep"></span>
   <button id="printBtn" title="Imprimer en PDF A4">Imprimer PDF</button>
 </div>
+
+<div class="toc-back" id="tocBack"></div>
+<nav class="toc" id="toc" aria-label="Sommaire du chapitre" aria-hidden="true">
+  <h4>Sommaire</h4>
+  <ol id="tocList"></ol>
+</nav>
 
 <script>
 function renderMath(){
@@ -586,10 +652,73 @@ tot.textContent=slides.length;
 function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));cur.textContent=i+1;prog.style.width=((i+1)/slides.length*100)+'%';if(slides[i].scrollTop!==undefined)slides[i].scrollTop=0;}
 document.getElementById('next').onclick=()=>show(i+1);
 document.getElementById('prev').onclick=()=>show(i-1);
-document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
-document.getElementById('eleveToggle').addEventListener('change',e=>document.body.classList.toggle('eleve',e.target.checked));
+document.addEventListener('keydown',e=>{if(document.body.classList.contains('mobile'))return;if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
 document.getElementById('printBtn').onclick=()=>window.print();
+
+/* ---------- sommaire ---------- */
+const toc=document.getElementById('toc'),tocBack=document.getElementById('tocBack'),tocList=document.getElementById('tocList');
+function titleOf(h){
+  if(!h)return'Partie';
+  const c=h.cloneNode(true);
+  c.querySelectorAll('br').forEach(b=>b.replaceWith(document.createTextNode(' ')));
+  return c.textContent.replace(/\s+/g,' ').trim();
+}
+(function buildToc(){
+  const entries=[{n:'↑',t:'Début du cours',k:0}];
+  slides.forEach((s,k)=>{
+    if(!s.classList.contains('section'))return;
+    const num=s.querySelector('.num-big');
+    entries.push({n:num?num.textContent.trim():'',t:titleOf(s.querySelector('h1')),k});
+  });
+  entries.forEach(e=>{
+    const li=document.createElement('li'),b=document.createElement('button');
+    b.dataset.i=e.k;
+    const sp=document.createElement('span');sp.className='tnum';sp.textContent=e.n;
+    b.append(sp,document.createTextNode(e.t));
+    li.append(b);tocList.append(li);
+  });
+})();
+function openToc(o){toc.classList.toggle('open',o);tocBack.classList.toggle('open',o);toc.setAttribute('aria-hidden',String(!o));}
+document.getElementById('tocBtn').onclick=()=>openToc(!toc.classList.contains('open'));
+tocBack.onclick=()=>openToc(false);
+tocList.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const n=+b.dataset.i;openToc(false);
+  if(document.body.classList.contains('mobile')){
+    if(n===0)window.scrollTo({top:0,behavior:'smooth'});
+    else slides[n].scrollIntoView({behavior:'smooth',block:'start'});
+  }else show(n);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')openToc(false)});
+
+/* ---------- mode portable ---------- */
+const mobileToggle=document.getElementById('mobileToggle');
+const mq=window.matchMedia('(max-width: 820px)');
+let manual=false;
+function scrollProg(){
+  const h=document.documentElement,max=h.scrollHeight-h.clientHeight;
+  prog.style.width=(max>4?Math.min(100,h.scrollTop/max*100):100)+'%';
+}
+function setMobile(on){
+  document.body.classList.toggle('mobile',on);
+  mobileToggle.checked=on;
+  openToc(false);
+  if(on){
+    requestAnimationFrame(()=>{
+      if(i>0)slides[i].scrollIntoView({block:'start'});
+      scrollProg();
+    });
+  }else{
+    window.scrollTo(0,0);
+    show(i);
+  }
+}
+mobileToggle.addEventListener('change',e=>{manual=true;setMobile(e.target.checked)});
+mq.addEventListener('change',e=>{if(!manual)setMobile(e.matches)});
+window.addEventListener('scroll',()=>{if(document.body.classList.contains('mobile'))scrollProg()},{passive:true});
+
 show(0);
+setMobile(mq.matches);
 </script>
 </body>
 </html>
