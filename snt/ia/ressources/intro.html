@@ -606,6 +606,33 @@
   /* =========================================================
      SCÈNE 9 — HUMANITY'S LAST EXAM (ce que c'est)
      ========================================================= */
+  /* =========================================================
+     SCÈNE 9 — QU'EST-CE QU'UN BENCHMARK ? (respiration)
+     ========================================================= */
+  .bench{
+    position:absolute;inset:0;z-index:35;background:var(--ink);color:var(--paper);
+    opacity:0;pointer-events:none;transition:opacity .5s ease;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(1.2rem,4vh,2.5rem) clamp(1.2rem,5vw,4rem);
+  }
+  .bench.on{opacity:1;pointer-events:auto}
+  .bench-eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.6rem}
+  .bench-title{font-family:var(--display);text-transform:uppercase;line-height:.95;
+    font-size:clamp(1.8rem,6vw,4.2rem)}
+  .bench-title em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.55)}
+  .bench-lead{max-width:70ch;margin-top:1rem;font-family:var(--serif);
+    font-size:clamp(1rem,2vw,1.35rem);line-height:1.5;color:#cfc8b8}
+  .bench-lead b{color:#fff}
+  .bench-chips{display:flex;flex-wrap:wrap;gap:.6rem;margin:clamp(1.4rem,4vh,2.2rem) 0}
+  .bench-chip{font-family:var(--mono);font-size:clamp(.72rem,1.4vw,.9rem);
+    padding:.5rem .85rem;border:1px solid rgba(233,228,216,.22);color:#c9c2b2;
+    background:rgba(233,228,216,.04)}
+  .bench-chip.more{border-style:dashed;color:var(--muted)}
+  .bench-foot{max-width:76ch;font-family:var(--serif);
+    font-size:clamp(1rem,2vw,1.3rem);line-height:1.5;color:#e9e4d8}
+  .bench-foot b{color:var(--signal);text-shadow:0 0 20px rgba(31,92,255,.4)}
+
   .hle{
     position:absolute;inset:0;z-index:36;background:var(--ink);color:var(--paper);
     opacity:0;pointer-events:none;transition:opacity .5s ease;
@@ -1468,7 +1495,27 @@
     <p class="ww-foot"><span class="ww-click">Chaque fiche est cliquable&nbsp;: elle ouvre le site officiel du labo. </span>Beaucoup de noms — et ce n'est plus un duel américain&nbsp;: la Chine est au niveau, souvent en «&nbsp;open&nbsp;». Mais un point commun&nbsp;: sous le capot, souvent le même type de mécanisme. C'est lui qu'on va démonter.</p>
   </div>
 
-  <!-- ============ SCÈNE 9 : HUMANITY'S LAST EXAM ============ -->
+  <!-- ============ SCÈNE 9 : QU'EST-CE QU'UN BENCHMARK ? ============ -->
+  <div class="bench" id="bench">
+    <div class="bench-eyebrow">Comment sait-on qu'une IA est « forte » ?</div>
+    <h2 class="bench-title">On lui fait passer<br>des <em>examens</em></h2>
+    <p class="bench-lead">Ces tests standardisés s'appellent des <b>benchmarks</b>&nbsp;: le même questionnaire, la même note pour tout le monde. De quoi <b>comparer</b> les modèles entre eux — et suivre leurs progrès dans le temps.</p>
+
+    <div class="bench-chips">
+      <span class="bench-chip">🧮 Maths — du lycée à l'olympiade</span>
+      <span class="bench-chip">💻 Programmation</span>
+      <span class="bench-chip">🔬 Sciences niveau doctorat</span>
+      <span class="bench-chip">📖 Compréhension de texte</span>
+      <span class="bench-chip">🌐 Naviguer sur le web</span>
+      <span class="bench-chip">🤖 Agents — tâches longues</span>
+      <span class="bench-chip">🛡️ Sûreté &amp; robustesse</span>
+      <span class="bench-chip more">… et des dizaines d'autres</span>
+    </div>
+
+    <p class="bench-foot">Il en existe des <b>dizaines</b> — des maths d'étudiants américains jusqu'à des questions qui colleraient un prix Nobel hors de sa spécialité. Arrêtons-nous sur <b>deux</b> d'entre eux.</p>
+  </div>
+
+  <!-- ============ SCÈNE 10 : HUMANITY'S LAST EXAM ============ -->
   <div class="hle" id="hle">
     <div class="hle-eyebrow">Une question de méthode</div>
     <h2 class="hle-title">Humanity's Last&nbsp;Exam</h2>
@@ -1685,6 +1732,7 @@
     <div class="dot" data-i="8"></div>
     <div class="dot" data-i="9"></div>
     <div class="dot" data-i="10"></div>
+    <div class="dot" data-i="11"></div>
   </div>
   <button class="btn" id="next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
@@ -1699,13 +1747,14 @@
   const activity = document.getElementById('activity');
   const epist    = document.getElementById('epist');
   const whoswho  = document.getElementById('whoswho');
+  const bench    = document.getElementById('bench');
   const hle      = document.getElementById('hle');
   const hlec     = document.getElementById('hlec');
   const gpqa     = document.getElementById('gpqa');
   const dots     = [...document.querySelectorAll('.dot')];
   let scene = 0;   // 0 chaos·1 révélation·2 accél·3 frise·4 catégories
-                   // 5 fil·6 activité·7 qui·8 HLE·9 scores HLE·10 GPQA
-  const MAX = 10;
+                   // 5 fil·6 activité·7 qui·8 benchmark·9 HLE·10 scores HLE·11 GPQA
+  const MAX = 11;
   // scènes défilables : la molette/les flèches ↑↓ y font défiler le contenu
   // au lieu de changer de diapo, et le clic n'avance pas.
   const SCROLLABLE = {3:'tlTrack', 4:'epTrack'};
@@ -1720,9 +1769,10 @@
     thread.classList.toggle('on',   scene === 5);
     activity.classList.toggle('on', scene === 6);
     whoswho.classList.toggle('on',  scene === 7);
-    hle.classList.toggle('on',      scene === 8);
-    hlec.classList.toggle('on',     scene === 9);
-    gpqa.classList.toggle('on',     scene === 10);
+    bench.classList.toggle('on',    scene === 8);
+    hle.classList.toggle('on',      scene === 9);
+    hlec.classList.toggle('on',     scene === 10);
+    gpqa.classList.toggle('on',     scene === 11);
     dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
     const hint = document.getElementById('hint');
     if(hint) hint.textContent = SCROLLABLE[scene]
@@ -1731,8 +1781,8 @@
     if(scene === 3 && typeof window.resetTimeline === 'function') window.resetTimeline();
     if(scene === 4){ const t = document.getElementById('epTrack'); if(t) t.scrollTop = 0; }
     // les barres des graphiques se remplissent à l'entrée sur la scène
-    if(scene === 9)  fillBars('#hlec .hb-fill', 45);
-    if(scene === 10) fillBars('#gpqa .gq-fill', 130);
+    if(scene === 10) fillBars('#hlec .hb-fill', 45);
+    if(scene === 11) fillBars('#gpqa .gq-fill', 130);
   }
   function fillBars(sel, step){
     const fills = [...document.querySelectorAll(sel)];
