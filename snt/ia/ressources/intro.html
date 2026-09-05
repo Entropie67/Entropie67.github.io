@@ -546,7 +546,7 @@
     overflow-y:auto;
   }
   .whoswho.on{opacity:1;pointer-events:auto}
-  .ww-head{flex:0 0 auto;margin-bottom:1.4rem}
+  .ww-head{flex:0 0 auto;margin-bottom:1rem}
   .ww-head .eyebrow{
     font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;
     text-transform:uppercase;color:var(--signal-dk);margin-bottom:.6rem;
@@ -558,13 +558,13 @@
   .ww-lead{margin-top:.8rem;max-width:64ch;font-size:clamp(.95rem,1.8vw,1.2rem);
     line-height:1.5;color:#4a4436}
   .ww-grid{
-    flex:1 1 auto;display:grid;gap:.7rem;align-content:center;
+    flex:1 1 auto;display:grid;gap:.5rem;align-content:center;
     grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-    margin:.7rem 0;
+    margin:.5rem 0;
   }
   .lab{
     background:var(--paper-2);border:1px solid rgba(0,0,0,.18);
-    padding:.7rem .85rem;position:relative;
+    padding:.55rem .8rem;position:relative;
     box-shadow:2px 3px 0 rgba(0,0,0,.08);
     /* fiches cliquables → site officiel du labo */
     display:block;text-decoration:none;color:var(--ink);
@@ -582,7 +582,7 @@
   .lab-meta{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;
     text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
   .lab-models{font-weight:700;font-size:.92rem;color:var(--signal-dk);margin-bottom:.3rem}
-  .lab-note{font-size:.78rem;line-height:1.35;color:#5a5344}
+  .lab-note{font-size:.76rem;line-height:1.28;color:#5a5344}
   /* liseré gauche = repère régional */
   .lab{border-left:4px solid rgba(0,0,0,.25)}
   .lab.west{border-left-color:var(--signal)}          /* bleu = USA */
@@ -600,8 +600,12 @@
   .ww-legend .lg-eu{border-left-color:#12924f}
   .ww-click{font-style:normal;font-family:var(--mono);font-size:.72rem;
     letter-spacing:.06em;color:var(--signal-dk)}
-  .ww-foot{flex:0 0 auto;font-family:var(--serif);font-style:italic;
-    font-size:clamp(.95rem,1.9vw,1.25rem);color:var(--signal-dk);max-width:64ch}
+  .ww-foot{flex:0 0 auto;margin-top:.5rem;font-family:var(--serif);font-style:italic;
+    font-size:clamp(.9rem,1.5vw,1.05rem);color:var(--signal-dk);max-width:70ch}
+  .ww-note{flex:0 0 auto;margin-top:.55rem;border-left:4px solid var(--signal);
+    padding:.55rem .9rem;background:rgba(31,92,255,.06);max-width:82ch;
+    font-family:var(--serif);font-size:clamp(.82rem,1.5vw,1rem);line-height:1.42;color:#3a352c}
+  .ww-note b{color:var(--signal-dk)}
 
   /* =========================================================
      SCÈNE 9 — HUMANITY'S LAST EXAM (ce que c'est)
@@ -1492,7 +1496,9 @@
 
 
     </div>
-    <p class="ww-foot"><span class="ww-click">Chaque fiche est cliquable&nbsp;: elle ouvre le site officiel du labo. </span>Beaucoup de noms — et ce n'est plus un duel américain&nbsp;: la Chine est au niveau, souvent en «&nbsp;open&nbsp;». Mais un point commun&nbsp;: sous le capot, souvent le même type de mécanisme. C'est lui qu'on va démonter.</p>
+    <p class="ww-note"><b>À savoir — un modèle «&nbsp;frontière&nbsp;».</b> On appelle ainsi les modèles les plus avancés du moment&nbsp;: ceux qui repoussent la limite de ce qu'une IA sait faire — les prouesses de la frise, par exemple. Un petit club, très disputé, qui change au fil des mois.</p>
+
+    <p class="ww-foot"><span class="ww-click">Chaque fiche est cliquable&nbsp;: elle ouvre le site officiel du labo. </span>Et ce n'est plus un duel américain&nbsp;: la Chine est au niveau, souvent en «&nbsp;open&nbsp;».</p>
   </div>
 
   <!-- ============ SCÈNE 9 : QU'EST-CE QU'UN BENCHMARK ? ============ -->
