@@ -637,7 +637,7 @@
     position:absolute;inset:0;z-index:36;background:var(--ink);color:var(--paper);
     opacity:0;pointer-events:none;transition:opacity .5s ease;
     display:flex;flex-direction:column;overflow-y:auto;
-    padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4vw,3.5rem) clamp(1.5rem,4vh,3rem);
+    padding:clamp(.7rem,2vh,1.3rem) clamp(1.2rem,4vw,3.5rem) clamp(.9rem,2.2vh,1.5rem);
   }
   .hle.on{opacity:1;pointer-events:auto}
   .hle-eyebrow{
@@ -646,27 +646,27 @@
   }
   .hle-title{
     font-family:var(--display);text-transform:uppercase;line-height:.95;
-    font-size:clamp(1.7rem,5.5vw,4rem);
+    font-size:clamp(1.5rem,4.4vw,3rem);
   }
   .hle-fr{
-    font-family:var(--serif);font-style:italic;color:#b9c6e0;margin-top:.5rem;
-    font-size:clamp(.92rem,1.8vw,1.15rem);
+    font-family:var(--serif);font-style:italic;color:#b9c6e0;margin-top:.3rem;
+    font-size:clamp(.9rem,1.6vw,1.05rem);
   }
   .hle-body{
     display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(1.2rem,3vw,2.5rem);
-    margin-top:clamp(1rem,3vh,1.8rem);align-items:start;
+    margin-top:clamp(.6rem,1.8vh,1.1rem);align-items:start;
   }
   .hle-h{
     font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
-    color:#7fa0ff;padding-bottom:.4rem;margin-bottom:.8rem;
+    color:#7fa0ff;padding-bottom:.3rem;margin-bottom:.42rem;
     border-bottom:1px solid rgba(127,160,255,.35);
   }
-  .hle p{font-size:clamp(.85rem,1.5vw,1rem);line-height:1.55;color:#c9c2b2;margin-bottom:.7rem}
+  .hle p{font-size:clamp(.85rem,1.5vw,1rem);line-height:1.4;color:#c9c2b2;margin-bottom:.4rem}
   .hle strong{color:var(--paper)}
   .hle-en{font-style:italic;color:var(--muted)}
 
   /* chiffres clés */
-  .hle-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-bottom:1rem}
+  .hle-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.7rem}
   .hle-stat{border:1px solid rgba(233,228,216,.16);padding:.6rem .7rem}
   .hle-stat b{
     display:block;font-family:var(--display);color:var(--signal);line-height:1;
@@ -688,17 +688,17 @@
   .hle-mix-lg i{width:9px;height:9px;display:inline-block;flex:0 0 auto}
 
   .hle-care{
-    margin-top:1rem;border-left:3px solid var(--alarm);padding-left:1rem;
+    margin-top:.7rem;border-left:3px solid var(--alarm);padding-left:1rem;
   }
   .hle-care .hle-h{color:#ff6a4d;border-color:rgba(255,106,77,.35)}
   .hle-quote{
-    margin-top:clamp(1rem,3vh,1.6rem);border-top:1px solid rgba(233,228,216,.15);
-    padding-top:1rem;font-family:var(--serif);font-style:italic;color:#b9c6e0;
-    font-size:clamp(.9rem,1.7vw,1.12rem);line-height:1.5;
+    margin-top:clamp(.6rem,1.8vh,1rem);border-top:1px solid rgba(233,228,216,.15);
+    padding-top:.7rem;font-family:var(--serif);font-style:italic;color:#b9c6e0;
+    font-size:clamp(.88rem,1.5vw,1.02rem);line-height:1.45;
   }
   .hle-quote b{font-style:normal;color:var(--paper)}
   .hle-src{
-    display:inline-block;margin-top:.7rem;font-family:var(--mono);font-size:.7rem;
+    display:inline-block;margin-top:.5rem;font-family:var(--mono);font-size:.7rem;
     color:#7fa0ff;text-decoration:none;border-bottom:1px solid rgba(127,160,255,.4);
   }
 
@@ -712,7 +712,7 @@
     padding:clamp(.9rem,2.5vh,1.6rem) clamp(1.2rem,4vw,3.5rem) clamp(1.2rem,3vh,2rem);
   }
   .hlec.on{opacity:1;pointer-events:auto}
-  .hlec-head{flex:0 0 auto;margin-bottom:clamp(.8rem,2.5vh,1.4rem)}
+  .hlec-head{flex:0 0 auto;margin-bottom:clamp(.5rem,1.6vh,.9rem)}
   .hlec-title{
     font-family:var(--display);text-transform:uppercase;line-height:1;
     font-size:clamp(1.2rem,3.4vw,2.4rem);
@@ -724,16 +724,16 @@
 
   .hb-group{
     font-family:var(--mono);font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;
-    color:#7fa0ff;margin:.9rem 0 .5rem;
+    color:#7fa0ff;margin:.55rem 0 .32rem;
   }
   .hb-group:first-child{margin-top:0}
-  .hb{display:flex;align-items:center;gap:.6rem;margin-bottom:.32rem}
+  .hb{display:flex;align-items:center;gap:.6rem;margin-bottom:.16rem}
   .hb-name{
     flex:0 0 clamp(7rem,17vw,12rem);font-family:var(--mono);
     font-size:clamp(.6rem,1.1vw,.75rem);letter-spacing:.04em;color:#c9c2b2;
     text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .hb-track{flex:1 1 auto;height:clamp(13px,2.2vh,20px);background:rgba(233,228,216,.06);position:relative}
+  .hb-track{flex:1 1 auto;height:clamp(11px,1.8vh,17px);background:rgba(233,228,216,.06);position:relative}
   .hb-fill{
     height:100%;background:#6b6455;
     transition:width .8s cubic-bezier(.2,.8,.2,1);
@@ -748,10 +748,10 @@
   .hb.first .hb-name{color:#ff6a4d}
 
   /* la ligne « 2027 ? » : une barre hachurée qui sort du cadre */
-  .hb.future{margin-top:.5rem;align-items:center}
+  .hb.future{margin-top:.3rem;align-items:center}
   .hb.future .hb-name{font-family:var(--display);font-size:clamp(.85rem,1.8vw,1.2rem);
     color:var(--signal);letter-spacing:0}
-  .hb.future .hb-track{height:clamp(20px,3.4vh,32px);background:transparent;
+  .hb.future .hb-track{height:clamp(15px,2.4vh,22px);background:transparent;
     border:1px dashed rgba(31,92,255,.45)}
   .hb-q{
     background:repeating-linear-gradient(135deg,
@@ -765,7 +765,7 @@
   .hb-group.future{color:var(--signal);opacity:.9}
 
   .hlec-foot{
-    margin-top:auto;padding-top:clamp(.9rem,2.5vh,1.5rem);display:grid;
+    margin-top:auto;padding-top:clamp(.55rem,1.6vh,1rem);display:grid;
     grid-template-columns:1.2fr 1fr;gap:clamp(1rem,3vw,2rem);align-items:start;
   }
   .hlec-punch{
@@ -776,7 +776,7 @@
   .hlec-punch em{font-style:normal;color:var(--paper);text-shadow:none}
   .hlec-warn{border-left:3px solid var(--alarm);padding-left:.9rem}
   .hlec-warn p{
-    font-size:clamp(.72rem,1.25vw,.86rem);line-height:1.45;color:#a9a294;margin-bottom:.45rem;
+    font-size:clamp(.72rem,1.25vw,.86rem);line-height:1.38;color:#a9a294;margin-bottom:.3rem;
   }
   .hlec-warn strong{color:#ff6a4d}
   .hlec-warn a{color:#7fa0ff;text-decoration:none;border-bottom:1px solid rgba(127,160,255,.35)}
@@ -1661,7 +1661,7 @@
       <div class="hlec-warn">
         <p><strong>À lire avec précaution.</strong> Les deux blocs viennent de <strong>deux classements différents</strong>&nbsp;: les protocoles ne sont pas identiques au dixième de point près. C'est l'ordre de grandeur qui compte, pas le classement exact.</p>
         <p><strong>Avec outils</strong> (recherche web, exécution de code), certains classements annoncent plus de <strong>60&nbsp;%</strong> — ce n'est plus le même exercice.</p>
-        <p><strong>Et l'examen n'est pas «&nbsp;fini&nbsp;»&nbsp;:</strong> il reste près de la moitié des questions ratées.</p>
+        <p><strong>Et l'examen est loin d'être «&nbsp;résolu&nbsp;»&nbsp;:</strong> même le meilleur modèle se <strong>trompe encore</strong> sur près d'une question sur deux.</p>
         <p><a href="https://agi.safe.ai/" target="_blank" rel="noopener">agi.safe.ai ↗</a> · <a href="https://artificialanalysis.ai/evaluations/humanitys-last-exam" target="_blank" rel="noopener">artificialanalysis.ai ↗</a></p>
       </div>
     </div>
