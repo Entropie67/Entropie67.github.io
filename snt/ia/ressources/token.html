@@ -7,13 +7,16 @@
 <style>
   /* =========================================================
      PALETTE & TOKENS — série SNT IA (cf. intro.html / zoologie.html)
+     Les piles de polices incluent des fallbacks CJK : le texte latin
+     garde Archivo Black/Georgia/Courier, les caractères chinois
+     (absents de ces polices) retombent sur une police système CJK.
      ========================================================= */
   :root{
     --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
     --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
-    --display:'Archivo Black','Arial Black',Impact,sans-serif;
-    --serif:'Georgia','Times New Roman',serif;
-    --mono:'Courier New',ui-monospace,monospace;
+    --display:'Archivo Black','Arial Black',Impact,'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans SC',sans-serif;
+    --serif:'Georgia','Times New Roman','Songti SC','Noto Serif SC','Microsoft YaHei',serif;
+    --mono:'Courier New',ui-monospace,'Menlo','PingFang SC','Microsoft YaHei',monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -235,7 +238,7 @@
   .act .cta small{display:block;font-size:.62rem;color:#dfe7ff;letter-spacing:.08em}
 
   /* =========================================================
-     HUD
+     HUD + sélecteur de langue
      ========================================================= */
   .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
     gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
@@ -249,6 +252,17 @@
   .btn:hover{background:var(--ink);color:var(--paper)}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+  .langsw{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* le chinois : on annule l'inter-lettrage prévu pour le latin */
+  html[lang="zh"] .stitle,html[lang="zh"] .intro .big,html[lang="zh"] .act h2,
+  html[lang="zh"] h3,html[lang="zh"] .tcard .need{letter-spacing:0}
+  html[lang="zh"] .eyebrow,html[lang="zh"] .tag,html[lang="zh"] .tok-cap,
+  html[lang="zh"] .lbox .n,html[lang="zh"] .tmode .sub,html[lang="zh"] .loop-back{letter-spacing:.06em}
 
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   @media (max-width:900px){
@@ -265,67 +279,61 @@
 
   <!-- ============ 0 · OUVERTURE ============ -->
   <div class="pane dark intro on" id="intro">
-    <a class="back" href="zoologie.html">◂ Séance 2 · Zoologie de l'IA</a>
-    <div class="tag">SNT · Enseignement IA · Séance 3</div>
-    <h1 class="big">Le prochain<br><em>mot</em></h1>
-    <p class="line">On est entrés dans le cercle «&nbsp;génératif&nbsp;» de la carte. Au cœur d'un ChatGPT, un moteur tout simple à décrire — mais loin d'être aussi bête qu'il en a l'air.</p>
-    <div class="kick">Token · prédiction du prochain token · et pourquoi ce n'est pas si trivial</div>
+    <a class="back" href="zoologie.html" data-i18n="s0.back">◂ Séance 2 · Zoologie de l'IA</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA · Séance 3</div>
+    <h1 class="big" data-i18n="s0.title">Le prochain<br><em>mot</em></h1>
+    <p class="line" data-i18n="s0.line">On est entrés dans le cercle «&nbsp;génératif&nbsp;» de la carte. Au cœur d'un ChatGPT, un moteur tout simple à décrire — mais loin d'être aussi bête qu'il en a l'air.</p>
+    <div class="kick" data-i18n="s0.kick">Token · prédiction du prochain token · et pourquoi ce n'est pas si trivial</div>
   </div>
 
   <!-- ============ 1 · LE TOKEN ============ -->
   <div class="pane light pad" id="tokens">
-    <div class="eyebrow">Les briques du langage</div>
-    <h2 class="stitle">C'est quoi un «&nbsp;token&nbsp;»&nbsp;?</h2>
-    <p class="lead">Un modèle ne lit pas des lettres, ni tout à fait des mots. Il découpe le texte en <b>tokens</b>&nbsp;: des morceaux de mots, appris à partir de milliards de textes. C'est son unité de base — ce qu'il lit et ce qu'il produit.</p>
+    <div class="eyebrow" data-i18n="s1.eyebrow">Les briques du langage</div>
+    <h2 class="stitle" data-i18n="s1.title">C'est quoi un «&nbsp;token&nbsp;»&nbsp;?</h2>
+    <p class="lead" data-i18n="s1.lead">Un modèle ne lit pas des lettres, ni tout à fait des mots. Il découpe le texte en <b>tokens</b>&nbsp;: des morceaux de mots, appris à partir de milliards de textes. C'est son unité de base — ce qu'il lit et ce qu'il produit.</p>
 
     <div class="tok-block">
-      <div class="tok-cap">Une phrase courante — chaque mot fréquent tient en un seul token</div>
-      <div class="tok-line">
-        <span class="tok a">Le</span><span class="tok b">&nbsp;chat</span><span class="tok c">&nbsp;mange</span><span class="tok a">&nbsp;une</span><span class="tok b">&nbsp;souris</span><span class="tok p">.</span>
-        &nbsp;&nbsp;<span class="tok-count">→ 6 tokens</span>
-      </div>
+      <div class="tok-cap" data-i18n="s1.cap1">Une phrase courante — chaque mot fréquent tient en un seul token</div>
+      <div class="tok-line" data-i18n="s1.line1"><span class="tok a">Le</span><span class="tok b">&nbsp;chat</span><span class="tok c">&nbsp;mange</span><span class="tok a">&nbsp;une</span><span class="tok b">&nbsp;souris</span><span class="tok p">.</span>&nbsp;&nbsp;<span class="tok-count">→ 6 tokens</span></div>
 
-      <div class="tok-cap">Un mot rare et long — il éclate en plusieurs morceaux</div>
-      <div class="tok-line">
-        <span class="tok a">anti</span><span class="tok b">consti</span><span class="tok c">tu</span><span class="tok a">tionnel</span><span class="tok b">lement</span>
-        &nbsp;&nbsp;<span class="tok-count">→ 1 mot, 5 tokens</span>
-      </div>
+      <div class="tok-cap" data-i18n="s1.cap2">Un mot rare et long — il éclate en plusieurs morceaux</div>
+      <div class="tok-line" data-i18n="s1.line2"><span class="tok a">anti</span><span class="tok b">consti</span><span class="tok c">tu</span><span class="tok a">tionnel</span><span class="tok b">lement</span>&nbsp;&nbsp;<span class="tok-count">→ 1 mot, 5 tokens</span></div>
 
       <div class="tok-notes">
-        <div class="tok-note"><b>≈ 3 à 4 lettres</b><span>par token en moyenne — parfois un mot entier, parfois un fragment.</span></div>
-        <div class="tok-note"><b>L'espace compte</b><span>« &nbsp;chat&nbsp;» avec son espace n'est pas le même token que « chat » en début de phrase.</span></div>
-        <div class="tok-note"><b>Ça dépend du modèle</b><span>chaque IA a son propre découpage&nbsp;; ci-dessus, une illustration.</span></div>
+        <div class="tok-note" data-i18n="s1.note1"><b>≈ 3 à 4 lettres</b><span>par token en moyenne — parfois un mot entier, parfois un fragment.</span></div>
+        <div class="tok-note" data-i18n="s1.note2"><b>L'espace compte</b><span>« &nbsp;chat&nbsp;» avec son espace n'est pas le même token que « chat » en début de phrase.</span></div>
+        <div class="tok-note" data-i18n="s1.note3"><b>Ça dépend du modèle</b><span>chaque IA a son propre découpage&nbsp;; ci-dessus, une illustration.</span></div>
       </div>
     </div>
   </div>
 
   <!-- ============ 2 · LA TÂCHE UNIQUE ============ -->
   <div class="pane dark pad" id="tache">
-    <div class="eyebrow">Le cœur de GPT</div>
-    <h2 class="stitle">Une seule tâche&nbsp;:<br>deviner la suite</h2>
-    <p class="lead">Donnez-lui un début de texte. Il répond à <b>une seule question</b>, encore et encore&nbsp;: quel est le <b>prochain token</b> le plus probable&nbsp;?</p>
+    <div class="eyebrow" data-i18n="s2.eyebrow">Le cœur de GPT</div>
+    <h2 class="stitle" data-i18n="s2.title">Une seule tâche&nbsp;:<br>deviner la suite</h2>
+    <p class="lead" data-i18n="s2.lead">Donnez-lui un début de texte. Il répond à <b>une seule question</b>, encore et encore&nbsp;: quel est le <b>prochain token</b> le plus probable&nbsp;?</p>
 
     <div class="loop">
       <div class="loop-row">
-        <div class="lbox"><div class="n">1 · le contexte</div><div class="t">« Le chat mange »</div></div>
+        <div class="lbox"><div class="n" data-i18n="s2.b1n">1 · le contexte</div><div class="t" data-i18n="s2.b1t">« Le chat mange »</div></div>
         <div class="larrow">→</div>
-        <div class="lbox model"><div class="n">2 · le modèle</div><div class="t">attribue une probabilité à <em>chaque</em> token possible</div></div>
+        <div class="lbox model"><div class="n" data-i18n="s2.b2n">2 · le modèle</div><div class="t" data-i18n="s2.b2t">attribue une probabilité à <em>chaque</em> token possible</div></div>
         <div class="larrow">→</div>
-        <div class="lbox"><div class="n">3 · une loterie</div><div class="t">souris&nbsp;·34% &nbsp;poisson&nbsp;·18% &nbsp;croquettes&nbsp;·27%…</div></div>
+        <div class="lbox"><div class="n" data-i18n="s2.b3n">3 · une loterie</div><div class="t" data-i18n="s2.b3t">souris&nbsp;·34% &nbsp;poisson&nbsp;·18% &nbsp;croquettes&nbsp;·27%…</div></div>
         <div class="larrow">→</div>
-        <div class="lbox"><div class="n">4 · on en choisit un</div><div class="t">« Le chat mange <b style="color:#ff8a72">une souris</b> »</div></div>
+        <div class="lbox"><div class="n" data-i18n="s2.b4n">4 · on en choisit un</div><div class="t" data-i18n="s2.b4t">« Le chat mange <b style="color:#ff8a72">une souris</b> »</div></div>
       </div>
-      <div class="loop-back">↻ puis on recommence, avec le token ajouté au contexte — token après token</div>
-      <p class="loop-punch">Écrire une phrase, un paragraphe, une dissertation&nbsp;: c'est <b>répéter des centaines de fois</b> «&nbsp;quel est le prochain token&nbsp;?&nbsp;».</p>
-      <p class="loop-caveat">Attention&nbsp;: c'est le <b>moteur</b> de base. Le ChatGPT que vous utilisez ajoute des couches par-dessus — un réglage par des humains, des outils, une mémoire de la conversation — mais tout part de là. <span class="soft">(on y reviendra.)</span></p>
+      <div class="loop-back" data-i18n="s2.back">↻ puis on recommence, avec le token ajouté au contexte — token après token</div>
+      <p class="loop-punch" data-i18n="s2.punch">Écrire une phrase, un paragraphe, une dissertation&nbsp;: c'est <b>répéter des centaines de fois</b> «&nbsp;quel est le prochain token&nbsp;?&nbsp;».</p>
+      <p class="loop-caveat" data-i18n="s2.caveat">Attention&nbsp;: c'est le <b>moteur</b> de base. Le ChatGPT que vous utilisez ajoute des couches par-dessus — un réglage par des humains, des outils, une mémoire de la conversation — mais tout part de là. <span class="soft">(on y reviendra.)</span></p>
     </div>
   </div>
 
   <!-- ============ 3 · DÉMO INTERACTIVE ============ -->
   <div class="pane dark demo pad" id="demo">
-    <div class="eyebrow">Démo — à la main, pour bien voir</div>
-    <h2 class="stitle">«&nbsp;Le chat mange…&nbsp;»</h2>
-    <p class="dlead">Choisissez un contexte. La machine ne fait qu'une chose&nbsp;: donner une probabilité à chaque mot suivant. Changez le contexte&nbsp;→ tout se redistribue. Cliquez un mot pour l'écrire.</p>
+    <div class="eyebrow" data-i18n="s3.eyebrow">Démo — à la main, pour bien voir</div>
+    <h2 class="stitle" data-i18n="s3.title">«&nbsp;Le chat mange…&nbsp;»</h2>
+    <p class="dlead" data-i18n="s3.dlead">Choisissez un contexte. La machine ne fait qu'une chose&nbsp;: donner une probabilité à chaque mot suivant. Changez le contexte&nbsp;→ tout se redistribue. Cliquez un mot pour l'écrire.</p>
 
     <div class="dctx" id="dctx"></div>
 
@@ -335,112 +343,100 @@
     </div>
 
     <div class="dchallenge" id="dchallenge"></div>
-    <div class="dfoot">Démo scriptée et simplifiée — pour montrer le principe sous contrôle. Sur PédagoIA, vous ferez pareil avec de vrais modèles.</div>
+    <div class="dfoot" data-i18n="s3.dfoot">Démo scriptée et simplifiée — pour montrer le principe sous contrôle. Sur PédagoIA, vous ferez pareil avec de vrais modèles.</div>
   </div>
 
   <!-- ============ 4 · PAS SI TRIVIAL ============ -->
   <div class="pane light pad" id="triv">
-    <div class="eyebrow">Attention — le piège</div>
-    <h2 class="stitle">«&nbsp;Deviner la suite&nbsp;»&nbsp;?<br>Ce n'est pas rien.</h2>
+    <div class="eyebrow" data-i18n="s4.eyebrow">Attention — le piège</div>
+    <h2 class="stitle" data-i18n="s4.title">«&nbsp;Deviner la suite&nbsp;»&nbsp;?<br>Ce n'est pas rien.</h2>
 
     <div class="triv">
       <div class="triv-grid">
         <div class="tcard">
-          <div class="q">« La capitale de la France est <em>___</em> »</div>
-          <div class="need">→ il faut savoir</div>
-          <p>Pour mettre «&nbsp;Paris&nbsp;» en tête, il faut avoir <b>stocké le fait</b>. Un perroquet au hasard ne tomberait pas dessus.</p>
+          <div class="q" data-i18n="s4.c1q">« La capitale de la France est <em>___</em> »</div>
+          <div class="need" data-i18n="s4.c1need">→ il faut savoir</div>
+          <p data-i18n="s4.c1p">Pour mettre «&nbsp;Paris&nbsp;» en tête, il faut avoir <b>stocké le fait</b>. Un perroquet au hasard ne tomberait pas dessus.</p>
         </div>
         <div class="tcard">
-          <div class="q">« 17 × 4 = <em>___</em> »</div>
-          <div class="need">→ il faut calculer</div>
-          <p>Le bon token, «&nbsp;68&nbsp;», n'apparaît que si le modèle <b>fait le calcul</b> — pas juste s'il a « déjà vu » la phrase.</p>
+          <div class="q" data-i18n="s4.c2q">« 17 × 4 = <em>___</em> »</div>
+          <div class="need" data-i18n="s4.c2need">→ il faut calculer</div>
+          <p data-i18n="s4.c2p">Le bon token, «&nbsp;68&nbsp;», n'apparaît que si le modèle <b>fait le calcul</b> — pas juste s'il a « déjà vu » la phrase.</p>
         </div>
         <div class="tcard">
-          <div class="q">« …et le coupable était <em>___</em> » <span style="color:#7a7365">(dernière page d'un polar)</span></div>
-          <div class="need">→ il faut avoir suivi</div>
-          <p>Prédire le bon nom oblige à avoir <b>compris toute l'intrigue</b>&nbsp;: les indices, les alibis, le mobile.</p>
+          <div class="q" data-i18n="s4.c3q">« …et le coupable était <em>___</em> » <span style="color:#7a7365">(dernière page d'un polar)</span></div>
+          <div class="need" data-i18n="s4.c3need">→ il faut avoir suivi</div>
+          <p data-i18n="s4.c3p">Prédire le bon nom oblige à avoir <b>compris toute l'intrigue</b>&nbsp;: les indices, les alibis, le mobile.</p>
         </div>
       </div>
-      <p class="triv-punch">Prédire le mot suivant «&nbsp;pour de vrai&nbsp;», c'est être <b>obligé de modéliser le monde</b> qui a produit ces mots — les faits, la logique, le récit.
-        <span class="cite">On retrouve exactement la question de la séance 1&nbsp;: à force de bien prédire, est-ce que «&nbsp;comprendre&nbsp;» et «&nbsp;raisonner&nbsp;» finissent par émerger&nbsp;?</span>
-      </p>
+      <p class="triv-punch" data-i18n="s4.punch">Prédire le mot suivant «&nbsp;pour de vrai&nbsp;», c'est être <b>obligé de modéliser le monde</b> qui a produit ces mots — les faits, la logique, le récit.<span class="cite">On retrouve exactement la question de la séance 1&nbsp;: à force de bien prédire, est-ce que «&nbsp;comprendre&nbsp;» et «&nbsp;raisonner&nbsp;» finissent par émerger&nbsp;?</span></p>
     </div>
   </div>
 
   <!-- ============ 5 · TROIS LEVIERS ============ -->
   <div class="pane light pad" id="leviers">
-    <div class="eyebrow">Ce qui fait bouger les probabilités</div>
-    <h2 class="stitle">Trois leviers</h2>
+    <div class="eyebrow" data-i18n="s5.eyebrow">Ce qui fait bouger les probabilités</div>
+    <h2 class="stitle" data-i18n="s5.title">Trois leviers</h2>
 
     <div class="lev">
       <div class="lev-grid">
         <div class="lcard">
-          <h3>Le contexte</h3>
-          <div class="demo2">
-            « Le chat mange <span class="a">une souris</span> »<br>
-            « Devant l'aquarium, le chat mange <span class="b">un poisson</span> »
-          </div>
-          <div class="cc">Les mêmes trois mots, précédés d'autre chose&nbsp;: le favori change.</div>
+          <h3 data-i18n="s5.c1h">Le contexte</h3>
+          <div class="demo2" data-i18n="s5.c1">« Le chat mange <span class="a">une souris</span> »<br>« Devant l'aquarium, le chat mange <span class="b">un poisson</span> »</div>
+          <div class="cc" data-i18n="s5.c1cc">Les mêmes trois mots, précédés d'autre chose&nbsp;: le favori change.</div>
         </div>
         <div class="lcard">
-          <h3>Le contenu</h3>
-          <div class="demo2">
-            « Cordialement, je vous <span class="a">prie</span>… »<br>
-            « Trop cool, c'est <span class="b">ouf</span>… »
-          </div>
-          <div class="cc">Registre, thème, style&nbsp;: le modèle continue dans la même veine.</div>
+          <h3 data-i18n="s5.c2h">Le contenu</h3>
+          <div class="demo2" data-i18n="s5.c2">« Cordialement, je vous <span class="a">prie</span>… »<br>« Trop cool, c'est <span class="b">ouf</span>… »</div>
+          <div class="cc" data-i18n="s5.c2cc">Registre, thème, style&nbsp;: le modèle continue dans la même veine.</div>
         </div>
         <div class="lcard">
-          <h3>La langue</h3>
-          <div class="demo2">
-            « Le chat <span class="a">mange</span> »<br>
-            « The cat <span class="b">eats</span> »<br>
-            « Die Katze <span class="a">frisst</span> »
-          </div>
-          <div class="cc">Tokens et probabilités changent&nbsp;; l'entraînement (souvent surtout anglophone) aussi.</div>
+          <h3 data-i18n="s5.c3h">La langue</h3>
+          <div class="demo2">« Le chat <span class="a">mange</span> »<br>« The cat <span class="b">eats</span> »<br>« Die Katze <span class="a">frisst</span> »</div>
+          <div class="cc" data-i18n="s5.c3cc">Tokens et probabilités changent&nbsp;; l'entraînement (souvent surtout anglophone) aussi.</div>
         </div>
       </div>
-      <p class="lev-foot">Ce sont exactement les <b>trois manettes</b> que vous allez tourner dans l'activité pour piloter la prédiction.</p>
+      <p class="lev-foot" data-i18n="s5.foot">Ce sont exactement les <b>trois manettes</b> que vous allez tourner dans l'activité pour piloter la prédiction.</p>
     </div>
   </div>
 
   <!-- ============ 6 · TEMPÉRATURE ============ -->
   <div class="pane dark pad" id="temp">
-    <div class="eyebrow">Du choix à la génération</div>
-    <h2 class="stitle">Toujours le n°1&nbsp;?<br>Pas forcément.</h2>
-    <p class="lead">Une fois les probabilités calculées, il faut <b>en choisir un</b>. Deux stratégies — c'est le réglage de «&nbsp;température&nbsp;».</p>
+    <div class="eyebrow" data-i18n="s6.eyebrow">Du choix à la génération</div>
+    <h2 class="stitle" data-i18n="s6.title">Toujours le n°1&nbsp;?<br>Pas forcément.</h2>
+    <p class="lead" data-i18n="s6.lead">Une fois les probabilités calculées, il faut <b>en choisir un</b>. Deux stratégies — c'est le réglage de «&nbsp;température&nbsp;».</p>
 
     <div class="temp">
       <div class="temp-grid">
         <div class="tmode cold">
-          <h3>Toujours le plus probable</h3>
-          <div class="sub">température basse ❄</div>
-          <p>Sûr, cohérent… mais <b>répétitif</b> et un peu robotique. Deux fois la même question&nbsp;→ deux fois la même réponse.</p>
+          <h3 data-i18n="s6.c1h">Toujours le plus probable</h3>
+          <div class="sub" data-i18n="s6.c1sub">température basse ❄</div>
+          <p data-i18n="s6.c1p">Sûr, cohérent… mais <b>répétitif</b> et un peu robotique. Deux fois la même question&nbsp;→ deux fois la même réponse.</p>
         </div>
         <div class="tmode hot">
-          <h3>Un tirage selon les probas</h3>
-          <div class="sub">température haute 🔥</div>
-          <p>On pioche au hasard, en respectant les probabilités. Plus <b>varié, créatif</b>… mais parfois hors-piste ou faux.</p>
+          <h3 data-i18n="s6.c2h">Un tirage selon les probas</h3>
+          <div class="sub" data-i18n="s6.c2sub">température haute 🔥</div>
+          <p data-i18n="s6.c2p">On pioche au hasard, en respectant les probabilités. Plus <b>varié, créatif</b>… mais parfois hors-piste ou faux.</p>
         </div>
       </div>
-      <p class="temp-foot">C'est pour ça que ChatGPT ne répond <b>jamais deux fois exactement pareil</b>&nbsp;: à chaque token, un petit coup de dé.</p>
+      <p class="temp-foot" data-i18n="s6.foot">C'est pour ça que ChatGPT ne répond <b>jamais deux fois exactement pareil</b>&nbsp;: à chaque token, un petit coup de dé.</p>
     </div>
   </div>
 
   <!-- ============ 7 · ACTIVITÉ ============ -->
   <div class="pane dark act" id="activite">
-    <div class="tag">Activité centrale · sur PédagoIA</div>
-    <h2>Faites manger<br>un <em>dinosaure</em> au chat 🦖</h2>
-    <p class="sub">À vous de piloter la prédiction du prochain token — sur la démo contrôlée, puis avec de vrais modèles.</p>
+    <div class="tag" data-i18n="s7.tag">Activité centrale · sur PédagoIA</div>
+    <h2 data-i18n="s7.title">Faites manger<br>un <em>dinosaure</em> au chat 🦖</h2>
+    <p class="sub" data-i18n="s7.sub">À vous de piloter la prédiction du prochain token — sur la démo contrôlée, puis avec de vrais modèles.</p>
     <ol class="steps">
-      <li>Ouvrez l'interface de <b>prédiction du prochain token</b>.</li>
-      <li>Tapez « Le chat mange » et observez les probabilités.</li>
-      <li>Comparez la <b>démo « en dur »</b> et de <b>vrais LLM</b>&nbsp;: où diffèrent-ils, et pourquoi&nbsp;?</li>
-      <li>Faites varier <b>contexte, contenu, langue</b> et regardez le classement bouger.</li>
-      <li><b>Le défi&nbsp;:</b> trouvez le contexte qui met « un dinosaure » (ou « une voiture », « un lapin »…) tout en haut.</li>
+      <li data-i18n="s7.step1">Ouvrez l'interface de <b>prédiction du prochain token</b>.</li>
+      <li data-i18n="s7.step2">Tapez « Le chat mange » et observez les probabilités.</li>
+      <li data-i18n="s7.step3">Comparez la <b>démo « en dur »</b> et de <b>vrais LLM</b>&nbsp;: où diffèrent-ils, et pourquoi&nbsp;?</li>
+      <li data-i18n="s7.step4">Faites varier <b>contexte, contenu, langue</b> et regardez le classement bouger.</li>
+      <li data-i18n="s7.step5"><b>Le défi&nbsp;:</b> trouvez le contexte qui met « un dinosaure » (ou « une voiture », « un lapin »…) tout en haut.</li>
     </ol>
     <a class="cta" href="https://edu-nsi-web.vercel.app/" target="_blank" rel="noopener">
-      <span>Rejoindre PédagoIA<small>edu-nsi-web.vercel.app →</small></span>
+      <span data-i18n="s7.cta">Rejoindre PédagoIA<small>edu-nsi-web.vercel.app →</small></span>
     </a>
   </div>
 
@@ -448,7 +444,12 @@
 
 <!-- HUD -->
 <div class="hud">
-  <button class="btn" id="prev">◀ Retour</button>
+  <div class="langsw" id="langsw">
+    <button data-lang="fr" class="on">FR</button>
+    <button data-lang="en">EN</button>
+    <button data-lang="zh">中</button>
+  </div>
+  <button class="btn" id="prev" data-i18n="s.prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div>
     <div class="dot" data-i="1"></div>
@@ -459,22 +460,210 @@
     <div class="dot" data-i="6"></div>
     <div class="dot" data-i="7"></div>
   </div>
-  <button class="btn" id="next">Suite ▶</button>
+  <button class="btn" id="next" data-i18n="s.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
 <script>
+  /* =========================================================
+     I18N — le français reste la source dans la page (capturé au
+     démarrage) ; seuls l'anglais et le chinois vivent ici.
+     ========================================================= */
+  const I18N = {
+    en: {
+      's0.back':`◂ Lesson 2 · A Zoo of AI`,
+      's0.tag':`SNT · AI Course · Lesson 3`,
+      's0.title':`The next<br><em>word</em>`,
+      's0.line':`We've stepped into the “generative” circle of the map. At the heart of a ChatGPT sits one very simple engine to describe — yet far less dumb than it looks.`,
+      's0.kick':`Token · next-token prediction · and why it isn't so trivial`,
+      's1.eyebrow':`The building blocks of language`,
+      's1.title':`What is a “token”?`,
+      's1.lead':`A model doesn't read letters, nor exactly words. It cuts text into <b>tokens</b>: pieces of words, learned from billions of texts. That's its basic unit — what it reads and what it produces.`,
+      's1.cap1':`A common sentence — each frequent word fits in one token`,
+      's1.line1':`<span class="tok a">The</span><span class="tok b">&nbsp;cat</span><span class="tok c">&nbsp;eats</span><span class="tok a">&nbsp;a</span><span class="tok b">&nbsp;mouse</span><span class="tok p">.</span>&nbsp;&nbsp;<span class="tok-count">→ 6 tokens</span>`,
+      's1.cap2':`A long, rare word — it shatters into several pieces`,
+      's1.line2':`<span class="tok a">anti</span><span class="tok b">dis</span><span class="tok c">establish</span><span class="tok a">ment</span><span class="tok b">arian</span><span class="tok c">ism</span>&nbsp;&nbsp;<span class="tok-count">→ 1 word, 6 tokens</span>`,
+      's1.note1':`<b>≈ 3 to 4 letters</b><span>per token on average — sometimes a whole word, sometimes a fragment.</span>`,
+      's1.note2':`<b>The space counts</b><span>“ cat” with its leading space isn't the same token as “cat” at the start of a sentence.</span>`,
+      's1.note3':`<b>It depends on the model</b><span>each AI has its own way of splitting; above is just an illustration.</span>`,
+      's2.eyebrow':`The heart of GPT`,
+      's2.title':`One single task:<br>guess what comes next`,
+      's2.lead':`Give it the start of a text. It answers <b>one single question</b>, over and over: what is the most likely <b>next token</b>?`,
+      's2.b1n':`1 · the context`, 's2.b1t':`“The cat eats”`,
+      's2.b2n':`2 · the model`, 's2.b2t':`assigns a probability to <em>every</em> possible token`,
+      's2.b3n':`3 · a lottery`, 's2.b3t':`mouse&nbsp;·34% &nbsp;fish&nbsp;·18% &nbsp;kibble&nbsp;·27%…`,
+      's2.b4n':`4 · we pick one`, 's2.b4t':`“The cat eats <b style="color:#ff8a72">a mouse</b>”`,
+      's2.back':`↻ then we start over, with the token added to the context — token after token`,
+      's2.punch':`Writing a sentence, a paragraph, an essay: it's <b>repeating hundreds of times</b> “what is the next token?”.`,
+      's2.caveat':`Careful: this is the base <b>engine</b>. The ChatGPT you use adds layers on top — tuning by humans, tools, a memory of the conversation — but it all starts here. <span class="soft">(more on that later.)</span>`,
+      's3.eyebrow':`Demo — by hand, to see it clearly`,
+      's3.title':`“The cat eats…”`,
+      's3.dlead':`Pick a context. The machine does only one thing: give a probability to each next word. Change the context → everything is reshuffled. Click a word to write it.`,
+      's3.dfoot':`Scripted, simplified demo — to show the principle under control. On PédagoIA you'll do the same with real models.`,
+      's4.eyebrow':`Watch out — the trap`,
+      's4.title':`“Just guess the next word”?<br>That's no small feat.`,
+      's4.c1q':`“The capital of France is <em>___</em>”`,
+      's4.c1need':`→ you must know`,
+      's4.c1p':`To put “Paris” on top, it must have <b>stored the fact</b>. A random parrot wouldn't land on it.`,
+      's4.c2q':`“17 × 4 = <em>___</em>”`,
+      's4.c2need':`→ you must compute`,
+      's4.c2p':`The right token, “68”, only shows up if the model <b>does the math</b> — not just if it has “seen” the sentence before.`,
+      's4.c3q':`“…and the culprit was <em>___</em>” <span style="color:#7a7365">(last page of a crime novel)</span>`,
+      's4.c3need':`→ you must have followed`,
+      's4.c3p':`Predicting the right name means having <b>understood the whole plot</b>: the clues, the alibis, the motive.`,
+      's4.punch':`To predict the next word “for real” is to be <b>forced to model the world</b> that produced those words — the facts, the logic, the story.<span class="cite">It's exactly the question from Lesson 1: by predicting well enough, do “understanding” and “reasoning” end up emerging?</span>`,
+      's5.eyebrow':`What moves the probabilities`,
+      's5.title':`Three levers`,
+      's5.c1h':`Context`,
+      's5.c1':`“The cat eats <span class="a">a mouse</span>”<br>“By the aquarium, the cat eats <span class="b">a fish</span>”`,
+      's5.c1cc':`The same words, preceded by something else: the favorite changes.`,
+      's5.c2h':`Content`,
+      's5.c2':`“Sincerely, I <span class="a">remain</span>…”<br>“So cool, that's <span class="b">lit</span>…”`,
+      's5.c2cc':`Register, topic, style: the model keeps going in the same vein.`,
+      's5.c3h':`Language`,
+      's5.c3cc':`Tokens and probabilities change; so does the training (often mostly English).`,
+      's5.foot':`These are exactly the <b>three knobs</b> you'll turn in the activity to steer the prediction.`,
+      's6.eyebrow':`From choice to generation`,
+      's6.title':`Always no. 1?<br>Not necessarily.`,
+      's6.lead':`Once the probabilities are computed, one must <b>be chosen</b>. Two strategies — that's the “temperature” setting.`,
+      's6.c1h':`Always the most likely`,
+      's6.c1sub':`low temperature ❄`,
+      's6.c1p':`Safe, consistent… but <b>repetitive</b> and a bit robotic. Same question twice → same answer twice.`,
+      's6.c2h':`A draw following the odds`,
+      's6.c2sub':`high temperature 🔥`,
+      's6.c2p':`We pick at random, respecting the probabilities. More <b>varied, creative</b>… but sometimes off-track or wrong.`,
+      's6.foot':`That's why ChatGPT <b>never answers exactly the same way twice</b>: at every token, a little roll of the dice.`,
+      's7.tag':`Core activity · on PédagoIA`,
+      's7.title':`Make the cat eat<br>a <em>dinosaur</em> 🦖`,
+      's7.sub':`Your turn to steer next-token prediction — on the controlled demo, then with real models.`,
+      's7.step1':`Open the <b>next-token prediction</b> interface.`,
+      's7.step2':`Type “The cat eats” and watch the probabilities.`,
+      's7.step3':`Compare the <b>“hard-coded” demo</b> with <b>real LLMs</b>: where do they differ, and why?`,
+      's7.step4':`Vary the <b>context, content, language</b> and watch the ranking shift.`,
+      's7.step5':`<b>The challenge:</b> find the context that puts “a dinosaur” (or “a car”, “a rabbit”…) right at the top.`,
+      's7.cta':`Join PédagoIA<small>edu-nsi-web.vercel.app →</small>`,
+      's.prev':`◀ Back`, 's.next':`Next ▶`
+    },
+    zh: {
+      's0.back':`◂ 第2课 · 人工智能动物园`,
+      's0.tag':`SNT · 人工智能课 · 第3课`,
+      's0.title':`下一个<br><em>词</em>`,
+      's0.line':`我们进入了地图上「生成式」的那个圆圈。ChatGPT 的核心，是一台说起来非常简单的引擎——但远没有看上去那么笨。`,
+      's0.kick':`词元 · 预测下一个词元 · 以及为什么这并不简单`,
+      's1.eyebrow':`语言的基本单位`,
+      's1.title':`什么是「词元」（token）？`,
+      's1.lead':`模型读的不是字母，也不完全是单词。它把文本切成<b>词元</b>：从数十亿文本中学到的「词的碎片」。这是它的基本单位——读入和产出的都是词元。`,
+      's1.cap1':`常见句子——每个常用词只占一个词元`,
+      's1.line1':`<span class="tok a">猫</span><span class="tok b">吃</span><span class="tok c">老</span><span class="tok a">鼠</span><span class="tok p">。</span>&nbsp;&nbsp;<span class="tok-count">→ 5 词元</span>`,
+      's1.cap2':`又长又罕见的词——会碎成好几块`,
+      's1.line2':`<span class="tok a">瓦</span><span class="tok b">加</span><span class="tok c">杜</span><span class="tok a">古</span>&nbsp;&nbsp;<span class="tok-count">→ 1 个词，4 个词元</span>`,
+      's1.note1':`<b>平均 3–4 个字母</b><span>每个词元（英文）——有时是整个词，有时只是碎片。</span>`,
+      's1.note2':`<b>空格也算</b><span>带前导空格的「 cat」和句首的「cat」是不同的词元。</span>`,
+      's1.note3':`<b>取决于模型</b><span>每个 AI 有自己的切分方式；上面只是示意。</span>`,
+      's2.eyebrow':`GPT 的核心`,
+      's2.title':`只有一个任务：<br>猜出下一个`,
+      's2.lead':`给它一段文本的开头。它反复回答<b>同一个问题</b>：最可能的<b>下一个词元</b>是什么？`,
+      's2.b1n':`1 · 上下文`, 's2.b1t':`「猫吃」`,
+      's2.b2n':`2 · 模型`, 's2.b2t':`给<em>每一个</em>可能的词元一个概率`,
+      's2.b3n':`3 · 一次抽签`, 's2.b3t':`老鼠&nbsp;·34% &nbsp;鱼&nbsp;·18% &nbsp;猫粮&nbsp;·27%…`,
+      's2.b4n':`4 · 选一个`, 's2.b4t':`「猫吃<b style="color:#ff8a72">老鼠</b>」`,
+      's2.back':`↻ 然后重新开始，把这个词元加进上下文——一个接一个`,
+      's2.punch':`写一句话、一段话、一篇作文：就是<b>重复几百次</b>「下一个词元是什么？」。`,
+      's2.caveat':`注意：这只是基础<b>引擎</b>。你用的 ChatGPT 在它之上还加了几层——人工调校、工具、对话记忆——但一切都从这里开始。<span class="soft">（以后再讲。）</span>`,
+      's3.eyebrow':`演示——手动，看得清楚`,
+      's3.title':`「猫吃……」`,
+      's3.dlead':`选一个上下文。机器只做一件事：给每个可能的下一个词一个概率。改变上下文 → 全部重新分布。点一个词就把它写下来。`,
+      's3.dfoot':`这是脚本化、简化的演示——在可控条件下展示原理。在 PédagoIA 上，你会用真实模型做同样的事。`,
+      's4.eyebrow':`注意——陷阱`,
+      's4.title':`只是「猜下一个词」？<br>这可不简单。`,
+      's4.c1q':`「法国的首都是<em>___</em>」`,
+      's4.c1need':`→ 必须「知道」`,
+      's4.c1p':`要让「巴黎」排在最前，它必须<b>存储了这个事实</b>。随机的鹦鹉不会碰巧说对。`,
+      's4.c2q':`「17 × 4 = <em>___</em>」`,
+      's4.c2need':`→ 必须「计算」`,
+      's4.c2p':`正确的词元「68」只有在模型<b>真的算了</b>才会出现——而不是因为它「见过」这句话。`,
+      's4.c3q':`「……凶手是<em>___</em>」<span style="color:#7a7365">（侦探小说的最后一页）</span>`,
+      's4.c3need':`→ 必须「读懂全篇」`,
+      's4.c3p':`要预测对名字，就必须<b>理解整个情节</b>：线索、不在场证明、动机。`,
+      's4.punch':`「真正地」预测下一个词，就<b>不得不为产生这些词的世界建模</b>——事实、逻辑、故事。<span class="cite">这正是第 1 课的问题：预测得足够好之后，「理解」和「推理」会不会最终涌现出来？</span>`,
+      's5.eyebrow':`什么会改变概率`,
+      's5.title':`三个杠杆`,
+      's5.c1h':`上下文`,
+      's5.c1':`「猫吃<span class="a">老鼠</span>」<br>「在鱼缸前，猫吃<span class="b">鱼</span>」`,
+      's5.c1cc':`同样几个字，前面换了内容：最热门的答案就变了。`,
+      's5.c2h':`内容`,
+      's5.c2':`「此致，敬<span class="a">礼</span>……」<br>「太酷了，简直<span class="b">绝了</span>……」`,
+      's5.c2cc':`语域、主题、风格：模型会顺着同样的调子往下写。`,
+      's5.c3h':`语言`,
+      's5.c3cc':`词元和概率都变了；训练数据（往往以英语为主）也不同。`,
+      's5.foot':`这正是你在活动中要转动的<b>三个旋钮</b>，用来操控预测。`,
+      's6.eyebrow':`从「选择」到「生成」`,
+      's6.title':`总选第一名？<br>不一定。`,
+      's6.lead':`算出概率之后，还得<b>选一个</b>。有两种策略——这就是「温度」这个参数。`,
+      's6.c1h':`总选最可能的`,
+      's6.c1sub':`低温 ❄`,
+      's6.c1p':`稳妥、连贯……但<b>重复</b>、有点机械。同一个问题问两次 → 得到两次一样的回答。`,
+      's6.c2h':`按概率抽签`,
+      's6.c2sub':`高温 🔥`,
+      's6.c2p':`按概率随机抽取。更<b>多样、有创意</b>……但有时会跑偏或出错。`,
+      's6.foot':`所以 ChatGPT <b>永远不会两次给出完全一样的回答</b>：每个词元，都掷一次小骰子。`,
+      's7.tag':`核心活动 · 在 PédagoIA 上`,
+      's7.title':`让猫吃掉<br>一只<em>恐龙</em> 🦖`,
+      's7.sub':`轮到你来操控「下一个词元」的预测——先用受控演示，再用真实模型。`,
+      's7.step1':`打开<b>「预测下一个词元」</b>的界面。`,
+      's7.step2':`输入「猫吃」，观察概率。`,
+      's7.step3':`把<b>「写死的」演示</b>和<b>真实的大模型</b>作比较：它们在哪里不同，为什么？`,
+      's7.step4':`改变<b>上下文、内容、语言</b>，看排名如何变化。`,
+      's7.step5':`<b>挑战：</b>找到一个上下文，让「恐龙」（或「汽车」「兔子」……）排到最前面。`,
+      's7.cta':`进入 PédagoIA<small>edu-nsi-web.vercel.app →</small>`,
+      's.prev':`◀ 返回`, 's.next':`下一页 ▶`
+    }
+  };
+  const MSG = {
+    fr:{title:`Prédire le prochain mot`, hint:`↔ flèches · espace · clic`, hint3:`cliquez les contextes · → suite`},
+    en:{title:`Predict the next word`,  hint:`↔ arrows · space · click`,   hint3:`click the contexts · → next`},
+    zh:{title:`预测下一个词`,            hint:`↔ 方向键 · 空格 · 点击`,      hint3:`点击上下文 · → 下一页`}
+  };
+
+  // le français est capturé depuis le DOM : pas besoin de le redéclarer
+  const frCache = {};
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+  let curLang = 'fr';
+
+  function applyLang(lang){
+    curLang = lang;
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k = el.dataset.i18n;
+      let v = frCache[k];
+      if(lang !== 'fr' && I18N[lang] && I18N[lang][k] != null) v = I18N[lang][k];
+      el.innerHTML = v;
+    });
+    document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang===lang));
+    document.title = MSG[lang].title;
+    try{ localStorage.setItem('snt-ia-lang', lang); }catch(e){}
+    updateHint();
+    if(window.drawDemo) window.drawDemo();
+  }
+  document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+
+  /* =========================================================
+     NAVIGATION
+     ========================================================= */
   const panes = ['intro','tokens','tache','demo','triv','leviers','temp','activite']
     .map(id=>document.getElementById(id));
   const dots  = [...document.querySelectorAll('.dot')];
   let scene = 0;
   const MAX = 7;
 
+  function updateHint(){
+    const h = document.getElementById('hint');
+    if(h) h.textContent = (scene===3) ? MSG[curLang].hint3 : MSG[curLang].hint;
+  }
   function render(){
     panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
     dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
-    const hint = document.getElementById('hint');
-    if(hint) hint.textContent = (scene===3) ? 'cliquez les contextes · → suite' : '↔ flèches · espace · clic';
+    updateHint();
     if(scene===3 && window.drawDemo) window.drawDemo();
   }
   function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
@@ -489,7 +678,6 @@
     if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
     if(e.key==='ArrowUp'){e.preventDefault();go(scene-1);}
   });
-  // clic = avancer, SAUF sur la démo (scène interactive) et les liens/boutons
   document.querySelector('.stage').addEventListener('click', e=>{
     if(e.target.closest('a,button')) return;
     if(scene===3 && e.target.closest('#demo')) return;
@@ -497,61 +685,106 @@
   });
 
   /* =========================================================
-     DÉMO — prédicteur « en dur », contrôlé
+     DÉMO — prédicteur « en dur », contrôlé et multilingue.
+     Le drapeau `surprise` (indépendant de la langue) déclenche
+     l'état « défi réussi ».
      ========================================================= */
-  (function(){
-    const PRESETS = [
-      {id:'ord', label:'🏠 Ordinaire', ctx:'Le chat mange',
-        cands:[['une souris',34],['des croquettes',27],['un poisson',18],["de l'herbe",12],['un oiseau',9]]},
-      {id:'aqua', label:'🐟 Devant l’aquarium', ctx:'Devant l’aquarium, le chat mange',
-        cands:[['un poisson',46],['une crevette',22],['des algues',14],['une souris',11],['le poisson rouge',7]]},
-      {id:'rue', label:'🚗 Dans un dessin animé fou', ctx:'Dans ce cartoon absurde, tout se mange. Le chat mange',
-        cands:[['une voiture',33],['un immeuble',24],['la lune',19],['un nuage',15],['une souris',9]]},
-      {id:'dino', label:'🦖 Félin du Crétacé', ctx:'Dans ce dessin animé, le chat est un prédateur géant du Crétacé. Le chat mange',
-        cands:[['un dinosaure',41],['un tricératops',21],['une proie',16],['un mammouth',13],['une souris',9]]}
-    ];
-    let cur='ord', chosen=null;
+  const DEMO = {
+    fr:{
+      presets:[
+        {id:'ord',  label:`🏠 Ordinaire`, ctx:`Le chat mange`,
+          cands:[[`une souris`,34],[`des croquettes`,27],[`un poisson`,18],[`de l'herbe`,12],[`un oiseau`,9]]},
+        {id:'aqua', label:`🐟 Devant l’aquarium`, ctx:`Devant l’aquarium, le chat mange`,
+          cands:[[`un poisson`,46],[`une crevette`,22],[`des algues`,14],[`une souris`,11],[`le poisson rouge`,7]]},
+        {id:'rue',  label:`🚗 Dessin animé fou`, ctx:`Dans ce cartoon absurde, tout se mange. Le chat mange`, surprise:true,
+          cands:[[`une voiture`,33],[`un immeuble`,24],[`la lune`,19],[`un nuage`,15],[`une souris`,9]]},
+        {id:'dino', label:`🦖 Félin du Crétacé`, ctx:`Dans ce dessin animé, le chat est un prédateur géant du Crétacé. Le chat mange`, surprise:true,
+          cands:[[`un dinosaure`,41],[`un tricératops`,21],[`une proie`,16],[`un mammouth`,13],[`une souris`,9]]}
+      ],
+      challenge:`🦖 Défi : changez de contexte pour qu'un mot improbable (dinosaure, voiture…) passe en tête.`,
+      win:t=>`🦖 Gagné ! Le bon contexte a rendu « ${t} » le plus probable — alors que c'est absurde dans l'absolu.`
+    },
+    en:{
+      presets:[
+        {id:'ord',  label:`🏠 Ordinary`, ctx:`The cat eats`,
+          cands:[[`a mouse`,34],[`kibble`,27],[`a fish`,18],[`some grass`,12],[`a bird`,9]]},
+        {id:'aqua', label:`🐟 By the aquarium`, ctx:`By the aquarium, the cat eats`,
+          cands:[[`a fish`,46],[`a shrimp`,22],[`some algae`,14],[`a mouse`,11],[`the goldfish`,7]]},
+        {id:'rue',  label:`🚗 Crazy cartoon`, ctx:`In this absurd cartoon, everything is edible. The cat eats`, surprise:true,
+          cands:[[`a car`,33],[`a building`,24],[`the moon`,19],[`a cloud`,15],[`a mouse`,9]]},
+        {id:'dino', label:`🦖 Cretaceous feline`, ctx:`In this cartoon, the cat is a giant Cretaceous predator. The cat eats`, surprise:true,
+          cands:[[`a dinosaur`,41],[`a triceratops`,21],[`prey`,16],[`a mammoth`,13],[`a mouse`,9]]}
+      ],
+      challenge:`🦖 Challenge: change the context so an unlikely word (dinosaur, car…) jumps to the top.`,
+      win:t=>`🦖 Nailed it! The right context made “${t}” the most likely — even though it's absurd in the abstract.`
+    },
+    zh:{
+      presets:[
+        {id:'ord',  label:`🏠 普通`, ctx:`猫吃`,
+          cands:[[`老鼠`,34],[`猫粮`,27],[`鱼`,18],[`草`,12],[`小鸟`,9]]},
+        {id:'aqua', label:`🐟 在鱼缸前`, ctx:`在鱼缸前，猫吃`,
+          cands:[[`鱼`,46],[`虾`,22],[`水藻`,14],[`老鼠`,11],[`那条金鱼`,7]]},
+        {id:'rue',  label:`🚗 疯狂动画`, ctx:`在这部荒诞动画里，什么都能吃。猫吃`, surprise:true,
+          cands:[[`汽车`,33],[`一栋楼`,24],[`月亮`,19],[`云`,15],[`老鼠`,9]]},
+        {id:'dino', label:`🦖 白垩纪猫科`, ctx:`在这部动画里，猫是白垩纪的巨型掠食者。猫吃`, surprise:true,
+          cands:[[`恐龙`,41],[`三角龙`,21],[`猎物`,16],[`猛犸象`,13],[`老鼠`,9]]}
+      ],
+      challenge:`🦖 挑战：改变上下文，让一个不可能的词（恐龙、汽车……）排到最前。`,
+      win:t=>`🦖 成功！合适的上下文让「${t}」变成最可能的——尽管单独看它很荒谬。`
+    }
+  };
 
+  (function(){
+    let cur='ord', chosen=null;
     const dctx = document.getElementById('dctx');
     if(!dctx) return;
-    dctx.innerHTML = PRESETS.map(p=>'<button class="dchip" data-id="'+p.id+'">'+p.label+'</button>').join('');
-    [...dctx.querySelectorAll('.dchip')].forEach(c=>c.onclick=()=>{ cur=c.dataset.id; chosen=null; draw(); });
 
     function draw(){
-      const p = PRESETS.find(x=>x.id===cur);
-      [...dctx.querySelectorAll('.dchip')].forEach(c=>c.classList.toggle('on', c.dataset.id===cur));
+      const D = DEMO[curLang] || DEMO.fr;
+      const presets = D.presets;
+
+      dctx.innerHTML = presets.map(p=>`<button class="dchip" data-id="${p.id}">${p.label}</button>`).join('');
+      dctx.querySelectorAll('.dchip').forEach(c=>{
+        c.classList.toggle('on', c.dataset.id===cur);
+        c.onclick = ()=>{ cur=c.dataset.id; chosen=null; draw(); };
+      });
+
+      const p = presets.find(x=>x.id===cur) || presets[0];
+      const cands = p.cands.slice().sort((a,b)=>b[1]-a[1]);
+      // après un changement de langue, le mot choisi n'existe plus
+      if(chosen && !cands.some(c=>c[0]===chosen)) chosen = null;
 
       const sent = document.getElementById('dsentence');
-      const tail = chosen ? '<span class="filled">'+chosen+'</span>'
-                          : '<span class="blank">&nbsp;&nbsp;&nbsp;</span>';
+      const tail = chosen ? `<span class="filled">${chosen}</span>` : `<span class="blank">&nbsp;&nbsp;&nbsp;</span>`;
       sent.innerHTML = p.ctx + ' ' + tail;
 
-      const cands = p.cands.slice().sort((a,b)=>b[1]-a[1]);
-      const isWin = /dinosaure|voiture|lune|immeuble/i.test(cands[0][0]);
+      const win = !!p.surprise;
       const bars = document.getElementById('dbars');
       bars.innerHTML = cands.map((c,i)=>{
-        const cls = (i===0 ? (isWin?'win':'top') : '') + (chosen===c[0] ? ' chosen' : '');
-        return '<button class="dbar '+cls+'" data-tok="'+c[0]+'">'
-             +   '<span class="lab">'+c[0]+'</span>'
-             +   '<span class="track"><span class="fill" data-w="'+(c[1]/50*100).toFixed(0)+'%" style="width:0%"></span></span>'
-             +   '<span class="pct">'+c[1]+'&nbsp;%</span>'
-             + '</button>';
+        const cls = (i===0 ? (win?'win':'top') : '') + (chosen===c[0] ? ' chosen' : '');
+        return `<button class="dbar ${cls}" data-tok="${c[0]}"><span class="lab">${c[0]}</span><span class="track"><span class="fill" data-w="${(c[1]/50*100).toFixed(0)}%" style="width:0%"></span></span><span class="pct">${c[1]}&nbsp;%</span></button>`;
       }).join('');
       requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        [...bars.querySelectorAll('.fill')].forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w; }, i*70));
+        bars.querySelectorAll('.fill').forEach((f,i)=>setTimeout(()=>{ f.style.width=f.dataset.w; }, i*70));
       }));
-      [...bars.querySelectorAll('.dbar')].forEach(b=>b.onclick=()=>{ chosen=b.dataset.tok; draw(); });
+      bars.querySelectorAll('.dbar').forEach(b=>b.onclick=()=>{ chosen=b.dataset.tok; draw(); });
 
       const ch = document.getElementById('dchallenge');
-      const surprising = /dinosaure|voiture|lune|immeuble/i.test(cands[0][0]);
-      ch.classList.toggle('done', surprising);
-      ch.innerHTML = surprising
-        ? '🦖 Gagné&nbsp;! Le bon contexte a rendu «&nbsp;'+cands[0][0]+'&nbsp;» le plus probable — alors que c\'est absurde dans l\'absolu.'
-        : '🦖 Défi&nbsp;: changez de contexte pour qu\'un mot improbable (dinosaure, voiture…) passe en tête.';
+      ch.classList.toggle('done', win);
+      ch.innerHTML = win ? D.win(cands[0][0]) : D.challenge;
     }
-
     window.drawDemo = draw;
-    draw();
+  })();
+
+  /* =========================================================
+     BOOT
+     ========================================================= */
+  (function(){
+    let saved='fr';
+    try{ saved = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+    if(!['fr','en','zh'].includes(saved)) saved='fr';
+    applyLang(saved);
+    render();
   })();
 </script>
 </body>
