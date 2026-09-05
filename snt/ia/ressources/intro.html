@@ -463,10 +463,16 @@
     font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;
     text-transform:uppercase;color:var(--signal-dk);margin-bottom:1.2rem;
   }
+  .thread-maxim{
+    font-family:var(--mono);font-size:clamp(.72rem,1.5vw,.95rem);
+    letter-spacing:.04em;color:var(--muted);font-style:italic;margin-bottom:.8rem;
+  }
   .thread h3{
     font-family:var(--display);text-transform:uppercase;
-    font-size:clamp(1.5rem,4.5vw,3.4rem);line-height:.98;max-width:16ch;
+    font-size:clamp(1.5rem,4.5vw,3.4rem);line-height:1;max-width:20ch;
   }
+  .thread h3 .k{color:var(--signal)}
+  .thread h3 .p{border-bottom:.1em solid var(--signal);padding-bottom:.03em}
   .thread .rule{width:64px;height:5px;background:var(--signal);margin:1.6rem 0}
   .thread .points{display:grid;gap:1rem;max-width:60ch}
   .thread .points p{
@@ -1184,7 +1190,27 @@
         </div>
       </article>
 
-      <!-- ---- CLIMAX 3 : L'INCIDENT CYBER ---- -->
+      <!-- ---- CLIMAX 3 : L'IA ENTRE DANS LE LABO ---- -->
+      <article class="ev tao" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">Anthropic · 27 août 2026</div>
+          <h3 class="ev-title">L'IA sort de l'écran et entre dans le laboratoire</h3>
+          <p class="ev-note">Elle ne se contente plus de <em>proposer</em> une expérience&nbsp;: elle peut désormais <strong>piloter les instruments</strong> qui la réalisent. La frontière entre «&nbsp;donner un conseil&nbsp;» et «&nbsp;agir dans le monde physique&nbsp;» commence à tomber.</p>
+        </div>
+      </article>
+
+      <!-- ---- CLIMAX 4 : L'IA AMÉLIORE L'IA ---- -->
+      <article class="ev tao" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag">Anthropic · 28 août 2026</div>
+          <h3 class="ev-title">L'IA commence à améliorer l'IA</h3>
+          <p class="ev-note">Menant <strong>seul</strong> une recherche pour mieux entraîner d'autres modèles, Claude fait progresser <strong>les 10 comportements</strong> visés par l'évaluation. Une IA qui rend les IA meilleures&nbsp;: la boucle commence à se refermer.</p>
+        </div>
+      </article>
+
+      <!-- ---- CLIMAX 5 : L'INCIDENT CYBER ---- -->
       <article class="ev tao cyber" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
@@ -1327,9 +1353,10 @@
   <!-- ============ SCÈNE 6 : FIL DIRECTEUR ============ -->
   <div class="thread" id="thread">
     <div class="eyebrow">Chapitre 1 · Notre fil rouge de l'année</div>
-    <h3>On ne peut pas juger<br>ce qu'on ne comprend pas.</h3>
+    <p class="thread-maxim">On ne peut pas juger ce qu'on ne comprend pas.</p>
+    <h3><span class="k">Comprendre</span> pour mieux <span class="p">utiliser</span>.<br><span class="k">Comprendre</span> pour mieux <span class="p">juger</span>.</h3>
     <div class="rule"></div>
-    <p class="thread-lead">Alors cette année, ensemble, nous allons essayer de comprendre un peu mieux ce qui se cache derrière tout ça.</p>
+    <p class="thread-lead"><strong>Juger</strong>, c'est exercer son <strong>esprit critique</strong>&nbsp;; <strong>utiliser</strong>, c'est s'en servir sans se laisser mener. Les deux commencent au même endroit — <strong>comprendre</strong>. Alors cette année, ensemble, on va regarder sous le capot.</p>
     <div class="points">
       <p><strong>Le fonctionnement</strong> — ce qu'il y a vraiment sous le capot.</p>
       <p><strong>L'usage</strong> — s'en servir de façon responsable et constructive.</p>
