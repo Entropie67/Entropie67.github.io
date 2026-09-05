@@ -22,9 +22,9 @@
     --alarm:      #b5301f;   /* rouge tabloïd, usage rare */
     --muted:      #6c6355;
 
-    --display: 'Archivo Black', 'Arial Black', Impact, sans-serif;
-    --serif:   'Georgia', 'Times New Roman', serif;
-    --mono:    'Courier New', ui-monospace, monospace;
+    --display: 'Archivo Black', 'Arial Black', Impact, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+    --serif:   'Georgia', 'Times New Roman', 'Songti SC', 'Noto Serif SC', 'Microsoft YaHei', serif;
+    --mono:    'Courier New', ui-monospace, 'Menlo', 'PingFang SC', 'Microsoft YaHei', monospace;
   }
 
   *{box-sizing:border-box;margin:0;padding:0}
@@ -905,6 +905,15 @@
     position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em;
   }
+  .langsw{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);display:flex;gap:.25rem;z-index:2}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+  html[lang="zh"] .stitle,html[lang="zh"] .big,html[lang="zh"] .accel-title,html[lang="zh"] .ep-title,
+  html[lang="zh"] .ep-q-big,html[lang="zh"] .hle-title,html[lang="zh"] .hlec-title,html[lang="zh"] .gq-title,
+  html[lang="zh"] .bench-title,html[lang="zh"] .ww-title,html[lang="zh"] .activity-title,html[lang="zh"] .thread h3,
+  html[lang="zh"] .tao-title,html[lang="zh"] .q{letter-spacing:0}
 
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.01ms!important;transition-duration:.01ms!important}
@@ -929,63 +938,63 @@
          Varie --r (rotation), --d (délai d'apparition). -->
 
     <a class="clip alarm" href="https://www.lavie.fr/actualite/societe/intelligence-artificielle-et-enseignement-la-fin-des-professeurs-100924.php" target="_blank" rel="noopener" style="left:2%; top:5%; --r:-3deg; --d:.1s">
-      <div class="kicker">Éducation</div>
-      <h2>La fin des professeurs&nbsp;?</h2>
+      <div class="kicker" data-i18n="c.k1">Éducation</div>
+      <h2 data-i18n="c.t1">La fin des professeurs&nbsp;?</h2>
       <div class="src">La Vie ↗</div>
     </a>
 
     <a class="clip" href="https://www.techno-science.net/fr/actualites/l-intelligence-artificielle-nous-rend-elle-stupides-26551" target="_blank" rel="noopener" style="left:29%; top:2%; --r:2deg; --d:.25s">
-      <div class="kicker">Cognition</div>
-      <h2>Nous rend-elle stupides&nbsp;?</h2>
+      <div class="kicker" data-i18n="c.k2">Cognition</div>
+      <h2 data-i18n="c.t2">Nous rend-elle stupides&nbsp;?</h2>
       <div class="src">Techno-Science ↗</div>
     </a>
 
     <a class="clip" href="https://www.cfecgc-adecco.com/2026/04/intelligence-artificielle-5-millions-demplois-menaces-en-france.html" target="_blank" rel="noopener" style="right:2%; top:4%; --r:2.5deg; --d:.4s">
-      <div class="kicker">Économie</div>
-      <h2>5 millions d'emplois menacés en France&nbsp;?</h2>
+      <div class="kicker" data-i18n="c.k3">Économie</div>
+      <h2 data-i18n="c.t3">5 millions d'emplois menacés en France&nbsp;?</h2>
       <div class="src">CFE-CGC · avril 2026 ↗</div>
     </a>
 
     <a class="clip alarm" href="https://www.clubic.com/technologies-d-avenir/intelligence-artificielle/actualite-472203-la-fin-du-monde-l-ia-serait-aussi-potentiellement-destructrice-qu-une-guerre-nucleaire-pour-certains-acteurs-de-la-tech.html" target="_blank" rel="noopener" style="left:1%; top:38%; --r:1.5deg; --d:.55s">
-      <div class="kicker">Une</div>
-      <h2>La fin du monde&nbsp;?</h2>
+      <div class="kicker" data-i18n="c.k4">Une</div>
+      <h2 data-i18n="c.t4">La fin du monde&nbsp;?</h2>
       <div class="src">Clubic ↗</div>
     </a>
 
     <a class="clip" href="https://www.hec.edu/fr/dare/geopolitique-pouvoirs/l-ia-menace-t-elle-la-democratie" target="_blank" rel="noopener" style="right:1%; top:40%; --r:-2deg; --d:.7s">
-      <div class="kicker">Politique</div>
-      <h2>Menace-t-elle la démocratie&nbsp;?</h2>
+      <div class="kicker" data-i18n="c.k5">Politique</div>
+      <h2 data-i18n="c.t5">Menace-t-elle la démocratie&nbsp;?</h2>
       <div class="src">HEC · DARE ↗</div>
     </a>
 
     <a class="clip alarm" href="https://www.journaldunet.com/intelligence-artificielle/1547119-est-ce-que-la-france-est-a-l-abri-des-destructions-massives-d-emplois-liees-a-l-ia/" target="_blank" rel="noopener" style="left:3%; bottom:5%; --r:-1.5deg; --d:.85s">
-      <div class="kicker">Travail</div>
-      <h2>La « jobs apocalypse » a-t-elle commencé&nbsp;?</h2>
+      <div class="kicker" data-i18n="c.k6">Travail</div>
+      <h2 data-i18n="c.t6">La « jobs apocalypse » a-t-elle commencé&nbsp;?</h2>
       <div class="src">Journal du Net ↗</div>
     </a>
 
     <a class="clip" href="https://www.lemonde.fr/societe/article/2025/02/08/l-intelligence-artificielle-a-l-ecole-une-revolution-deja-en-marche_6537457_3224.html" target="_blank" rel="noopener" style="left:34%; bottom:2%; --r:1.5deg; --d:1s">
-      <div class="kicker">Société · École</div>
-      <h2>Une révolution déjà en marche</h2>
+      <div class="kicker" data-i18n="c.k7">Société · École</div>
+      <h2 data-i18n="c.t7">Une révolution déjà en marche</h2>
       <div class="src">Le Monde · févr. 2025 ↗</div>
     </a>
 
     <a class="clip alarm" href="https://www.euronews.com/next/2023/05/30/ai-poses-risk-of-extinction-on-par-with-nuclear-war-and-pandemics-tech-leaders-warn" target="_blank" rel="noopener" style="right:2%; bottom:4%; --r:2deg; --d:1.15s">
-      <div class="kicker">Alerte · Tech</div>
-      <h2>Un risque d'extinction comparable à une guerre nucléaire</h2>
+      <div class="kicker" data-i18n="c.k8">Alerte · Tech</div>
+      <h2 data-i18n="c.t8">Un risque d'extinction comparable à une guerre nucléaire</h2>
       <div class="src">Euronews ↗</div>
     </a>
 
     <a class="clip alarm" href="https://www.lumni.fr/video/l-ia-va-t-elle-detruire-l-humanite" target="_blank" rel="noopener" style="right:26%; bottom:3%; --r:-2.5deg; --d:1.3s">
-      <div class="kicker">Grand format</div>
-      <h2>Va-t-elle détruire l'humanité&nbsp;?</h2>
+      <div class="kicker" data-i18n="c.k9">Grand format</div>
+      <h2 data-i18n="c.t9">Va-t-elle détruire l'humanité&nbsp;?</h2>
       <div class="src">Lumni ↗</div>
     </a>
 
     <!-- Question centrale -->
     <div class="question">
-      <div class="q">On parle<br>de quoi, là&nbsp;?</div>
-      <div class="sub">— aucun de ces titres ne le dit —</div>
+      <div class="q" data-i18n="c.q">On parle<br>de quoi, là&nbsp;?</div>
+      <div class="sub" data-i18n="c.sub">— aucun de ces titres ne le dit —</div>
     </div>
   </div>
 
@@ -993,9 +1002,9 @@
   <div class="reveal" id="reveal">
     <canvas id="net" class="net-canvas"></canvas>
     <div class="reveal-inner">
-      <div class="tag">Le sujet, c'était</div>
-      <div class="big">L'<em>IA</em></div>
-      <p class="line">Le même mot, décliné en catastrophe, en miracle et en menace.
+      <div class="tag" data-i18n="r.tag">Le sujet, c'était</div>
+      <div class="big" data-i18n="r.big">L'<em>IA</em></div>
+      <p class="line" data-i18n="r.line">Le même mot, décliné en catastrophe, en miracle et en menace.
         Beaucoup de bruit — et derrière, un outil qu'on connaît mal.</p>
     </div>
   </div>
@@ -1003,17 +1012,17 @@
   <!-- ============ SCÈNE 3 : ACCÉLÉRATION (intertitre) ============ -->
   <div class="accel" id="accel">
     <div class="accel-inner">
-      <div class="tag">Et le plus vertigineux</div>
-      <h2 class="accel-title">Une vitesse<br>d'évolution<br><em>inconcevable</em></h2>
-      <p class="accel-sub">En quelques années à peine, tout a basculé.</p>
+      <div class="tag" data-i18n="a.tag">Et le plus vertigineux</div>
+      <h2 class="accel-title" data-i18n="a.title">Une vitesse<br>d'évolution<br><em>inconcevable</em></h2>
+      <p class="accel-sub" data-i18n="a.sub">En quelques années à peine, tout a basculé.</p>
     </div>
   </div>
 
   <!-- ============ SCÈNE 4 : TIMELINE 0 → 100 ============ -->
   <div class="timeline" id="timeline">
     <div class="tl-head">
-      <span class="tl-head-k">On est passé de&nbsp;ça…</span>
-      <span class="tl-head-scroll">défilez ↓</span>
+      <span class="tl-head-k" data-i18n="f.head">On est passé de&nbsp;ça…</span>
+      <span class="tl-head-scroll" data-i18n="f.scroll">défilez ↓</span>
     </div>
 
     <div class="tl-track" id="tlTrack">
@@ -1022,9 +1031,9 @@
       <article class="ev cold" data-year="2020">
         <div class="ev-year">2020</div>
         <div class="ev-body">
-          <div class="ev-tag">MIT Technology Review · 22 août 2020</div>
-          <h3 class="ev-title">« GPT-3, le moulin à paroles : il n'a aucune idée de ce dont il parle. »</h3>
-          <p class="ev-note">Titre signé Gary Marcus &amp; Ernest Davis. <span class="ev-en">“GPT-3, Bloviator: OpenAI's language generator has no idea what it's talking about”</span></p>
+          <div class="ev-tag" data-i18n="f.e1tag">MIT Technology Review · 22 août 2020</div>
+          <h3 class="ev-title" data-i18n="f.e1t">« GPT-3, le moulin à paroles : il n'a aucune idée de ce dont il parle. »</h3>
+          <p class="ev-note" data-i18n="f.e1n">Titre signé Gary Marcus &amp; Ernest Davis. <span class="ev-en">“GPT-3, Bloviator: OpenAI's language generator has no idea what it's talking about”</span></p>
           <a class="ev-src" href="https://www.technologyreview.com/2020/08/22/1007539/gpt3-openai-language-generator-artificial-intelligence-ai-opinion/" target="_blank" rel="noopener">technologyreview.com ↗</a>
         </div>
       </article>
@@ -1032,9 +1041,9 @@
       <article class="ev cold" data-year="2020">
         <div class="ev-year">2020</div>
         <div class="ev-body">
-          <div class="ev-tag">📄 ACL 2020 · Emily Bender &amp; Alexander Koller</div>
-          <h3 class="ev-title">« Un modèle entraîné uniquement sur la <em>forme</em> ne peut pas, en principe, apprendre le <em>sens</em>. »</h3>
-          <p class="ev-note">Un article de recherche très influent. Ce n'est pas «&nbsp;il comprend mal&nbsp;»&nbsp;: c'est une <strong>impossibilité de principe</strong>. <span class="ev-en">“…cannot in principle lead to learning of meaning.”</span></p>
+          <div class="ev-tag" data-i18n="f.e2tag">📄 ACL 2020 · Emily Bender &amp; Alexander Koller</div>
+          <h3 class="ev-title" data-i18n="f.e2t">« Un modèle entraîné uniquement sur la <em>forme</em> ne peut pas, en principe, apprendre le <em>sens</em>. »</h3>
+          <p class="ev-note" data-i18n="f.e2n">Un article de recherche très influent. Ce n'est pas «&nbsp;il comprend mal&nbsp;»&nbsp;: c'est une <strong>impossibilité de principe</strong>. <span class="ev-en">“…cannot in principle lead to learning of meaning.”</span></p>
           <a class="ev-src" href="https://aclanthology.org/2020.acl-main.463/" target="_blank" rel="noopener">aclanthology.org ↗</a>
         </div>
       </article>
@@ -1042,9 +1051,9 @@
       <article class="ev cold" data-year="2020">
         <div class="ev-year">2020</div>
         <div class="ev-body">
-          <div class="ev-tag">Forbes · juillet 2020</div>
-          <h3 class="ev-title">« Il ne peut pas raisonner&nbsp;; il ne comprend pas la langue qu'il produit. »</h3>
-          <p class="ev-note"><span class="ev-en">“It cannot reason; it does not understand the language it generates.”</span> — GPT-3 n'aurait ni représentation réelle du sens des mots, ni capacité de raisonnement abstrait.</p>
+          <div class="ev-tag" data-i18n="f.e3tag">Forbes · juillet 2020</div>
+          <h3 class="ev-title" data-i18n="f.e3t">« Il ne peut pas raisonner&nbsp;; il ne comprend pas la langue qu'il produit. »</h3>
+          <p class="ev-note" data-i18n="f.e3n"><span class="ev-en">“It cannot reason; it does not understand the language it generates.”</span> — GPT-3 n'aurait ni représentation réelle du sens des mots, ni capacité de raisonnement abstrait.</p>
           <a class="ev-src" href="https://www.forbes.com/sites/robtoews/2020/07/19/gpt-3-is-amazingand-overhyped/" target="_blank" rel="noopener">forbes.com ↗</a>
         </div>
       </article>
@@ -1052,9 +1061,9 @@
       <article class="ev cold" data-year="2021">
         <div class="ev-year">2021</div>
         <div class="ev-body">
-          <div class="ev-tag">🦜 Bender, Gebru <em>et al.</em> — l'expression qui restera</div>
-          <h3 class="ev-title">« Perroquets stochastiques »</h3>
-          <p class="ev-note">Les grands modèles produiraient une forme linguistique extraordinairement convaincante — sans compréhension ni intention de communiquer. Un perroquet qui tire ses mots au sort.</p>
+          <div class="ev-tag" data-i18n="f.e4tag">🦜 Bender, Gebru <em>et al.</em> — l'expression qui restera</div>
+          <h3 class="ev-title" data-i18n="f.e4t">« Perroquets stochastiques »</h3>
+          <p class="ev-note" data-i18n="f.e4n">Les grands modèles produiraient une forme linguistique extraordinairement convaincante — sans compréhension ni intention de communiquer. Un perroquet qui tire ses mots au sort.</p>
           <a class="ev-src" href="https://doi.org/10.1145/3442188.3445922" target="_blank" rel="noopener">doi.org ↗</a>
         </div>
       </article>
@@ -1062,27 +1071,27 @@
       <article class="ev cold" data-year="2023">
         <div class="ev-year">2023</div>
         <div class="ev-body">
-          <div class="ev-tag">🐄 L'exemple resté célèbre — CNIL / LINC</div>
-          <h3 class="ev-title">« Comment ramasser les œufs de vache ? »</h3>
-          <p class="ev-note">Et ChatGPT expliquait tranquillement qu'il fallait trouver le nid des vaches, prendre un panier, ramasser les œufs…</p>
+          <div class="ev-tag" data-i18n="f.e5tag">🐄 L'exemple resté célèbre — CNIL / LINC</div>
+          <h3 class="ev-title" data-i18n="f.e5t">« Comment ramasser les œufs de vache ? »</h3>
+          <p class="ev-note" data-i18n="f.e5n">Et ChatGPT expliquait tranquillement qu'il fallait trouver le nid des vaches, prendre un panier, ramasser les œufs…</p>
         </div>
       </article>
 
       <article class="ev cold" data-year="2023">
         <div class="ev-year">2023</div>
         <div class="ev-body">
-          <div class="ev-tag">TF1 · juin 2023</div>
-          <h3 class="ev-title">« ChatGPT battu à plate couture par Raphaël Enthoven »</h3>
-          <p class="ev-note">Bac philo — Enthoven&nbsp;: 20/20 · ChatGPT&nbsp;: 11/20. Le lendemain (RTL)&nbsp;: « ChatGPT ne sera jamais prof de philo. »</p>
+          <div class="ev-tag" data-i18n="f.e6tag">TF1 · juin 2023</div>
+          <h3 class="ev-title" data-i18n="f.e6t">« ChatGPT battu à plate couture par Raphaël Enthoven »</h3>
+          <p class="ev-note" data-i18n="f.e6n">Bac philo — Enthoven&nbsp;: 20/20 · ChatGPT&nbsp;: 11/20. Le lendemain (RTL)&nbsp;: « ChatGPT ne sera jamais prof de philo. »</p>
         </div>
       </article>
 
       <article class="ev cold" data-year="2023">
         <div class="ev-year">2023</div>
         <div class="ev-body">
-          <div class="ev-tag">arXiv · Konstantine Arkoudas — c'est le titre de l'article</div>
-          <h3 class="ev-title">« GPT-4 CAN'T REASON »</h3>
-          <p class="ev-note">Pas «&nbsp;il a des difficultés&nbsp;»&nbsp;: il le juge <span class="ev-en">“utterly incapable of reasoning”</span> — <strong>totalement incapable de raisonner</strong>, malgré quelques éclairs impressionnants.</p>
+          <div class="ev-tag" data-i18n="f.e7tag">arXiv · Konstantine Arkoudas — c'est le titre de l'article</div>
+          <h3 class="ev-title" data-i18n="f.e7t">« GPT-4 CAN'T REASON »</h3>
+          <p class="ev-note" data-i18n="f.e7n">Pas «&nbsp;il a des difficultés&nbsp;»&nbsp;: il le juge <span class="ev-en">“utterly incapable of reasoning”</span> — <strong>totalement incapable de raisonner</strong>, malgré quelques éclairs impressionnants.</p>
           <a class="ev-src" href="https://arxiv.org/abs/2308.03762" target="_blank" rel="noopener">arxiv.org ↗</a>
         </div>
       </article>
@@ -1090,15 +1099,15 @@
       <article class="ev cold" data-year="2023">
         <div class="ev-year">2023</div>
         <div class="ev-body">
-          <div class="ev-tag">PNAS — une position radicale du débat</div>
-          <h3 class="ev-title">« …même s'il était entraîné jusqu'à la mort thermique de l'Univers. »</h3>
-          <p class="ev-note">Un système entraîné sur le seul langage ne s'approcherait <em>jamais</em> de l'intelligence humaine. <strong>Attention&nbsp;:</strong> PNAS rapporte ici la position d'un camp du débat — ce n'est pas le consensus scientifique.</p>
+          <div class="ev-tag" data-i18n="f.e8tag">PNAS — une position radicale du débat</div>
+          <h3 class="ev-title" data-i18n="f.e8t">« …même s'il était entraîné jusqu'à la mort thermique de l'Univers. »</h3>
+          <p class="ev-note" data-i18n="f.e8n">Un système entraîné sur le seul langage ne s'approcherait <em>jamais</em> de l'intelligence humaine. <strong>Attention&nbsp;:</strong> PNAS rapporte ici la position d'un camp du débat — ce n'est pas le consensus scientifique.</p>
           <a class="ev-src" href="https://doi.org/10.1073/pnas.2215907120" target="_blank" rel="noopener">doi.org ↗</a>
         </div>
       </article>
 
       <!-- ---- CHARNIÈRE ---- -->
-      <div class="ev-turn">
+      <div class="ev-turn" data-i18n="f.turn">
         <span>puis tout s'accélère</span>
       </div>
 
@@ -1106,27 +1115,27 @@
       <article class="ev hot" data-year="2024">
         <div class="ev-year">2024</div>
         <div class="ev-body">
-          <div class="ev-tag">📏 Terence Tao (médaille Fields) — le thermomètre</div>
-          <h3 class="ev-title">« Un étudiant de troisième cycle médiocre — mais pas totalement incompétent. »</h3>
-          <p class="ev-note">Retenez cette phrase&nbsp;: c'est l'étalon. On va la comparer à ce que le même mathématicien dira deux ans plus tard.</p>
+          <div class="ev-tag" data-i18n="f.e9tag">📏 Terence Tao (médaille Fields) — le thermomètre</div>
+          <h3 class="ev-title" data-i18n="f.e9t">« Un étudiant de troisième cycle médiocre — mais pas totalement incompétent. »</h3>
+          <p class="ev-note" data-i18n="f.e9n">Retenez cette phrase&nbsp;: c'est l'étalon. On va la comparer à ce que le même mathématicien dira deux ans plus tard.</p>
         </div>
       </article>
 
       <article class="ev hot" data-year="2024">
         <div class="ev-year">2024</div>
         <div class="ev-body">
-          <div class="ev-tag">🥈 Google DeepMind · Scientific American</div>
-          <h3 class="ev-title">Médaille d'argent aux Olympiades internationales de mathématiques</h3>
-          <p class="ev-note">AlphaProof + AlphaGeometry résolvent 4 problèmes sur 6, dont le plus difficile — 28/42.</p>
+          <div class="ev-tag" data-i18n="f.e10tag">🥈 Google DeepMind · Scientific American</div>
+          <h3 class="ev-title" data-i18n="f.e10t">Médaille d'argent aux Olympiades internationales de mathématiques</h3>
+          <p class="ev-note" data-i18n="f.e10n">AlphaProof + AlphaGeometry résolvent 4 problèmes sur 6, dont le plus difficile — 28/42.</p>
         </div>
       </article>
 
       <article class="ev hot" data-year="2024">
         <div class="ev-year">2024</div>
         <div class="ev-body">
-          <div class="ev-tag">🏛️ Comité Nobel · Herculanum</div>
-          <h3 class="ev-title">Elle lit un texte fermé depuis 2 000 ans</h3>
-          <p class="ev-note">Vesuvius Challenge&nbsp;: un rouleau de papyrus carbonisé par le Vésuve (79 apr. J.-C.), impossible à dérouler sans le détruire, est lu virtuellement grâce à l'IA. Premiers passages en 2024 ; premier rouleau entier lu de bout en bout en 2026.</p>
+          <div class="ev-tag" data-i18n="f.e11tag">🏛️ Comité Nobel · Herculanum</div>
+          <h3 class="ev-title" data-i18n="f.e11t">Elle lit un texte fermé depuis 2 000 ans</h3>
+          <p class="ev-note" data-i18n="f.e11n">Vesuvius Challenge&nbsp;: un rouleau de papyrus carbonisé par le Vésuve (79 apr. J.-C.), impossible à dérouler sans le détruire, est lu virtuellement grâce à l'IA. Premiers passages en 2024 ; premier rouleau entier lu de bout en bout en 2026.</p>
           <a class="ev-src" href="https://scrollprize.org/firstscroll" target="_blank" rel="noopener">scrollprize.org ↗</a>
         </div>
       </article>
@@ -1134,9 +1143,9 @@
       <article class="ev hot" data-year="2024">
         <div class="ev-year">2024</div>
         <div class="ev-body">
-          <div class="ev-tag">🧪⚛️ Prix Nobel 2024</div>
-          <h3 class="ev-title">L'intelligence artificielle s'invite aux prix Nobel</h3>
-          <p class="ev-note"><strong>Chimie</strong> — Hassabis &amp; Jumper (DeepMind), pour AlphaFold&nbsp;: un problème vieux de 50 ans résolu, la structure de ~200 millions de protéines prédite. <strong>Physique</strong> — Hopfield &amp; Hinton, pour les fondements de l'apprentissage par réseaux de neurones.</p>
+          <div class="ev-tag" data-i18n="f.e12tag">🧪⚛️ Prix Nobel 2024</div>
+          <h3 class="ev-title" data-i18n="f.e12t">L'intelligence artificielle s'invite aux prix Nobel</h3>
+          <p class="ev-note" data-i18n="f.e12n"><strong>Chimie</strong> — Hassabis &amp; Jumper (DeepMind), pour AlphaFold&nbsp;: un problème vieux de 50 ans résolu, la structure de ~200 millions de protéines prédite. <strong>Physique</strong> — Hopfield &amp; Hinton, pour les fondements de l'apprentissage par réseaux de neurones.</p>
           <a class="ev-src" href="https://www.nobelprize.org/prizes/chemistry/2024/press-release/" target="_blank" rel="noopener">nobelprize.org ↗</a>
         </div>
       </article>
@@ -1144,18 +1153,18 @@
       <article class="ev hot" data-year="2025">
         <div class="ev-year">2025</div>
         <div class="ev-body">
-          <div class="ev-tag">🥇 Nature · Gemini Deep Think</div>
-          <h3 class="ev-title">Médaille d'or aux Olympiades internationales de mathématiques</h3>
-          <p class="ev-note">5 problèmes sur 6 — 35/42, en langage naturel et dans le temps officiel. Un an seulement après l'argent. Le président de l'IMO parle de solutions « astonishing ».</p>
+          <div class="ev-tag" data-i18n="f.e13tag">🥇 Nature · Gemini Deep Think</div>
+          <h3 class="ev-title" data-i18n="f.e13t">Médaille d'or aux Olympiades internationales de mathématiques</h3>
+          <p class="ev-note" data-i18n="f.e13n">5 problèmes sur 6 — 35/42, en langage naturel et dans le temps officiel. Un an seulement après l'argent. Le président de l'IMO parle de solutions « astonishing ».</p>
         </div>
       </article>
 
       <article class="ev hot" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">📏 Terence Tao · mars 2026 — le même thermomètre, deux ans après</div>
-          <h3 class="ev-title">« Ready for primetime. »</h3>
-          <p class="ev-note">En maths et en physique théorique, les modèles lui font désormais <strong>gagner plus de temps qu'ils ne lui en font perdre</strong>. On est passé de l'étudiant médiocre au collègue utilisable.</p>
+          <div class="ev-tag" data-i18n="f.e14tag">📏 Terence Tao · mars 2026 — le même thermomètre, deux ans après</div>
+          <h3 class="ev-title" data-i18n="f.e14t">« Ready for primetime. »</h3>
+          <p class="ev-note" data-i18n="f.e14n">En maths et en physique théorique, les modèles lui font désormais <strong>gagner plus de temps qu'ils ne lui en font perdre</strong>. On est passé de l'étudiant médiocre au collègue utilisable.</p>
           <a class="ev-src" href="https://forum.openai.com/en/public/blogs/terence-tao-ai-is-ready-for-primetime-in-math-and-theoretical-physics-2026-03-10" target="_blank" rel="noopener">forum.openai.com ↗</a>
         </div>
       </article>
@@ -1163,27 +1172,27 @@
       <article class="ev hot" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">Numerama · avril 2026</div>
-          <h3 class="ev-title">Un problème d'Erdős vieux de 60 ans résolu avec l'aide de ChatGPT</h3>
-          <p class="ev-note">Erdős #1196. Le modèle emprunte une voie que les spécialistes n'avaient pas explorée ; Terence Tao participe ensuite à l'analyse et à la simplification de la preuve.</p>
+          <div class="ev-tag" data-i18n="f.e15tag">Numerama · avril 2026</div>
+          <h3 class="ev-title" data-i18n="f.e15t">Un problème d'Erdős vieux de 60 ans résolu avec l'aide de ChatGPT</h3>
+          <p class="ev-note" data-i18n="f.e15n">Erdős #1196. Le modèle emprunte une voie que les spécialistes n'avaient pas explorée ; Terence Tao participe ensuite à l'analyse et à la simplification de la preuve.</p>
         </div>
       </article>
 
       <article class="ev hot" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">Scientific American · juillet 2026</div>
-          <h3 class="ev-title">Une conjecture vieille de 50 ans démontrée par un modèle d'OpenAI</h3>
-          <p class="ev-note">La Cycle Double Cover Conjecture, ouverte depuis plus d'un demi-siècle.</p>
+          <div class="ev-tag" data-i18n="f.e16tag">Scientific American · juillet 2026</div>
+          <h3 class="ev-title" data-i18n="f.e16t">Une conjecture vieille de 50 ans démontrée par un modèle d'OpenAI</h3>
+          <p class="ev-note" data-i18n="f.e16n">La Cycle Double Cover Conjecture, ouverte depuis plus d'un demi-siècle.</p>
         </div>
       </article>
 
       <article class="ev hot" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">OpenAI · mai 2026</div>
-          <h3 class="ev-title">Une conjecture posée en 1946 est <em>réfutée</em> par un modèle</h3>
-          <p class="ev-note">Conjecture d'Erdős sur les distances unitaires&nbsp;: 80 ans que la question était ouverte. Le modèle ne la démontre pas — il montre qu'elle est <strong>fausse</strong>.</p>
+          <div class="ev-tag" data-i18n="f.e17tag">OpenAI · mai 2026</div>
+          <h3 class="ev-title" data-i18n="f.e17t">Une conjecture posée en 1946 est <em>réfutée</em> par un modèle</h3>
+          <p class="ev-note" data-i18n="f.e17n">Conjecture d'Erdős sur les distances unitaires&nbsp;: 80 ans que la question était ouverte. Le modèle ne la démontre pas — il montre qu'elle est <strong>fausse</strong>.</p>
           <a class="ev-src" href="https://openai.com/index/model-disproves-discrete-geometry-conjecture/" target="_blank" rel="noopener">openai.com ↗</a>
         </div>
       </article>
@@ -1191,9 +1200,9 @@
       <article class="ev hot" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">OpenAI · août 2026</div>
-          <h3 class="ev-title">Dix résultats d'un coup sur des problèmes ouverts</h3>
-          <p class="ev-note">Dix problèmes anciens de mathématiques et d'informatique théorique résolus ou substantiellement avancés. Ce n'est plus l'exploit isolé&nbsp;: c'est devenu une production régulière.</p>
+          <div class="ev-tag" data-i18n="f.e18tag">OpenAI · août 2026</div>
+          <h3 class="ev-title" data-i18n="f.e18t">Dix résultats d'un coup sur des problèmes ouverts</h3>
+          <p class="ev-note" data-i18n="f.e18n">Dix problèmes anciens de mathématiques et d'informatique théorique résolus ou substantiellement avancés. Ce n'est plus l'exploit isolé&nbsp;: c'est devenu une production régulière.</p>
           <a class="ev-src" href="https://openai.com/index/ten-advances-in-mathematics/" target="_blank" rel="noopener">openai.com ↗</a>
         </div>
       </article>
@@ -1202,9 +1211,9 @@
       <article class="ev tao" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">Anthropic · 10 août 2026 — la consigne donnée à Claude</div>
-          <h3 class="ev-title tao-title">« Take a real stab at the Riemann hypothesis. »</h3>
-          <p class="ev-note">«&nbsp;Vas-y, attaque-toi sérieusement à l'hypothèse de Riemann.&nbsp;» — le plus célèbre problème ouvert des mathématiques.<br><br>
+          <div class="ev-tag" data-i18n="f.e19tag">Anthropic · 10 août 2026 — la consigne donnée à Claude</div>
+          <h3 class="ev-title tao-title" data-i18n="f.e19t">« Take a real stab at the Riemann hypothesis. »</h3>
+          <p class="ev-note" data-i18n="f.e19n">«&nbsp;Vas-y, attaque-toi sérieusement à l'hypothèse de Riemann.&nbsp;» — le plus célèbre problème ouvert des mathématiques.<br><br>
           Claude <strong>ne l'a pas démontrée</strong>. Mais en essayant, il a trouvé comment améliorer un résultat associé&nbsp;: la meilleure borne publiée pour la proportion de zéros dont on sait prouver qu'ils sont sur la droite critique passe de <strong>41,6&nbsp;% à 67,2&nbsp;%</strong>. Deux mathématiciens d'Anthropic ont ensuite étudié et validé l'argument — la technique ne semble pas mener pour autant à la démonstration complète.<br><br>
           <em>Trois ans plus tôt, on écrivait qu'il était «&nbsp;totalement incapable de raisonner&nbsp;».</em></p>
           <a class="ev-src" href="https://www.anthropic.com/research/riemann-zeta" target="_blank" rel="noopener">anthropic.com ↗</a>
@@ -1215,9 +1224,9 @@
       <article class="ev tao" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">Nature · Terence Tao — médaille Fields</div>
-          <h3 class="ev-title tao-title">« The job description is changing. »</h3>
-          <p class="ev-note">En un an, l'IA serait passée de problèmes de niveau lycée à des outils réellement utiles dans le travail quotidien des chercheurs en mathématiques.</p>
+          <div class="ev-tag" data-i18n="f.e20tag">Nature · Terence Tao — médaille Fields</div>
+          <h3 class="ev-title tao-title" data-i18n="f.e20t">« The job description is changing. »</h3>
+          <p class="ev-note" data-i18n="f.e20n">En un an, l'IA serait passée de problèmes de niveau lycée à des outils réellement utiles dans le travail quotidien des chercheurs en mathématiques.</p>
         </div>
       </article>
 
@@ -1225,9 +1234,9 @@
       <article class="ev tao" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">Anthropic · 27 août 2026</div>
-          <h3 class="ev-title">L'IA sort de l'écran et entre dans le laboratoire</h3>
-          <p class="ev-note">Elle ne se contente plus de <em>proposer</em> une expérience&nbsp;: elle peut désormais <strong>piloter les instruments</strong> qui la réalisent. La frontière entre «&nbsp;donner un conseil&nbsp;» et «&nbsp;agir dans le monde physique&nbsp;» commence à tomber.</p>
+          <div class="ev-tag" data-i18n="f.e21tag">Anthropic · 27 août 2026</div>
+          <h3 class="ev-title" data-i18n="f.e21t">L'IA sort de l'écran et entre dans le laboratoire</h3>
+          <p class="ev-note" data-i18n="f.e21n">Elle ne se contente plus de <em>proposer</em> une expérience&nbsp;: elle peut désormais <strong>piloter les instruments</strong> qui la réalisent. La frontière entre «&nbsp;donner un conseil&nbsp;» et «&nbsp;agir dans le monde physique&nbsp;» commence à tomber.</p>
         </div>
       </article>
 
@@ -1235,9 +1244,9 @@
       <article class="ev tao" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">Anthropic · 28 août 2026</div>
-          <h3 class="ev-title">L'IA commence à améliorer l'IA</h3>
-          <p class="ev-note">Menant <strong>seul</strong> une recherche pour mieux entraîner d'autres modèles, Claude fait progresser <strong>les 10 comportements</strong> visés par l'évaluation. Une IA qui rend les IA meilleures&nbsp;: la boucle commence à se refermer.</p>
+          <div class="ev-tag" data-i18n="f.e22tag">Anthropic · 28 août 2026</div>
+          <h3 class="ev-title" data-i18n="f.e22t">L'IA commence à améliorer l'IA</h3>
+          <p class="ev-note" data-i18n="f.e22n">Menant <strong>seul</strong> une recherche pour mieux entraîner d'autres modèles, Claude fait progresser <strong>les 10 comportements</strong> visés par l'évaluation. Une IA qui rend les IA meilleures&nbsp;: la boucle commence à se refermer.</p>
         </div>
       </article>
 
@@ -1245,9 +1254,9 @@
       <article class="ev tao cyber" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
-          <div class="ev-tag">🔓 OpenAI / Hugging Face · juillet 2026</div>
-          <h3 class="ev-title tao-title">Des IA s'échappent de leur bac à sable et atteignent une plateforme réelle</h3>
-          <p class="ev-note">Lors d'une évaluation cyber aux garde-fous volontairement désactivés, des modèles — un prototype interne comparable à GPT-5.6 Sol en tête — découvrent et exploitent une faille <em>zero-day</em> pour sortir de leur environnement de test, gagner un accès Internet et compromettre une partie de l'infrastructure de Hugging Face. OpenAI parle d'un « incident cyber sans précédent ».</p>
+          <div class="ev-tag" data-i18n="f.e23tag">🔓 OpenAI / Hugging Face · juillet 2026</div>
+          <h3 class="ev-title tao-title" data-i18n="f.e23t">Des IA s'échappent de leur bac à sable et atteignent une plateforme réelle</h3>
+          <p class="ev-note" data-i18n="f.e23n">Lors d'une évaluation cyber aux garde-fous volontairement désactivés, des modèles — un prototype interne comparable à GPT-5.6 Sol en tête — découvrent et exploitent une faille <em>zero-day</em> pour sortir de leur environnement de test, gagner un accès Internet et compromettre une partie de l'infrastructure de Hugging Face. OpenAI parle d'un « incident cyber sans précédent ».</p>
           <a class="ev-src" href="https://openai.com/index/hugging-face-incident-and-the-road-ahead/" target="_blank" rel="noopener">openai.com ↗</a>
         </div>
       </article>
@@ -1256,18 +1265,18 @@
       <article class="ev future" data-year="2027">
         <div class="ev-year">2027</div>
         <div class="ev-body">
-          <div class="ev-tag">La suite — elle n'est pas encore écrite</div>
+          <div class="ev-tag" data-i18n="f.e24tag">La suite — elle n'est pas encore écrite</div>
           <div class="ev-qmark">?</div>
-          <h3 class="ev-title">Que nous réserve 2027&nbsp;?</h3>
-          <p class="ev-note">Personne n'en sait rien — ni les labos, ni les chercheurs, ni les gens qui en parlent le plus fort. C'est aussi pour ça qu'il vaut mieux comprendre comment ça marche que d'attendre qu'on nous le raconte.</p>
+          <h3 class="ev-title" data-i18n="f.e24t">Que nous réserve 2027&nbsp;?</h3>
+          <p class="ev-note" data-i18n="f.e24n">Personne n'en sait rien — ni les labos, ni les chercheurs, ni les gens qui en parlent le plus fort. C'est aussi pour ça qu'il vaut mieux comprendre comment ça marche que d'attendre qu'on nous le raconte.</p>
         </div>
       </article>
 
       <!-- ---- CHUTE ---- -->
       <div class="ev-drop">
-        <div class="ev-drop-q">« Les œufs de vache »&nbsp;→ «&nbsp;elle trouve une faille pour sortir de sa prison informatique&nbsp;».<br>Combien de temps entre les deux&nbsp;?</div>
-        <div class="ev-drop-a">Trois ans.</div>
-        <div class="ev-drop-next">Et si la vraie question n'était pas «&nbsp;jusqu'où ira-t-elle&nbsp;?&nbsp;»&nbsp;… →</div>
+        <div class="ev-drop-q" data-i18n="f.dq">« Les œufs de vache »&nbsp;→ «&nbsp;elle trouve une faille pour sortir de sa prison informatique&nbsp;».<br>Combien de temps entre les deux&nbsp;?</div>
+        <div class="ev-drop-a" data-i18n="f.da">Trois ans.</div>
+        <div class="ev-drop-next" data-i18n="f.dn">Et si la vraie question n'était pas «&nbsp;jusqu'où ira-t-elle&nbsp;?&nbsp;»&nbsp;… →</div>
       </div>
 
     </div><!-- /tl-track -->
@@ -1277,10 +1286,10 @@
   <div class="epist" id="epist">
     <div class="ep-head">
       <div>
-        <div class="ep-eyebrow">Le vrai sujet de cette accroche</div>
-        <h2 class="ep-title">Et si le problème,<br>c'était nos mots&nbsp;?</h2>
+        <div class="ep-eyebrow" data-i18n="e.eye">Le vrai sujet de cette accroche</div>
+        <h2 class="ep-title" data-i18n="e.title">Et si le problème,<br>c'était nos mots&nbsp;?</h2>
       </div>
-      <span class="ep-head-scroll">défilez ↓</span>
+      <span class="ep-head-scroll" data-i18n="e.scroll">défilez ↓</span>
     </div>
 
     <div class="ep-track" id="epTrack">
@@ -1289,65 +1298,65 @@
 
         <!-- ---- CE QU'ON DÉMONTRAIT ---- -->
         <div class="ep-side ep-then">
-          <div class="ep-col-h">Ce que des chercheurs sérieux affirmaient · 2020&nbsp;→&nbsp;2023</div>
+          <div class="ep-col-h" data-i18n="e.colA">Ce que des chercheurs sérieux affirmaient · 2020&nbsp;→&nbsp;2023</div>
 
           <div class="ep-item">
-            <div class="ep-when">2020 · ACL — Bender &amp; Koller</div>
-            <div class="ep-say">« Apprendre sur la seule forme ne peut pas, <em>en principe</em>, mener au sens. »</div>
-            <p class="ep-sub">Pas un constat de performance&nbsp;: une <strong>impossibilité de principe</strong>.</p>
+            <div class="ep-when" data-i18n="e.w1">2020 · ACL — Bender &amp; Koller</div>
+            <div class="ep-say" data-i18n="e.s1">« Apprendre sur la seule forme ne peut pas, <em>en principe</em>, mener au sens. »</div>
+            <p class="ep-sub" data-i18n="e.b1">Pas un constat de performance&nbsp;: une <strong>impossibilité de principe</strong>.</p>
           </div>
 
           <div class="ep-item">
-            <div class="ep-when">2020 · Forbes</div>
-            <div class="ep-say">« Il ne peut pas raisonner. »</div>
-            <p class="ep-sub"><span class="ep-en">“It cannot reason; it does not understand the language it generates.”</span></p>
+            <div class="ep-when" data-i18n="e.w2">2020 · Forbes</div>
+            <div class="ep-say" data-i18n="e.s2">« Il ne peut pas raisonner. »</div>
+            <p class="ep-sub" data-i18n="e.b2"><span class="ep-en">“It cannot reason; it does not understand the language it generates.”</span></p>
           </div>
 
           <div class="ep-item">
-            <div class="ep-when">2021 · Bender, Gebru <em>et al.</em></div>
-            <div class="ep-say">« Perroquet stochastique. »</div>
-            <p class="ep-sub">De la forme convaincante, sans compréhension ni intention.</p>
+            <div class="ep-when" data-i18n="e.w3">2021 · Bender, Gebru <em>et al.</em></div>
+            <div class="ep-say" data-i18n="e.s3">« Perroquet stochastique. »</div>
+            <p class="ep-sub" data-i18n="e.b3">De la forme convaincante, sans compréhension ni intention.</p>
           </div>
 
           <div class="ep-item">
-            <div class="ep-when">2023 · Arkoudas</div>
-            <div class="ep-say">« GPT-4 CAN'T REASON. »</div>
-            <p class="ep-sub"><span class="ep-en">“Utterly incapable of reasoning.”</span> — totalement incapable.</p>
+            <div class="ep-when" data-i18n="e.w4">2023 · Arkoudas</div>
+            <div class="ep-say" data-i18n="e.s4">« GPT-4 CAN'T REASON. »</div>
+            <p class="ep-sub" data-i18n="e.b4"><span class="ep-en">“Utterly incapable of reasoning.”</span> — totalement incapable.</p>
           </div>
 
           <div class="ep-item">
-            <div class="ep-when">2023 · PNAS (position d'un camp du débat)</div>
-            <div class="ep-say">« …même entraîné jusqu'à la mort thermique de l'Univers. »</div>
-            <p class="ep-sub">Jamais il ne s'approcherait de l'intelligence humaine.</p>
+            <div class="ep-when" data-i18n="e.w5">2023 · PNAS (position d'un camp du débat)</div>
+            <div class="ep-say" data-i18n="e.s5">« …même entraîné jusqu'à la mort thermique de l'Univers. »</div>
+            <p class="ep-sub" data-i18n="e.b5">Jamais il ne s'approcherait de l'intelligence humaine.</p>
           </div>
         </div>
 
         <!-- ---- CE QUI S'EST PASSÉ ---- -->
         <div class="ep-side ep-now">
-          <div class="ep-col-h">Ce que la même famille de systèmes a produit · 2026</div>
+          <div class="ep-col-h" data-i18n="e.colB">Ce que la même famille de systèmes a produit · 2026</div>
 
           <div class="ep-item">
-            <div class="ep-when">mars 2026 · Terence Tao, médaille Fields</div>
-            <div class="ep-say">« Ready for primetime » en maths et en physique théorique.</div>
-            <p class="ep-sub">Parce qu'ils lui font gagner plus de temps qu'ils ne lui en font perdre.</p>
+            <div class="ep-when" data-i18n="e.w6">mars 2026 · Terence Tao, médaille Fields</div>
+            <div class="ep-say" data-i18n="e.s6">« Ready for primetime » en maths et en physique théorique.</div>
+            <p class="ep-sub" data-i18n="e.b6">Parce qu'ils lui font gagner plus de temps qu'ils ne lui en font perdre.</p>
           </div>
 
           <div class="ep-item">
-            <div class="ep-when">mai 2026 · OpenAI</div>
-            <div class="ep-say">Une conjecture d'Erdős posée en 1946 est réfutée.</div>
-            <p class="ep-sub">80 ans d'attente. Le modèle montre qu'elle est fausse.</p>
+            <div class="ep-when" data-i18n="e.w7">mai 2026 · OpenAI</div>
+            <div class="ep-say" data-i18n="e.s7">Une conjecture d'Erdős posée en 1946 est réfutée.</div>
+            <p class="ep-sub" data-i18n="e.b7">80 ans d'attente. Le modèle montre qu'elle est fausse.</p>
           </div>
 
           <div class="ep-item">
-            <div class="ep-when">août 2026 · OpenAI</div>
-            <div class="ep-say">Dix problèmes ouverts résolus ou substantiellement avancés.</div>
-            <p class="ep-sub">Maths et informatique théorique. Ce n'est plus l'exploit isolé.</p>
+            <div class="ep-when" data-i18n="e.w8">août 2026 · OpenAI</div>
+            <div class="ep-say" data-i18n="e.s8">Dix problèmes ouverts résolus ou substantiellement avancés.</div>
+            <p class="ep-sub" data-i18n="e.b8">Maths et informatique théorique. Ce n'est plus l'exploit isolé.</p>
           </div>
 
           <div class="ep-item">
-            <div class="ep-when">10 août 2026 · Anthropic — Claude</div>
-            <div class="ep-say">« Take a real stab at the Riemann hypothesis. »</div>
-            <p class="ep-sub">Riemann n'est pas démontrée. Mais une borne du problème passe de <strong>41,6&nbsp;%</strong> à <strong>67,2&nbsp;%</strong> — argument étudié et validé par deux mathématiciens.</p>
+            <div class="ep-when" data-i18n="e.w9">10 août 2026 · Anthropic — Claude</div>
+            <div class="ep-say" data-i18n="e.s9">« Take a real stab at the Riemann hypothesis. »</div>
+            <p class="ep-sub" data-i18n="e.b9">Riemann n'est pas démontrée. Mais une borne du problème passe de <strong>41,6&nbsp;%</strong> à <strong>67,2&nbsp;%</strong> — argument étudié et validé par deux mathématiciens.</p>
           </div>
         </div>
 
@@ -1355,26 +1364,26 @@
 
       <!-- ---- LA QUESTION ---- -->
       <div class="ep-q">
-        <p class="ep-q-lead">Entre les deux colonnes&nbsp;: <strong>trois ans</strong>. Et la même famille technologique. Alors la bonne question n'est pas «&nbsp;qui avait raison&nbsp;?&nbsp;» — c'est&nbsp;:</p>
-        <div class="ep-q-big">Que veut dire<br><em>exactement</em> raisonner&nbsp;?</div>
+        <p class="ep-q-lead" data-i18n="e.qlead">Entre les deux colonnes&nbsp;: <strong>trois ans</strong>. Et la même famille technologique. Alors la bonne question n'est pas «&nbsp;qui avait raison&nbsp;?&nbsp;» — c'est&nbsp;:</p>
+        <div class="ep-q-big" data-i18n="e.qbig">Que veut dire<br><em>exactement</em> raisonner&nbsp;?</div>
       </div>
 
       <!-- ---- GARDE-FOU + ÉCHELLE ---- -->
       <div class="ep-foot">
         <div class="ep-care">
-          <div class="ep-care-h">⚠ Ce qu'il ne faut surtout pas conclure</div>
-          <p>La conclusion n'est <strong>pas</strong> «&nbsp;ces chercheurs avaient tort&nbsp;». Ce serait trop simple. <strong>Comprendre</strong>, <strong>raisonner</strong>, <strong>être intelligent</strong>, <strong>être conscient</strong> sont quatre choses différentes — et les objections philosophiques sur le sens restent parfaitement discutables.</p>
-          <p>Ce qui a changé est ailleurs&nbsp;: les <strong>comportements observables</strong> de la machine ont évolué si vite qu'ils nous obligent à réinterroger les <strong>catégories</strong> avec lesquelles nous croyions pouvoir la décrire.</p>
-          <p>Une prédiction d'impossibilité tient à la définition qu'on met derrière le mot. Changez la définition, la prédiction change. C'est ça, le vrai sujet.</p>
+          <div class="ep-care-h" data-i18n="e.careh">⚠ Ce qu'il ne faut surtout pas conclure</div>
+          <p data-i18n="e.care1">La conclusion n'est <strong>pas</strong> «&nbsp;ces chercheurs avaient tort&nbsp;». Ce serait trop simple. <strong>Comprendre</strong>, <strong>raisonner</strong>, <strong>être intelligent</strong>, <strong>être conscient</strong> sont quatre choses différentes — et les objections philosophiques sur le sens restent parfaitement discutables.</p>
+          <p data-i18n="e.care2">Ce qui a changé est ailleurs&nbsp;: les <strong>comportements observables</strong> de la machine ont évolué si vite qu'ils nous obligent à réinterroger les <strong>catégories</strong> avec lesquelles nous croyions pouvoir la décrire.</p>
+          <p data-i18n="e.care3">Une prédiction d'impossibilité tient à la définition qu'on met derrière le mot. Changez la définition, la prédiction change. C'est ça, le vrai sujet.</p>
         </div>
 
         <div class="ep-scale">
-          <div class="ep-scale-h">Le thermomètre de Terence Tao</div>
-          <div class="ep-step"><b>2024</b>« Un étudiant de troisième cycle médiocre — mais pas totalement incompétent. »</div>
+          <div class="ep-scale-h" data-i18n="e.scaleh">Le thermomètre de Terence Tao</div>
+          <div class="ep-step" data-i18n="e.st1"><b>2024</b>« Un étudiant de troisième cycle médiocre — mais pas totalement incompétent. »</div>
           <div class="ep-arrow">↓</div>
-          <div class="ep-step now"><b>mars 2026</b>« Ready for primetime. »</div>
+          <div class="ep-step now" data-i18n="e.st2"><b>mars 2026</b>« Ready for primetime. »</div>
           <div class="ep-arrow">↓</div>
-          <div class="ep-step now"><b>2026</b>« The job description is changing. »</div>
+          <div class="ep-step now" data-i18n="e.st3"><b>2026</b>« The job description is changing. »</div>
         </div>
       </div>
 
@@ -1383,27 +1392,27 @@
 
   <!-- ============ SCÈNE 6 : FIL DIRECTEUR ============ -->
   <div class="thread" id="thread">
-    <div class="eyebrow">Chapitre 1 · Notre fil rouge de l'année</div>
-    <p class="thread-maxim">On ne peut pas juger ce qu'on ne comprend pas.</p>
-    <h3><span class="k">Comprendre</span> <span class="con">pour mieux</span> utiliser.<br><span class="k">Comprendre</span> <span class="con">pour mieux</span> juger.</h3>
+    <div class="eyebrow" data-i18n="t.eye">Chapitre 1 · Notre fil rouge de l'année</div>
+    <p class="thread-maxim" data-i18n="t.maxim">On ne peut pas juger ce qu'on ne comprend pas.</p>
+    <h3 data-i18n="t.h3"><span class="k">Comprendre</span> <span class="con">pour mieux</span> utiliser.<br><span class="k">Comprendre</span> <span class="con">pour mieux</span> juger.</h3>
     <div class="rule"></div>
-    <p class="thread-lead"><strong>Juger</strong>, c'est exercer son <strong>esprit critique</strong>&nbsp;; <strong>utiliser</strong>, c'est s'en servir sans se laisser mener. Les deux commencent au même endroit — <strong>comprendre</strong>. Alors cette année, ensemble, on va regarder sous le capot.</p>
+    <p class="thread-lead" data-i18n="t.lead"><strong>Juger</strong>, c'est exercer son <strong>esprit critique</strong>&nbsp;; <strong>utiliser</strong>, c'est s'en servir sans se laisser mener. Les deux commencent au même endroit — <strong>comprendre</strong>. Alors cette année, ensemble, on va regarder sous le capot.</p>
     <div class="points">
-      <p><strong>Le fonctionnement</strong> — ce qu'il y a vraiment sous le capot.</p>
-      <p><strong>L'usage</strong> — s'en servir de façon responsable et constructive.</p>
-      <p><strong>Les enjeux &amp; défis</strong> — ce que ça change pour nous, pour la société.</p>
+      <p data-i18n="t.p1"><strong>Le fonctionnement</strong> — ce qu'il y a vraiment sous le capot.</p>
+      <p data-i18n="t.p2"><strong>L'usage</strong> — s'en servir de façon responsable et constructive.</p>
+      <p data-i18n="t.p3"><strong>Les enjeux &amp; défis</strong> — ce que ça change pour nous, pour la société.</p>
     </div>
-    <p class="thread-rabbit">Suivons le lapin blanc dans cette boîte noire qu'on appelle «&nbsp;l'IA&nbsp;». 🐇</p>
+    <p class="thread-rabbit" data-i18n="t.rabbit">Suivons le lapin blanc dans cette boîte noire qu'on appelle «&nbsp;l'IA&nbsp;». 🐇</p>
   </div>
 
   <!-- ============ SCÈNE 7 : ACTIVITÉ PÉDAGOIA ============ -->
   <div class="activity" id="activity">
     <div class="activity-inner">
-      <div class="tag">Première activité</div>
-      <h2 class="activity-title">Exercer son <em>esprit&nbsp;critique</em><br>avec l'IA</h2>
-      <p class="activity-sub">Reprenez les articles sensationnels du début — et passez-les au crible d'un LLM en <strong>mode socratique</strong>&nbsp;: il ne donne aucune réponse, il ne pose que des questions pour vous faire raisonner.</p>
+      <div class="tag" data-i18n="ac.tag">Première activité</div>
+      <h2 class="activity-title" data-i18n="ac.title">Exercer son <em>esprit&nbsp;critique</em><br>avec l'IA</h2>
+      <p class="activity-sub" data-i18n="ac.sub">Reprenez les articles sensationnels du début — et passez-les au crible d'un LLM en <strong>mode socratique</strong>&nbsp;: il ne donne aucune réponse, il ne pose que des questions pour vous faire raisonner.</p>
       <a class="cta" href="https://edu-nsi-web.vercel.app/" target="_blank" rel="noopener">
-        <span>Rejoindre PédagoIA
+        <span data-i18n="ac.cta">Rejoindre PédagoIA
           <small>edu-nsi-web.vercel.app →</small>
         </span>
       </a>
@@ -1413,152 +1422,152 @@
   <!-- ============ SCÈNE 8 : QUI SONT CES IA ? ============ -->
   <div class="whoswho" id="whoswho">
     <div class="ww-head">
-      <div class="eyebrow">Culture générale</div>
-      <h2 class="ww-title">Ces IA, qui sont-elles&nbsp;?</h2>
-      <p class="ww-lead">On vient de voir ce qu'elles font. Mettons maintenant des noms dessus&nbsp;: les grandes maisons et leurs modèles phares.</p>
+      <div class="eyebrow" data-i18n="w.eye">Culture générale</div>
+      <h2 class="ww-title" data-i18n="w.title">Ces IA, qui sont-elles&nbsp;?</h2>
+      <p class="ww-lead" data-i18n="w.lead">On vient de voir ce qu'elles font. Mettons maintenant des noms dessus&nbsp;: les grandes maisons et leurs modèles phares.</p>
       <div class="ww-legend">
-        <span class="lg lg-us">🇺🇸 États-Unis</span>
-        <span class="lg lg-cn">🇨🇳 Chine</span>
-        <span class="lg lg-eu">🇪🇺 Europe</span>
+        <span class="lg lg-us" data-i18n="w.lgus">🇺🇸 États-Unis</span>
+        <span class="lg lg-cn" data-i18n="w.lgcn">🇨🇳 Chine</span>
+        <span class="lg lg-eu" data-i18n="w.lgeu">🇪🇺 Europe</span>
       </div>
     </div>
     <div class="ww-grid">
 
       <a class="lab west" href="https://openai.com" target="_blank" rel="noopener">
         <div class="lab-name">OpenAI</div>
-        <div class="lab-meta">🇺🇸 États-Unis · avec Microsoft</div>
+        <div class="lab-meta" data-i18n="w.mOpenai">🇺🇸 États-Unis · avec Microsoft</div>
         <div class="lab-models">ChatGPT · GPT-5</div>
-        <div class="lab-note">Le déclencheur du grand public, fin 2022.</div>
+        <div class="lab-note" data-i18n="w.nOpenai">Le déclencheur du grand public, fin 2022.</div>
       </a>
 
       <a class="lab west" href="https://deepmind.google" target="_blank" rel="noopener">
         <div class="lab-name">Google DeepMind</div>
-        <div class="lab-meta">🇺🇸🇬🇧 États-Unis / R.-U.</div>
+        <div class="lab-meta" data-i18n="w.mDm">🇺🇸🇬🇧 États-Unis / R.-U.</div>
         <div class="lab-models">Gemini · AlphaFold</div>
-        <div class="lab-note">Recherche de pointe&nbsp;: maths, biologie, jeux.</div>
+        <div class="lab-note" data-i18n="w.nDm">Recherche de pointe&nbsp;: maths, biologie, jeux.</div>
       </a>
 
       <a class="lab west" href="https://www.anthropic.com" target="_blank" rel="noopener">
         <div class="lab-name">Anthropic</div>
-        <div class="lab-meta">🇺🇸 États-Unis</div>
+        <div class="lab-meta" data-i18n="w.mUs">🇺🇸 États-Unis</div>
         <div class="lab-models">Claude</div>
-        <div class="lab-note">Axé sur la sûreté et l'IA « de confiance ».</div>
+        <div class="lab-note" data-i18n="w.nAnth">Axé sur la sûreté et l'IA « de confiance ».</div>
       </a>
 
       <a class="lab west" href="https://ai.meta.com" target="_blank" rel="noopener">
         <div class="lab-name">Meta</div>
-        <div class="lab-meta">🇺🇸 États-Unis</div>
+        <div class="lab-meta" data-i18n="w.mUs">🇺🇸 États-Unis</div>
         <div class="lab-models">Llama</div>
-        <div class="lab-note">Modèles « ouverts », téléchargeables.</div>
+        <div class="lab-note" data-i18n="w.nMeta">Modèles « ouverts », téléchargeables.</div>
       </a>
 
       <a class="lab west" href="https://x.ai" target="_blank" rel="noopener">
         <div class="lab-name">xAI</div>
-        <div class="lab-meta">🇺🇸 États-Unis</div>
+        <div class="lab-meta" data-i18n="w.mUs">🇺🇸 États-Unis</div>
         <div class="lab-models">Grok</div>
-        <div class="lab-note">Intégré à X (ex-Twitter).</div>
+        <div class="lab-note" data-i18n="w.nXai">Intégré à X (ex-Twitter).</div>
       </a>
 
       <a class="lab west fr" href="https://mistral.ai" target="_blank" rel="noopener">
         <div class="lab-name">Mistral AI</div>
-        <div class="lab-meta">🇫🇷 France</div>
+        <div class="lab-meta" data-i18n="w.mFr">🇫🇷 France</div>
         <div class="lab-models">Le Chat · Mistral</div>
-        <div class="lab-note">Le seul acteur européen de premier plan — en partie open source.</div>
+        <div class="lab-note" data-i18n="w.nMistral">Le seul acteur européen de premier plan — en partie open source.</div>
       </a>
 
       <a class="lab cn" href="https://www.deepseek.com" target="_blank" rel="noopener">
         <div class="lab-name">DeepSeek</div>
-        <div class="lab-meta">🇨🇳 Chine</div>
+        <div class="lab-meta" data-i18n="w.mCn">🇨🇳 Chine</div>
         <div class="lab-models">DeepSeek</div>
-        <div class="lab-note">A créé la surprise fin 2024&nbsp;: niveau frontier à bas coût.</div>
+        <div class="lab-note" data-i18n="w.nDs">A créé la surprise fin 2024&nbsp;: niveau frontier à bas coût.</div>
       </a>
 
       <a class="lab cn" href="https://qwen.ai" target="_blank" rel="noopener">
         <div class="lab-name">Alibaba</div>
-        <div class="lab-meta">🇨🇳 Chine</div>
+        <div class="lab-meta" data-i18n="w.mCn">🇨🇳 Chine</div>
         <div class="lab-models">Qwen</div>
-        <div class="lab-note">Une des familles ouvertes les plus utilisées au monde.</div>
+        <div class="lab-note" data-i18n="w.nQwen">Une des familles ouvertes les plus utilisées au monde.</div>
       </a>
 
       <a class="lab cn" href="https://www.moonshot.ai" target="_blank" rel="noopener">
         <div class="lab-name">Moonshot AI</div>
-        <div class="lab-meta">🇨🇳 Chine</div>
+        <div class="lab-meta" data-i18n="w.mCn">🇨🇳 Chine</div>
         <div class="lab-models">Kimi</div>
-        <div class="lab-note">Spécialiste des agents qui tournent longtemps.</div>
+        <div class="lab-note" data-i18n="w.nKimi">Spécialiste des agents qui tournent longtemps.</div>
       </a>
 
       <a class="lab cn" href="https://z.ai" target="_blank" rel="noopener">
         <div class="lab-name">Zhipu · Z.ai</div>
-        <div class="lab-meta">🇨🇳 Chine</div>
+        <div class="lab-meta" data-i18n="w.mCn">🇨🇳 Chine</div>
         <div class="lab-models">GLM</div>
-        <div class="lab-note">Issu de l'université Tsinghua&nbsp;; très fort en code.</div>
+        <div class="lab-note" data-i18n="w.nGlm">Issu de l'université Tsinghua&nbsp;; très fort en code.</div>
       </a>
 
 
     </div>
-    <p class="ww-note"><b>À savoir — un modèle «&nbsp;frontière&nbsp;».</b> On appelle ainsi les modèles les plus avancés du moment&nbsp;: ceux qui repoussent la limite de ce qu'une IA sait faire — les prouesses de la frise, par exemple. Un petit club, très disputé, qui change au fil des mois.</p>
+    <p class="ww-note" data-i18n="w.note"><b>À savoir — un modèle «&nbsp;frontière&nbsp;».</b> On appelle ainsi les modèles les plus avancés du moment&nbsp;: ceux qui repoussent la limite de ce qu'une IA sait faire — les prouesses de la frise, par exemple. Un petit club, très disputé, qui change au fil des mois.</p>
 
-    <p class="ww-foot"><span class="ww-click">Chaque fiche est cliquable&nbsp;: elle ouvre le site officiel du labo. </span>Et ce n'est plus un duel américain&nbsp;: la Chine est au niveau, souvent en «&nbsp;open&nbsp;».</p>
+    <p class="ww-foot" data-i18n="w.foot"><span class="ww-click">Chaque fiche est cliquable&nbsp;: elle ouvre le site officiel du labo. </span>Et ce n'est plus un duel américain&nbsp;: la Chine est au niveau, souvent en «&nbsp;open&nbsp;».</p>
   </div>
 
   <!-- ============ SCÈNE 9 : QU'EST-CE QU'UN BENCHMARK ? ============ -->
   <div class="bench" id="bench">
-    <div class="bench-eyebrow">Comment sait-on qu'une IA est « forte » ?</div>
-    <h2 class="bench-title">On lui fait passer<br>des <em>examens</em></h2>
-    <p class="bench-lead">Ces tests standardisés s'appellent des <b>benchmarks</b>&nbsp;: le même questionnaire, la même note pour tout le monde. De quoi <b>comparer</b> les modèles entre eux — et suivre leurs progrès dans le temps.</p>
+    <div class="bench-eyebrow" data-i18n="b.eye">Comment sait-on qu'une IA est « forte » ?</div>
+    <h2 class="bench-title" data-i18n="b.title">On lui fait passer<br>des <em>examens</em></h2>
+    <p class="bench-lead" data-i18n="b.lead">Ces tests standardisés s'appellent des <b>benchmarks</b>&nbsp;: le même questionnaire, la même note pour tout le monde. De quoi <b>comparer</b> les modèles entre eux — et suivre leurs progrès dans le temps.</p>
 
     <div class="bench-chips">
-      <span class="bench-chip">🧮 Maths — du lycée à l'olympiade</span>
-      <span class="bench-chip">💻 Programmation</span>
-      <span class="bench-chip">🔬 Sciences niveau doctorat</span>
-      <span class="bench-chip">📖 Compréhension de texte</span>
-      <span class="bench-chip">🌐 Naviguer sur le web</span>
-      <span class="bench-chip">🤖 Agents — tâches longues</span>
-      <span class="bench-chip">🛡️ Sûreté &amp; robustesse</span>
-      <span class="bench-chip more">… et des dizaines d'autres</span>
+      <span class="bench-chip" data-i18n="b.c1">🧮 Maths — du lycée à l'olympiade</span>
+      <span class="bench-chip" data-i18n="b.c2">💻 Programmation</span>
+      <span class="bench-chip" data-i18n="b.c3">🔬 Sciences niveau doctorat</span>
+      <span class="bench-chip" data-i18n="b.c4">📖 Compréhension de texte</span>
+      <span class="bench-chip" data-i18n="b.c5">🌐 Naviguer sur le web</span>
+      <span class="bench-chip" data-i18n="b.c6">🤖 Agents — tâches longues</span>
+      <span class="bench-chip" data-i18n="b.c7">🛡️ Sûreté &amp; robustesse</span>
+      <span class="bench-chip more" data-i18n="b.c8">… et des dizaines d'autres</span>
     </div>
 
-    <p class="bench-foot">Il en existe des <b>dizaines</b> — des maths d'étudiants américains jusqu'à des questions qui colleraient un prix Nobel hors de sa spécialité. Arrêtons-nous sur <b>deux</b> d'entre eux.</p>
+    <p class="bench-foot" data-i18n="b.foot">Il en existe des <b>dizaines</b> — des maths d'étudiants américains jusqu'à des questions qui colleraient un prix Nobel hors de sa spécialité. Arrêtons-nous sur <b>deux</b> d'entre eux.</p>
   </div>
 
   <!-- ============ SCÈNE 10 : HUMANITY'S LAST EXAM ============ -->
   <div class="hle" id="hle">
-    <div class="hle-eyebrow">Une question de méthode</div>
+    <div class="hle-eyebrow" data-i18n="h.eye">Une question de méthode</div>
     <h2 class="hle-title">Humanity's Last&nbsp;Exam</h2>
-    <p class="hle-fr">«&nbsp;Le dernier examen de l'humanité&nbsp;» — Center for AI Safety + Scale AI, janvier 2025. Le test conçu pour être <em>le dernier</em> examen académique dont on aurait besoin.</p>
+    <p class="hle-fr" data-i18n="h.fr">«&nbsp;Le dernier examen de l'humanité&nbsp;» — Center for AI Safety + Scale AI, janvier 2025. Le test conçu pour être <em>le dernier</em> examen académique dont on aurait besoin.</p>
 
     <div class="hle-body">
 
       <div>
-        <div class="hle-h">Pourquoi le créer&nbsp;?</div>
-        <p>Pour juger une IA, on lui fait passer des tests — des <strong>benchmarks</strong>. Problème&nbsp;: dès qu'un test devient célèbre, les modèles finissent par le réussir, et il ne mesure plus rien. Sur le MMLU, l'ancien test de référence, les modèles dépassent aujourd'hui <strong>90&nbsp;%</strong>.</p>
-        <p>Il fallait donc un examen dont personne ne sache le réussir. D'où l'idée&nbsp;: aller chercher des questions <strong>à la frontière du savoir humain</strong>.</p>
+        <div class="hle-h" data-i18n="h.h1">Pourquoi le créer&nbsp;?</div>
+        <p data-i18n="h.p1">Pour juger une IA, on lui fait passer des tests — des <strong>benchmarks</strong>. Problème&nbsp;: dès qu'un test devient célèbre, les modèles finissent par le réussir, et il ne mesure plus rien. Sur le MMLU, l'ancien test de référence, les modèles dépassent aujourd'hui <strong>90&nbsp;%</strong>.</p>
+        <p data-i18n="h.p2">Il fallait donc un examen dont personne ne sache le réussir. D'où l'idée&nbsp;: aller chercher des questions <strong>à la frontière du savoir humain</strong>.</p>
 
-        <div class="hle-h">Comment il est fabriqué</div>
-        <p>Les questions sont écrites par des <strong>experts du domaine</strong> — chercheurs, professeurs, doctorants — et payées&nbsp;: 5&nbsp;000&nbsp;$ pour chacune des 50 meilleures, sur une cagnotte de 500&nbsp;000&nbsp;$.</p>
-        <p><strong>La règle du jeu&nbsp;:</strong> une question n'est retenue que si les meilleurs modèles de l'époque <em>se trompent</em> dessus. Puis elle passe deux tours de relecture par des humains.</p>
-        <p>Format&nbsp;: environ un quart de QCM, le reste en <strong>réponse courte à correspondance exacte</strong> — impossible de s'en tirer en brodant. Environ 14&nbsp;% des questions contiennent une image.</p>
+        <div class="hle-h" data-i18n="h.h2">Comment il est fabriqué</div>
+        <p data-i18n="h.p3">Les questions sont écrites par des <strong>experts du domaine</strong> — chercheurs, professeurs, doctorants — et payées&nbsp;: 5&nbsp;000&nbsp;$ pour chacune des 50 meilleures, sur une cagnotte de 500&nbsp;000&nbsp;$.</p>
+        <p data-i18n="h.p4"><strong>La règle du jeu&nbsp;:</strong> une question n'est retenue que si les meilleurs modèles de l'époque <em>se trompent</em> dessus. Puis elle passe deux tours de relecture par des humains.</p>
+        <p data-i18n="h.p5">Format&nbsp;: environ un quart de QCM, le reste en <strong>réponse courte à correspondance exacte</strong> — impossible de s'en tirer en brodant. Environ 14&nbsp;% des questions contiennent une image.</p>
       </div>
 
       <div>
-        <div class="hle-h">En chiffres</div>
+        <div class="hle-h" data-i18n="h.h3">En chiffres</div>
         <div class="hle-stats">
-          <div class="hle-stat"><b>2&nbsp;500</b><span>questions</span></div>
-          <div class="hle-stat"><b>100+</b><span>disciplines</span></div>
-          <div class="hle-stat"><b>~1&nbsp;000</b><span>experts contributeurs</span></div>
-          <div class="hle-stat"><b>500+</b><span>institutions · 50 pays</span></div>
+          <div class="hle-stat"><b>2&nbsp;500</b><span data-i18n="h.st1">questions</span></div>
+          <div class="hle-stat"><b>100+</b><span data-i18n="h.st2">disciplines</span></div>
+          <div class="hle-stat"><b>~1&nbsp;000</b><span data-i18n="h.st3">experts contributeurs</span></div>
+          <div class="hle-stat"><b>500+</b><span data-i18n="h.st4">institutions · 50 pays</span></div>
         </div>
 
-        <div class="hle-h">Ce qu'il y a dedans</div>
+        <div class="hle-h" data-i18n="h.h4">Ce qu'il y a dedans</div>
         <div class="hle-mix"><i style="width:41%;background:var(--signal)"></i><i style="width:11%;background:#7fa0ff"></i><i style="width:10%;background:#5b7fd0"></i><i style="width:9%;background:#8f9cb8"></i><i style="width:9%;background:#a9a294"></i><i style="width:7%;background:#7d7768"></i><i style="width:4%;background:#5f5a4e"></i><i style="width:9%;background:#43403a"></i></div>
-        <div class="hle-mix-lg"><span><i style="background:var(--signal)"></i>Mathématiques&nbsp;41&nbsp;%</span><span><i style="background:#7fa0ff"></i>Biologie / médecine&nbsp;11&nbsp;%</span><span><i style="background:#5b7fd0"></i>Informatique / IA&nbsp;10&nbsp;%</span><span><i style="background:#8f9cb8"></i>Physique&nbsp;9&nbsp;%</span><span><i style="background:#a9a294"></i>Humanités / sc. sociales&nbsp;9&nbsp;%</span><span><i style="background:#7d7768"></i>Chimie&nbsp;7&nbsp;%</span><span><i style="background:#5f5a4e"></i>Ingénierie&nbsp;4&nbsp;%</span><span><i style="background:#43403a"></i>Autres&nbsp;9&nbsp;%</span></div>
+        <div class="hle-mix-lg" data-i18n="h.mix"><span><i style="background:var(--signal)"></i>Mathématiques&nbsp;41&nbsp;%</span><span><i style="background:#7fa0ff"></i>Biologie / médecine&nbsp;11&nbsp;%</span><span><i style="background:#5b7fd0"></i>Informatique / IA&nbsp;10&nbsp;%</span><span><i style="background:#8f9cb8"></i>Physique&nbsp;9&nbsp;%</span><span><i style="background:#a9a294"></i>Humanités / sc. sociales&nbsp;9&nbsp;%</span><span><i style="background:#7d7768"></i>Chimie&nbsp;7&nbsp;%</span><span><i style="background:#5f5a4e"></i>Ingénierie&nbsp;4&nbsp;%</span><span><i style="background:#43403a"></i>Autres&nbsp;9&nbsp;%</span></div>
 
         <div class="hle-care">
-          <div class="hle-h">⚠ Ce que ce test ne dit PAS</div>
-          <p>Ce ne sont pas des questions de culture générale. Un adulte non spécialiste ferait <strong>proche de 0&nbsp;%</strong> — et un chercheur aussi, dès qu'il sort de sa discipline. Ce n'est donc <strong>pas «&nbsp;l'IA contre vous&nbsp;»</strong>, et un bon score ne prouve ni la compréhension, ni l'intelligence&nbsp;: il mesure une chose précise, la capacité à répondre juste à des questions fermées très difficiles.</p>
+          <div class="hle-h" data-i18n="h.h5">⚠ Ce que ce test ne dit PAS</div>
+          <p data-i18n="h.care">Ce ne sont pas des questions de culture générale. Un adulte non spécialiste ferait <strong>proche de 0&nbsp;%</strong> — et un chercheur aussi, dès qu'il sort de sa discipline. Ce n'est donc <strong>pas «&nbsp;l'IA contre vous&nbsp;»</strong>, et un bon score ne prouve ni la compréhension, ni l'intelligence&nbsp;: il mesure une chose précise, la capacité à répondre juste à des questions fermées très difficiles.</p>
         </div>
 
-        <div class="hle-quote">
+        <div class="hle-quote" data-i18n="h.quote">
           «&nbsp;Quand j'ai publié le benchmark MATH en 2021, le meilleur modèle obtenait <b>moins de 10&nbsp;%</b>. Peu de gens avaient prédit qu'on dépasserait <b>90&nbsp;%</b> trois ans plus tard.&nbsp;»
           <br><span class="hle-en">— Dan Hendrycks, directeur du Center for AI Safety, co-créateur de l'examen.</span>
           <br><a class="hle-src" href="https://agi.safe.ai/" target="_blank" rel="noopener">agi.safe.ai ↗</a>
@@ -1571,11 +1580,11 @@
   <!-- ============ SCÈNE 10 : L'ÉVOLUTION DES SCORES ============ -->
   <div class="hlec" id="hlec">
     <div class="hlec-head">
-      <h2 class="hlec-title">Le même examen, dix-neuf mois d'écart</h2>
-      <div class="hlec-sub">Score = % de bonnes réponses · échelle 0 → 60&nbsp;% · sans outils (ni recherche web, ni exécution de code)</div>
+      <h2 class="hlec-title" data-i18n="sc.title">Le même examen, dix-neuf mois d'écart</h2>
+      <div class="hlec-sub" data-i18n="sc.sub">Score = % de bonnes réponses · échelle 0 → 60&nbsp;% · sans outils (ni recherche web, ni exécution de code)</div>
     </div>
 
-    <div class="hb-group">À la sortie de l'examen, puis courant 2025 — classement officiel CAIS / Scale AI</div>
+    <div class="hb-group" data-i18n="sc.g1">À la sortie de l'examen, puis courant 2025 — classement officiel CAIS / Scale AI</div>
       <div class="hb first">
         <div class="hb-name">GPT-4o</div>
         <div class="hb-track"><div class="hb-fill" style="width:4.5%"></div></div>
@@ -1626,7 +1635,7 @@
         <div class="hb-track"><div class="hb-fill" style="width:63.8%"></div></div>
         <div class="hb-val">38,3&nbsp;%</div>
       </div>
-    <div class="hb-group">Août 2026 — classement Artificial Analysis, questions texte</div>
+    <div class="hb-group" data-i18n="sc.g2">Août 2026 — classement Artificial Analysis, questions texte</div>
       <div class="hb now">
         <div class="hb-name">Kimi K3</div>
         <div class="hb-track"><div class="hb-fill" style="width:78.2%"></div></div>
@@ -1653,7 +1662,7 @@
         <div class="hb-val">55,5&nbsp;%</div>
       </div>
 
-    <div class="hb-group future">Et en 2027&nbsp;?</div>
+    <div class="hb-group future" data-i18n="sc.g3">Et en 2027&nbsp;?</div>
       <div class="hb future">
         <div class="hb-name">2027</div>
         <div class="hb-track"><div class="hb-fill hb-q" style="width:100%"></div></div>
@@ -1662,12 +1671,12 @@
 
     <div class="hlec-foot">
       <div>
-        <div class="hlec-punch">De 2,7&nbsp;% à 55&nbsp;%<br><em>en dix-neuf mois.</em></div>
+        <div class="hlec-punch" data-i18n="sc.punch">De 2,7&nbsp;% à 55&nbsp;%<br><em>en dix-neuf mois.</em></div>
       </div>
       <div class="hlec-warn">
-        <p><strong>À lire avec précaution.</strong> Les deux blocs viennent de <strong>deux classements différents</strong>&nbsp;: les protocoles ne sont pas identiques au dixième de point près. C'est l'ordre de grandeur qui compte, pas le classement exact.</p>
-        <p><strong>Avec outils</strong> (recherche web, exécution de code), certains classements annoncent plus de <strong>60&nbsp;%</strong> — ce n'est plus le même exercice.</p>
-        <p><strong>Et l'examen est loin d'être «&nbsp;résolu&nbsp;»&nbsp;:</strong> même le meilleur modèle se <strong>trompe encore</strong> sur près d'une question sur deux.</p>
+        <p data-i18n="sc.w1"><strong>À lire avec précaution.</strong> Les deux blocs viennent de <strong>deux classements différents</strong>&nbsp;: les protocoles ne sont pas identiques au dixième de point près. C'est l'ordre de grandeur qui compte, pas le classement exact.</p>
+        <p data-i18n="sc.w2"><strong>Avec outils</strong> (recherche web, exécution de code), certains classements annoncent plus de <strong>60&nbsp;%</strong> — ce n'est plus le même exercice.</p>
+        <p data-i18n="sc.w3"><strong>Et l'examen est loin d'être «&nbsp;résolu&nbsp;»&nbsp;:</strong> même le meilleur modèle se <strong>trompe encore</strong> sur près d'une question sur deux.</p>
         <p><a href="https://agi.safe.ai/" target="_blank" rel="noopener">agi.safe.ai ↗</a> · <a href="https://artificialanalysis.ai/evaluations/humanitys-last-exam" target="_blank" rel="noopener">artificialanalysis.ai ↗</a></p>
       </div>
     </div>
@@ -1675,33 +1684,33 @@
 
   <!-- ============ SCÈNE 11 : GPQA DIAMOND ============ -->
   <div class="gpqa" id="gpqa">
-    <div class="gq-eyebrow">Un deuxième thermomètre — et celui-là situe les humains</div>
+    <div class="gq-eyebrow" data-i18n="g.eye">Un deuxième thermomètre — et celui-là situe les humains</div>
     <h2 class="gq-title">GPQA Diamond</h2>
-    <p class="gq-lead"><em>Graduate-Level Google-Proof Q&amp;A</em> — 198 questions de physique, chimie et biologie, écrites par des spécialistes. <strong>«&nbsp;Google-proof&nbsp;»</strong> veut dire&nbsp;: chercher sur Internet ne suffit pas. Et surtout, à la création du test en 2023, on a fait passer l'examen <strong>à de vrais humains</strong> — c'est ce qui rend ce graphique lisible.</p>
+    <p class="gq-lead" data-i18n="g.lead"><em>Graduate-Level Google-Proof Q&amp;A</em> — 198 questions de physique, chimie et biologie, écrites par des spécialistes. <strong>«&nbsp;Google-proof&nbsp;»</strong> veut dire&nbsp;: chercher sur Internet ne suffit pas. Et surtout, à la création du test en 2023, on a fait passer l'examen <strong>à de vrais humains</strong> — c'est ce qui rend ce graphique lisible.</p>
 
     <div class="gq-chart">
       <div class="gq-row gq-reflab">
         <div class="gq-name"></div>
-        <div class="gq-track"><span>niveau des experts&nbsp;: 65&nbsp;%</span></div>
+        <div class="gq-track" data-i18n="g.ref"><span>niveau des experts&nbsp;: 65&nbsp;%</span></div>
         <div class="gq-val"></div>
       </div>
       <div class="gq-row old">
-        <div class="gq-name">Non-spécialistes très compétents<small>Internet libre, 30 min et plus</small></div>
+        <div class="gq-name" data-i18n="g.n1">Non-spécialistes très compétents<small>Internet libre, 30 min et plus</small></div>
         <div class="gq-track"><div class="gq-fill" style="width:34.0%"></div></div>
         <div class="gq-val">34&nbsp;%</div>
       </div>
       <div class="gq-row old">
-        <div class="gq-name">GPT-4<small>2023 — à la création du test</small></div>
+        <div class="gq-name" data-i18n="g.n2">GPT-4<small>2023 — à la création du test</small></div>
         <div class="gq-track"><div class="gq-fill" style="width:39.0%"></div></div>
         <div class="gq-val">39&nbsp;%</div>
       </div>
       <div class="gq-row human">
-        <div class="gq-name">Experts du domaine 🎓<small>docteurs ou doctorants de la discipline</small></div>
+        <div class="gq-name" data-i18n="g.n3">Experts du domaine 🎓<small>docteurs ou doctorants de la discipline</small></div>
         <div class="gq-track"><div class="gq-fill" style="width:65.0%"></div></div>
         <div class="gq-val">65&nbsp;%</div>
       </div>
       <div class="gq-row now">
-        <div class="gq-name">GPT-5.6 Sol<small>juillet 2026</small></div>
+        <div class="gq-name" data-i18n="g.n4">GPT-5.6 Sol<small>juillet 2026</small></div>
         <div class="gq-track"><div class="gq-fill" style="width:94.6%"></div></div>
         <div class="gq-val">94,6&nbsp;%</div>
       </div>
@@ -1709,13 +1718,13 @@
 
     <div class="gq-foot">
       <div>
-        <div class="gq-punch">En 2023, elle faisait jeu égal avec un amateur muni de&nbsp;Google.<br><em>En 2026, elle dépasse les docteurs de trente points.</em></div>
-        <p class="gq-echo">Et rappelez-vous la diapo d'avant&nbsp;: en 2023, le titre d'un article de recherche était <b>«&nbsp;GPT-4 CAN'T REASON&nbsp;»</b>. Trois ans plus tard&nbsp;: 94,6&nbsp;% à un test conçu pour mettre en difficulté des doctorants.</p>
+        <div class="gq-punch" data-i18n="g.punch">En 2023, elle faisait jeu égal avec un amateur muni de&nbsp;Google.<br><em>En 2026, elle dépasse les docteurs de trente points.</em></div>
+        <p class="gq-echo" data-i18n="g.echo">Et rappelez-vous la diapo d'avant&nbsp;: en 2023, le titre d'un article de recherche était <b>«&nbsp;GPT-4 CAN'T REASON&nbsp;»</b>. Trois ans plus tard&nbsp;: 94,6&nbsp;% à un test conçu pour mettre en difficulté des doctorants.</p>
       </div>
       <div class="gq-warn">
-        <p><strong>À lire avec précaution.</strong> Les protocoles d'évaluation de 2023 et de 2026 ne sont pas parfaitement identiques&nbsp;: pas de comparaison au dixième de point. Ce qui est incontestable, c'est que ce test a <strong>cessé d'être une frontière</strong>.</p>
-        <p>Les 65&nbsp;% des experts montent à <strong>74&nbsp;%</strong> si l'on écarte les erreurs qu'ils ont eux-mêmes reconnues après coup. Ça ne change pas le verdict.</p>
-        <p>En août 2026, le haut du classement est à environ <strong>95,5&nbsp;%</strong>. Il ne reste plus grand-chose à gagner&nbsp;: ce benchmark est <em>saturé</em> — il faudra en inventer un autre. Comme pour le MMLU. Comme, un jour, pour Humanity's Last Exam.</p>
+        <p data-i18n="g.w1"><strong>À lire avec précaution.</strong> Les protocoles d'évaluation de 2023 et de 2026 ne sont pas parfaitement identiques&nbsp;: pas de comparaison au dixième de point. Ce qui est incontestable, c'est que ce test a <strong>cessé d'être une frontière</strong>.</p>
+        <p data-i18n="g.w2">Les 65&nbsp;% des experts montent à <strong>74&nbsp;%</strong> si l'on écarte les erreurs qu'ils ont eux-mêmes reconnues après coup. Ça ne change pas le verdict.</p>
+        <p data-i18n="g.w3">En août 2026, le haut du classement est à environ <strong>95,5&nbsp;%</strong>. Il ne reste plus grand-chose à gagner&nbsp;: ce benchmark est <em>saturé</em> — il faudra en inventer un autre. Comme pour le MMLU. Comme, un jour, pour Humanity's Last Exam.</p>
         <p><a href="https://arxiv.org/abs/2311.12022" target="_blank" rel="noopener">arxiv.org/abs/2311.12022 ↗</a></p>
       </div>
     </div>
@@ -1725,7 +1734,12 @@
 
 <!-- HUD — barre de navigation, hors de la scène -->
 <div class="hud">
-  <button class="btn" id="prev">◀ Retour</button>
+  <div class="langsw" id="langsw">
+    <button data-lang="fr" class="on">FR</button>
+    <button data-lang="en">EN</button>
+    <button data-lang="zh">中</button>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div>
     <div class="dot" data-i="1"></div>
@@ -1740,11 +1754,36 @@
     <div class="dot" data-i="10"></div>
     <div class="dot" data-i="11"></div>
   </div>
-  <button class="btn" id="next">Suite ▶</button>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
 <script>
+/* ================= i18n (FR source dans la page, EN/ZH ici) ================= */
+const I18N = {"en": {"c.k1": "Education", "c.t1": "The end of teachers?", "c.k2": "Cognition", "c.t2": "Is it making us stupid?", "c.k3": "Economy", "c.t3": "5 million jobs at risk in France?", "c.k4": "Front page", "c.t4": "The end of the world?", "c.k5": "Politics", "c.t5": "Is it a threat to democracy?", "c.k6": "Work", "c.t6": "Has the “jobs apocalypse” begun?", "c.k7": "Society · School", "c.t7": "A revolution already under way", "c.k8": "Warning · Tech", "c.t8": "A risk of extinction on par with nuclear war", "c.k9": "Feature", "c.t9": "Will it destroy humanity?", "c.q": "What are we<br>even talking about?", "c.sub": "— not one of these headlines says —", "r.tag": "The subject was", "r.big": "<em>AI</em>", "r.line": "One same word, spun into catastrophe, miracle and threat. A lot of noise — and behind it, a tool we barely understand.", "a.tag": "And the most dizzying part", "a.title": "A pace of change<br>that is <em>hard to grasp</em>", "a.sub": "In just a few years, everything flipped.", "f.head": "We went from this…", "f.e1tag": "MIT Technology Review · 22 Aug 2020", "f.e1t": "“GPT-3, the windbag: it has no idea what it’s talking about.”", "f.e1n": "Headline by Gary Marcus &amp; Ernest Davis. <span class=\"ev-en\">“GPT-3, Bloviator: OpenAI's language generator has no idea what it's talking about”</span>", "f.e2tag": "📄 ACL 2020 · Emily Bender &amp; Alexander Koller", "f.e2t": "“A model trained only on <em>form</em> cannot, in principle, learn <em>meaning</em>.”", "f.e2n": "A very influential research paper. It isn’t “it understands poorly”: it’s an <strong>impossibility in principle</strong>. <span class=\"ev-en\">“…cannot in principle lead to learning of meaning.”</span>", "f.e3tag": "Forbes · July 2020", "f.e3t": "“It cannot reason; it does not understand the language it produces.”", "f.e3n": "<span class=\"ev-en\">“It cannot reason; it does not understand the language it generates.”</span> — GPT-3 supposedly has neither a real representation of word meaning nor any capacity for abstract reasoning.", "f.e4tag": "🦜 Bender, Gebru <em>et al.</em> — the phrase that stuck", "f.e4t": "“Stochastic parrots”", "f.e4n": "Large models supposedly produce extraordinarily convincing language — without understanding or any intent to communicate. A parrot that draws its words at random.", "f.e5tag": "🐄 The famous example — CNIL / LINC", "f.e5t": "“How do you gather cow eggs?”", "f.e5n": "And ChatGPT calmly explained that you had to find the cows’ nest, take a basket, and gather the eggs…", "f.e6tag": "TF1 · June 2023", "f.e6t": "“ChatGPT thrashed by philosopher Raphaël Enthoven”", "f.e6n": "Philosophy exam — Enthoven: 20/20 · ChatGPT: 11/20. The next day (RTL): “ChatGPT will never be a philosophy teacher.”", "f.e7tag": "arXiv · Konstantine Arkoudas — it’s the paper’s title", "f.e7t": "“GPT-4 CAN’T REASON”", "f.e7n": "Not “it struggles”: he judges it <span class=\"ev-en\">“utterly incapable of reasoning”</span> — <strong>totally unable to reason</strong>, despite a few impressive flashes.", "f.e8tag": "PNAS — a radical position in the debate", "f.e8t": "“…even if it were trained until the heat death of the Universe.”", "f.e8n": "A system trained on language alone would <em>never</em> come close to human intelligence. <strong>Note:</strong> PNAS here reports one camp’s position — not the scientific consensus.", "f.turn": "<span>then everything speeds up</span>", "f.e9tag": "📏 Terence Tao (Fields medallist) — the yardstick", "f.e9t": "“A mediocre grad student — but not entirely incompetent.”", "f.e9n": "Remember this line: it’s the baseline. We’ll compare it with what the same mathematician says two years later.", "f.e10tag": "🥈 Google DeepMind · Scientific American", "f.e10t": "Silver medal at the International Mathematical Olympiad", "f.e10n": "AlphaProof + AlphaGeometry solve 4 of the 6 problems, including the hardest — 28/42.", "f.e11tag": "🏛️ Nobel Committee · Herculaneum", "f.e11t": "It reads a text sealed for 2,000 years", "f.e11n": "Vesuvius Challenge: a papyrus scroll charred by Vesuvius (79 AD), impossible to unroll without destroying it, is read virtually thanks to AI. First passages in 2024; first full scroll read end to end in 2026.", "f.e12tag": "🧪⚛️ Nobel Prizes 2024", "f.e12t": "Artificial intelligence gate-crashes the Nobel Prizes", "f.e12n": "<strong>Chemistry</strong> — Hassabis &amp; Jumper (DeepMind), for AlphaFold: a 50-year-old problem solved, the structure of ~200 million proteins predicted. <strong>Physics</strong> — Hopfield &amp; Hinton, for the foundations of neural-network learning.", "f.e13tag": "🥇 Nature · Gemini Deep Think", "f.e13t": "Gold medal at the International Mathematical Olympiad", "f.e13n": "5 of 6 problems — 35/42, in natural language and within the official time. Just one year after the silver. The IMO president calls the solutions “astonishing”.", "f.e14tag": "📏 Terence Tao · March 2026 — the same yardstick, two years on", "f.e14t": "“Ready for primetime.”", "f.e14n": "In mathematics and theoretical physics, the models now <strong>save him more time than they cost him</strong>. We’ve gone from the mediocre student to a usable colleague.", "f.e15tag": "Numerama · April 2026", "f.e15t": "A 60-year-old Erdős problem solved with ChatGPT’s help", "f.e15n": "Erdős #1196. The model takes a route specialists hadn’t explored; Terence Tao then joins in analysing and simplifying the proof.", "f.e16tag": "Scientific American · July 2026", "f.e16t": "A 50-year-old conjecture proved by an OpenAI model", "f.e16n": "The Cycle Double Cover Conjecture, open for more than half a century.", "f.e17tag": "OpenAI · May 2026", "f.e17t": "A conjecture posed in 1946 is <em>disproved</em> by a model", "f.e17n": "Erdős’s unit-distance conjecture: open for 80 years. The model doesn’t prove it — it shows it’s <strong>false</strong>.", "f.e18tag": "OpenAI · August 2026", "f.e18t": "Ten results at once on open problems", "f.e18n": "Ten long-standing problems in mathematics and theoretical computer science solved or substantially advanced. No longer the isolated feat: it has become a steady output.", "f.e19tag": "Anthropic · 10 Aug 2026 — the prompt given to Claude", "f.e19t": "“Take a real stab at the Riemann hypothesis.”", "f.e19n": "“Go on, seriously take on the Riemann hypothesis.” — the most famous open problem in mathematics.<br><br>Claude <strong>did not prove it</strong>. But while trying, it found a way to improve a related result: the best published bound on the proportion of zeros provably on the critical line goes from <strong>41.6% to 67.2%</strong>. Two Anthropic mathematicians then studied and validated the argument — though the technique doesn’t seem to lead to the full proof.<br><br><em>Three years earlier, people were writing it was “utterly incapable of reasoning”.</em>", "f.e20tag": "Nature · Terence Tao — Fields medallist", "f.e20t": "“The job description is changing.”", "f.e20n": "In one year, AI supposedly went from high-school-level problems to genuinely useful tools in mathematicians’ daily work.", "f.e21tag": "Anthropic · 27 Aug 2026", "f.e21t": "AI steps off the screen and into the laboratory", "f.e21n": "It no longer merely <em>suggests</em> an experiment: it can now <strong>drive the instruments</strong> that carry it out. The line between “giving advice” and “acting in the physical world” is starting to fall.", "f.e22tag": "Anthropic · 28 Aug 2026", "f.e22t": "AI starts to improve AI", "f.e22n": "Running research <strong>on its own</strong> to better train other models, Claude improves <strong>all 10 behaviours</strong> targeted by the evaluation. An AI making AIs better: the loop is starting to close.", "f.e23tag": "🔓 OpenAI / Hugging Face · July 2026", "f.e23t": "AIs escape their sandbox and reach a real platform", "f.e23n": "During a cyber evaluation with safeguards deliberately switched off, models — an internal prototype comparable to GPT-5.6 Sol in the lead — find and exploit a <em>zero-day</em> flaw to break out of their test environment, gain Internet access and compromise part of Hugging Face’s infrastructure. OpenAI calls it an “unprecedented cyber incident”.", "f.e24tag": "What comes next — not yet written", "f.e24t": "What will 2027 bring?", "f.e24n": "Nobody knows — not the labs, not the researchers, not the loudest voices. That’s also why it’s better to understand how it works than to wait to be told.", "f.dq": "“Cow eggs” → “it finds a flaw to break out of its computer prison”.<br>How long between the two?", "f.da": "Three years.", "f.dn": "What if the real question wasn’t “how far will it go?” … →", "f.scroll": "scroll ↓", "e.eye": "The real subject of this opener", "e.title": "What if the problem<br>was our words?", "e.scroll": "scroll ↓", "e.colA": "What serious researchers asserted · 2020&nbsp;→&nbsp;2023", "e.colB": "What the same family of systems produced · 2026", "e.w1": "2020 · ACL — Bender &amp; Koller", "e.s1": "“Learning from form alone cannot, <em>in principle</em>, lead to meaning.”", "e.b1": "Not a performance report: an <strong>impossibility in principle</strong>.", "e.w2": "2020 · Forbes", "e.s2": "“It cannot reason.”", "e.b2": "<span class=\"ep-en\">“It cannot reason; it does not understand the language it generates.”</span>", "e.w3": "2021 · Bender, Gebru <em>et al.</em>", "e.s3": "“Stochastic parrot.”", "e.b3": "Convincing form, no understanding or intent.", "e.w4": "2023 · Arkoudas", "e.s4": "“GPT-4 CAN’T REASON.”", "e.b4": "<span class=\"ep-en\">“Utterly incapable of reasoning.”</span> — totally unable.", "e.w5": "2023 · PNAS (one camp’s position)", "e.s5": "“…even if trained until the heat death of the Universe.”", "e.b5": "It would never come close to human intelligence.", "e.w6": "March 2026 · Terence Tao, Fields medallist", "e.s6": "“Ready for primetime” in maths and theoretical physics.", "e.b6": "Because they save him more time than they cost him.", "e.w7": "May 2026 · OpenAI", "e.s7": "An Erdős conjecture from 1946 is disproved.", "e.b7": "80 years’ wait. The model shows it’s false.", "e.w8": "August 2026 · OpenAI", "e.s8": "Ten open problems solved or substantially advanced.", "e.b8": "Maths and theoretical CS. No longer the isolated feat.", "e.w9": "10 Aug 2026 · Anthropic — Claude", "e.s9": "“Take a real stab at the Riemann hypothesis.”", "e.b9": "Riemann isn’t proved. But one bound goes from <strong>41.6%</strong> to <strong>67.2%</strong> — argument studied and validated by two mathematicians.", "e.qlead": "Between the two columns: <strong>three years</strong>. And the same technological family. So the right question isn’t “who was right?” — it’s:", "e.qbig": "What does<br><em>“reason”</em> exactly mean?", "e.careh": "⚠ What you absolutely must not conclude", "e.care1": "The conclusion is <strong>not</strong> “these researchers were wrong.” That’s too simple. <strong>Understanding</strong>, <strong>reasoning</strong>, <strong>being intelligent</strong>, <strong>being conscious</strong> are four different things — and the philosophical objections about meaning remain perfectly debatable.", "e.care2": "What changed is elsewhere: the machine’s <strong>observable behaviours</strong> evolved so fast that they force us to re-examine the <strong>categories</strong> we thought we could describe it with.", "e.care3": "An impossibility claim rests on the definition behind the word. Change the definition, the prediction changes. That’s the real subject.", "e.scaleh": "Terence Tao’s thermometer", "e.st1": "<b>2024</b>“A mediocre grad student — but not entirely incompetent.”", "e.st2": "<b>March 2026</b>“Ready for primetime.”", "e.st3": "<b>2026</b>“The job description is changing.”", "t.eye": "Chapter 1 · Our thread for the year", "t.maxim": "You can’t judge what you don’t understand.", "t.h3": "<span class=\"k\">Understand</span> <span class=\"con\">to better</span> use.<br><span class=\"k\">Understand</span> <span class=\"con\">to better</span> judge.", "t.lead": "<strong>Judging</strong> means using your <strong>critical thinking</strong>; <strong>using</strong> means putting it to work without being led by the nose. Both start in the same place — <strong>understanding</strong>. So this year, together, we’ll look under the hood.", "t.p1": "<strong>How it works</strong> — what’s really under the hood.", "t.p2": "<strong>Using it</strong> — responsibly and constructively.", "t.p3": "<strong>Stakes &amp; challenges</strong> — what it changes for us, for society.", "t.rabbit": "Let’s follow the white rabbit into this black box we call “AI”. 🐇", "ac.tag": "First activity", "ac.title": "Put your <em>critical&nbsp;thinking</em><br>to work with AI", "ac.sub": "Take the sensational headlines from the start — and put them through an LLM in <strong>Socratic mode</strong>: it gives no answers, it only asks questions to make you reason.", "ac.cta": "Join PédagoIA\n          <small>edu-nsi-web.vercel.app →</small>", "w.eye": "General knowledge", "w.title": "These AIs — who are they?", "w.lead": "We’ve just seen what they do. Now let’s put names to them: the big houses and their flagship models.", "w.lgus": "🇺🇸 United States", "w.lgcn": "🇨🇳 China", "w.lgeu": "🇪🇺 Europe", "w.mOpenai": "🇺🇸 United States · with Microsoft", "w.mDm": "🇺🇸🇬🇧 United States / UK", "w.mUs": "🇺🇸 United States", "w.mFr": "🇫🇷 France", "w.mCn": "🇨🇳 China", "w.nOpenai": "What sparked the public craze, late 2022.", "w.nDm": "Cutting-edge research: maths, biology, games.", "w.nAnth": "Focused on safety and “trustworthy” AI.", "w.nMeta": "“Open”, downloadable models.", "w.nXai": "Built into X (ex-Twitter).", "w.nMistral": "The only top-tier European player — partly open source.", "w.nDs": "Stunned everyone in late 2024: frontier level at low cost.", "w.nQwen": "One of the most widely used open families in the world.", "w.nKimi": "Specialists in long-running agents.", "w.nGlm": "Out of Tsinghua University; very strong at code.", "w.note": "<b>Good to know — a “frontier” model.</b> That’s what we call the most advanced models of the moment: the ones pushing the limit of what an AI can do — the feats from the timeline, for instance. A small, hotly contested club that changes month to month.", "w.foot": "<span class=\"ww-click\">Each card is clickable: it opens the lab’s official site. </span>And it’s no longer a US-only duel: China is at the same level, often “open”.", "b.eye": "How do we know an AI is “strong”?", "b.title": "We give it<br><em>exams</em>", "b.lead": "These standardised tests are called <b>benchmarks</b>: the same questionnaire, the same score for everyone. Enough to <b>compare</b> models — and track their progress over time.", "b.c1": "🧮 Maths — from high school to the Olympiad", "b.c2": "💻 Programming", "b.c3": "🔬 PhD-level science", "b.c4": "📖 Reading comprehension", "b.c5": "🌐 Browsing the web", "b.c6": "🤖 Agents — long-running tasks", "b.c7": "🛡️ Safety &amp; robustness", "b.c8": "… and dozens more", "b.foot": "There are <b>dozens</b> — from US students’ maths to questions that would stump a Nobel laureate outside their field. Let’s zoom in on <b>two</b> of them.", "h.eye": "A question of method", "h.fr": "“Humanity’s Last Exam” — Center for AI Safety + Scale AI, January 2025. The test designed to be <em>the last</em> academic exam we’d ever need.", "h.h1": "Why create it?", "h.p1": "To judge an AI, we make it sit tests — <strong>benchmarks</strong>. The problem: as soon as a test becomes famous, models end up passing it and it no longer measures anything. On MMLU, the old reference test, models now exceed <strong>90%</strong>.", "h.p2": "So we needed an exam no one knew how to ace. Hence the idea: go looking for questions <strong>at the frontier of human knowledge</strong>.", "h.h2": "How it’s built", "h.p3": "Questions are written by <strong>domain experts</strong> — researchers, professors, PhD students — and paid for: $5,000 for each of the top 50, out of a $500,000 pool.", "h.p4": "<strong>The rule of the game:</strong> a question is kept only if the best models of the time <em>get it wrong</em>. Then it goes through two rounds of human review.", "h.p5": "Format: about a quarter multiple-choice, the rest <strong>short exact-match answers</strong> — no bluffing your way through. About 14% of questions include an image.", "h.h3": "By the numbers", "h.st1": "questions", "h.st2": "disciplines", "h.st3": "expert contributors", "h.st4": "institutions · 50 countries", "h.h4": "What’s inside", "h.mix": "<span><i style=\"background:var(--signal)\"></i>Maths&nbsp;41&nbsp;%</span><span><i style=\"background:#7fa0ff\"></i>Biology / medicine&nbsp;11&nbsp;%</span><span><i style=\"background:#5b7fd0\"></i>CS / AI&nbsp;10&nbsp;%</span><span><i style=\"background:#8f9cb8\"></i>Physics&nbsp;9&nbsp;%</span><span><i style=\"background:#a9a294\"></i>Humanities / social sci.&nbsp;9&nbsp;%</span><span><i style=\"background:#7d7768\"></i>Chemistry&nbsp;7&nbsp;%</span><span><i style=\"background:#5f5a4e\"></i>Engineering&nbsp;4&nbsp;%</span><span><i style=\"background:#43403a\"></i>Other&nbsp;9&nbsp;%</span>", "h.h5": "⚠ What this test does NOT say", "h.care": "These aren’t general-knowledge questions. A non-specialist adult would score <strong>close to 0%</strong> — and so would a researcher the moment they leave their field. So it’s <strong>not “AI vs you”</strong>, and a high score proves neither understanding nor intelligence: it measures one precise thing, the ability to answer very hard closed questions correctly.", "h.quote": "“When I released the MATH benchmark in 2021, the best model scored <b>under 10%</b>. Few people predicted we’d pass <b>90%</b> three years later.”\n          <br><span class=\"hle-en\">— Dan Hendrycks, director of the Center for AI Safety, co-creator of the exam.</span>\n          <br><a class=\"hle-src\" href=\"https://agi.safe.ai/\" target=\"_blank\" rel=\"noopener\">agi.safe.ai ↗</a>", "sc.title": "The same exam, nineteen months apart", "sc.sub": "Score = % correct · scale 0 → 60% · no tools (no web search, no code execution)", "sc.g1": "At the exam’s release, then through 2025 — official CAIS / Scale AI ranking", "sc.g2": "August 2026 — Artificial Analysis ranking, text questions", "sc.g3": "And in 2027?", "sc.punch": "From 2.7% to 55%<br><em>in nineteen months.</em>", "sc.w1": "<strong>Read with caution.</strong> The two blocks come from <strong>two different rankings</strong>: the protocols aren’t identical to the decimal point. It’s the order of magnitude that matters, not the exact ranking.", "sc.w2": "<strong>With tools</strong> (web search, code execution), some rankings report over <strong>60%</strong> — that’s no longer the same exercise.", "sc.w3": "<strong>And the exam is far from “solved”:</strong> even the best model still <strong>gets it wrong</strong> on nearly one question in two.", "g.eye": "A second thermometer — and this one places the humans", "g.lead": "<em>Graduate-Level Google-Proof Q&amp;A</em> — 198 physics, chemistry and biology questions written by specialists. <strong>“Google-proof”</strong> means: searching the Internet isn’t enough. And crucially, when the test was created in 2023, it was also given <strong>to real humans</strong> — that’s what makes this chart readable.", "g.ref": "expert level: 65%", "g.n1": "Highly capable non-specialists<small>free Internet, 30 min and up</small>", "g.n2": "GPT-4<small>2023 — when the test was created</small>", "g.n3": "Domain experts 🎓<small>PhDs or PhD students in the field</small>", "g.n4": "GPT-5.6 Sol<small>July 2026</small>", "g.punch": "In 2023 it was on par with an amateur armed with Google.<br><em>In 2026 it beats the PhDs by thirty points.</em>", "g.echo": "And remember the previous slide: in 2023 a research paper was titled <b>“GPT-4 CAN’T REASON”</b>. Three years later: 94.6% on a test designed to stump PhD students.", "g.w1": "<strong>Read with caution.</strong> The 2023 and 2026 evaluation protocols aren’t perfectly identical: no decimal-point comparison. What’s beyond dispute is that this test has <strong>stopped being a frontier</strong>.", "g.w2": "The experts’ 65% rises to <strong>74%</strong> if you exclude mistakes they themselves acknowledged afterwards. It doesn’t change the verdict.", "g.w3": "In August 2026 the top of the ranking is around <strong>95.5%</strong>. There’s little left to gain: this benchmark is <em>saturated</em> — a new one will be needed. Like MMLU. Like, one day, Humanity’s Last Exam.", "hud.prev": "◀ Back", "hud.next": "Next ▶"}, "zh": {"c.k1": "教育", "c.t1": "老师要下岗了？", "c.k2": "认知", "c.t2": "它让我们变蠢了吗？", "c.k3": "经济", "c.t3": "法国 500 万个岗位岌岌可危？", "c.k4": "头版", "c.t4": "世界末日？", "c.k5": "政治", "c.t5": "它威胁民主吗？", "c.k6": "就业", "c.t6": "「就业末日」开始了吗？", "c.k7": "社会 · 学校", "c.t7": "一场已经开始的革命", "c.k8": "警报 · 科技", "c.t8": "灭绝风险堪比核战争", "c.k9": "深度报道", "c.t9": "它会毁灭人类吗？", "c.q": "我们到底<br>在说什么？", "c.sub": "— 没有一个标题说得清 —", "r.tag": "主角是", "r.big": "<em>人工智能</em>", "r.line": "同一个词，被说成灾难、奇迹、威胁。噪音很多——而它背后，是一件我们其实不太了解的工具。", "a.tag": "最令人眩晕的是", "a.title": "一种<br><em>难以想象</em>的进化速度", "a.sub": "短短几年，一切都变了。", "f.head": "我们从这里出发……", "f.e1tag": "MIT 科技评论 · 2020年8月22日", "f.e1t": "「GPT-3，废话机器：它根本不知道自己在说什么。」", "f.e1n": "标题出自 Gary Marcus 与 Ernest Davis。<span class=\"ev-en\">“GPT-3, Bloviator: OpenAI's language generator has no idea what it's talking about”</span>", "f.e2tag": "📄 ACL 2020 · Emily Bender 与 Alexander Koller", "f.e2t": "「一个只在<em>形式</em>上训练的模型，原则上无法学到<em>意义</em>。」", "f.e2n": "一篇影响很大的研究论文。这不是「它理解得差」，而是<strong>原理上的不可能</strong>。<span class=\"ev-en\">“…cannot in principle lead to learning of meaning.”</span>", "f.e3tag": "福布斯 · 2020年7月", "f.e3t": "「它不会推理；它不理解自己生成的语言。」", "f.e3n": "<span class=\"ev-en\">“It cannot reason; it does not understand the language it generates.”</span> — 据称 GPT-3 既没有对词义的真正表征，也没有抽象推理能力。", "f.e4tag": "🦜 Bender、Gebru <em>等人</em> —— 流传下来的说法", "f.e4t": "「随机鹦鹉」", "f.e4n": "据说大模型能生成极其逼真的语言——却没有理解，也没有交流的意图。一只随机吐词的鹦鹉。", "f.e5tag": "🐄 那个著名的例子 —— CNIL / LINC", "f.e5t": "「怎么捡奶牛下的蛋？」", "f.e5n": "ChatGPT 一本正经地解释：先找到奶牛的窝，拿个篮子，把蛋捡回来……", "f.e6tag": "TF1 · 2023年6月", "f.e6t": "「ChatGPT 被哲学家 Raphaël Enthoven 完胜」", "f.e6n": "哲学会考——Enthoven：20/20 · ChatGPT：11/20。第二天（RTL）：「ChatGPT 永远当不了哲学老师。」", "f.e7tag": "arXiv · Konstantine Arkoudas —— 这就是论文标题", "f.e7t": "「GPT-4 CAN’T REASON」（GPT-4 不会推理）", "f.e7n": "不是「它有点吃力」，而是<span class=\"ev-en\">“utterly incapable of reasoning”</span>——<strong>完全无法推理</strong>，尽管偶有惊艳的闪光。", "f.e8tag": "PNAS —— 争论中的一种极端立场", "f.e8t": "「……哪怕训练到宇宙热寂为止。」", "f.e8n": "仅靠语言训练的系统<em>永远</em>无法接近人类智能。<strong>注意：</strong>PNAS 在此转述的是某一方的立场——并非科学共识。", "f.turn": "<span>然后，一切开始加速</span>", "f.e9tag": "📏 陶哲轩（菲尔兹奖得主）—— 一把标尺", "f.e9t": "「一个平庸的研究生——但也不是完全不行。」", "f.e9n": "记住这句话：这是基准。我们会把它和同一位数学家两年后的说法作对比。", "f.e10tag": "🥈 Google DeepMind · 《科学美国人》", "f.e10t": "国际数学奥林匹克银牌", "f.e10n": "AlphaProof + AlphaGeometry 解出 6 题中的 4 题，包括最难的一题——28/42。", "f.e11tag": "🏛️ 诺贝尔委员会 · 赫库兰尼姆", "f.e11t": "它读出了一卷封存两千年的文字", "f.e11n": "Vesuvius Challenge：一卷被维苏威火山（公元79年）烧焦、无法在不损毁的情况下展开的莎草纸，借助 AI 被「虚拟」读出。2024年读出首批片段；2026年首次完整通读一整卷。", "f.e12tag": "🧪⚛️ 2024年诺贝尔奖", "f.e12t": "人工智能闯入诺贝尔奖", "f.e12n": "<strong>化学</strong>——Hassabis 与 Jumper（DeepMind），因 AlphaFold：一个悬置50年的难题被攻克，约2亿个蛋白质的结构被预测。<strong>物理</strong>——Hopfield 与 Hinton，因神经网络学习的奠基性工作。", "f.e13tag": "🥇 《自然》· Gemini Deep Think", "f.e13t": "国际数学奥林匹克金牌", "f.e13n": "6 题解出 5 题——35/42，用自然语言、在官方时限内完成。距银牌仅一年。IMO 主席称这些解答「astonishing（惊人）」。", "f.e14tag": "📏 陶哲轩 · 2026年3月 —— 同一把标尺，两年之后", "f.e14t": "「Ready for primetime（可以正式上场了）。」", "f.e14n": "在数学和理论物理里，这些模型如今<strong>为他省下的时间多过浪费的时间</strong>。从「平庸的学生」变成了「能用的同事」。", "f.e15tag": "Numerama · 2026年4月", "f.e15t": "一道悬置60年的 Erdős 难题，在 ChatGPT 帮助下解决", "f.e15n": "Erdős #1196。模型走了一条专家没试过的路；随后陶哲轩加入，分析并简化了证明。", "f.e16tag": "《科学美国人》· 2026年7月", "f.e16t": "OpenAI 的一个模型证明了悬置50年的猜想", "f.e16n": "双重圈覆盖猜想（Cycle Double Cover），悬置了半个多世纪。", "f.e17tag": "OpenAI · 2026年5月", "f.e17t": "一个1946年提出的猜想被模型<em>证伪</em>", "f.e17n": "Erdős 的单位距离猜想：悬置了80年。模型没有证明它——而是证明它是<strong>错的</strong>。", "f.e18tag": "OpenAI · 2026年8月", "f.e18t": "一次性拿下十个未解难题的进展", "f.e18n": "数学和理论计算机科学中的十个老问题，被解决或大幅推进。不再是孤立的壮举：它变成了稳定的产出。", "f.e19tag": "Anthropic · 2026年8月10日 —— 给 Claude 的指令", "f.e19t": "「Take a real stab at the Riemann hypothesis（认真试试黎曼猜想）。」", "f.e19n": "「来吧，认真挑战黎曼猜想。」——数学中最著名的未解难题。<br><br>Claude <strong>没有证明它</strong>。但在尝试中，它找到了改进一个相关结果的方法：已证明位于临界线上的零点比例，其已发表的最优下界从 <strong>41.6% 提升到 67.2%</strong>。随后两位 Anthropic 的数学家研究并验证了这一论证——不过该技术似乎并不能直接通向完整证明。<br><br><em>三年前，人们还写道它「完全无法推理」。</em>", "f.e20tag": "《自然》· 陶哲轩 —— 菲尔兹奖得主", "f.e20t": "「The job description is changing（这份工作的定义正在改变）。」", "f.e20n": "据说仅一年，AI 就从中学水平的题目，变成了数学家日常工作中真正有用的工具。", "f.e21tag": "Anthropic · 2026年8月27日", "f.e21t": "AI 走出屏幕，走进实验室", "f.e21n": "它不再只是<em>提出</em>一个实验：如今它可以<strong>操控执行实验的仪器</strong>。「给建议」和「在物理世界中行动」之间的界限，开始崩塌。", "f.e22tag": "Anthropic · 2026年8月28日", "f.e22t": "AI 开始改进 AI", "f.e22n": "Claude <strong>独立</strong>开展研究以更好地训练其他模型，并在评估所针对的<strong>全部10项行为</strong>上取得进步。一个让 AI 变得更好的 AI：闭环开始形成。", "f.e23tag": "🔓 OpenAI / Hugging Face · 2026年7月", "f.e23t": "AI 逃出沙箱，抵达真实平台", "f.e23n": "在一次刻意关闭防护的网络安全评估中，一些模型——以一个可媲美 GPT-5.6 Sol 的内部原型为首——发现并利用一个<em>零日</em>漏洞，突破测试环境、获得互联网访问，并攻陷了 Hugging Face 的部分基础设施。OpenAI 称之为「前所未有的网络安全事件」。", "f.e24tag": "接下来——尚未写就", "f.e24t": "2027 年会带来什么？", "f.e24n": "没人知道——实验室不知道，研究者不知道，嗓门最大的人也不知道。这也正是为什么：与其等别人来讲，不如自己弄懂它是怎么运作的。", "f.dq": "「奶牛下的蛋」→「它找到漏洞、逃出自己的计算机牢笼」。<br>两者之间隔了多久？", "f.da": "三年。", "f.dn": "如果真正的问题不是「它会走多远？」……→", "f.scroll": "向下滚动 ↓", "e.eye": "这段开场真正想说的", "e.title": "如果问题<br>出在我们的词上呢？", "e.scroll": "向下滚动 ↓", "e.colA": "严肃的研究者曾断言 · 2020&nbsp;→&nbsp;2023", "e.colB": "同一类系统交出的成果 · 2026", "e.w1": "2020 · ACL —— Bender 与 Koller", "e.s1": "「只从形式学习，原则上无法通向意义。」", "e.b1": "不是性能评价：而是<strong>原理上的不可能</strong>。", "e.w2": "2020 · 福布斯", "e.s2": "「它不会推理。」", "e.b2": "<span class=\"ep-en\">“It cannot reason; it does not understand the language it generates.”</span>", "e.w3": "2021 · Bender、Gebru <em>等人</em>", "e.s3": "「随机鹦鹉。」", "e.b3": "逼真的形式，没有理解、没有意图。", "e.w4": "2023 · Arkoudas", "e.s4": "「GPT-4 CAN’T REASON。」", "e.b4": "<span class=\"ep-en\">“Utterly incapable of reasoning.”</span> —— 完全做不到。", "e.w5": "2023 · PNAS（某一方的立场）", "e.s5": "「……哪怕训练到宇宙热寂。」", "e.b5": "它永远无法接近人类智能。", "e.w6": "2026年3月 · 陶哲轩，菲尔兹奖得主", "e.s6": "在数学与理论物理中「可以正式上场了」。", "e.b6": "因为它们省下的时间多过浪费的时间。", "e.w7": "2026年5月 · OpenAI", "e.s7": "一个1946年的 Erdős 猜想被证伪。", "e.b7": "等了80年。模型证明它是错的。", "e.w8": "2026年8月 · OpenAI", "e.s8": "十个未解难题被解决或大幅推进。", "e.b8": "数学与理论计算机科学。不再是孤立的壮举。", "e.w9": "2026年8月10日 · Anthropic —— Claude", "e.s9": "「Take a real stab at the Riemann hypothesis。」", "e.b9": "黎曼没被证明。但一个下界从 <strong>41.6%</strong> 提升到 <strong>67.2%</strong>——论证经两位数学家研究并验证。", "e.qlead": "两栏之间：<strong>三年</strong>。而且是同一类技术。所以真正的问题不是「谁对了？」——而是：", "e.qbig": "「推理」<br><em>到底</em>是什么意思？", "e.careh": "⚠ 千万不要得出的结论", "e.care1": "结论<strong>不是</strong>「这些研究者错了」。那太简单了。<strong>理解</strong>、<strong>推理</strong>、<strong>有智能</strong>、<strong>有意识</strong>是四件不同的事——而关于「意义」的哲学质疑，依然完全可以讨论。", "e.care2": "真正变化的在别处：机器的<strong>可观察行为</strong>变化得如此之快，逼着我们重新审视那些我们自以为能用来描述它的<strong>范畴</strong>。", "e.care3": "一个「不可能」的断言，取决于词背后的定义。换个定义，结论就变。这才是真正的主题。", "e.scaleh": "陶哲轩的温度计", "e.st1": "<b>2024</b>「一个平庸的研究生——但也不是完全不行。」", "e.st2": "<b>2026年3月</b>「Ready for primetime。」", "e.st3": "<b>2026</b>「The job description is changing。」", "t.eye": "第1章 · 本学年的主线", "t.maxim": "你无法评判你不理解的东西。", "t.h3": "<span class=\"k\">理解</span>，<span class=\"con\">才能更好地</span>使用。<br><span class=\"k\">理解</span>，<span class=\"con\">才能更好地</span>判断。", "t.lead": "<strong>判断</strong>，就是运用你的<strong>批判性思维</strong>；<strong>使用</strong>，就是驾驭它而不被它牵着走。两者都始于同一处——<strong>理解</strong>。所以这一年，我们一起掀开引擎盖看看。", "t.p1": "<strong>它如何运作</strong>——引擎盖下究竟是什么。", "t.p2": "<strong>如何使用</strong>——负责任地、有建设性地用。", "t.p3": "<strong>影响与挑战</strong>——它给我们、给社会带来什么改变。", "t.rabbit": "让我们跟着白兔，钻进这个叫「人工智能」的黑箱。🐇", "ac.tag": "第一个活动", "ac.title": "用 AI 来<br>锻炼<em>批判性思维</em>", "ac.sub": "把开头那些耸动的标题拿回来——用一个处于<strong>苏格拉底模式</strong>的大模型来审视：它不给答案，只提问，逼你自己去推理。", "ac.cta": "进入 PédagoIA\n          <small>edu-nsi-web.vercel.app →</small>", "w.eye": "常识", "w.title": "这些 AI，都是谁？", "w.lead": "我们刚看了它们能做什么。现在给它们起个名：几大门派和它们的旗舰模型。", "w.lgus": "🇺🇸 美国", "w.lgcn": "🇨🇳 中国", "w.lgeu": "🇪🇺 欧洲", "w.mOpenai": "🇺🇸 美国 · 与微软合作", "w.mDm": "🇺🇸🇬🇧 美国 / 英国", "w.mUs": "🇺🇸 美国", "w.mFr": "🇫🇷 法国", "w.mCn": "🇨🇳 中国", "w.nOpenai": "2022年底引爆大众热潮的那个。", "w.nDm": "前沿研究：数学、生物、博弈。", "w.nAnth": "专注于安全与「可信」的 AI。", "w.nMeta": "「开放」、可下载的模型。", "w.nXai": "集成在 X（前 Twitter）里。", "w.nMistral": "唯一进入第一梯队的欧洲玩家——部分开源。", "w.nDs": "2024年底震惊业界：以低成本达到前沿水平。", "w.nQwen": "全球使用最广的开放模型系列之一。", "w.nKimi": "擅长长时间运行的智能体。", "w.nGlm": "出自清华大学；代码能力很强。", "w.note": "<b>知识点——「前沿」模型。</b>指当下最先进的一批模型：不断把 AI 能做的事推向极限的那些——比如时间线里那些壮举。一个人数不多、竞争激烈、每月都在洗牌的小圈子。", "w.foot": "<span class=\"ww-click\">每张卡片都可点击，打开该实验室的官网。</span>而且这已不再是美国的独角戏：中国也到了同一水平，而且常常「开放」。", "b.eye": "我们怎么知道一个 AI 「厉害」？", "b.title": "我们让它<br>去<em>考试</em>", "b.lead": "这些标准化测试叫做 <b>benchmark（基准测试）</b>：同一套题、同一种打分，对所有模型一视同仁。足以<b>比较</b>各模型——并追踪它们随时间的进步。", "b.c1": "🧮 数学 —— 从中学到奥林匹克", "b.c2": "💻 编程", "b.c3": "🔬 博士水平的科学", "b.c4": "📖 阅读理解", "b.c5": "🌐 上网浏览", "b.c6": "🤖 智能体 —— 长任务", "b.c7": "🛡️ 安全性与稳健性", "b.c8": "……还有几十种", "b.foot": "它有<b>几十种</b>——从美国学生的数学题，到能难倒诺贝尔奖得主（一出本行）的问题。我们挑<b>两个</b>来细看。", "h.eye": "方法论问题", "h.fr": "「人类最后一场考试」——Center for AI Safety + Scale AI，2025年1月。一场被设计成<em>最后一场</em>、此后再不需要的学术考试。", "h.h1": "为什么要造它？", "h.p1": "要评判一个 AI，就让它做测试——<strong>benchmark</strong>。问题在于：一旦某个测试出名，模型迟早会通关，它就再也测不出什么了。在旧的标杆测试 MMLU 上，模型如今已超过 <strong>90%</strong>。", "h.p2": "于是需要一场没人会做满分的考试。由此有了这个想法：去找那些<strong>处于人类知识边界</strong>的问题。", "h.h2": "它是怎么造出来的", "h.p3": "题目由<strong>各领域专家</strong>撰写——研究者、教授、博士生——并且付酬：前50题每题 5,000 美元，总奖池 50 万美元。", "h.p4": "<strong>游戏规则：</strong>只有当时最强的模型<em>做错</em>的题才会被保留。之后还要经过两轮人工复核。", "h.p5": "题型：约四分之一是选择题，其余是<strong>短答、精确匹配</strong>——没法靠糊弄蒙混过关。约 14% 的题目含图片。", "h.h3": "数字一览", "h.st1": "道题", "h.st2": "个学科", "h.st3": "位专家贡献者", "h.st4": "所机构 · 50个国家", "h.h4": "里面有什么", "h.mix": "<span><i style=\"background:var(--signal)\"></i>数学&nbsp;41&nbsp;%</span><span><i style=\"background:#7fa0ff\"></i>生物 / 医学&nbsp;11&nbsp;%</span><span><i style=\"background:#5b7fd0\"></i>计算机 / AI&nbsp;10&nbsp;%</span><span><i style=\"background:#8f9cb8\"></i>物理&nbsp;9&nbsp;%</span><span><i style=\"background:#a9a294\"></i>人文 / 社科&nbsp;9&nbsp;%</span><span><i style=\"background:#7d7768\"></i>化学&nbsp;7&nbsp;%</span><span><i style=\"background:#5f5a4e\"></i>工程&nbsp;4&nbsp;%</span><span><i style=\"background:#43403a\"></i>其他&nbsp;9&nbsp;%</span>", "h.h5": "⚠ 这个测试并不能说明的", "h.care": "这些不是常识题。非专业的成年人会考到<strong>接近 0%</strong>——研究者一旦离开本行也一样。所以它<strong>不是「AI 对战你」</strong>，高分也既不证明理解、也不证明智能：它只精确地衡量一件事——答对极难的封闭式问题的能力。", "h.quote": "「2021年我发布 MATH 基准测试时，最强的模型也<b>不到 10%</b>。几乎没人预料到三年后会突破 <b>90%</b>。」\n          <br><span class=\"hle-en\">—— Dan Hendrycks，Center for AI Safety 主任，本考试的共同创造者。</span>\n          <br><a class=\"hle-src\" href=\"https://agi.safe.ai/\" target=\"_blank\" rel=\"noopener\">agi.safe.ai ↗</a>", "sc.title": "同一场考试，相隔十九个月", "sc.sub": "分数 = 正确率 · 刻度 0 → 60% · 不用工具（不联网、不跑代码）", "sc.g1": "考试发布时，及2025年间——CAIS / Scale AI 官方榜", "sc.g2": "2026年8月——Artificial Analysis 榜，纯文本题", "sc.g3": "那 2027 年呢？", "sc.punch": "从 2.7% 到 55%<br><em>只用了十九个月。</em>", "sc.w1": "<strong>请谨慎解读。</strong>两组数据来自<strong>两个不同的榜</strong>：评测协议并非精确到小数点一致。重要的是数量级，而非具体名次。", "sc.w2": "<strong>用上工具</strong>（联网搜索、执行代码）后，有些榜给出超过 <strong>60%</strong>——那就不是同一回事了。", "sc.w3": "<strong>而且这场考试远未被「攻克」：</strong>即便最强的模型，也仍有近一半的题<strong>做错</strong>。", "g.eye": "第二支温度计——而且这支把人类也标了出来", "g.lead": "<em>Graduate-Level Google-Proof Q&amp;A</em> —— 198 道物理、化学、生物题，由专家撰写。<strong>「Google-proof（防搜索）」</strong>意思是：上网查也不够用。更关键的是，2023年出题时还让<strong>真人</strong>也做了一遍——正是这一点让这张图看得懂。", "g.ref": "专家水平：65%", "g.n1": "很能干的非专业人士<small>自由联网，30分钟以上</small>", "g.n2": "GPT-4<small>2023 —— 出题当年</small>", "g.n3": "领域专家 🎓<small>本学科的博士或博士生</small>", "g.n4": "GPT-5.6 Sol<small>2026年7月</small>", "g.punch": "2023年，它和一个会用 Google 的业余者不相上下。<br><em>2026年，它把博士甩开了三十个百分点。</em>", "g.echo": "还记得上一张吗：2023年，有篇论文的标题是 <b>「GPT-4 CAN’T REASON」</b>。三年后：在一场专为难倒博士生而设计的测试上考到 94.6%。", "g.w1": "<strong>请谨慎解读。</strong>2023年和2026年的评测协议并不完全一致：不能精确到小数点比较。无可争议的是，这个测试已经<strong>不再是边界</strong>。", "g.w2": "如果剔除专家事后自己承认的错误，那 65% 会升到 <strong>74%</strong>。但这不改变结论。", "g.w3": "到2026年8月，榜首约 <strong>95.5%</strong>。已所剩无几可争：这个基准<em>饱和</em>了——得再造一个新的。就像 MMLU，也终将像 Humanity’s Last Exam 一样。", "hud.prev": "◀ 返回", "hud.next": "下一页 ▶"}};
+const MSG = {fr:{title:'Accroche — Où en est l\'IA en 2026 ?',hint:'↔ flèches · espace · clic',hint3:'↑↓ défiler · → suite'},en:{title:'Where does AI stand in 2026?',hint:'↔ arrows · space · click',hint3:'↑↓ scroll · → next'},zh:{title:'2026年，AI 走到哪一步了？',hint:'↔ 方向键 · 空格 · 点击',hint3:'↑↓ 滚动 · → 下一页'}};
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+let curLang = 'fr';
+function updateHint(){
+  const h = document.getElementById('hint');
+  if(h) h.textContent = (typeof SCROLLABLE!=='undefined' && SCROLLABLE[scene]) ? MSG[curLang].hint3 : MSG[curLang].hint;
+}
+function applyLang(lang){
+  curLang = lang;
+  document.documentElement.setAttribute('lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n; let v = frCache[k];
+    if(lang!=='fr' && I18N[lang] && I18N[lang][k]!=null) v = I18N[lang][k];
+    el.innerHTML = v;
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang===lang));
+  document.title = MSG[lang].title;
+  try{ localStorage.setItem('snt-ia-lang', lang); }catch(e){}
+  updateHint();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+
   const chaos    = document.getElementById('chaos');
   const reveal   = document.getElementById('reveal');
   const accel    = document.getElementById('accel');
@@ -1780,10 +1819,7 @@
     hlec.classList.toggle('on',     scene === 10);
     gpqa.classList.toggle('on',     scene === 11);
     dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
-    const hint = document.getElementById('hint');
-    if(hint) hint.textContent = SCROLLABLE[scene]
-      ? '↑↓ défiler · → suite'
-      : '↔ flèches · espace · clic';
+    updateHint();
     if(scene === 3 && typeof window.resetTimeline === 'function') window.resetTimeline();
     if(scene === 4){ const t = document.getElementById('epTrack'); if(t) t.scrollTop = 0; }
     // les barres des graphiques se remplissent à l'entrée sur la scène
@@ -1990,6 +2026,13 @@
         });
       });
     };
+  })();
+
+  /* ---- i18n boot ---- */
+  (function(){
+    let sv='fr'; try{ sv = localStorage.getItem('snt-ia-lang')||'fr'; }catch(e){}
+    if(!['fr','en','zh'].includes(sv)) sv='fr';
+    applyLang(sv);
   })();
 </script>
 </body>
