@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comment une IA apprend</title>
+<style>
+  /* =========================================================
+     PALETTE & TOKENS — série SNT IA
+     ========================================================= */
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7;
+  }
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  /* ---- base des scènes ---- */
+  .pane{
+    position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.5rem,4.4vw,3rem)}
+  .lead{max-width:86ch;margin-top:.55rem;font-size:clamp(.88rem,1.65vw,1.1rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ---- 0 · ouverture ---- */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:1.2rem;
+    opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2.2rem,9vw,7rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.5rem;max-width:60ch;font-size:clamp(1rem,2vw,1.28rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.3rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ---- chaîne d'étapes (scène 1) ---- */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;
+    gap:.55rem;margin:clamp(1.2rem,3.5vh,2.2rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:8.5rem;max-width:13rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.85rem,1.6vw,1.05rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.86rem);line-height:1.35;color:#a9a294}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:80ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.95rem,1.9vw,1.25rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+
+  /* ---- cartes génériques ---- */
+  .cards{display:grid;gap:clamp(.9rem,2.4vw,1.8rem);margin:clamp(1rem,3vh,1.7rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.9rem,2.2vw,1.4rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.95rem,2vw,1.35rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+  .card p{font-size:clamp(.82rem,1.45vw,1rem);line-height:1.5;color:#4a4436;margin-bottom:.5rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  /* variante sombre */
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+
+  /* ---- boucle d'entraînement (scène 4) ---- */
+  .loop{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .lstep{background:rgba(31,92,255,.10);border:1px solid rgba(31,92,255,.45);
+    padding:.85rem 1rem;min-width:9rem;max-width:14rem}
+  .lstep .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:#7fa0ff;margin-bottom:.3rem}
+  .lstep .t{font-size:clamp(.85rem,1.5vw,1rem);line-height:1.35;color:#e9e4d8}
+  .lstep .t b{color:#fff}
+  .loop-back{text-align:center;font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;
+    color:#7db0ff;margin-top:.2rem}
+  .param{margin:clamp(1rem,3vh,1.6rem) auto 0;max-width:74ch;text-align:center;
+    border-top:1px solid rgba(233,228,216,.15);padding-top:clamp(.8rem,2.2vh,1.2rem)}
+  .param .k{font-family:var(--display);text-transform:uppercase;color:var(--signal);
+    font-size:clamp(1.1rem,2.8vw,1.9rem);line-height:1;margin-bottom:.5rem;
+    text-shadow:0 0 26px rgba(31,92,255,.45)}
+  .param p{font-size:clamp(.86rem,1.6vw,1.05rem);line-height:1.5;color:#cfc8b8}
+  .param p b{color:#fff}
+
+  /* ---- chiffres ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;
+    margin:clamp(.9rem,2.5vh,1.4rem) 0;max-width:900px}
+  .stat{border:1px solid rgba(233,228,216,.16);padding:.6rem .7rem}
+  .pane.light .stat{border-color:rgba(0,0,0,.16);background:var(--paper-2)}
+  .stat b{display:block;font-family:var(--display);color:var(--signal);line-height:1;
+    font-size:clamp(1rem,2.4vw,1.55rem);margin-bottom:.25rem}
+  .stat span{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);line-height:1.3;display:block}
+
+  /* ---- balance entraînement / inférence (scène 5) ---- */
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(.8rem,2.5vw,2rem);
+    align-items:stretch;margin:clamp(1rem,3vh,1.8rem) 0}
+  .vs-mid{align-self:center;font-family:var(--display);text-transform:uppercase;
+    color:var(--muted);font-size:clamp(.8rem,1.6vw,1.05rem)}
+
+  /* ---- exemples de biais ---- */
+  .bias-ex{border-left:4px solid var(--alarm);padding-left:.9rem;margin-top:.5rem}
+  .bias-ex .q{font-family:var(--mono);font-size:clamp(.78rem,1.4vw,.92rem);color:#4a4436;line-height:1.5}
+  .bias-ex .q b{color:var(--alarm)}
+
+  /* ---- charnière (scène 9) ---- */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.4rem,4.4vw,3rem);max-width:22ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.4rem;font-family:var(--serif);font-size:clamp(1rem,2.1vw,1.4rem);
+    line-height:1.5;color:#cfc8b8;max-width:60ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.5rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* ---- activité ---- */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.6rem,5.2vw,3.6rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:1rem;max-width:66ch;font-size:clamp(.92rem,1.85vw,1.18rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.3rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.45rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.84rem,1.55vw,1rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+  .act .cta{margin-top:1.4rem;display:inline-flex;align-items:center;gap:.7rem;
+    background:var(--signal);color:#fff;text-decoration:none;padding:.85rem 1.4rem;
+    font-family:var(--mono);font-size:.85rem;letter-spacing:.05em;
+    box-shadow:5px 5px 0 rgba(255,106,77,.8);transition:transform .15s,box-shadow .15s}
+  .act .cta:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 rgba(255,106,77,.9)}
+  .act .cta small{display:block;font-size:.62rem;color:#dfe7ff;letter-spacing:.08em}
+
+  /* ---- récap ---- */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.5rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.5rem,4.6vw,3.2rem);margin-bottom:clamp(.8rem,2.6vh,1.4rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.45rem,1.5vh,.75rem);max-width:94ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.3rem;
+    font-size:clamp(.88rem,1.7vw,1.14rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.55rem;height:1.55rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.78rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:clamp(.7rem,2.2vh,1.2rem);max-width:94ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.5rem .8rem;
+    border-left:4px solid var(--signal);font-size:clamp(.78rem,1.4vw,.95rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.1rem}
+  .rc-key{margin-top:clamp(.8rem,2.4vh,1.3rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.6rem,1.8vh,.9rem);
+    font-size:clamp(.95rem,1.9vw,1.3rem);color:var(--signal-dk);max-width:84ch}
+  .rc-key b{font-style:normal}
+
+  /* =========================================================
+     HUD
+     ========================================================= */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.vs{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .vs-mid{display:none}
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="token.html">◂ Séance précédente · Le prochain mot</a>
+    <div class="tag">SNT · Enseignement IA</div>
+    <h1 class="big">D'où vient<br>ce qu'elle <em>sait</em>&nbsp;?</h1>
+    <p class="line">On sait maintenant <strong style="color:#fff">ce qu'elle fait</strong>&nbsp;: prédire le prochain token. Mais personne ne lui a appris le français, ni la capitale de la France, ni les maths. Alors&nbsp;: <strong style="color:#fff">comment a-t-elle appris&nbsp;?</strong></p>
+    <div class="kick">Données · entraînement · paramètres · biais</div>
+  </div>
+
+  <!-- ============ 1 · LA CHAÎNE ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow">Vue d'ensemble</div>
+    <h2 class="stitle">Quatre étapes,<br>toujours les mêmes</h2>
+    <p class="lead">Que l'on fabrique un détecteur de spam ou un ChatGPT, la recette est la même. Ce qui change, c'est l'échelle.</p>
+
+    <div class="mid">
+      <div class="chain">
+        <div class="cbox"><div class="n">1 · collecter</div><div class="t">Les données</div><div class="d">rassembler des milliards d'exemples</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox"><div class="n">2 · préparer</div><div class="t">Trier, nettoyer</div><div class="d">choisir ce qu'on garde… et ce qu'on jette</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox"><div class="n">3 · entraîner</div><div class="t">Régler le modèle</div><div class="d">ajuster des milliards de paramètres</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox"><div class="n">4 · évaluer</div><div class="t">Le tester</div><div class="d">sur des questions jamais vues</div></div>
+      </div>
+      <p class="chain-note">Retenez cet ordre&nbsp;: <b>tout ce que le modèle saura</b> — et tout ce qu'il ratera — <b>se joue dans ces quatre cases</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LA COLLECTE ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow">Étape 1 · collecter</div>
+    <h2 class="stitle">D'où viennent<br>les données&nbsp;?</h2>
+    <p class="lead">Pour un grand modèle de langage&nbsp;: essentiellement du <b>texte écrit par des humains</b>, aspiré en masse.</p>
+
+    <div class="mid">
+      <div class="stats">
+        <div class="stat"><b>Le Web</b><span>pages, forums, blogs</span></div>
+        <div class="stat"><b>Livres</b><span>et articles</span></div>
+        <div class="stat"><b>Code</b><span>dépôts publics</span></div>
+        <div class="stat"><b>Encyclopédies</b><span>Wikipédia…</span></div>
+      </div>
+      <div class="cards c2">
+        <div class="card">
+          <h3>L'échelle</h3>
+          <div class="sub">des ordres de grandeur qui donnent le vertige</div>
+          <p>On parle de <b>milliers de milliards de tokens</b>. Un humain qui lirait sans dormir toute sa vie n'en verrait qu'une fraction infime.</p>
+          <div class="ex">▸ impossible pour un humain de tout relire</div>
+        </div>
+        <div class="card warn">
+          <h3>Le piège</h3>
+          <div class="sub">à garder en tête pour la suite</div>
+          <p>Le Web <b>n'est pas le monde</b>. Qui y écrit&nbsp;? Dans quelles langues&nbsp;? Sur quels sujets&nbsp;? Certaines voix y sont très présentes, d'autres presque absentes.</p>
+          <div class="ex">▸ c'est ici que naissent les biais</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3 · LA PRÉPARATION ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow">Étape 2 · préparer</div>
+    <h2 class="stitle">On ne jette pas<br>le Web brut dans la machine</h2>
+    <p class="lead">Entre l'aspiration et l'entraînement, il y a un gros travail de tri. Et <b>trier, c'est déjà choisir</b>.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card">
+          <h3>Nettoyer</h3>
+          <div class="sub">enlever le bruit</div>
+          <p>Menus de sites, publicités, pages vides, texte illisible, contenus dupliqués des milliers de fois.</p>
+        </div>
+        <div class="card">
+          <h3>Filtrer</h3>
+          <div class="sub">enlever ce qu'on ne veut pas</div>
+          <p>Spam, contenus violents ou illégaux, données personnelles. Quelqu'un décide où passe la limite.</p>
+        </div>
+        <div class="card">
+          <h3>Découper</h3>
+          <div class="sub">rappel de la séance précédente</div>
+          <p>Le texte est transformé en <b>tokens</b> — l'unité que le modèle lit et produit.</p>
+          <div class="ex">▸ « Le chat mange » → 3 tokens</div>
+        </div>
+      </div>
+      <p class="lead" style="text-align:center;margin:0 auto;max-width:80ch"><b>Chaque décision de tri est une décision humaine</b> — et elle laissera une trace dans le modèle final.</p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · L'ENTRAÎNEMENT ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow">Étape 3 · entraîner</div>
+    <h2 class="stitle">Se tromper,<br>des milliards de fois</h2>
+    <p class="lead">L'entraînement, c'est une boucle d'une simplicité déconcertante — répétée à une échelle qui ne l'est pas.</p>
+
+    <div class="mid">
+      <div class="loop">
+        <div class="lstep"><div class="n">1</div><div class="t">On cache le mot suivant d'un texte et on demande au modèle de le <b>deviner</b>.</div></div>
+        <div class="carrow">→</div>
+        <div class="lstep"><div class="n">2</div><div class="t">On <b>compare</b> sa réponse au vrai mot.</div></div>
+        <div class="carrow">→</div>
+        <div class="lstep"><div class="n">3</div><div class="t">S'il s'est trompé, on <b>ajuste très légèrement</b> ses réglages internes.</div></div>
+        <div class="carrow">→</div>
+        <div class="lstep"><div class="n">4</div><div class="t">On recommence avec le texte suivant.</div></div>
+      </div>
+      <div class="loop-back">↻ des milliards de fois, pendant des semaines</div>
+
+      <div class="param">
+        <div class="k">Ces réglages ont un nom : les paramètres</div>
+        <p>Un modèle, c'est <b>des milliards de petits boutons de réglage</b> (on dit aussi «&nbsp;poids&nbsp;»). Au départ ils sont au hasard — le modèle raconte n'importe quoi. À chaque erreur, on tourne chaque bouton d'un cheveu dans le bon sens. Au bout de milliards de corrections, l'ensemble finit par produire du texte cohérent.<br><br>
+        <b>Personne n'a écrit ces réglages à la main.</b> Personne ne sait dire à quoi sert un bouton en particulier. C'est ça, la fameuse «&nbsp;boîte noire&nbsp;».</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 5 · ENTRAÎNER ≠ UTILISER ============ -->
+  <div class="pane light pad" id="s5">
+    <div class="eyebrow">Une distinction qui règle beaucoup de malentendus</div>
+    <h2 class="stitle">Entraîner,<br>ce n'est pas utiliser</h2>
+
+    <div class="mid">
+      <div class="vs">
+        <div class="card">
+          <h3>L'entraînement</h3>
+          <div class="sub">une fois, avant la sortie</div>
+          <p>Des <b>semaines</b> de calcul, des milliers de machines, un coût en millions. Les paramètres <b>changent</b>.</p>
+          <p>C'est là — et seulement là — que le modèle « apprend ».</p>
+        </div>
+        <div class="vs-mid">≠</div>
+        <div class="card good">
+          <h3>L'inférence</h3>
+          <div class="sub">à chaque fois que vous l'utilisez</div>
+          <p>Quelques <b>secondes</b>. Les paramètres <b>ne bougent pas d'un iota</b>.</p>
+          <p>Le modèle applique ce qu'il a appris, il n'apprend rien de neuf.</p>
+        </div>
+      </div>
+      <p class="lead" style="text-align:center;margin:0 auto;max-width:82ch">Conséquence directe&nbsp;: <b>votre conversation ne « rentre » pas dans le modèle</b>. Il paraît se souvenir de ce que vous avez dit plus haut simplement parce qu'on lui <b>renvoie tout l'historique</b> à chaque message — c'est le <b>contexte</b>, pas de la mémoire.</p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · ÉVALUER ============ -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow">Étape 4 · évaluer</div>
+    <h2 class="stitle">Apprendre,<br>ce n'est pas réciter</h2>
+    <p class="lead">Comment savoir si un modèle a vraiment appris — ou s'il a simplement retenu&nbsp;?</p>
+
+    <div class="mid">
+      <div class="cards c2">
+        <div class="card">
+          <h3>Le jeu d'entraînement</h3>
+          <div class="sub">ce qu'il a vu</div>
+          <p>Les données sur lesquelles on l'a entraîné. Il y est forcément bon&nbsp;: il les a « travaillées ».</p>
+        </div>
+        <div class="card good">
+          <h3>Le jeu de test</h3>
+          <div class="sub">ce qu'il n'a jamais vu</div>
+          <p>Des exemples <b>mis de côté</b> avant l'entraînement. C'est le seul verdict qui compte&nbsp;: sait-il <b>généraliser</b>&nbsp;?</p>
+        </div>
+      </div>
+      <div class="cards c2" style="margin-top:0">
+        <div class="card warn">
+          <h3>Le sur-apprentissage</h3>
+          <div class="sub">le piège classique</div>
+          <p>Un élève qui apprend <b>les corrigés par cœur</b> a 20/20 sur les annales… et s'effondre le jour du contrôle. Un modèle peut faire exactement pareil.</p>
+        </div>
+        <div class="card warn">
+          <h3>Et pour les benchmarks&nbsp;?</h3>
+          <div class="sub">rappel de la séance 1</div>
+          <p>Même problème&nbsp;: si les questions du test ont fuité dans les données d'entraînement, le score ne veut plus rien dire. On appelle ça la <b>contamination</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 7 · LE BIAIS ============ -->
+  <div class="pane dark pad" id="s7">
+    <div class="eyebrow">Le point critique</div>
+    <h2 class="stitle">D'où vient<br>un <em style="font-style:normal;color:var(--signal)">biais</em>&nbsp;?</h2>
+    <p class="lead">Un modèle ne « croit » rien et ne « veut » rien. Il <b>reproduit les régularités</b> de ce qu'on lui a montré. Si le corpus penche, le modèle penche.</p>
+
+    <div class="mid">
+      <div class="cards c2">
+        <div class="card">
+          <h3>Traduction</h3>
+          <div class="sub">un exemple facile à tester en classe</div>
+          <p>Depuis une langue sans genre grammatical, une phrase neutre revient souvent genrée&nbsp;: le médecin devient « il », l'infirmière « elle ».</p>
+          <div class="bias-ex"><div class="q">Le modèle n'a pas d'opinion. Il restitue <b>ce qui était le plus fréquent</b> dans ses données.</div></div>
+        </div>
+        <div class="card">
+          <h3>Reconnaissance de visages</h3>
+          <div class="sub">un cas documenté</div>
+          <p>Des systèmes se sont révélés nettement <b>moins fiables</b> sur certains groupes — parce que les visages d'entraînement n'étaient pas également représentés.</p>
+          <div class="bias-ex"><div class="q">Un défaut de <b>représentation dans les données</b> devient un défaut de performance pour de vraies personnes.</div></div>
+        </div>
+      </div>
+      <p class="chain-note">Un biais n'est <b>pas un bug</b> qu'on corrige avec une ligne de code&nbsp;: il vient de ce qu'on a collecté, trié et gardé. <b>On y reviendra</b> — cette fois du côté des conséquences pour la société.</p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · FINE-TUNING ============ -->
+  <div class="pane light pad" id="s8">
+    <div class="eyebrow">Et après le grand entraînement ?</div>
+    <h2 class="stitle">Spécialiser<br>sans tout refaire</h2>
+    <p class="lead">Réentraîner un modèle depuis zéro coûte des millions. Heureusement, on peut <b>repartir d'un modèle existant</b> et poursuivre son entraînement sur un petit corpus ciblé.</p>
+
+    <div class="mid">
+      <div class="cards c2">
+        <div class="card">
+          <h3>Le fine-tuning</h3>
+          <div class="sub">« réglage fin »</div>
+          <p>On reprend les paramètres du modèle général et on les <b>ajuste encore un peu</b>, avec des exemples du domaine visé (juridique, médical, un style d'écriture…).</p>
+          <p><b>Les paramètres changent</b> — c'est bien de l'entraînement, en plus petit.</p>
+        </div>
+        <div class="card good">
+          <h3>Le réglage par des humains</h3>
+          <div class="sub">la couche promise la dernière fois</div>
+          <p>Des personnes comparent des réponses et indiquent lesquelles sont préférables. Le modèle est ajusté pour aller dans ce sens&nbsp;: plus utile, plus poli, moins dangereux.</p>
+          <p>C'est ce qui sépare un <b>moteur brut</b> du <b>ChatGPT</b> que vous utilisez.</p>
+        </div>
+      </div>
+      <p class="lead" style="text-align:center;margin:0 auto;max-width:82ch">Dans les deux cas, on <b>touche aux paramètres</b>. Retenez-le&nbsp;: la prochaine méthode qu'on verra, elle, n'y touchera pas du tout.</p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · LA CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s9">
+    <div class="eyebrow" style="color:var(--signal)">La question qui ouvre la suite</div>
+    <div class="q">Et si je veux qu'il connaisse<br>les infos de <em>mon lycée</em>&nbsp;?</div>
+    <p class="a">Le menu de la cantine, les dates du bac blanc, le règlement intérieur… Rien de tout ça n'était sur le Web au moment de l'entraînement.<br><br>Faut-il <b>réentraîner le modèle</b> à chaque changement de menu&nbsp;?</p>
+    <div class="next">Réponse à la séance suivante : il faut aller les chercher →</div>
+  </div>
+
+  <!-- ============ 10 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s10">
+    <div class="tag">Activité de la séance</div>
+    <h2>Faites apparaître<br>le <em>biais</em></h2>
+    <p class="sub">Un biais, ça ne se raconte pas&nbsp;: ça se constate. À vous de le débusquer, puis de remonter à sa source.</p>
+    <ol class="steps">
+      <li>Choisissez un <b>métier</b> et une <b>situation</b> neutre (sans indice de genre, d'origine ou d'âge).</li>
+      <li>Demandez au modèle de <b>compléter</b> ou de <b>traduire</b>, plusieurs fois.</li>
+      <li>Notez ce qui revient <b>le plus souvent</b>. Y a-t-il un défaut systématique&nbsp;?</li>
+      <li>Recommencez en changeant un seul mot du contexte. <b>Qu'est-ce qui bascule&nbsp;?</b></li>
+      <li>Remontez à la source&nbsp;: <b>quelles données</b> pourraient produire ce penchant&nbsp;?</li>
+    </ol>
+    <a class="cta" href="https://edu-nsi-web.vercel.app/" target="_blank" rel="noopener">
+      <span>Rejoindre PédagoIA<small>edu-nsi-web.vercel.app →</small></span>
+    </a>
+  </div>
+
+  <!-- ============ 11 · RÉCAP ============ -->
+  <div class="pane light pad" id="s11">
+    <div class="rc-eye">Fin de séance</div>
+    <h2 class="rc-title">Ce que je dois <span>retenir</span></h2>
+    <ol class="rc-list">
+      <li>Une IA apprend en <b>quatre étapes</b>&nbsp;: collecter, préparer, entraîner, évaluer. Tout ce qu'elle saura se joue là.</li>
+      <li>L'entraînement, c'est <b>se tromper des milliards de fois</b> et corriger un peu à chaque erreur des milliards de <span class="hl">paramètres</span>.</li>
+      <li><b>Entraîner ≠ utiliser</b>&nbsp;: quand vous discutez avec elle, ses paramètres ne changent pas. Elle ne retient rien de votre conversation.</li>
+      <li>On la teste sur des exemples <b>jamais vus</b> — sinon c'est réciter, pas apprendre.</li>
+      <li>Un <span class="hl">biais</span> ne vient pas d'une intention&nbsp;: il vient <b>des données</b> qu'on a collectées et triées.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term"><b>Paramètres</b>Les milliards de réglages internes ajustés pendant l'entraînement.</div>
+      <div class="rc-term"><b>Inférence</b>L'usage du modèle, une fois entraîné — sans rien modifier.</div>
+      <div class="rc-term"><b>Fine-tuning</b>Poursuivre l'entraînement sur un petit corpus ciblé.</div>
+    </div>
+    <p class="rc-key">Prochaine étape&nbsp;: <b>lui donner des informations qu'il n'a jamais apprises — sans le réentraîner.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <button class="btn" id="prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div>
+    <div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div>
+    <div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div>
+    <div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div>
+    <div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div>
+    <div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div>
+    <div class="dot" data-i="11"></div>
+  </div>
+  <button class="btn" id="next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+  const panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
+    .map(id=>document.getElementById(id));
+  const dots  = [...document.querySelectorAll('.dot')];
+  let scene = 0;
+  const MAX = 11;
+
+  function render(){
+    panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
+    dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
+  }
+  function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+  document.getElementById('next').onclick = ()=>go(scene+1);
+  document.getElementById('prev').onclick = ()=>go(scene-1);
+  dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
+
+  window.addEventListener('keydown', e=>{
+    if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowDown'){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
+    if(e.key==='ArrowUp'){e.preventDefault();go(scene-1);}
+  });
+  document.querySelector('.stage').addEventListener('click', e=>{
+    if(e.target.closest('a,button')) return;
+    go(scene+1);
+  });
+</script>
+</body>
+</html>
