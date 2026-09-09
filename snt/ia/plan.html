@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan du parcours IA — SNT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../../logo.png">
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    /* ---- page-plan : mise en page spécifique ---- */
+    .pl-hero{
+      border:1px solid var(--border);border-left:4px solid var(--accent-snt);
+      border-radius:var(--radius);background:linear-gradient(135deg, var(--accent-snt-dim), rgba(251,146,60,.03));
+      padding:1.25rem 1.4rem;margin:1.25rem 0 1.75rem;
+    }
+    .pl-hero .lbl{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--accent-snt);font-weight:700;margin-bottom:.5rem}
+    .pl-hero p{font-size:1.12rem;line-height:1.5;color:var(--text)}
+    .pl-hero p b{color:var(--accent-snt)}
+
+    .pl-state{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.75rem}
+    .pl-pill{font-size:.76rem;padding:.3rem .7rem;border-radius:999px;
+      border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted)}
+    .pl-pill b{color:var(--text)}
+
+    .pl-block{
+      border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);
+      padding:1.1rem 1.25rem;margin-bottom:.85rem;position:relative;
+    }
+    .pl-block.star{border-color:var(--accent-snt);box-shadow:0 0 0 1px rgba(251,146,60,.15)}
+    .pl-head{display:flex;align-items:flex-start;gap:.85rem;margin-bottom:.6rem}
+    .pl-num{flex:0 0 auto;width:32px;height:32px;border-radius:8px;display:flex;
+      align-items:center;justify-content:center;font-weight:700;font-size:.9rem;
+      background:var(--accent-snt-dim);color:var(--accent-snt)}
+    .pl-block.done .pl-num{background:rgba(52,211,153,.14);color:var(--accent-physique)}
+    .pl-ttl{flex:1}
+    .pl-ttl h3{font-size:1.08rem;font-weight:600;color:var(--text);line-height:1.25}
+    .pl-q{font-size:.85rem;color:var(--accent-nsi);font-style:italic;margin-top:.2rem}
+    .pl-status{flex:0 0 auto;font-size:.7rem;padding:.22rem .55rem;border-radius:4px;white-space:nowrap}
+    .st-done{background:rgba(52,211,153,.13);color:var(--accent-physique)}
+    .st-part{background:var(--accent-snt-dim);color:var(--accent-snt)}
+    .st-todo{background:rgba(255,255,255,.05);color:var(--text-muted)}
+
+    .pl-chips{display:flex;flex-wrap:wrap;gap:.35rem;margin:.55rem 0 .2rem}
+    .pl-chip{font-size:.76rem;padding:.22rem .55rem;border-radius:5px;
+      background:rgba(255,255,255,.045);color:var(--text-muted);border:1px solid var(--border)}
+    .pl-chip.key{background:var(--accent-snt-dim);color:var(--accent-snt);border-color:transparent;font-weight:600}
+
+    .pl-links{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+    .pl-link{font-size:.78rem;text-decoration:none;padding:.28rem .6rem;border-radius:5px;
+      background:rgba(52,211,153,.10);color:var(--accent-physique);border:1px solid rgba(52,211,153,.25)}
+    .pl-link:hover{background:rgba(52,211,153,.18)}
+    .pl-note{font-size:.82rem;color:var(--text-muted);line-height:1.45;margin-top:.55rem}
+    .pl-note b{color:var(--text)}
+
+    /* fils rouges */
+    .pl-thread{border:1px solid var(--border);border-radius:var(--radius);
+      background:var(--bg-card);padding:1rem 1.2rem;margin-bottom:.7rem;border-left:3px solid var(--accent-nsi)}
+    .pl-thread h4{font-size:.95rem;color:var(--text);margin-bottom:.35rem}
+    .pl-thread p{font-size:.86rem;color:var(--text-muted);line-height:1.5}
+    .pl-thread p b{color:var(--text)}
+    .pl-chain{font-size:.84rem;color:var(--text-muted);line-height:1.9}
+    .pl-chain span{background:rgba(108,158,255,.10);color:#a9c6ff;
+      padding:.16rem .45rem;border-radius:4px;white-space:nowrap}
+
+    /* tableau des niveaux */
+    .pl-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.4rem}
+    .pl-table th{text-align:left;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--text-muted);font-weight:600;padding:.5rem .6rem;border-bottom:1px solid var(--border)}
+    .pl-table td{padding:.46rem .6rem;border-bottom:1px solid rgba(42,46,58,.55);color:var(--text)}
+    .pl-table td.lvl{color:var(--text-muted)}
+    .pl-table td.lvl b{color:var(--accent-snt);font-weight:600}
+    .pl-table tr:last-child td{border-bottom:none}
+
+    @media (max-width:640px){
+      .pl-head{flex-wrap:wrap}
+      .pl-status{order:3}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="../../index.html" class="nav-home">Sciences</a>
+      <a href="../../snt/index.html" class="active-snt">SNT</a>
+      <span class="nav-sep">|</span>
+      <a href="../../nsi/index.html">NSI</a>
+      <span class="nav-sep">|</span>
+      <a href="../../maths-expertes/index.html">Maths expertes</a>
+      <span class="nav-sep">|</span>
+      <a href="../../physique/index.html">Physique</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="section-header">
+      <h1>Plan du parcours IA <span class="badge badge-snt">SNT · Seconde</span></h1>
+      <p class="subtitle">L'architecture du cours en sept blocs — ce qui est construit, ce qui reste à faire, et les fils rouges qui tiennent l'ensemble. <a href="index.html" style="color:var(--accent-snt)">← retour au module</a></p>
+    </div>
+
+    <div class="pl-hero">
+      <div class="lbl">Le fil qui unifie tout le parcours</div>
+      <p>Comment l'IA <b>apprend</b>, <b>transforme</b>, <b>retrouve</b>, <b>transporte</b>, <b>sélectionne</b> et <b>produit</b> — l'<b>information</b>.</p>
+    </div>
+
+    <div class="pl-state">
+      <span class="pl-pill"><b>4</b> séances prêtes</span>
+      <span class="pl-pill"><b>7</b> blocs</span>
+      <span class="pl-pill">Narration de l'année : <b>émerveillement → démontage → reconstruction</b></span>
+    </div>
+
+    <!-- ============ BLOCS ============ -->
+    <div class="level-group">
+      <h2>Les sept blocs</h2>
+
+      <!-- 1 -->
+      <div class="pl-block done">
+        <div class="pl-head">
+          <span class="pl-num">1</span>
+          <div class="pl-ttl">
+            <h3>Découvrir l'IA</h3>
+            <div class="pl-q">« Où en est vraiment l'IA — et de quoi parle-t-on ? »</div>
+          </div>
+          <span class="pl-status st-done">3 séances prêtes</span>
+        </div>
+        <div class="pl-chips">
+          <span class="pl-chip">actualité</span><span class="pl-chip">zoologie</span>
+          <span class="pl-chip">histoire</span><span class="pl-chip">idées reçues</span>
+        </div>
+        <div class="pl-links">
+          <a class="pl-link" href="ressources/intro.html">▶ Accroche 2026</a>
+          <a class="pl-link" href="ressources/zoologie.html">▶ Histoire &amp; zoologie</a>
+          <a class="pl-link" href="ressources/idees-recues.html">▶ Idées reçues</a>
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div class="pl-block">
+        <div class="pl-head">
+          <span class="pl-num">2</span>
+          <div class="pl-ttl">
+            <h3>Comprendre les modèles génératifs</h3>
+            <div class="pl-q">« Comment une machine peut-elle écrire une phrase ? »</div>
+          </div>
+          <span class="pl-status st-part">1 séance · à compléter</span>
+        </div>
+        <div class="pl-chips">
+          <span class="pl-chip">tokens</span><span class="pl-chip">contexte</span>
+          <span class="pl-chip">prédiction du prochain token</span><span class="pl-chip">génération</span>
+          <span class="pl-chip key">embeddings — en intuition</span>
+        </div>
+        <div class="pl-links">
+          <a class="pl-link" href="ressources/token.html">▶ Le prochain mot</a>
+        </div>
+        <p class="pl-note">Les embeddings restent <b>au niveau de l'intuition</b> ici : « un token devient un point dans un espace ; les sens proches sont proches ». Pas de distance cosinus, pas de dimensions. On s'en resservira au bloc 4.</p>
+      </div>
+
+      <!-- 3 -->
+      <div class="pl-block">
+        <div class="pl-head">
+          <span class="pl-num">3</span>
+          <div class="pl-ttl">
+            <h3>Comment une IA apprend-elle ?</h3>
+            <div class="pl-q">« D'où vient ce qu'elle sait ? »</div>
+          </div>
+          <span class="pl-status st-todo">à construire</span>
+        </div>
+        <div class="pl-chips">
+          <span class="pl-chip">données</span><span class="pl-chip">collecte</span>
+          <span class="pl-chip">préparation</span><span class="pl-chip">entraînement</span>
+          <span class="pl-chip">test / généralisation</span><span class="pl-chip key">biais</span>
+          <span class="pl-chip">fine-tuning</span>
+        </div>
+        <p class="pl-note"><b>Question de sortie</b> (la charnière vers le bloc 4) : <em>« Apprendre quelque chose au modèle nécessite-t-il toujours de le réentraîner ? »</em> → réponse au bloc suivant : non, on peut <b>aller chercher</b> l'information.</p>
+      </div>
+
+      <!-- 4 -->
+      <div class="pl-block star">
+        <div class="pl-head">
+          <span class="pl-num">4</span>
+          <div class="pl-ttl">
+            <h3>Connecter l'IA au monde <span style="color:var(--accent-snt);font-size:.8rem">★ morceau vedette</span></h3>
+            <div class="pl-q">« Il faut aller chercher l'information. Où, et comment ? »</div>
+          </div>
+          <span class="pl-status st-todo">à construire</span>
+        </div>
+        <div class="pl-chips">
+          <span class="pl-chip key">RAG</span><span class="pl-chip">embeddings — en usage réel</span>
+          <span class="pl-chip">Internet ≠ Web</span><span class="pl-chip">le Web à l'ère de l'IA</span>
+          <span class="pl-chip">API</span><span class="pl-chip">outils</span>
+          <span class="pl-chip key">agents</span>
+        </div>
+        <p class="pl-note"><b>La progression technique</b> — chaque étape ajoute une brique :<br>
+          ① une page Web <code>GET → serveur → HTML</code> · ② une API <code>requête JSON → réponse JSON</code> ·
+          ③ une API de LLM <code>prompt → modèle → réponse</code> · ④ un LLM avec outils <code>le modèle choisit un outil</code> ·
+          ⑤ un agent <code>boucle observer → décider → agir</code>.</p>
+        <p class="pl-note"><b>Les trois générations du Web</b> : documentaire (<em>je connais une adresse</em>) → moteurs de recherche (<em>je cherche des pages</em>) → à l'ère de l'IA (<em>je formule une intention</em>). Soit <b>URL → mots-clés → intention</b>.</p>
+        <p class="pl-note"><b>Et le Web change des deux côtés</b> : « un Web écrit par qui… et lu par qui ? » → contenus synthétiques, provenance, crédibilité. Question ouverte savoureuse : <em>si une IA répond sans que je visite le site, que devient le Web ?</em></p>
+      </div>
+
+      <!-- 5 -->
+      <div class="pl-block">
+        <div class="pl-head">
+          <span class="pl-num">5</span>
+          <div class="pl-ttl">
+            <h3>Travailler avec une IA</h3>
+            <div class="pl-q">« Comment en faire un partenaire de travail, pas un distributeur de réponses ? »</div>
+          </div>
+          <span class="pl-status st-todo">à construire</span>
+        </div>
+        <div class="pl-chips">
+          <span class="pl-chip">chatbots</span><span class="pl-chip">contexte</span>
+          <span class="pl-chip">formulation</span><span class="pl-chip">itération</span>
+          <span class="pl-chip">vérification</span><span class="pl-chip">tutorat socratique</span>
+          <span class="pl-chip key">quand ne PAS l'utiliser</span>
+        </div>
+        <p class="pl-note">« <b>Travailler avec</b> » plutôt qu'« utiliser » : on vise une collaboration intellectuelle, pas un mode d'emploi.</p>
+      </div>
+
+      <!-- 6 -->
+      <div class="pl-block">
+        <div class="pl-head">
+          <span class="pl-num">6</span>
+          <div class="pl-ttl">
+            <h3>L'IA qui organise notre monde numérique</h3>
+            <div class="pl-q">« Qui choisit ce que je vois ? »</div>
+          </div>
+          <span class="pl-status st-todo">à construire</span>
+        </div>
+        <div class="pl-chips">
+          <span class="pl-chip">réseaux sociaux</span><span class="pl-chip">recommandation</span>
+          <span class="pl-chip">personnalisation</span><span class="pl-chip">économie de l'attention</span>
+          <span class="pl-chip">bots</span><span class="pl-chip">contenus synthétiques</span>
+          <span class="pl-chip">deepfakes</span>
+        </div>
+        <p class="pl-note"><b>Rappel de la zoologie</b> (bloc 1) : <em>prédire</em> « quelle vidéo va-t-il regarder ? » · <em>classer</em> « est-ce du spam ? » · <em>recommander</em> « que montrer ensuite ? » · <em>générer</em> « créons une image ». Même grande famille de techniques d'apprentissage — mais <b>modèles et objectifs différents</b>.</p>
+      </div>
+
+      <!-- 7 -->
+      <div class="pl-block">
+        <div class="pl-head">
+          <span class="pl-num">7</span>
+          <div class="pl-ttl">
+            <h3>Quels choix face à l'IA ?</h3>
+            <div class="pl-q">« Quel rapport je veux avoir avec ces outils ? »</div>
+          </div>
+          <span class="pl-status st-todo">à construire</span>
+        </div>
+        <div class="pl-chips">
+          <span class="pl-chip">vie privée</span><span class="pl-chip key">biais — rappel</span>
+          <span class="pl-chip">propriété intellectuelle</span><span class="pl-chip">travail</span>
+          <span class="pl-chip">autonomie</span><span class="pl-chip">sécurité</span>
+          <span class="pl-chip">énergie · eau · infrastructures</span><span class="pl-chip">société</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FILS ROUGES ============ -->
+    <div class="level-group">
+      <h2>Les fils rouges</h2>
+
+      <div class="pl-thread">
+        <h4>① L'information — le fil qui traverse tout</h4>
+        <p class="pl-chain">
+          <span>les tokens la représentent</span> →
+          <span>les données servent à l'apprendre</span> →
+          <span>les embeddings l'organisent</span> →
+          <span>le RAG la retrouve</span> →
+          <span>Internet la transporte</span> →
+          <span>le Web la publie</span> →
+          <span>les API la structurent pour les machines</span> →
+          <span>les agents vont la chercher et agissent</span> →
+          <span>les réseaux sociaux la sélectionnent</span> →
+          <span>le génératif la produit</span> →
+          <span>l'esprit critique décide si on lui fait confiance</span>
+        </p>
+      </div>
+
+      <div class="pl-thread">
+        <h4>② L'assistant du lycée — le projet cumulatif (bloc 4)</h4>
+        <p>Au début, le modèle ne sait rien du lycée. Puis, étape par étape : <b>① une info dans le prompt → ② plusieurs documents → ③ un RAG (conceptuel) → ④ un appel d'API → ⑤ une info récupérée sur le Web → ⑥ un petit agent.</b><br>
+        À chaque étape, la même question : <em>« qu'est-ce que notre système sait faire maintenant qu'il ne savait pas faire avant ? »</em><br>
+        <span style="color:var(--text-muted)">Réalisable en version <b>conceptuelle</b> (sans infrastructure) ou <b>mains dans le cambouis</b> si la plateforme le permet — ce n'est pas le même coût en heures.</span></p>
+      </div>
+
+      <div class="pl-thread">
+        <h4>③ Le biais — né technique, revenu politique</h4>
+        <p>Introduit <b>mécaniquement</b> au bloc 3 (d'où vient un biais dans les données), puis repris comme <b>enjeu de société</b> au bloc 7. Les élèves reconnaissent une notion déjà vue : ça soude le cours.</p>
+      </div>
+
+      <div class="pl-thread">
+        <h4>④ Les idées reçues — une séance, puis des rappels</h4>
+        <p>La séance du bloc 1 sert de réservoir. On re-pique une idée reçue dans les blocs suivants — surtout <b>« un LLM ne cherche pas sur Internet »</b> au bloc 4, où l'on distingue enfin : ce que le modèle <b>sait</b> · ce qu'on met dans son <b>contexte</b> · ce que le <b>RAG</b> retrouve · ce qu'un <b>outil</b> va chercher.</p>
+      </div>
+
+      <div class="pl-thread">
+        <h4>⑤ Émerveillement → démontage → reconstruction</h4>
+        <p>L'accroche montre ce qu'un système moderne sait faire, <b>sans expliquer</b>. Des semaines plus tard, au bloc 4 : <em>« vous vous souvenez du premier cours ? Maintenant vous pouvez expliquer ce qui se passait sous le capot. »</em> Les entrées « l'IA sort de l'écran », « elle s'échappe de son bac à sable » de la frise deviennent enfin lisibles.</p>
+      </div>
+    </div>
+
+    <!-- ============ NIVEAUX ============ -->
+    <div class="level-group">
+      <h2>Niveau visé par notion <span class="badge badge-snt">anti-surcharge</span></h2>
+      <div class="note" style="margin-bottom:.9rem">
+        Le garde-fou contre le « cours de licence compressé ». Tout ne se vaut pas : certaines notions doivent être <strong style="color:var(--text)">comprises</strong>, d'autres seulement <strong style="color:var(--text)">rencontrées</strong>.
+      </div>
+      <table class="pl-table">
+        <thead><tr><th>Notion</th><th>Niveau visé</th></tr></thead>
+        <tbody>
+          <tr><td>Token</td><td class="lvl"><b>Comprendre</b></td></tr>
+          <tr><td>Contexte</td><td class="lvl"><b>Comprendre</b></td></tr>
+          <tr><td>Prédiction du prochain token</td><td class="lvl"><b>Comprendre</b></td></tr>
+          <tr><td>Entraînement / inférence</td><td class="lvl"><b>Comprendre</b></td></tr>
+          <tr><td>Biais des données</td><td class="lvl"><b>Comprendre et expérimenter</b></td></tr>
+          <tr><td>Embeddings</td><td class="lvl"><b>Intuition</b> seulement</td></tr>
+          <tr><td>RAG</td><td class="lvl"><b>Comprendre le principe</b></td></tr>
+          <tr><td>Fine-tuning</td><td class="lvl"><b>Savoir le distinguer</b> du RAG</td></tr>
+          <tr><td>Attention / Transformer</td><td class="lvl"><b>Aperçu</b> seulement</td></tr>
+          <tr><td>API</td><td class="lvl"><b>Comprendre + manipuler</b></td></tr>
+          <tr><td>Agent</td><td class="lvl"><b>Comprendre l'architecture</b></td></tr>
+          <tr><td>Recommandation</td><td class="lvl"><b>Comprendre + expérimenter</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note" style="margin-top:1.5rem">
+      <strong style="color: var(--text);">Point de vigilance — le volume.</strong> Pris au sérieux, l'ensemble représente aisément <strong style="color:var(--text)">une quarantaine d'heures</strong>. Ce n'est plus « un peu d'IA dans SNT » mais un véritable enseignement d'initiation à l'IA. Il faut donc trancher, bloc par bloc, ce qui relève du <strong style="color:var(--text)">socle</strong> et ce qui relève de l'<strong style="color:var(--text)">approfondissement</strong> — le tableau ci-dessus est le premier outil pour le faire.
+    </div>
+  </main>
+
+  <footer>
+    Ressources pédagogiques — Lycée
+  </footer>
+</body>
+</html>
