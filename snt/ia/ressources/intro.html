@@ -1281,7 +1281,20 @@
         </div>
       </article>
 
-      <!-- ---- CLIMAX 5 : L'INCIDENT CYBER ---- -->
+      <!-- ---- CLIMAX 5 : NAVIER-STOKES ---- -->
+      <article class="ev tao" data-year="2026">
+        <div class="ev-year">2026</div>
+        <div class="ev-body">
+          <div class="ev-tag" data-i18n="f.e25tag">OpenAI · 8 septembre 2026 — un problème du millénaire</div>
+          <h3 class="ev-title tao-title" data-i18n="f.e25t">10 000 agents, 88 heures, une preuve vérifiée par la machine</h3>
+          <p class="ev-note" data-i18n="f.e25n">Les équations de Navier-Stokes décrivent l'écoulement des fluides — l'un des sept <strong>problèmes du millénaire</strong> (1 million de dollars). OpenAI lance environ <strong>10 000 agents</strong> en parallèle&nbsp;: 88 heures et 5 millions de messages plus tard, ils produisent une preuve d'explosion en temps fini, <strong>formellement vérifiée en Lean</strong>.<br><br>
+          ⚠ Mais lisez la suite. La preuve porte sur la variante <strong>avec force extérieure</strong> (les options C et D du problème)&nbsp;; le cas <strong>sans force</strong> — celui qui intéresse vraiment les mathématiciens — <strong>reste ouvert</strong>. L'institut Clay n'a rien certifié, et <strong>OpenAI annonce qu'il ne réclamera pas le prix</strong>. S'y ajoute une dispute d'antériorité avec deux chercheurs (NYU / Anthropic) qui avaient annoncé la veille des résultats sur les équations d'Euler.<br><br>
+          <em>Un cas d'école&nbsp;: le résultat est réel — et la manchette est trop large.</em></p>
+          <a class="ev-src" href="https://www.quantamagazine.org/ai-has-solved-one-of-maths-1-million-millennium-prize-problems-20260908/" target="_blank" rel="noopener">quantamagazine.org ↗</a>
+        </div>
+      </article>
+
+      <!-- ---- CLIMAX 6 : L'INCIDENT CYBER ---- -->
       <article class="ev tao cyber" data-year="2026">
         <div class="ev-year">2026</div>
         <div class="ev-body">
@@ -1832,6 +1845,16 @@ Object.assign(I18N.zh, {
   'rc.v1':'<b>Benchmark 基准测试</b>用来比较各个 AI 的标准化测试。',
   'rc.v2':'<b>前沿模型</b>当下最先进的一批模型。',
   'rc.key':'本学年的主线：<b>理解，才能更好地使用、更好地判断。</b>'
+});
+Object.assign(I18N.en, {
+  'f.e25tag':'OpenAI · 8 Sept 2026 — a Millennium Problem',
+  'f.e25t':'10,000 agents, 88 hours, a machine-checked proof',
+  'f.e25n':'The Navier–Stokes equations describe how fluids flow — one of the seven <strong>Millennium Prize Problems</strong> ($1 million). OpenAI launched about <strong>10,000 agents</strong> in parallel: 88 hours and 5 million inter-agent messages later, they produced a proof of finite-time blow-up, <strong>formally verified in Lean</strong>.<br><br>⚠ But read on. The proof covers the variant <strong>with an external force</strong> (options C and D of the problem); the <strong>unforced</strong> case — the one mathematicians actually care about — <strong>remains open</strong>. The Clay Institute has certified nothing, and <strong>OpenAI says it will not claim the prize</strong>. On top of that, a priority dispute with two researchers (NYU / Anthropic) who had announced results on the Euler equations the day before.<br><br><em>A textbook case: the result is real — and the headline is too broad.</em>'
+});
+Object.assign(I18N.zh, {
+  'f.e25tag':'OpenAI · 2026年9月8日 —— 千禧年难题',
+  'f.e25t':'一万个智能体，88 小时，一份机器验证的证明',
+  'f.e25n':'纳维-斯托克斯方程描述流体的运动——七个<strong>千禧年难题</strong>之一（奖金100万美元）。OpenAI 并行启动了约 <strong>1 万个智能体</strong>：88 小时、500 万条智能体间消息之后，它们给出了一份有限时间爆破的证明，并<strong>在 Lean 中通过了形式化验证</strong>。<br><br>⚠ 但请继续读。该证明针对的是<strong>带外力</strong>的变体（问题的 C、D 选项）；而<strong>无外力</strong>的情形——数学家真正关心的那个——<strong>仍然悬而未决</strong>。克雷数学研究所并未认证，<strong>OpenAI 也表示不会申领奖金</strong>。此外还有一桩优先权争议：两位研究者（NYU / Anthropic）在前一天已宣布了关于欧拉方程的结果。<br><br><em>一个教科书式的案例：结果是真的——但标题说得太大了。</em>'
 });
 const frCache = {};
 document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
