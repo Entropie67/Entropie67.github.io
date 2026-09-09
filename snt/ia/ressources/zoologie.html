@@ -270,7 +270,7 @@
     flex:1 1 auto;display:grid;grid-template-columns:1.25fr 1fr;
     gap:clamp(1rem,3vw,2.4rem);align-items:center;margin-top:clamp(.6rem,2vh,1.2rem);
   }
-  .vsvg{width:100%;height:auto;max-height:64vh;display:block}
+  .vsvg{width:100%;height:auto;max-height:57vh;display:block}
   .vsvg text{font-family:var(--mono)}
   .vlegend{display:flex;flex-direction:column;gap:.6rem}
   .vrow{padding-left:.9rem;border-left:4px solid}
@@ -555,27 +555,32 @@
     </div>
 
     <div class="vbody">
-      <svg class="vsvg" viewBox="0 0 660 520" role="img" aria-label="Diagramme de Venn emboîté : IA contient machine learning, qui contient deep learning ; IA générative chevauche le deep learning en débordant un peu ; l'IA symbolique est dans l'IA mais hors du machine learning.">
-        <!-- IA -->
-        <ellipse cx="330" cy="262" rx="312" ry="245" fill="rgba(233,228,216,.035)" stroke="#b8b0a0" stroke-width="2"/>
-        <!-- Machine learning -->
-        <ellipse cx="372" cy="280" rx="238" ry="188" fill="rgba(127,160,255,.08)" stroke="#7fa0ff" stroke-width="2"/>
-        <!-- Deep learning -->
-        <ellipse cx="402" cy="298" rx="156" ry="122" fill="rgba(31,92,255,.16)" stroke="#1f5cff" stroke-width="2.5"/>
-        <!-- IA générative (déborde volontairement du deep learning) -->
-        <circle cx="470" cy="300" r="104" fill="rgba(255,106,77,.18)" stroke="#ff6a4d" stroke-width="2.5"/>
+      <svg class="vsvg" viewBox="0 0 660 520" role="img" aria-label="Blocs emboîtés : l'intelligence artificielle contient deux domaines frères, l'IA symbolique et le machine learning. Le machine learning contient le deep learning. L'IA générative est presque entièrement dans le deep learning, mais déborde un peu sur sa droite, dans le machine learning non profond.">
+        <!-- INTELLIGENCE ARTIFICIELLE : le cadre englobant -->
+        <rect x="8" y="8" width="644" height="504" rx="16" fill="rgba(233,228,216,.035)" stroke="#b8b0a0" stroke-width="2"/>
+        <text x="30" y="42" fill="#d8d0c0" font-size="18" letter-spacing="1.5">INTELLIGENCE ARTIFICIELLE</text>
 
-        <!-- étiquettes -->
-        <text x="26" y="34" fill="#d8d0c0" font-size="19" letter-spacing="1.5">INTELLIGENCE ARTIFICIELLE</text>
-        <text x="30" y="250" fill="#cfc8b8" font-size="15" font-weight="bold">IA symbolique</text>
-        <text x="30" y="270" fill="#9a927f" font-size="11">règles écrites</text>
-        <text x="30" y="284" fill="#9a927f" font-size="11">à la main</text>
+        <!-- IA SYMBOLIQUE : bloc frère, à gauche -->
+        <rect x="32" y="68" width="176" height="420" rx="12" fill="rgba(233,228,216,.06)" stroke="#b8b0a0" stroke-width="2"/>
+        <text x="48" y="106" fill="#cfc8b8" font-size="15" font-weight="bold">IA symbolique</text>
+        <text x="48" y="130" fill="#9a927f" font-size="11">règles écrites</text>
+        <text x="48" y="147" fill="#9a927f" font-size="11">à la main</text>
+        <text x="48" y="186" fill="#8a8272" font-size="11">Deep Blue</text>
+        <text x="48" y="203" fill="#8a8272" font-size="11">systèmes experts</text>
 
-        <text x="352" y="116" fill="#9fb8ff" font-size="17" font-weight="bold">Machine learning</text>
-        <text x="330" y="203" fill="#bcd0ff" font-size="15" font-weight="bold">Deep learning</text>
+        <!-- MACHINE LEARNING : bloc frère, à droite -->
+        <rect x="232" y="68" width="396" height="420" rx="12" fill="rgba(127,160,255,.08)" stroke="#7fa0ff" stroke-width="2"/>
+        <text x="252" y="106" fill="#9fb8ff" font-size="17" font-weight="bold">Machine learning</text>
+        <text x="252" y="128" fill="#8fa8e0" font-size="11">régression · arbres de décision · k-means</text>
 
-        <text x="470" y="298" fill="#ffd9cf" font-size="16" font-weight="bold" text-anchor="middle">IA générative</text>
-        <text x="470" y="318" fill="#ffb9a8" font-size="11" text-anchor="middle">LLM · diffusion</text>
+        <!-- DEEP LEARNING : dans le machine learning -->
+        <rect x="262" y="142" width="338" height="316" rx="10" fill="rgba(31,92,255,.16)" stroke="#1f5cff" stroke-width="2.5"/>
+        <text x="282" y="176" fill="#bcd0ff" font-size="15" font-weight="bold">Deep learning</text>
+
+        <!-- IA GÉNÉRATIVE : déborde volontairement à droite du deep learning -->
+        <rect x="380" y="240" width="240" height="170" rx="10" fill="rgba(255,106,77,.18)" stroke="#ff6a4d" stroke-width="2.5"/>
+        <text x="500" y="320" fill="#ffd9cf" font-size="16" font-weight="bold" text-anchor="middle">IA générative</text>
+        <text x="500" y="342" fill="#ffb9a8" font-size="11" text-anchor="middle">LLM · diffusion</text>
       </svg>
 
       <div class="vlegend">
