@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Séance spéciale · miroir FR / 中文</title>
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5; --signal:#1f5cff; --muted:#6c6355; --alarm:#ff6a4d;
+    --mono:'Courier New',ui-monospace,'Menlo',monospace;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --bar:44px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--ink);color:var(--paper);font-family:var(--mono);overflow:hidden}
+  body{display:flex;flex-direction:column}
+
+  /* ---- barre de contrôle ---- */
+  .bar{flex:0 0 var(--bar);display:flex;align-items:center;gap:.9rem;padding:0 .9rem;
+    background:var(--paper-2);color:var(--ink);border-bottom:2px solid var(--ink);font-size:.7rem;letter-spacing:.06em;
+    transition:margin-top .3s ease}
+  body.hidebar .bar{margin-top:calc(-1 * var(--bar) + 6px)}
+  body.hidebar .bar:hover{margin-top:0}
+  .bar .title{font-family:var(--display);text-transform:uppercase;font-size:.8rem;letter-spacing:.08em;white-space:nowrap}
+  .bar .title em{font-style:normal;color:var(--signal)}
+  .grp{display:flex;align-items:center;gap:.3rem;white-space:nowrap}
+  .grp .lbl{color:var(--muted);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;margin-right:.2rem}
+  .seg{display:inline-flex;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+  .seg button{cursor:pointer;border:0;background:transparent;color:var(--ink);font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.04em;padding:.32rem .55rem;border-right:1px solid var(--ink)}
+  .seg button:last-child{border-right:0}
+  .seg button:hover{background:rgba(0,0,0,.08)}
+  .seg button.on{background:var(--ink);color:var(--paper)}
+  .ibtn{cursor:pointer;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;padding:.32rem .6rem}
+  .ibtn:hover{background:var(--ink);color:var(--paper)}
+  .spacer{flex:1}
+  .counter{color:var(--muted);font-size:.66rem;white-space:nowrap}
+  .counter b{color:var(--ink)}
+  .keys{color:var(--muted);font-size:.6rem;white-space:nowrap}
+  .keys kbd{border:1px solid var(--ink);border-radius:3px;padding:0 .3em;color:var(--ink)}
+
+  /* ---- les deux écrans ---- */
+  .mirror{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:1fr 3px 1fr;background:var(--ink)}
+  body.stack .mirror{grid-template-columns:1fr;grid-template-rows:1fr 3px 1fr}
+  .side{position:relative;min-width:0;min-height:0;background:var(--ink)}
+  .side iframe{width:100%;height:100%;border:0;display:block;background:var(--ink)}
+  .side .flag{position:absolute;top:.55rem;right:.7rem;z-index:5;pointer-events:none;
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#8f9cb8;
+    background:rgba(20,17,13,.55);padding:.2rem .5rem;border:1px solid rgba(143,156,184,.35);border-radius:3px}
+  .divider{background:var(--signal);box-shadow:0 0 18px rgba(31,92,255,.6)}
+  .side.loading::after{content:"…";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:2rem;background:var(--ink);z-index:4}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="bar" id="bar">
+  <div class="title">Séance <em>miroir</em></div>
+
+  <div class="grp">
+    <span class="lbl">Séance</span>
+    <div class="seg" id="deckSeg">
+      <button data-deck="intro">1 · Accroche 2026</button>
+      <button data-deck="token">3 · Le prochain mot</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <span class="lbl">Gauche</span>
+    <div class="seg" id="langL">
+      <button data-lang="fr">FR</button><button data-lang="en">EN</button><button data-lang="zh">中</button>
+    </div>
+    <button class="ibtn" id="swap" title="Échanger les côtés">⇄</button>
+    <span class="lbl">Droite</span>
+    <div class="seg" id="langR">
+      <button data-lang="fr">FR</button><button data-lang="en">EN</button><button data-lang="zh">中</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <span class="lbl">Disposition</span>
+    <div class="seg" id="layoutSeg">
+      <button data-layout="side">côte à côte</button>
+      <button data-layout="stack">superposé</button>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="counter" id="counter"></div>
+  <div class="keys"><kbd>←</kbd><kbd>→</kbd> les deux avancent · <kbd>H</kbd> barre · <kbd>F</kbd> plein écran</div>
+  <button class="ibtn" id="fs">⛶</button>
+</div>
+
+<div class="mirror" id="mirror">
+  <div class="side loading" id="sideL"><div class="flag" id="flagL"></div><iframe id="frL" title="gauche"></iframe></div>
+  <div class="divider"></div>
+  <div class="side loading" id="sideR"><div class="flag" id="flagR"></div><iframe id="frR" title="droite"></iframe></div>
+</div>
+
+<script>
+  /* =========================================================
+     RÉGLAGES — URL (?deck=token&l=fr&r=zh&layout=side) > localStorage > défaut
+     ========================================================= */
+  const DECKS = { intro:'intro.html', token:'token.html' };
+  const LANGS = ['fr','en','zh'];
+  const FLAG  = { fr:'Français', en:'English', zh:'中文' };
+  const q = new URLSearchParams(location.search);
+  let saved = {};
+  try{ saved = JSON.parse(localStorage.getItem('snt-ia-miroir')||'{}'); }catch(e){}
+  const S = {
+    deck:   DECKS[q.get('deck')] ? q.get('deck') : (DECKS[saved.deck] ? saved.deck : 'token'),
+    l:      LANGS.includes(q.get('l')) ? q.get('l') : (LANGS.includes(saved.l) ? saved.l : 'fr'),
+    r:      LANGS.includes(q.get('r')) ? q.get('r') : (LANGS.includes(saved.r) ? saved.r : 'zh'),
+    layout: ['side','stack'].includes(q.get('layout')) ? q.get('layout') : (saved.layout==='stack' ? 'stack' : 'side')
+  };
+  function persist(){ try{ localStorage.setItem('snt-ia-miroir', JSON.stringify(S)); }catch(e){} }
+
+  const frL = document.getElementById('frL'), frR = document.getElementById('frR');
+  const sideL = document.getElementById('sideL'), sideR = document.getElementById('sideR');
+  let cur = 0, max = 0, lock = false, clickLock = false;
+
+  /* =========================================================
+     SYNCHRONISATION
+     Chaque diaporama expose go(n) et applyLang(lang) en global.
+     On enrobe go() dans chaque cadre : tout appel (clavier, clic,
+     boutons, points) est répercuté sur l'autre cadre.
+     ========================================================= */
+  function hook(me, other){
+    const w = me.contentWindow, ow = other.contentWindow;
+    const orig = w.go;
+    if(typeof orig !== 'function') return;
+    w.go = function(n){
+      orig(n);
+      cur = Math.max(0, Math.min(max, n));
+      updateCounter();
+      if(lock) return;
+      lock = true;
+      try{ if(typeof ow.go === 'function') ow.go(n); } finally{ lock = false; }
+    };
+    // la démo du prochain mot : contextes (par id) et mots (par rang) suivent aussi
+    w.document.addEventListener('click', e=>{
+      if(clickLock) return;
+      const chip = e.target.closest('.dchip');
+      const bar  = e.target.closest('.dbar');
+      let target = null;
+      if(chip) target = ow.document.querySelector(`.dchip[data-id="${chip.dataset.id}"]`);
+      else if(bar){
+        const i = [...w.document.querySelectorAll('.dbar')].indexOf(bar);
+        target = ow.document.querySelectorAll('.dbar')[i] || null;
+      }
+      if(target){ clickLock = true; try{ target.click(); } finally{ clickLock = false; } }
+    }, true);
+    // l'accroche : les zones défilables (frise, épistémo) défilent ensemble
+    ['tlTrack','epTrack'].forEach(id=>{
+      const a = w.document.getElementById(id); if(!a) return;
+      a.addEventListener('scroll', ()=>{
+        const b = ow.document.getElementById(id);
+        if(b && Math.abs(b.scrollTop - a.scrollTop) > 2) b.scrollTop = a.scrollTop;
+      }, {passive:true});
+    });
+    // touches utiles depuis l'intérieur d'un cadre
+    w.addEventListener('keydown', e=>{
+      if(e.key==='h'||e.key==='H'){ toggleBar(); }
+      if(e.key==='f'||e.key==='F'){ toggleFS(); }
+    });
+    // chrome des cadres : pas de sélecteur de langue ni d'aide clavier (la barre s'en charge)
+    const st = w.document.createElement('style');
+    st.textContent = '.langsw,.hint{display:none!important}';
+    w.document.head.appendChild(st);
+  }
+
+  function setLang(frame, lang){
+    const w = frame.contentWindow;
+    if(w && typeof w.applyLang === 'function') w.applyLang(lang);
+    // applyLang mémorise la langue pour les diaporamas ouverts seuls : on y laisse celle du côté gauche
+    try{ localStorage.setItem('snt-ia-lang', S.l); }catch(e){}
+  }
+
+  let pending = 0;
+  function loadDeck(){
+    const src = DECKS[S.deck];
+    sideL.classList.add('loading'); sideR.classList.add('loading');
+    pending = 2; cur = 0;
+    [frL, frR].forEach(f=>{
+      f.onload = ()=>{
+        if(--pending) return;               // on attend les deux
+        hook(frL, frR); hook(frR, frL);
+        setLang(frL, S.l); setLang(frR, S.r);
+        max = Math.max(0, frL.contentWindow.document.querySelectorAll('.dot').length - 1);
+        sideL.classList.remove('loading'); sideR.classList.remove('loading');
+        updateCounter(); frL.contentWindow.focus();
+      };
+      f.src = src + '?miroir=1&t=' + Date.now();
+    });
+    document.querySelectorAll('#deckSeg button').forEach(b=>b.classList.toggle('on', b.dataset.deck===S.deck));
+  }
+
+  function updateCounter(){
+    document.getElementById('counter').innerHTML = max ? `écran <b>${cur+1}</b> / ${max+1}` : '';
+  }
+  function refreshLangUI(){
+    document.querySelectorAll('#langL button').forEach(b=>b.classList.toggle('on', b.dataset.lang===S.l));
+    document.querySelectorAll('#langR button').forEach(b=>b.classList.toggle('on', b.dataset.lang===S.r));
+    document.getElementById('flagL').textContent = FLAG[S.l];
+    document.getElementById('flagR').textContent = FLAG[S.r];
+  }
+  function applyLayout(){
+    document.body.classList.toggle('stack', S.layout==='stack');
+    document.querySelectorAll('#layoutSeg button').forEach(b=>b.classList.toggle('on', b.dataset.layout===S.layout));
+  }
+
+  /* ---- barre ---- */
+  document.querySelectorAll('#deckSeg button').forEach(b=>b.onclick=()=>{ S.deck=b.dataset.deck; persist(); loadDeck(); });
+  document.querySelectorAll('#langL button').forEach(b=>b.onclick=()=>{ S.l=b.dataset.lang; persist(); setLang(frL,S.l); refreshLangUI(); });
+  document.querySelectorAll('#langR button').forEach(b=>b.onclick=()=>{ S.r=b.dataset.lang; persist(); setLang(frR,S.r); refreshLangUI(); });
+  document.getElementById('swap').onclick = ()=>{ [S.l,S.r]=[S.r,S.l]; persist(); setLang(frL,S.l); setLang(frR,S.r); refreshLangUI(); };
+  document.querySelectorAll('#layoutSeg button').forEach(b=>b.onclick=()=>{ S.layout=b.dataset.layout; persist(); applyLayout(); });
+  document.getElementById('fs').onclick = toggleFS;
+
+  function toggleBar(){ document.body.classList.toggle('hidebar'); }
+  function toggleFS(){
+    if(document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(()=>{});
+  }
+  document.addEventListener('fullscreenchange', ()=>{
+    document.body.classList.toggle('hidebar', !!document.fullscreenElement);
+  });
+
+  /* clavier quand le focus est sur la page englobante */
+  window.addEventListener('keydown', e=>{
+    const w = frL.contentWindow;
+    if(!w || typeof w.go !== 'function') return;
+    if(['ArrowRight',' ','Enter','ArrowDown'].includes(e.key)){ e.preventDefault(); w.go(cur+1); }
+    else if(['ArrowLeft','ArrowUp'].includes(e.key)){ e.preventDefault(); w.go(cur-1); }
+    else if(e.key==='h'||e.key==='H'){ toggleBar(); }
+    else if(e.key==='f'||e.key==='F'){ toggleFS(); }
+  });
+
+  refreshLangUI(); applyLayout(); loadDeck();
+</script>
+</body>
+</html>
