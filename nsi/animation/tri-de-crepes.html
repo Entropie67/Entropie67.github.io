@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tri de crêpes</title>
+<link rel="icon" type="image/png" href="../../logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="anim.css">
+<script defer src="anim.js"></script>
+<style>
+  #scene { position: fixed; inset: 0; z-index: 1; touch-action: none; }
+  #scene canvas { display: block; }
+  #bVersion.on { background: var(--grad-warm); border-color: transparent; color: #1a1020; }
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div id="scene"></div>
+
+<div class="topbar glass">
+  <a class="back" href="../index.html">← NSI</a>
+  <div class="titleblock">
+    <h1 id="tTitle">Tri de crêpes</h1>
+    <p id="tHint"></p>
+  </div>
+  <div class="spacer"></div>
+  <div class="chipset">
+    <button id="bLang" class="btn sm">EN</button>
+    <button id="bInfo" class="btn sm">Info</button>
+  </div>
+</div>
+
+<div id="opt" class="sub"></div>
+<div id="msg" class="toast glass"></div>
+
+<div class="toolbar glass">
+  <button id="bVersion" class="btn">Version 0</button>
+  <button id="bShuffle" class="btn primary">Mélanger</button>
+  <div class="stepper">
+    <span class="lbl" id="lblN">crêpes</span>
+    <button id="bMinus" class="btn" aria-label="moins">−</button>
+    <span id="nval" class="val">6</span>
+    <button id="bPlus" class="btn" aria-label="plus">+</button>
+  </div>
+  <button id="bRestart" class="btn">Recommencer</button>
+  <button id="bUndo" class="btn">Retour</button>
+  <div class="sep"></div>
+  <div class="chip blue"><span class="k" id="lblCounter">retournements</span><span class="v" id="counter">0</span></div>
+  <button id="bSolve" class="btn teal">Résoudre</button>
+</div>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="modal glass">
+    <button id="close" class="close" aria-label="Fermer">×</button>
+    <div id="infoContent"></div>
+  </div>
+</div>
+
+<!-- ============ Logique pure (indépendante de l'affichage) ============ -->
+<script id="logic">
+// Une pile est un tableau du HAUT vers le BAS : [{size, burnt}, ...]
+// size ∈ {1..n} (1 = la plus petite) ; burnt = true si la face brûlée est tournée vers le haut.
+
+function flipStack(stack, k, burntMode) {
+  const head = stack.slice(0, k).reverse()
+    .map(p => ({ size: p.size, burnt: burntMode ? !p.burnt : p.burnt }));
+  return head.concat(stack.slice(k).map(p => ({ size: p.size, burnt: p.burnt })));
+}
+
+function isSolved(stack, burntMode) {
+  return stack.every((p, i) => p.size === i + 1 && (!burntMode || !p.burnt));
+}
+
+function randomStack(n, burntMode) {
+  let st;
+  do {
+    const sizes = Array.from({ length: n }, (_, i) => i + 1);
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [sizes[i], sizes[j]] = [sizes[j], sizes[i]];
+    }
+    st = sizes.map(s => ({ size: s, burnt: burntMode ? Math.random() < 0.5 : false }));
+  } while (isSolved(st, burntMode));
+  return st;
+}
+
+// Stratégie simple : au plus 2n-3 retournements (classique), 3n-2 (brûlées)
+function greedySolve(stack, burntMode) {
+  let a = stack.map(p => ({ ...p }));
+  const n = a.length, moves = [];
+  const doFlip = k => { a = flipStack(a, k, burntMode); moves.push(k); };
+  for (let k = n; k >= 1; k--) {
+    const i = a.findIndex(p => p.size === k);
+    if (i === k - 1 && (!burntMode || !a[i].burnt)) continue;
+    if (!burntMode) {
+      if (i !== 0) doFlip(i + 1);
+      doFlip(k);
+    } else {
+      if (i !== 0) doFlip(i + 1);           // la crêpe k arrive au sommet
+      if (k === 1) { if (a[0].burnt) doFlip(1); continue; }
+      if (!a[0].burnt) doFlip(1);           // face brûlée vers le haut…
+      doFlip(k);                            // …pour qu'elle finisse vers le bas
+    }
+  }
+  return moves;
+}
+
+// Codage d'une pile en chaîne : 'a' = taille 1 ; majuscule = face brûlée vers le haut
+function encode(stack) {
+  return stack.map(p => String.fromCharCode((p.burnt ? 65 : 97) + p.size - 1)).join('');
+}
+function flipStr(s, k, burntMode) {
+  let head = s.slice(0, k).split('').reverse();
+  if (burntMode) head = head.map(c => (c < 'a' ? c.toLowerCase() : c.toUpperCase()));
+  return head.join('') + s.slice(k);
+}
+
+// Parcours en largeur depuis la pile triée : distance minimale de chaque configuration.
+// (Chaque retournement est son propre inverse, donc distance(goal→s) = distance(s→goal).)
+const BFS_LIMIT = { 0: 8, 1: 6 };
+const distCache = {};
+function getDistances(n, burntMode) {
+  if (n > BFS_LIMIT[burntMode ? 1 : 0]) return null;
+  const key = (burntMode ? 'b' : 'c') + n;
+  if (distCache[key]) return distCache[key];
+  let goal = '';
+  for (let i = 0; i < n; i++) goal += String.fromCharCode(97 + i);
+  const dist = new Map([[goal, 0]]);
+  const queue = [goal];
+  const kmin = burntMode ? 1 : 2;
+  for (let h = 0; h < queue.length; h++) {
+    const s = queue[h], d = dist.get(s);
+    for (let k = kmin; k <= n; k++) {
+      const t = flipStr(s, k, burntMode);
+      if (!dist.has(t)) { dist.set(t, d + 1); queue.push(t); }
+    }
+  }
+  return (distCache[key] = dist);
+}
+
+function optimalSolve(stack, burntMode) {
+  const n = stack.length;
+  const dist = getDistances(n, burntMode);
+  if (!dist) return null;
+  let s = encode(stack), d = dist.get(s);
+  const kmin = burntMode ? 1 : 2, moves = [];
+  while (d > 0) {
+    for (let k = kmin; k <= n; k++) {
+      const t = flipStr(s, k, burntMode);
+      if (dist.get(t) === d - 1) { moves.push(k); s = t; d--; break; }
+    }
+  }
+  return moves;
+}
+
+if (typeof module !== 'undefined') module.exports = { flipStack, isSolved, randomStack, greedySolve, optimalSolve, getDistances, encode };
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<!-- ============ Interface et rendu 3D ============ -->
+<script>
+const T = {
+  fr: {
+    lang: 'EN', title: 'Tri de crêpes', info: 'Info', version: v => 'Version ' + v,
+    shuffle: 'Mélanger', restart: 'Recommencer', solve: 'Résoudre', undo: 'Retour',
+    n: 'crêpes', counter: 'retournements',
+    hint0: 'Cliquez sur une crêpe : elle est retournée avec toutes celles du dessus. Rangez la pile de la plus grande (en bas) à la plus petite.',
+    hint1: 'Crêpes brûlées : rangez la pile par taille, avec toutes les faces brûlées tournées vers le bas.',
+    vTip0: 'Version 0 : crêpes classiques (cliquer pour passer aux crêpes brûlées)',
+    vTip1: 'Version 1 : crêpes brûlées (cliquer pour revenir aux crêpes classiques)',
+    undoTip: 'Annuler le dernier retournement',
+    opt: m => `Minimum possible pour cette pile : <b>${m}</b> retournement${m > 1 ? 's' : ''}`,
+    optNone: 'Pile trop grande pour calculer le minimum exact',
+    win: (c, m) => `Bravo ! Triée en ${c} retournement${c > 1 ? 's' : ''}` +
+      (m == null ? '' : c <= m ? ' : c’est optimal !' : ` (minimum : ${m})`),
+    solved: c => `Pile triée : ${c} retournement${c > 1 ? 's' : ''} au total`,
+    solvingOpt: 'Résolution optimale (parcours en largeur)…',
+    solvingGreedy: 'Résolution par la stratégie simple…',
+    close: 'Fermer',
+    infoHTML: `
+<h2>Le tri de crêpes</h2>
+<p>Une pile de crêpes de tailles toutes différentes est en désordre. Le but est de la ranger : la plus grande en bas, la plus petite en haut.</p>
+<p><b>Seul geste autorisé :</b> glisser la spatule sous une crêpe et retourner d’un bloc tout le paquet situé au-dessus. Ici, il suffit de cliquer sur la crêpe.</p>
+<p><b>Version 1, crêpes brûlées :</b> chaque crêpe a une face brûlée. À la fin, la pile doit être triée et toutes les faces brûlées doivent être tournées vers le bas.</p>
+<h3>Une stratégie simple</h3>
+<p>Amener la plus grande crêpe mal placée au sommet (un retournement), puis la retourner jusqu’à sa place (un second), et recommencer avec les crêpes restantes. On trie ainsi n crêpes en au plus 2n − 3 retournements. Avec les crêpes brûlées, il faut parfois un retournement de plus par crêpe pour corriger la face, soit au plus 3n − 2.</p>
+<pre><code>def tri_crepes(pile):
+    n = len(pile)
+    for k in range(n, 1, -1):
+        i = pile.index(k)          # où est la crêpe k ?
+        if i == k - 1:
+            continue               # déjà à sa place
+        if i != 0:
+            retourner(pile, i + 1) # k arrive au sommet
+        retourner(pile, k)         # k descend à sa place</code></pre>
+<h3>Le bouton « Résoudre »</h3>
+<p>Pour les petites piles (jusqu’à 8 crêpes en version 0, 6 en version 1), toutes les configurations sont explorées par un parcours en largeur à partir de la pile triée : la solution jouée est alors optimale. Au-delà, le programme applique la stratégie simple.</p>
+<p>« Retour » annule le dernier retournement, « Recommencer » revient à la pile de départ.</p>
+<h3>Un peu d’histoire</h3>
+<p>Le problème a été posé en 1975 par le mathématicien Jacob E. Goodman sous le pseudonyme « Harry Dweighter » (<i>harried waiter</i>, le serveur débordé). En 1979, Bill Gates et Christos Papadimitriou montrent qu’on peut toujours trier en au plus (5n + 5)/3 retournements ; cette borne n’a été améliorée qu’en 2009, à 18n/11. Trouver le nombre minimal de retournements pour une pile donnée est un problème NP-difficile (Bulteau, Fertin et Rusu, 2015).</p>`
+  },
+  en: {
+    lang: 'FR', title: 'Pancake sorting', info: 'Info', version: v => 'Version ' + v,
+    shuffle: 'Shuffle', restart: 'Restart', solve: 'Solve', undo: 'Undo',
+    n: 'pancakes', counter: 'flips',
+    hint0: 'Click a pancake to flip it together with every pancake above it. Sort the stack from largest (bottom) to smallest (top).',
+    hint1: 'Burnt pancakes: sort the stack by size, with every burnt side facing down.',
+    vTip0: 'Version 0: classic pancakes (click for burnt pancakes)',
+    vTip1: 'Version 1: burnt pancakes (click for classic pancakes)',
+    undoTip: 'Undo the last flip',
+    opt: m => `Fewest flips possible for this stack: <b>${m}</b>`,
+    optNone: 'Stack too large to compute the exact minimum',
+    win: (c, m) => `Well done! Sorted in ${c} flip${c > 1 ? 's' : ''}` +
+      (m == null ? '' : c <= m ? ': that’s optimal!' : ` (minimum: ${m})`),
+    solved: c => `Stack sorted: ${c} flip${c > 1 ? 's' : ''} in total`,
+    solvingOpt: 'Optimal solution (breadth-first search)…',
+    solvingGreedy: 'Solving with the simple strategy…',
+    close: 'Close',
+    infoHTML: `
+<h2>Pancake sorting</h2>
+<p>A stack of pancakes, all of different sizes, is out of order. The goal is to sort it: largest at the bottom, smallest at the top.</p>
+<p><b>The only allowed move:</b> slide the spatula under a pancake and flip the whole pile above it in one go. Here, just click the pancake.</p>
+<p><b>Version 1, burnt pancakes:</b> each pancake has a burnt side. At the end, the stack must be sorted and every burnt side must face down.</p>
+<h3>A simple strategy</h3>
+<p>Bring the largest misplaced pancake to the top (one flip), then flip it down into place (a second flip), and repeat with the remaining pancakes. This sorts n pancakes in at most 2n − 3 flips. With burnt pancakes, you sometimes need one extra flip per pancake to fix its side, so at most 3n − 2.</p>
+<pre><code>def pancake_sort(stack):
+    n = len(stack)
+    for k in range(n, 1, -1):
+        i = stack.index(k)     # where is pancake k?
+        if i == k - 1:
+            continue           # already in place
+        if i != 0:
+            flip(stack, i + 1) # k comes to the top
+        flip(stack, k)         # k goes down to its place</code></pre>
+<h3>The “Solve” button</h3>
+<p>For small stacks (up to 8 pancakes in version 0, 6 in version 1), every configuration is explored by a breadth-first search starting from the sorted stack, so the solution played is optimal. Beyond that, the program uses the simple strategy.</p>
+<p>“Undo” cancels the last flip, “Restart” goes back to the starting stack.</p>
+<h3>A bit of history</h3>
+<p>The problem was posed in 1975 by mathematician Jacob E. Goodman under the pen name “Harry Dweighter” (harried waiter). In 1979, Bill Gates and Christos Papadimitriou proved that any stack can be sorted in at most (5n + 5)/3 flips; that bound was only improved in 2009, to 18n/11. Finding the minimum number of flips for a given stack is NP-hard (Bulteau, Fertin and Rusu, 2015).</p>`
+  }
+};
+
+// ---------- État ----------
+let lang = 'fr';
+let version = 0;          // 0 = classique, 1 = brûlées
+let n = 6;
+let stack = [], initialStack = [], history = [];
+let flips = 0, busy = false, usedSolver = false, initialOpt = null;
+let hoverK = 0;
+
+const H = 0.5, R_MIN = 0.85, R_MAX = 3;
+const NEON = [0xff2ec4, 0x00e5ff, 0xfff34a, 0xff8a00, 0x7cff3a, 0x4d8dff, 0xff3b5c, 0xb066ff];
+const BURNT_COLOR = 0x3a2010;
+const radius = s => n === 1 ? R_MAX : R_MIN + (s - 1) * (R_MAX - R_MIN) / (n - 1);
+const colorOf = s => (s % 2 === 1) ? NEON[((s - 1) / 2) % NEON.length] : 0xe9edf7;
+
+// ---------- Three.js ----------
+const container = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x000000, 0);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(20, 1, 0.1, 1000);
+scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x141a2c, 0.75));
+const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+sun.position.set(5, 12, 8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.camera.left = sun.shadow.camera.bottom = -8;
+sun.shadow.camera.right = sun.shadow.camera.top = 8;
+scene.add(sun);
+const lBlue = new THREE.PointLight(0x6c9eff, 1.2, 40); lBlue.position.set(-8, 6, 6); scene.add(lBlue);
+const lViolet = new THREE.PointLight(0xb57bff, 1.0, 40); lViolet.position.set(8, 4, -4); scene.add(lViolet);
+const lPink = new THREE.PointLight(0xff4fa3, 0.6, 40); lPink.position.set(0, -2, 8); scene.add(lPink);
+
+// Socle : plateau sombre + anneau lumineux
+const plate = new THREE.Mesh(new THREE.CylinderGeometry(R_MAX + 1.2, R_MAX + 1.4, 0.18, 96),
+  new THREE.MeshStandardMaterial({ color: 0x151a27, roughness: 0.35, metalness: 0.6 }));
+plate.position.y = -0.09; plate.receiveShadow = true; scene.add(plate);
+const ring = new THREE.Mesh(new THREE.TorusGeometry(R_MAX + 1.3, 0.05, 16, 120),
+  new THREE.MeshBasicMaterial({ color: 0x6c9eff }));
+ring.rotation.x = Math.PI / 2; ring.position.y = 0.02; scene.add(ring);
+const ring2 = new THREE.Mesh(new THREE.TorusGeometry(R_MAX + 1.3, 0.22, 16, 120),
+  new THREE.MeshBasicMaterial({ color: 0x6c9eff, transparent: true, opacity: 0.12 }));
+ring2.rotation.x = Math.PI / 2; ring2.position.y = 0.02; scene.add(ring2);
+
+let pancakeObjs = {};     // size -> Group
+let pickables = [];
+let mats = {};            // size -> [materials] pour l'effet de survol
+
+// Spatule métallique
+const spatula = new THREE.Group();
+const blade = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.04, 1.1),
+  new THREE.MeshStandardMaterial({ color: 0xc9d1e6, roughness: 0.25, metalness: 0.9 }));
+blade.position.x = 1.2;
+const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.2, 20),
+  new THREE.MeshStandardMaterial({ color: 0x6c9eff, roughness: 0.4, metalness: 0.5, emissive: 0x6c9eff, emissiveIntensity: 0.35 }));
+handle.rotation.z = Math.PI / 2;
+handle.position.x = 3.5;
+spatula.add(blade, handle);
+spatula.visible = false;
+scene.add(spatula);
+
+function pancakeMat(color) {
+  return new THREE.MeshStandardMaterial({ color, roughness: 0.38, metalness: 0.2, emissive: color, emissiveIntensity: 0.1 });
+}
+
+function buildPancakes() {
+  Object.values(pancakeObjs).forEach(g => {
+    scene.remove(g);
+    g.traverse(o => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); } });
+  });
+  pancakeObjs = {}; pickables = []; mats = {};
+  for (let s = 1; s <= n; s++) {
+    const g = new THREE.Group();
+    const r = radius(s);
+    mats[s] = [];
+    if (version === 0) {
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, H, 72), pancakeMat(colorOf(s)));
+      m.castShadow = m.receiveShadow = true;
+      m.userData.size = s; g.add(m); pickables.push(m); mats[s].push(m.material);
+    } else {
+      const top = new THREE.Mesh(new THREE.CylinderGeometry(r, r, H / 2, 72), pancakeMat(colorOf(s)));
+      top.position.y = H / 4;
+      const bot = new THREE.Mesh(new THREE.CylinderGeometry(r, r, H / 2, 72),
+        new THREE.MeshStandardMaterial({ color: BURNT_COLOR, roughness: 0.9, metalness: 0.05 }));
+      bot.position.y = -H / 4;
+      top.castShadow = bot.castShadow = top.receiveShadow = bot.receiveShadow = true;
+      top.userData.size = bot.userData.size = s;
+      g.add(top, bot); pickables.push(top, bot); mats[s].push(top.material);
+    }
+    scene.add(g);
+    pancakeObjs[s] = g;
+  }
+}
+
+function layout() {
+  stack.forEach((p, i) => {
+    const g = pancakeObjs[p.size];
+    const lift = (i < hoverK) ? 0.14 : 0;
+    g.position.set(0, (n - 1 - i) * H + H / 2 + lift, 0);
+    g.rotation.set(0, 0, p.burnt ? Math.PI : 0);
+    mats[p.size].forEach(m => m.emissiveIntensity = (i < hoverK) ? 0.45 : 0.1);
+  });
+  if (hoverK > 0 && !busy) {
+    const r = radius(stack[hoverK - 1].size);
+    spatula.position.set(r * 0.35, (n - hoverK) * H + 0.07, 0);
+    spatula.visible = true;
+  } else spatula.visible = false;
+}
+
+function frameCamera() {
+  const w = container.clientWidth, h = container.clientHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  const stackH = n * H;
+  const top = Math.max(stackH + R_MAX * 1.2, 2 * Math.hypot(R_MAX, stackH / 2));
+  const cy = stackH / 2 + 0.6;               // pile centrée à l'écran
+  const needH = 2 * Math.max(top - cy, cy + 1.2), needW = 2 * R_MAX + 5;
+  const tanHalf = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const dist = Math.max(needH / (2 * tanHalf), needW / (2 * tanHalf * camera.aspect)) * 1.3;
+  camera.position.set(0, stackH / 2 + dist * Math.sin(THREE.MathUtils.degToRad(9)), dist);
+  camera.lookAt(0, cy, 0);
+  camera.updateProjectionMatrix();
+}
+
+function animateFlip(k, fast) {
+  return new Promise(resolve => {
+    const sub = stack.slice(0, k);
+    const groups = sub.map(p => pancakeObjs[p.size]);
+    const hs = k * H / 2;
+    const yc = (n - k) * H + hs;
+    const rsub = Math.max(...sub.map(p => radius(p.size)));
+    stack.forEach(p => { pancakeObjs[p.size].position.y = (n - 1 - stack.indexOf(p)) * H + H / 2; });
+    spatula.visible = false;
+
+    const pivot = new THREE.Object3D();
+    pivot.position.set(0, yc, 0);
+    scene.add(pivot);
+    pivot.updateMatrixWorld(true);
+    groups.forEach(g => pivot.attach(g));
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const dur = reduce ? 1 : Math.min(750, 380 + 35 * k) * (fast ? 0.75 : 1);
+    const t0 = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const th = Math.PI * e;
+      const ext = rsub * Math.abs(Math.sin(th)) + hs * Math.abs(Math.cos(th));
+      pivot.position.y = yc + Math.max(0, ext - hs) + 0.3 * Math.sin(Math.PI * t);
+      pivot.rotation.z = th;
+      if (t < 1) requestAnimationFrame(step);
+      else {
+        groups.forEach(g => scene.attach(g));
+        scene.remove(pivot);
+        stack = flipStack(stack, k, version === 1);
+        layout();
+        resolve();
+      }
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+// ---------- Interaction ----------
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+function pickK(ev) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hit = raycaster.intersectObjects(pickables, false)[0];
+  if (!hit) return 0;
+  return stack.findIndex(p => p.size === hit.object.userData.size) + 1;
+}
+
+function setHover(k) {
+  if (version === 0 && k === 1) k = 0; // retourner une seule crêpe classique ne change rien
+  if (k === hoverK) return;
+  hoverK = k;
+  renderer.domElement.style.cursor = k ? 'pointer' : 'default';
+  layout();
+}
+
+renderer.domElement.addEventListener('pointermove', ev => {
+  if (busy || ev.pointerType === 'touch') return;
+  setHover(pickK(ev));
+});
+renderer.domElement.addEventListener('pointerleave', () => { if (!busy) setHover(0); });
+renderer.domElement.addEventListener('pointerdown', async ev => {
+  if (busy) return;
+  let k = pickK(ev);
+  if (version === 0 && k === 1) k = 0;
+  if (!k) return;
+  await doMoves([k], false);
+  if (ev.pointerType !== 'touch') setHover(pickK(ev));
+});
+
+async function doMoves(moves, fast) {
+  busy = true; hoverK = 0; setUI();
+  for (const k of moves) {
+    await animateFlip(k, fast);
+    flips++; history.push(k);
+    setUI();
+  }
+  busy = false;
+  afterMove();
+}
+
+function afterMove() {
+  setUI();
+  if (isSolved(stack, version === 1)) {
+    showMsg(usedSolver ? T[lang].solved(flips) : T[lang].win(flips, initialOpt), true);
+    ring.material.color.set(0x2ee6c5); ring2.material.color.set(0x2ee6c5);
+  } else { hideMsg(); ring.material.color.set(0x6c9eff); ring2.material.color.set(0x6c9eff); }
+}
+
+// ---------- Boutons ----------
+const $ = id => document.getElementById(id);
+
+function newGame() {
+  buildPancakes();
+  stack = randomStack(n, version === 1);
+  startFrom(stack);
+}
+function startFrom(st) {
+  initialStack = st.map(p => ({ ...p }));
+  stack = st.map(p => ({ ...p }));
+  flips = 0; history = []; usedSolver = false; hoverK = 0;
+  const dist = getDistances(n, version === 1);
+  initialOpt = dist ? dist.get(encode(stack)) : null;
+  frameCamera(); layout(); hideMsg(); setUI();
+  ring.material.color.set(0x6c9eff); ring2.material.color.set(0x6c9eff);
+}
+
+$('bShuffle').onclick = () => { if (!busy) newGame(); };
+$('bRestart').onclick = () => { if (!busy) { const st = initialStack; startFrom(st); } };
+$('bMinus').onclick = () => { if (!busy && n > 2) { n--; newGame(); } };
+$('bPlus').onclick = () => { if (!busy && n < 15) { n++; newGame(); } };
+$('bVersion').onclick = () => { if (!busy) { version = 1 - version; newGame(); } };
+$('bUndo').onclick = async () => {
+  if (busy || !history.length) return;
+  busy = true; hoverK = 0; setUI();
+  const k = history.pop();
+  await animateFlip(k, false);
+  flips--; busy = false; afterMove();
+};
+$('bSolve').onclick = async () => {
+  if (busy || isSolved(stack, version === 1)) return;
+  usedSolver = true;
+  const opt = optimalSolve(stack, version === 1);
+  showMsg(opt ? T[lang].solvingOpt : T[lang].solvingGreedy, false);
+  await doMoves(opt || greedySolve(stack, version === 1), true);
+};
+$('bLang').onclick = () => { lang = lang === 'fr' ? 'en' : 'fr'; document.documentElement.lang = lang; setUI(); hideMsg(); afterMove(); };
+$('bInfo').onclick = () => { $('overlay').classList.add('open'); $('close').focus(); };
+$('close').onclick = () => $('overlay').classList.remove('open');
+$('overlay').onclick = ev => { if (ev.target.id === 'overlay') $('overlay').classList.remove('open'); };
+window.addEventListener('keydown', ev => { if (ev.key === 'Escape') $('overlay').classList.remove('open'); });
+
+function setUI() {
+  const t = T[lang];
+  $('bLang').textContent = t.lang;
+  $('tTitle').textContent = t.title;
+  document.title = t.title;
+  $('tHint').textContent = version ? t.hint1 : t.hint0;
+  $('bInfo').textContent = t.info;
+  $('bVersion').textContent = t.version(version);
+  $('bVersion').title = version ? t.vTip1 : t.vTip0;
+  $('bVersion').classList.toggle('on', version === 1);
+  $('bShuffle').textContent = t.shuffle;
+  $('bRestart').textContent = t.restart;
+  $('bSolve').textContent = t.solve;
+  $('bUndo').textContent = t.undo;
+  $('bUndo').title = t.undoTip;
+  $('lblN').textContent = t.n;
+  $('lblCounter').textContent = t.counter;
+  $('close').setAttribute('aria-label', t.close);
+  $('nval').textContent = n;
+  $('counter').textContent = flips;
+  $('infoContent').innerHTML = t.infoHTML;
+  $('opt').innerHTML = initialOpt == null ? t.optNone : t.opt(initialOpt);
+  ['bVersion', 'bShuffle', 'bMinus', 'bPlus', 'bRestart', 'bSolve', 'bUndo'].forEach(id => $(id).disabled = busy);
+  if (!busy) {
+    $('bMinus').disabled = n <= 2;
+    $('bPlus').disabled = n >= 15;
+    $('bUndo').disabled = history.length === 0;
+    $('bSolve').disabled = isSolved(stack, version === 1);
+  }
+}
+
+function showMsg(text, win) {
+  const m = $('msg');
+  m.textContent = text;
+  m.classList.toggle('win', !!win);
+  m.classList.add('show');
+  $('opt').style.opacity = 0;
+}
+function hideMsg() { $('msg').classList.remove('show'); $('opt').style.opacity = 1; }
+
+window.addEventListener('resize', frameCamera);
+(function loop() {
+  const t = performance.now() * 0.001;
+  ring.rotation.z = t * 0.15;
+  lBlue.position.x = -8 * Math.cos(t * 0.3); lBlue.position.z = 6 * Math.sin(t * 0.3) + 2;
+  lViolet.position.x = 8 * Math.cos(t * 0.3); lViolet.position.z = -6 * Math.sin(t * 0.3) + 2;
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+})();
+newGame();
+</script>
+</body>
+</html>

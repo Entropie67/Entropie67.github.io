@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tours de Hanoï</title>
+<link rel="icon" type="image/png" href="../../logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="anim.css">
+<script defer src="anim.js"></script>
+<style>
+  #scene { position: fixed; inset: 0; z-index: 1; touch-action: none; }
+  #scene canvas { display: block; }
+  .pegkeys { position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); z-index: 4;
+    display: flex; gap: 8px; pointer-events: none; }
+  .pegkeys span { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+  @media (max-width: 900px) { .pegkeys { display: none; } }
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div id="scene"></div>
+
+<div class="topbar glass">
+  <a class="back" href="../index.html">← NSI</a>
+  <div class="titleblock">
+    <h1 id="tTitle">Tours de Hanoï</h1>
+    <p id="tHint"></p>
+  </div>
+  <div class="spacer"></div>
+  <div class="chipset">
+    <button id="bLang" class="btn sm">EN</button>
+    <button id="bInfo" class="btn sm">Info</button>
+  </div>
+</div>
+
+<div id="opt" class="sub"></div>
+<div id="msg" class="toast glass"></div>
+<div class="pegkeys"><span id="keysHint">Touches 1 · 2 · 3 = tours</span></div>
+
+<div class="toolbar glass">
+  <button id="bRestart" class="btn primary">Recommencer</button>
+  <div class="stepper">
+    <span class="lbl" id="lblN">disques</span>
+    <button id="bMinus" class="btn" aria-label="moins">−</button>
+    <span id="nval" class="val">4</span>
+    <button id="bPlus" class="btn" aria-label="plus">+</button>
+  </div>
+  <button id="bUndo" class="btn">Retour</button>
+  <div class="sep"></div>
+  <div class="chip blue"><span class="k" id="lblCounter">coups</span><span class="v" id="counter">0</span></div>
+  <div class="chip teal"><span class="k" id="lblMin">minimum</span><span class="v" id="minval">15</span></div>
+  <button id="bSolve" class="btn teal">Résoudre</button>
+</div>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="modal glass">
+    <button id="close" class="close" aria-label="Fermer">×</button>
+    <div id="infoContent"></div>
+  </div>
+</div>
+
+<!-- ============ Logique pure ============ -->
+<script id="logic">
+// pegs : tableau de 3 tours ; chaque tour est un tableau de tailles, du BAS vers le HAUT.
+function initialPegs(n) {
+  return [Array.from({ length: n }, (_, i) => n - i), [], []];
+}
+function canMove(pegs, from, to) {
+  if (from === to || pegs[from].length === 0) return false;
+  const d = pegs[from][pegs[from].length - 1];
+  return pegs[to].length === 0 || pegs[to][pegs[to].length - 1] > d;
+}
+function applyMove(pegs, from, to) {
+  const d = pegs[from].pop();
+  pegs[to].push(d);
+  return d;
+}
+function isSolved(pegs, n) {
+  return pegs[2].length === n;
+}
+// Séquence optimale pour amener les disques 1..k sur la tour `target`,
+// depuis N'IMPORTE QUELLE configuration légale (récursif).
+function solveFrom(pegs, n, target) {
+  const pos = new Array(n + 1);
+  pegs.forEach((peg, p) => peg.forEach(d => pos[d] = p));
+  const moves = [];
+  function moveTower(k, t) {
+    if (k === 0) return;
+    const p = pos[k];
+    if (p === t) { moveTower(k - 1, t); return; }
+    const other = 3 - p - t;
+    moveTower(k - 1, other);
+    moves.push([p, t]); pos[k] = t;
+    moveTower(k - 1, t);
+  }
+  moveTower(n, target);
+  return moves;
+}
+if (typeof module !== 'undefined') module.exports = { initialPegs, canMove, applyMove, isSolved, solveFrom };
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+const T = {
+  fr: {
+    lang: 'EN', title: 'Tours de Hanoï', info: 'Info', restart: 'Recommencer', solve: 'Résoudre', stop: 'Stop', undo: 'Retour',
+    n: 'disques', counter: 'coups', min: 'minimum', keys: 'Touches 1 · 2 · 3 = tours',
+    hint: 'Déplacez toute la tour de gauche vers la tour de droite. Cliquez sur une tour pour saisir son disque du dessus, puis sur une autre pour le poser. Jamais un grand disque sur un petit !',
+    opt: m => `Minimum possible : <b>${m}</b> coups (2<sup>n</sup> − 1)`,
+    illegal: 'Coup interdit : un disque ne peut pas être posé sur un plus petit.',
+    win: (c, m) => c <= m ? `Bravo ! Résolu en ${c} coups : c’est optimal !` : `Bravo ! Résolu en ${c} coups (minimum : ${m})`,
+    solved: c => `Tour déplacée : ${c} coups au total`,
+    solving: 'Résolution récursive en cours…',
+    close: 'Fermer',
+    infoHTML: `
+<h2>Les tours de Hanoï</h2>
+<p>Trois tours, n disques de tailles différentes empilés du plus grand au plus petit sur la tour de gauche. Le but : reconstituer la pile sur la tour de droite.</p>
+<p><b>Règles :</b> on ne déplace qu’un disque à la fois (celui du dessus d’une tour), et on ne pose jamais un disque sur un disque plus petit.</p>
+<h3>La récursivité en action</h3>
+<p>Pour déplacer n disques de A vers C : déplacer les n − 1 disques du dessus de A vers B (en s’aidant de C), déplacer le grand disque de A vers C, puis ramener les n − 1 disques de B vers C (en s’aidant de A). Le problème se résout avec deux problèmes identiques mais plus petits : c’est exactement une fonction récursive.</p>
+<pre><code>def hanoi(n, depart, arrivee, intermediaire):
+    if n == 0:
+        return
+    hanoi(n - 1, depart, intermediaire, arrivee)
+    print(depart, "->", arrivee)
+    hanoi(n - 1, intermediaire, arrivee, depart)
+
+hanoi(4, "A", "C", "B")</code></pre>
+<h3>Combien de coups ?</h3>
+<p>Si M(n) est le nombre minimal de coups, alors M(n) = 2·M(n − 1) + 1 et M(1) = 1, d’où <b>M(n) = 2<sup>n</sup> − 1</b>. Pour 4 disques : 15 coups. Pour 10 disques : 1 023. Pour 20 disques : plus d’un million. La taille du problème double à chaque disque ajouté : c’est une complexité exponentielle.</p>
+<h3>Le bouton « Résoudre »</h3>
+<p>Il calcule la suite optimale de coups <i>depuis la position actuelle</i>, même si vous avez déjà commencé (et même si vous vous êtes trompé) : pour placer le disque k sur sa tour cible, on dégage d’abord les disques 1 à k − 1 sur la troisième tour, on déplace k, puis on ramène les petits par-dessus.</p>
+<h3>Un peu d’histoire</h3>
+<p>Le casse-tête a été inventé par le mathématicien français Édouard Lucas en 1883, accompagné d’une légende : des moines déplaceraient 64 disques d’or, et le monde finirait au dernier coup. À raison d’un coup par seconde, il leur faudrait 2<sup>64</sup> − 1 secondes, soit environ 585 milliards d’années.</p>`
+  },
+  en: {
+    lang: 'FR', title: 'Towers of Hanoi', info: 'Info', restart: 'Restart', solve: 'Solve', stop: 'Stop', undo: 'Undo',
+    n: 'discs', counter: 'moves', min: 'minimum', keys: 'Keys 1 · 2 · 3 = pegs',
+    hint: 'Move the whole tower from the left peg to the right peg. Click a peg to pick up its top disc, then another peg to drop it. Never a large disc on a smaller one!',
+    opt: m => `Fewest possible moves: <b>${m}</b> (2<sup>n</sup> − 1)`,
+    illegal: 'Illegal move: a disc cannot be placed on a smaller one.',
+    win: (c, m) => c <= m ? `Well done! Solved in ${c} moves: that’s optimal!` : `Well done! Solved in ${c} moves (minimum: ${m})`,
+    solved: c => `Tower moved: ${c} moves in total`,
+    solving: 'Recursive solving in progress…',
+    close: 'Close',
+    infoHTML: `
+<h2>Towers of Hanoi</h2>
+<p>Three pegs, n discs of different sizes stacked largest to smallest on the left peg. The goal: rebuild the stack on the right peg.</p>
+<p><b>Rules:</b> move one disc at a time (the top disc of a peg), and never place a disc on a smaller one.</p>
+<h3>Recursion in action</h3>
+<p>To move n discs from A to C: move the top n − 1 discs from A to B (using C), move the big disc from A to C, then bring the n − 1 discs from B to C (using A). The problem is solved with two identical but smaller problems: that is exactly a recursive function.</p>
+<pre><code>def hanoi(n, source, target, spare):
+    if n == 0:
+        return
+    hanoi(n - 1, source, spare, target)
+    print(source, "->", target)
+    hanoi(n - 1, spare, target, source)
+
+hanoi(4, "A", "C", "B")</code></pre>
+<h3>How many moves?</h3>
+<p>If M(n) is the minimum number of moves, then M(n) = 2·M(n − 1) + 1 and M(1) = 1, so <b>M(n) = 2<sup>n</sup> − 1</b>. For 4 discs: 15 moves. For 10 discs: 1,023. For 20 discs: over a million. The problem doubles with each added disc: exponential complexity.</p>
+<h3>The “Solve” button</h3>
+<p>It computes the optimal sequence of moves <i>from the current position</i>, even if you have already started (or made mistakes): to put disc k on its target peg, first clear discs 1 to k − 1 onto the third peg, move k, then bring the small ones back on top.</p>
+<h3>A bit of history</h3>
+<p>The puzzle was invented by French mathematician Édouard Lucas in 1883, along with a legend: monks are moving 64 golden discs, and the world will end at the last move. At one move per second, it would take 2<sup>64</sup> − 1 seconds, about 585 billion years.</p>`
+  }
+};
+
+// ---------- État ----------
+let lang = 'fr', n = 4;
+let pegs = initialPegs(n), history = [], moves = 0;
+let sel = -1, hoverPeg = -1, busy = false, usedSolver = false, stopSolve = false, solving = false;
+
+const DH = 0.42, R_MIN = 0.55, R_MAX = 1.9, PEG_R = 0.14, PX = 2 * R_MAX + 0.9;
+const pegHeight = () => n * DH + 1.5;
+const radius = s => n === 1 ? R_MAX : R_MIN + (s - 1) * (R_MAX - R_MIN) / (n - 1);
+const pegX = p => (p - 1) * PX;
+const discY = level => 0.1 + level * DH + DH / 2;
+const liftY = () => pegHeight() + 0.9;
+const colorOf = s => new THREE.Color().setHSL((0.62 + (s - 1) * 0.72 / Math.max(n, 2)) % 1, 0.85, 0.6);
+
+// ---------- Three.js ----------
+const container = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x000000, 0);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 1000);
+scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x141a2c, 0.8));
+const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+sun.position.set(6, 14, 8); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = sun.shadow.camera.bottom = -12;
+sun.shadow.camera.right = sun.shadow.camera.top = 12;
+scene.add(sun);
+const lBlue = new THREE.PointLight(0x6c9eff, 1.1, 50); lBlue.position.set(-10, 6, 6); scene.add(lBlue);
+const lViolet = new THREE.PointLight(0xb57bff, 1.0, 50); lViolet.position.set(10, 5, -3); scene.add(lViolet);
+
+// Socle
+const baseW = 2 * PX + 2 * R_MAX + 1.4, baseD = 2 * R_MAX + 1.6;
+const base = new THREE.Mesh(new THREE.BoxGeometry(baseW, 0.2, baseD),
+  new THREE.MeshStandardMaterial({ color: 0x151a27, roughness: 0.35, metalness: 0.6 }));
+base.position.y = 0; base.receiveShadow = true; scene.add(base);
+const baseEdge = new THREE.LineSegments(new THREE.EdgesGeometry(base.geometry),
+  new THREE.LineBasicMaterial({ color: 0x6c9eff, transparent: true, opacity: 0.6 }));
+baseEdge.position.copy(base.position); scene.add(baseEdge);
+
+// Tours (rebâties quand n change)
+let pegMeshes = [], pegHits = [], pegRings = [];
+function buildPegs() {
+  [...pegMeshes, ...pegHits, ...pegRings].forEach(m => { scene.remove(m); m.geometry.dispose(); m.material.dispose(); });
+  pegMeshes = []; pegHits = []; pegRings = [];
+  const h = pegHeight();
+  for (let p = 0; p < 3; p++) {
+    const peg = new THREE.Mesh(new THREE.CylinderGeometry(PEG_R, PEG_R, h, 32),
+      new THREE.MeshStandardMaterial({ color: 0xc9d1e6, roughness: 0.3, metalness: 0.85 }));
+    peg.position.set(pegX(p), 0.1 + h / 2, 0); peg.castShadow = true; scene.add(peg); pegMeshes.push(peg);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(PEG_R * 1.4, 24, 16),
+      new THREE.MeshStandardMaterial({ color: 0x6c9eff, emissive: 0x6c9eff, emissiveIntensity: 0.6, roughness: 0.3 }));
+    cap.position.set(pegX(p), 0.1 + h, 0); scene.add(cap); pegRings.push(cap);
+    const ringM = new THREE.Mesh(new THREE.RingGeometry(R_MAX + 0.15, R_MAX + 0.3, 96),
+      new THREE.MeshBasicMaterial({ color: 0x6c9eff, transparent: true, opacity: 0.15, side: THREE.DoubleSide }));
+    ringM.rotation.x = -Math.PI / 2; ringM.position.set(pegX(p), 0.115, 0); scene.add(ringM); pegRings.push(ringM);
+    const hit = new THREE.Mesh(new THREE.CylinderGeometry(R_MAX + 0.3, R_MAX + 0.3, h + 2, 16),
+      new THREE.MeshBasicMaterial({ visible: false }));
+    hit.position.set(pegX(p), 0.1 + (h + 2) / 2, 0); hit.userData.peg = p; scene.add(hit); pegHits.push(hit);
+  }
+}
+
+// Disques (anneaux extrudés)
+let discs = {};   // size -> Mesh
+function discGeometry(r) {
+  const shape = new THREE.Shape();
+  shape.absarc(0, 0, r, 0, Math.PI * 2, false);
+  const hole = new THREE.Path();
+  hole.absarc(0, 0, PEG_R + 0.09, 0, Math.PI * 2, true);
+  shape.holes.push(hole);
+  const g = new THREE.ExtrudeGeometry(shape, { depth: DH - 0.06, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 3, curveSegments: 64 });
+  g.rotateX(-Math.PI / 2);
+  g.translate(0, -(DH - 0.06) / 2, 0);
+  return g;
+}
+function buildDiscs() {
+  Object.values(discs).forEach(m => { scene.remove(m); m.geometry.dispose(); m.material.dispose(); });
+  discs = {};
+  for (let s = 1; s <= n; s++) {
+    const c = colorOf(s);
+    const m = new THREE.Mesh(discGeometry(radius(s)),
+      new THREE.MeshStandardMaterial({ color: c, roughness: 0.35, metalness: 0.25, emissive: c, emissiveIntensity: 0.12 }));
+    m.castShadow = m.receiveShadow = true;
+    m.userData.size = s;
+    scene.add(m); discs[s] = m;
+  }
+}
+
+function layout() {
+  pegs.forEach((peg, p) => peg.forEach((s, level) => {
+    const m = discs[s];
+    const lifted = (sel === p && level === peg.length - 1);
+    m.position.set(pegX(p), lifted ? liftY() : discY(level), 0);
+    const top = level === peg.length - 1;
+    m.material.emissiveIntensity = lifted ? 0.6 : (top && hoverPeg === p && !busy) ? 0.4 : 0.12;
+  }));
+  pegRings.forEach((r, i) => {
+    if (i % 2 === 0) r.material.emissiveIntensity = (hoverPeg === i / 2 && !busy) ? 1.2 : 0.6;
+    else r.material.opacity = (hoverPeg === (i - 1) / 2 && !busy) ? 0.45 : 0.15;
+  });
+}
+
+function frameCamera() {
+  const w = container.clientWidth, h = container.clientHeight;
+  renderer.setSize(w, h); camera.aspect = w / h;
+  const needW = baseW + 1.5, needH = liftY() + 2.5;
+  const tanHalf = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const dist = Math.max(needH / (2 * tanHalf), needW / (2 * tanHalf * camera.aspect)) * 1.18;
+  const cy = needH / 2 - 0.4;
+  camera.position.set(0, cy + dist * Math.sin(THREE.MathUtils.degToRad(22)), dist * Math.cos(THREE.MathUtils.degToRad(22)));
+  camera.lookAt(0, cy, 0);
+  camera.updateProjectionMatrix();
+}
+
+// ---------- Animations ----------
+const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(obj, to, dur, ease) {
+  return new Promise(resolve => {
+    if (reduce() || dur <= 0) { Object.assign(obj.position, to); return resolve(); }
+    const from = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
+    const t0 = performance.now();
+    (function step(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      const e = ease ? ease(t) : t;
+      obj.position.x = from.x + ((to.x ?? from.x) - from.x) * e;
+      obj.position.y = from.y + ((to.y ?? from.y) - from.y) * e;
+      if (t < 1) requestAnimationFrame(step); else resolve();
+    })(performance.now());
+  });
+}
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+async function animateMove(from, to, speed) {
+  const s = pegs[from][pegs[from].length - 1];
+  const m = discs[s];
+  const d = 230 * speed;
+  await tween(m, { y: liftY() }, d, easeOut);
+  await tween(m, { x: pegX(to) }, d * Math.max(0.8, Math.abs(to - from)), easeInOut);
+  applyMove(pegs, from, to);
+  await tween(m, { y: discY(pegs[to].length - 1) }, d, easeOut);
+}
+
+async function shake(p) {
+  const s = pegs[p][pegs[p].length - 1];
+  const m = discs[s], x0 = pegX(p);
+  if (reduce()) return;
+  for (let i = 0; i < 4; i++) { await tween(m, { x: x0 + (i % 2 ? -0.18 : 0.18) }, 45); }
+  await tween(m, { x: x0 }, 45);
+}
+
+// ---------- Interaction ----------
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+function pickPeg(ev) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hit = raycaster.intersectObjects(pegHits, false)[0];
+  return hit ? hit.object.userData.peg : -1;
+}
+function setHover(p) {
+  if (p === hoverPeg) return;
+  hoverPeg = p;
+  renderer.domElement.style.cursor = (p >= 0 && (sel >= 0 || pegs[p].length)) ? 'pointer' : 'default';
+  layout();
+}
+renderer.domElement.addEventListener('pointermove', ev => { if (!busy && ev.pointerType !== 'touch') setHover(pickPeg(ev)); });
+renderer.domElement.addEventListener('pointerleave', () => { if (!busy) setHover(-1); });
+renderer.domElement.addEventListener('pointerdown', ev => { if (!busy) clickPeg(pickPeg(ev)); });
+window.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') { $('overlay').classList.remove('open'); return; }
+  if (busy || $('overlay').classList.contains('open')) return;
+  if (ev.key >= '1' && ev.key <= '3') clickPeg(+ev.key - 1);
+});
+
+async function clickPeg(p) {
+  if (p < 0) return;
+  if (sel < 0) {
+    if (!pegs[p].length) return;
+    sel = p; hideMsg(); layout();
+    return;
+  }
+  if (p === sel) { sel = -1; layout(); return; }
+  if (!canMove(pegs, sel, p)) {
+    showMsg(T[lang].illegal, 'bad');
+    busy = true; await shake(sel); busy = false; layout();
+    return;
+  }
+  const from = sel; sel = -1;
+  busy = true; setUI();
+  await animateMove(from, p, 1);
+  moves++; history.push([from, p]);
+  busy = false; afterMove();
+}
+
+function afterMove() {
+  setUI(); layout();
+  if (isSolved(pegs, n)) {
+    showMsg(usedSolver ? T[lang].solved(moves) : T[lang].win(moves, minMoves()), 'win');
+    pegRings.forEach(r => { r.material.color.set(0x2ee6c5); if (r.material.emissive) r.material.emissive.set(0x2ee6c5); });
+    baseEdge.material.color.set(0x2ee6c5);
+  } else {
+    pegRings.forEach(r => { r.material.color.set(0x6c9eff); if (r.material.emissive) r.material.emissive.set(0x6c9eff); });
+    baseEdge.material.color.set(0x6c9eff);
+  }
+}
+const minMoves = () => Math.pow(2, n) - 1;
+
+// ---------- Boutons ----------
+const $ = id => document.getElementById(id);
+function newGame() {
+  pegs = initialPegs(n); history = []; moves = 0; sel = -1; hoverPeg = -1; usedSolver = false;
+  buildPegs(); buildDiscs(); frameCamera(); layout(); hideMsg(); afterMove();
+}
+$('bRestart').onclick = () => { if (!busy) newGame(); };
+$('bMinus').onclick = () => { if (!busy && n > 1) { n--; newGame(); } };
+$('bPlus').onclick = () => { if (!busy && n < 10) { n++; newGame(); } };
+$('bUndo').onclick = async () => {
+  if (busy || !history.length) return;
+  sel = -1; busy = true; setUI();
+  const [from, to] = history.pop();
+  await animateMove(to, from, 0.8);
+  moves--; busy = false; afterMove();
+};
+$('bSolve').onclick = async () => {
+  if (busy) { stopSolve = true; return; }
+  if (isSolved(pegs, n)) return;
+  sel = -1; usedSolver = true; stopSolve = false; solving = true;
+  const seq = solveFrom(pegs, n, 2);
+  const speed = Math.max(0.1, Math.min(1, 30 / seq.length));    // séquence longue = coups plus rapides (Stop possible)
+  busy = true; setUI(); showMsg(T[lang].solving, '');
+  for (const [from, to] of seq) {
+    if (stopSolve) break;
+    await animateMove(from, to, speed);
+    moves++; history.push([from, to]); setUI();
+  }
+  busy = false; solving = false; hideMsg(); afterMove();
+};
+$('bLang').onclick = () => { lang = lang === 'fr' ? 'en' : 'fr'; document.documentElement.lang = lang; hideMsg(); afterMove(); };
+$('bInfo').onclick = () => { $('overlay').classList.add('open'); $('close').focus(); };
+$('close').onclick = () => $('overlay').classList.remove('open');
+$('overlay').onclick = ev => { if (ev.target.id === 'overlay') $('overlay').classList.remove('open'); };
+
+function setUI() {
+  const t = T[lang];
+  $('bLang').textContent = t.lang; $('tTitle').textContent = t.title; document.title = t.title;
+  $('tHint').textContent = t.hint; $('bInfo').textContent = t.info;
+  $('bRestart').textContent = t.restart; $('bUndo').textContent = t.undo;
+  $('bSolve').textContent = solving ? t.stop : t.solve;
+  $('lblN').textContent = t.n; $('lblCounter').textContent = t.counter; $('lblMin').textContent = t.min;
+  $('keysHint').textContent = t.keys;
+  $('close').setAttribute('aria-label', t.close);
+  $('nval').textContent = n; $('counter').textContent = moves; $('minval').textContent = minMoves();
+  $('infoContent').innerHTML = t.infoHTML;
+  $('opt').innerHTML = t.opt(minMoves());
+  ['bRestart', 'bMinus', 'bPlus', 'bUndo'].forEach(id => $(id).disabled = busy);
+  $('bSolve').disabled = busy && !solving;
+  if (!busy) {
+    $('bMinus').disabled = n <= 1; $('bPlus').disabled = n >= 10;
+    $('bUndo').disabled = history.length === 0;
+    $('bSolve').disabled = isSolved(pegs, n);
+  }
+}
+let msgTimer = null;
+function showMsg(text, kind) {
+  const m = $('msg');
+  m.textContent = text; m.className = 'toast glass show' + (kind ? ' ' + kind : '');
+  $('opt').style.opacity = 0;
+  clearTimeout(msgTimer);
+  if (kind === 'bad') msgTimer = setTimeout(hideMsg, 1800);
+}
+function hideMsg() { $('msg').classList.remove('show'); $('opt').style.opacity = 1; }
+
+window.addEventListener('resize', frameCamera);
+(function loop() {
+  const t = performance.now() * 0.001;
+  lBlue.position.x = -10 * Math.cos(t * 0.25); lBlue.position.z = 6 * Math.sin(t * 0.25) + 3;
+  lViolet.position.x = 10 * Math.cos(t * 0.25); lViolet.position.z = -6 * Math.sin(t * 0.25) + 3;
+  if (sel >= 0 && !busy) { const s = pegs[sel][pegs[sel].length - 1]; discs[s].position.y = liftY() + 0.12 * Math.sin(t * 3); }
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+})();
+newGame();
+</script>
+</body>
+</html>
