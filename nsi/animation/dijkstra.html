@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algorithme de Dijkstra</title>
+<link rel="icon" type="image/png" href="../../logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="anim.css">
+<script defer src="anim.js"></script>
+<style>
+  #stage {
+    position: fixed; left: 16px; right: 16px; top: calc(var(--topbar-h, 70px) + 28px); bottom: calc(var(--toolbar-h, 62px) + 30px); z-index: 2;
+    display: grid; grid-template-columns: 1fr 460px; gap: 14px;
+  }
+  #graphPanel { position: relative; overflow: hidden; min-height: 0; }
+  #graph { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #modeBar { position: absolute; top: 10px; left: 10px; z-index: 3; display: flex; gap: 4px; padding: 4px; border-radius: 12px; }
+  .seg { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: 12px;
+    padding: 0 12px; height: 30px; border-radius: 9px; cursor: pointer; transition: .2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .seg:hover { color: var(--text); background: rgba(255,255,255,.06); }
+  .seg.on { color: #fff; background: rgba(255,255,255,.12); }
+  .seg.on.start { color: #cfe0ff; box-shadow: inset 0 0 0 1px rgba(108,158,255,.6); }
+  .seg.on.target { color: #ffd0e6; box-shadow: inset 0 0 0 1px rgba(255,79,163,.6); }
+  .seg.on.edit { color: #ffe8a8; box-shadow: inset 0 0 0 1px rgba(255,197,61,.6); }
+  .seg i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  #editHint { position: absolute; bottom: 10px; left: 10px; right: 10px; z-index: 3; font-size: 12px; color: var(--muted); text-align: center; pointer-events: none; }
+  #graphLegend { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 12px; font-size: 11px; color: var(--muted); }
+  #graphLegend span { display: flex; align-items: center; gap: 6px; }
+  #graphLegend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  #side { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; padding-right: 2px; }
+  .card { padding: 14px 16px; flex: 0 0 auto; }
+  .card h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .card h4 .r { margin-left: auto; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  #tableCard { flex: 1 1 auto; min-height: 42%; display: flex; flex-direction: column; }
+  #codeCard { flex: 0 1 auto; min-height: 0; max-height: 32%; display: flex; flex-direction: column; }
+  #codeCard #code { overflow: auto; min-height: 0; }
+  #tableWrap { overflow: auto; flex: 1; min-height: 0; border-radius: 10px; }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; font-variant-numeric: tabular-nums; font-size: 13.5px; }
+  th, td { padding: 7px 6px; text-align: center; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { position: sticky; top: 0; background: rgba(20,23,34,.96); font-weight: 800; font-size: 12.5px; z-index: 1; }
+  th.v { color: var(--text); }
+  th.v.start { color: var(--blue); } th.v.target { color: var(--pink); }
+  th.step, td.step { color: var(--muted); font-size: 11px; font-weight: 700; text-align: left; padding-left: 8px; }
+  th.pick, td.pick { border-left: 1px solid var(--border); font-weight: 800; }
+  td .d { font-weight: 700; }
+  td .p { font-size: 10.5px; color: var(--muted); margin-left: 2px; vertical-align: sub; }
+  td.init .d { color: var(--text); }
+  td.keep .d { color: rgba(255,255,255,.45); } td.keep .p { color: rgba(255,255,255,.3); }
+  td.update .d { color: var(--pink); } td.update .p { color: #ff9ccb; }
+  td.fixedcol { color: rgba(255,255,255,.18); background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(255,255,255,.035) 6px 8px); }
+  td.chosen .d { color: #06201c; background: var(--grad-win); border-radius: 999px; padding: 2px 9px; box-shadow: 0 4px 14px rgba(46,230,197,.4); }
+  td.chosen .p { color: var(--teal); }
+  td.hot { background: rgba(255,197,61,.12); }
+  td.empty::after { content: '·'; color: rgba(255,255,255,.15); }
+  td.pick { color: var(--teal); }
+  tr.cur td { background: rgba(108,158,255,.05); }
+
+  #explain { font-size: 13.5px; line-height: 1.5; color: #d8dbe6; min-height: 42px; }
+  #explain b { color: #fff; } #explain .ok { color: var(--teal); font-weight: 700; } #explain .no { color: #ffb4c2; font-weight: 700; }
+  #explain .u { color: var(--amber); font-weight: 800; } #explain .v { color: var(--pink); font-weight: 800; }
+
+  #code { margin: 0; padding: 0; list-style: none; font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; counter-reset: ln; font-variant-ligatures: none; overflow-x: auto; }
+  #code li { display: flex; gap: 10px; padding: 1px 8px; border-radius: 6px; white-space: pre; }
+  #code li::before { counter-increment: ln; content: counter(ln); color: rgba(255,255,255,.22); min-width: 18px; text-align: right; }
+  #code li.hl { background: rgba(108,158,255,.18); box-shadow: inset 3px 0 0 var(--blue); }
+  .kw { color: #c792ea; } .fn { color: #82aaff; } .nb { color: #f78c6c; } .st { color: #c3e88d; }
+
+  select.btn { padding-right: 32px; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 18px, calc(100% - 11px) 18px; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; }
+  select.btn option { background: #181b24; color: var(--text); }
+  .slider { display: inline-flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,.04); }
+  .slider .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .slider .val { min-width: 26px; text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; font-size: 14px; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 110px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.15); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--grad-main); border: 2px solid #fff; box-shadow: 0 2px 10px rgba(108,158,255,.6); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--grad-main); border: 2px solid #fff; cursor: pointer; }
+  .toggle.on { color: var(--violet); border-color: rgba(181,123,255,.5); }
+
+  @media (max-width: 1100px) {
+    #stage { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1.15fr) minmax(0, 1fr); }
+    #graphLegend { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+
+<div class="topbar glass">
+  <a class="back" href="../index.html">← NSI</a>
+  <div class="titleblock">
+    <h1 id="tTitle">Algorithme de Dijkstra</h1>
+    <p id="tHint"></p>
+  </div>
+  <div class="spacer"></div>
+  <div class="chipset">
+    <button id="bLang" class="btn sm">EN</button>
+    <button id="bInfo" class="btn sm">Info</button>
+  </div>
+</div>
+
+<div id="msg" class="toast glass" style="top: calc(var(--topbar-h, 70px) + 40px);"></div>
+
+<div id="stage">
+  <div id="graphPanel" class="glass">
+    <div id="modeBar" class="glass">
+      <button class="seg start" data-m="start"><i style="background:var(--blue)"></i><span id="mStart">Départ</span></button>
+      <button class="seg target" data-m="target"><i style="background:var(--pink)"></i><span id="mTarget">Arrivée</span></button>
+      <button class="seg edit" data-m="edit"><i style="background:var(--amber)"></i><span id="mEdit">Éditer</span></button>
+    </div>
+    <div id="graphLegend" class="glass"></div>
+    <canvas id="graph"></canvas>
+    <div id="editHint"></div>
+  </div>
+  <div id="side">
+    <div class="card glass" id="tableCard">
+      <h4><span id="hTable">Tableau</span><span class="r" id="hTableR"></span></h4>
+      <div id="tableWrap"><table id="tbl"></table></div>
+    </div>
+    <div class="card glass">
+      <h4 id="hExplain">Étape</h4>
+      <div id="explain"></div>
+    </div>
+    <div class="card glass" id="codeCard">
+      <h4 id="hCode">Python</h4>
+      <ol id="code"></ol>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar glass">
+  <select id="preset" class="btn"></select>
+  <button id="bRandom" class="btn primary">Graphe aléatoire</button>
+  <button id="bDirected" class="btn toggle" title="orienté">→</button>
+  <div class="sep"></div>
+  <div class="slider"><span class="lbl" id="lblSpeed">vitesse</span><input type="range" id="rSpeed" min="0" max="100" value="45"><span class="val" id="vSpeed">45</span></div>
+  <button id="bReset" class="btn icon" title="Revenir au début">⏮</button>
+  <button id="bPlay" class="btn teal">▶ Lancer</button>
+  <button id="bStep" class="btn icon" title="Une étape">⏭</button>
+</div>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="modal glass">
+    <button id="close" class="close" aria-label="Fermer">×</button>
+    <div id="infoContent"></div>
+  </div>
+</div>
+
+<!-- ============ Logique pure ============ -->
+<script id="logic">
+// V : liste des identifiants de sommets ; adj(u) -> [{v, w}] ; start, target (ou null).
+// Générateur d'étapes, sans tas : à chaque tour on choisit le sommet non fixé de plus petite distance,
+// exactement comme quand on remplit le tableau à la main.
+function* dijkstraSteps(V, adj, start, target) {
+  const dist = {}, pred = {}, fixed = new Set();
+  V.forEach(v => { dist[v] = Infinity; pred[v] = null; });
+  dist[start] = 0;
+  yield { t: 'init', line: 4 };
+  while (fixed.size < V.length) {
+    let u = null;
+    for (const v of V) if (!fixed.has(v) && (u === null || dist[v] < dist[u])) u = v;
+    if (u === null || dist[u] === Infinity) { yield { t: 'done', reached: false, unreachable: true, line: 13 }; return { dist, pred }; }
+    yield { t: 'select', u, d: dist[u], line: 7 };
+    fixed.add(u);
+    yield { t: 'fix', u, d: dist[u], line: 8 };
+    if (u === target) { yield { t: 'done', reached: true, line: 13 }; return { dist, pred }; }
+    if (fixed.size === V.length) break;
+    yield { t: 'newrow', u, line: 9 };
+    for (const { v, w } of adj(u)) {
+      if (fixed.has(v)) { yield { t: 'skip', u, v, w, line: 9 }; continue; }
+      const cand = dist[u] + w, old = dist[v], improved = cand < old;
+      if (improved) { dist[v] = cand; pred[v] = u; }
+      yield { t: 'relax', u, v, w, old, cand, improved, oldPred: improved ? null : pred[v], line: improved ? 11 : 10 };
+    }
+    yield { t: 'copyrest', u, line: 9 };
+  }
+  yield { t: 'done', reached: target != null && fixed.has(target), line: 13 };
+  return { dist, pred };
+}
+function pathTo(pred, start, target) {
+  const p = []; let x = target;
+  while (x != null) { p.unshift(x); if (x === start) return p; x = pred[x]; }
+  return null;
+}
+if (typeof module !== 'undefined') module.exports = { dijkstraSteps, pathTo };
+</script>
+
+<script>
+// ─────────────────────── Textes ───────────────────────
+const T = {
+  fr: {
+    lang: 'EN', title: 'Algorithme de Dijkstra', info: 'Info', close: 'Fermer',
+    hint: 'Choisissez un sommet de départ (et éventuellement d’arrivée), puis lancez : le graphe s’anime et le tableau se remplit comme quand on fait Dijkstra à la main.',
+    start: 'Départ', target: 'Arrivée', edit: 'Éditer', random: 'Graphe aléatoire', directed: 'Graphe orienté (flèches)',
+    speed: 'vitesse', play: '▶ Lancer', pause: '⏸ Pause', replay: '↺ Rejouer',
+    table: 'Tableau de Dijkstra', explain: 'Étape', codeTitle: 'Python', pick: 'Sommet fixé', stepCol: '',
+    presets: { p1: 'Exemple 1 (7 sommets)', p2: 'Exemple 2 (6 sommets)', p3: 'Exemple 3 (8 sommets)', rnd: 'Aléatoire' },
+    legend: [['var(--blue)', 'départ'], ['var(--pink)', 'arrivée'], ['var(--amber)', 'sommet en cours'], ['var(--teal)', 'fixé (distance définitive)'], ['var(--violet)', 'arête de prédécesseur']],
+    editHint: 'Mode édition : clic dans le vide = nouveau sommet · clic sur deux sommets = arête (poids demandé, vide = supprimer) · clic sur un poids = modifier · double-clic sur un sommet = supprimer',
+    dragHint: 'Les sommets se déplacent à la souris. Clic sur un sommet : définir le départ.',
+    dragHintT: 'Les sommets se déplacent à la souris. Clic sur un sommet : définir l’arrivée (clic sur l’arrivée actuelle : aucune arrivée).',
+    weightPrompt: (a, b) => `Poids de l’arête ${a} – ${b} (vide pour supprimer) :`,
+    ex: {
+      init: s => `<b>Initialisation.</b> La distance du départ <b>${s}</b> vaut 0 ; toutes les autres sont inconnues (∞).`,
+      select: (u, d) => `Parmi les sommets <b>non fixés</b>, la plus petite distance est celle de <span class="u">${u}</span> (${d}) : on l’entoure.`,
+      fix: (u, d) => `<span class="u">${u}</span> est <span class="ok">fixé</span> : sa distance ${d} est définitive, on barre sa colonne. On regarde maintenant ses voisins.`,
+      relaxYes: (u, v, du, w, c, old) => `Voisin <span class="v">${v}</span> de <span class="u">${u}</span> : ${du} + ${w} = ${c} ${old === Infinity ? '< ∞' : '< ' + old} → <span class="ok">on écrit ${c} (${u})</span>.`,
+      relaxNo: (u, v, du, w, c, old, p) => `Voisin <span class="v">${v}</span> de <span class="u">${u}</span> : ${du} + ${w} = ${c} ≥ ${old} → <span class="no">pas mieux</span>, on recopie ${old} (${p}).`,
+      skip: (u, v) => `Voisin <b>${v}</b> de <span class="u">${u}</span> : déjà fixé, rien à faire.`,
+      copyrest: () => `Les sommets qui ne sont pas voisins gardent leur valeur : on la recopie.`,
+      doneAll: () => `<b>Terminé.</b> Tous les sommets sont fixés : la dernière valeur de chaque colonne est la distance minimale depuis le départ.`,
+      donePath: (s, t, path, d) => `<b>Terminé.</b> Plus court chemin de ${s} à ${t} : <span class="ok">${path.join(' → ')}</span>, longueur <b>${d}</b>. On le lit en remontant les prédécesseurs depuis ${t}.`,
+      doneUnreach: () => `<b>Terminé.</b> Les sommets restants sont inaccessibles depuis le départ (distance ∞).`,
+      ready: () => `Prêt. Cliquez sur ▶ pour lancer, ou ⏭ pour avancer d’une étape.`,
+      noStart: () => `Choisissez d’abord un sommet de départ.`,
+    },
+    toastPath: (s, t, d) => `Plus court chemin ${s} → ${t} : longueur ${d}`,
+    toastAll: 'Toutes les distances sont connues',
+    code: [
+      'def dijkstra(G, depart):',
+      '    dist = {s: float("inf") for s in G}',
+      '    pred = {s: None for s in G}',
+      '    dist[depart] = 0',
+      '    a_visiter = set(G)',
+      '    while a_visiter:',
+      '        u = min(a_visiter, key=lambda s: dist[s])',
+      '        a_visiter.remove(u)',
+      '        for v, poids in G[u]:',
+      '            if dist[u] + poids < dist[v]:',
+      '                dist[v] = dist[u] + poids',
+      '                pred[v] = u',
+      '    return dist, pred'],
+    infoHTML: `
+<h2>L’algorithme de Dijkstra</h2>
+<p>Il calcule les plus courtes distances depuis un sommet de départ dans un graphe dont les arêtes ont des poids positifs. Idée : on fixe les sommets un par un, toujours le plus proche parmi ceux qui ne le sont pas encore, et on regarde si passer par lui raccourcit le chemin vers ses voisins.</p>
+<h3>Le tableau « à la main »</h3>
+<p>Une colonne par sommet. Première ligne : 0 pour le départ, ∞ ailleurs. À chaque ligne : on <b>entoure la plus petite valeur</b> parmi les sommets non fixés, le sommet est fixé et sa colonne est <b>barrée</b> pour la suite. On écrit ensuite une nouvelle ligne : pour chaque voisin non fixé, la nouvelle distance <i>distance du sommet fixé + poids</i> si elle est plus petite (avec le prédécesseur entre parenthèses), sinon on recopie l’ancienne. Les autres sommets sont recopiés tels quels.</p>
+<p>À la fin, la distance d’un sommet est la valeur entourée dans sa colonne, et le plus court chemin se lit <b>en remontant les prédécesseurs</b> depuis l’arrivée.</p>
+<h3>Le code Python</h3>
+<p>La version affichée choisit le minimum avec <code>min</code> sur l’ensemble des sommets à visiter : c’est exactement le geste du tableau, en O(n²). Dans la pratique on utilise une file de priorité (module <code>heapq</code>) pour descendre à O((n + m) log n).</p>
+<h3>Manipulations</h3>
+<p>Déplacez les sommets à la souris. Mode <b>Départ</b> / <b>Arrivée</b> : cliquez sur un sommet. Mode <b>Éditer</b> : cliquez dans le vide pour ajouter un sommet, sur deux sommets pour créer ou modifier une arête, sur un poids pour le changer, double-cliquez un sommet pour le supprimer. Le bouton → rend le graphe orienté.</p>
+<h3>Un peu d’histoire</h3>
+<p>Edsger W. Dijkstra a conçu cet algorithme en 1956, en une vingtaine de minutes à la terrasse d’un café d’Amsterdam, pour montrer ce que pouvait faire l’ordinateur ARMAC. Il l’a publié en 1959. C’est le cœur des calculateurs d’itinéraires et du routage sur Internet (protocole OSPF).</p>
+<p><span class="kbd">Espace</span> lancer / pause · <span class="kbd">→</span> une étape · <span class="kbd">R</span> nouveau graphe aléatoire</p>`
+  },
+  en: {
+    lang: 'FR', title: 'Dijkstra’s algorithm', info: 'Info', close: 'Close',
+    hint: 'Pick a start vertex (and optionally a target), then run: the graph animates and the table fills in the way you do Dijkstra by hand.',
+    start: 'Start', target: 'Target', edit: 'Edit', random: 'Random graph', directed: 'Directed graph (arrows)',
+    speed: 'speed', play: '▶ Run', pause: '⏸ Pause', replay: '↺ Replay',
+    table: 'Dijkstra table', explain: 'Step', codeTitle: 'Python', pick: 'Fixed vertex', stepCol: '',
+    presets: { p1: 'Example 1 (7 vertices)', p2: 'Example 2 (6 vertices)', p3: 'Example 3 (8 vertices)', rnd: 'Random' },
+    legend: [['var(--blue)', 'start'], ['var(--pink)', 'target'], ['var(--amber)', 'current vertex'], ['var(--teal)', 'fixed (final distance)'], ['var(--violet)', 'predecessor edge']],
+    editHint: 'Edit mode: click empty space = new vertex · click two vertices = edge (weight asked, empty = delete) · click a weight = change it · double-click a vertex = delete',
+    dragHint: 'Drag vertices with the mouse. Click a vertex: set the start.',
+    dragHintT: 'Drag vertices with the mouse. Click a vertex: set the target (click the current target: no target).',
+    weightPrompt: (a, b) => `Weight of edge ${a} – ${b} (empty to delete):`,
+    ex: {
+      init: s => `<b>Initialisation.</b> The start <b>${s}</b> is at distance 0; all others are unknown (∞).`,
+      select: (u, d) => `Among the <b>unfixed</b> vertices, the smallest distance is <span class="u">${u}</span> (${d}): circle it.`,
+      fix: (u, d) => `<span class="u">${u}</span> is <span class="ok">fixed</span>: its distance ${d} is final, its column is crossed out. Now look at its neighbours.`,
+      relaxYes: (u, v, du, w, c, old) => `Neighbour <span class="v">${v}</span> of <span class="u">${u}</span>: ${du} + ${w} = ${c} ${old === Infinity ? '< ∞' : '< ' + old} → <span class="ok">write ${c} (${u})</span>.`,
+      relaxNo: (u, v, du, w, c, old, p) => `Neighbour <span class="v">${v}</span> of <span class="u">${u}</span>: ${du} + ${w} = ${c} ≥ ${old} → <span class="no">no better</span>, copy ${old} (${p}).`,
+      skip: (u, v) => `Neighbour <b>${v}</b> of <span class="u">${u}</span>: already fixed, nothing to do.`,
+      copyrest: () => `Vertices that are not neighbours keep their value: copy it.`,
+      doneAll: () => `<b>Done.</b> All vertices are fixed: the last value in each column is the shortest distance from the start.`,
+      donePath: (s, t, path, d) => `<b>Done.</b> Shortest path from ${s} to ${t}: <span class="ok">${path.join(' → ')}</span>, length <b>${d}</b>. Read it by following predecessors back from ${t}.`,
+      doneUnreach: () => `<b>Done.</b> The remaining vertices cannot be reached from the start (distance ∞).`,
+      ready: () => `Ready. Press ▶ to run, or ⏭ to advance one step.`,
+      noStart: () => `Choose a start vertex first.`,
+    },
+    toastPath: (s, t, d) => `Shortest path ${s} → ${t}: length ${d}`,
+    toastAll: 'All distances are known',
+    code: [
+      'def dijkstra(G, start):',
+      '    dist = {s: float("inf") for s in G}',
+      '    pred = {s: None for s in G}',
+      '    dist[start] = 0',
+      '    to_visit = set(G)',
+      '    while to_visit:',
+      '        u = min(to_visit, key=lambda s: dist[s])',
+      '        to_visit.remove(u)',
+      '        for v, weight in G[u]:',
+      '            if dist[u] + weight < dist[v]:',
+      '                dist[v] = dist[u] + weight',
+      '                pred[v] = u',
+      '    return dist, pred'],
+    infoHTML: `
+<h2>Dijkstra’s algorithm</h2>
+<p>It computes the shortest distances from a start vertex in a graph with positive edge weights. Idea: fix vertices one at a time, always the closest among those not yet fixed, and check whether going through it shortens the path to its neighbours.</p>
+<h3>The table “by hand”</h3>
+<p>One column per vertex. First row: 0 for the start, ∞ elsewhere. On each row: <b>circle the smallest value</b> among unfixed vertices; that vertex is fixed and its column is <b>crossed out</b> from then on. Then write a new row: for each unfixed neighbour, the new distance <i>fixed vertex’s distance + weight</i> if it is smaller (with the predecessor in brackets), otherwise copy the old one. Other vertices are copied unchanged.</p>
+<p>At the end, a vertex’s distance is the circled value in its column, and the shortest path is read <b>by following predecessors backwards</b> from the target.</p>
+<h3>The Python code</h3>
+<p>The displayed version picks the minimum with <code>min</code> over the set of vertices to visit: exactly the table’s gesture, in O(n²). In practice a priority queue (<code>heapq</code>) brings it down to O((n + m) log n).</p>
+<h3>Interactions</h3>
+<p>Drag vertices with the mouse. <b>Start</b> / <b>Target</b> mode: click a vertex. <b>Edit</b> mode: click empty space to add a vertex, two vertices to create or change an edge, a weight to change it, double-click a vertex to delete it. The → button makes the graph directed.</p>
+<h3>A bit of history</h3>
+<p>Edsger W. Dijkstra designed the algorithm in 1956, in about twenty minutes at a café terrace in Amsterdam, to show off the ARMAC computer. He published it in 1959. It is the heart of route planners and of Internet routing (OSPF).</p>
+<p><span class="kbd">Space</span> run / pause · <span class="kbd">→</span> one step · <span class="kbd">R</span> new random graph</p>`
+  }
+};
+
+const $ = id => document.getElementById(id);
+
+// ─────────────────────── Graphes ───────────────────────
+const PRESETS = {
+  p1: { V: [['A', .08, .5], ['B', .3, .18], ['C', .3, .82], ['D', .55, .5], ['E', .72, .15], ['F', .75, .85], ['G', .94, .5]],
+        E: [['A', 'B', 4], ['A', 'C', 2], ['B', 'C', 5], ['B', 'D', 10], ['C', 'D', 3], ['C', 'F', 8], ['D', 'E', 7], ['D', 'F', 4], ['D', 'G', 9], ['E', 'G', 6], ['F', 'G', 2]], start: 'A', target: 'G' },
+  p2: { V: [['A', .1, .3], ['B', .4, .12], ['C', .4, .6], ['D', .7, .3], ['E', .7, .85], ['F', .93, .6]],
+        E: [['A', 'B', 7], ['A', 'C', 3], ['B', 'C', 2], ['B', 'D', 6], ['C', 'D', 8], ['C', 'E', 9], ['D', 'E', 2], ['D', 'F', 5], ['E', 'F', 3]], start: 'A', target: 'F' },
+  p3: { V: [['A', .06, .5], ['B', .25, .15], ['C', .25, .85], ['D', .45, .45], ['E', .62, .12], ['F', .62, .8], ['G', .8, .45], ['H', .95, .75]],
+        E: [['A', 'B', 3], ['A', 'C', 5], ['B', 'D', 4], ['B', 'E', 9], ['C', 'D', 2], ['C', 'F', 6], ['D', 'E', 6], ['D', 'G', 7], ['E', 'G', 1], ['F', 'G', 4], ['F', 'H', 8], ['G', 'H', 3]], start: 'A', target: 'H' },
+};
+let V = [];        // [{id, x, y}]  (x, y ∈ [0,1])
+let E = [];        // [{a, b, w}]
+let start = null, target = null, directed = false;
+
+function loadPreset(k) {
+  const p = PRESETS[k];
+  V = p.V.map(([id, x, y]) => ({ id, x, y }));
+  E = p.E.map(([a, b, w]) => ({ a, b, w }));
+  start = p.start; target = p.target;
+}
+function randomGraph() {
+  const n = 6 + Math.floor(Math.random() * 4);
+  V = [];
+  // points bien espacés (rejet)
+  for (let i = 0; i < n; i++) {
+    let best = null, bd = -1;
+    for (let t = 0; t < 40; t++) {
+      const x = .08 + Math.random() * .84, y = .1 + Math.random() * .8;
+      const d = Math.min(9, ...V.map(v => Math.hypot(v.x - x, (v.y - y) * .7)));
+      if (d > bd) { bd = d; best = { x, y }; }
+    }
+    V.push({ id: String.fromCharCode(65 + i), ...best });
+  }
+  E = [];
+  const has = (a, b) => E.some(e => (e.a === a && e.b === b) || (e.a === b && e.b === a));
+  const add = (a, b) => { if (a !== b && !has(a, b)) E.push({ a, b, w: 1 + Math.floor(Math.random() * 9) }); };
+  // arbre couvrant par plus proche voisin, puis 1 à 2 arêtes proches par sommet
+  const inTree = [V[0].id];
+  while (inTree.length < n) {
+    let best = null, bd = 9;
+    for (const v of V) if (!inTree.includes(v.id)) for (const u of inTree) {
+      const uu = V.find(x => x.id === u), d = Math.hypot(uu.x - v.x, uu.y - v.y);
+      if (d < bd) { bd = d; best = [u, v.id]; }
+    }
+    add(best[0], best[1]); inTree.push(best[1]);
+  }
+  for (const v of V) {
+    const near = V.filter(u => u !== v).sort((p, q) => Math.hypot(p.x - v.x, p.y - v.y) - Math.hypot(q.x - v.x, q.y - v.y)).slice(0, 3);
+    near.slice(0, 1 + Math.floor(Math.random() * 2)).forEach(u => { if (Math.random() < .7) add(v.id, u.id); });
+  }
+  start = V[0].id; target = V[n - 1].id;
+}
+function adjOf(u) {
+  const out = [];
+  for (const e of E) {
+    if (e.a === u) out.push({ v: e.b, w: e.w });
+    else if (!directed && e.b === u) out.push({ v: e.a, w: e.w });
+  }
+  return out.sort((p, q) => p.v < q.v ? -1 : 1);
+}
+const vid = () => V.map(v => v.id);
+const vert = id => V.find(v => v.id === id);
+function findEdge(a, b) { return E.find(e => (e.a === a && e.b === b) || (!directed && e.a === b && e.b === a)) || E.find(e => e.a === a && e.b === b); }
+
+// ─────────────────────── État de l'animation ───────────────────────
+let lang = 'fr', mode = 'start', playing = false, speed = 45, timer = null;
+let gen = null, done = false, S = null;   // S : état visuel
+function resetAlgo() {
+  playing = false; clearTimeout(timer); done = false;
+  S = { dist: {}, pred: {}, fixed: new Set(), u: null, edge: null, edgeOk: null, rows: [], line: 0, path: null, treeEdges: [], explain: '', started: false, finished: false, unreachable: false };
+  vid().forEach(v => { S.dist[v] = Infinity; S.pred[v] = null; });
+  gen = start ? dijkstraSteps(vid(), adjOf, start, target) : null;
+  S.explain = start ? T[lang].ex.ready() : T[lang].ex.noStart();
+  hideMsg(); renderTable(); setUI();
+}
+function fmt(d) { return d === Infinity ? '∞' : d; }
+function cellHTML(c) {
+  if (!c) return '';
+  if (c.kind === 'fixedcol') return '';
+  return `<span class="d">${fmt(c.d)}</span>${c.p ? `<span class="p">(${c.p})</span>` : ''}`;
+}
+function step() {
+  if (!gen || done) return false;
+  const r = gen.next();
+  if (r.done) { done = true; return false; }
+  const s = r.value, t = T[lang].ex;
+  S.line = s.line || S.line; S.edge = null; S.edgeOk = null; S.started = true;
+  const curRow = () => S.rows[S.rows.length - 1];
+  switch (s.t) {
+    case 'init': {
+      const cells = {}; vid().forEach(v => cells[v] = { d: v === start ? 0 : Infinity, p: null, kind: 'init' });
+      S.rows.push({ src: null, cells, chosen: null, chosenD: null });
+      S.explain = t.init(start); break;
+    }
+    case 'select': S.u = s.u; curRow().chosen = s.u; curRow().chosenD = s.d; S.explain = t.select(s.u, s.d); break;
+    case 'fix': S.fixed.add(s.u); S.explain = t.fix(s.u, s.d); break;
+    case 'newrow': {
+      const cells = {}; S.fixed.forEach(v => cells[v] = { kind: 'fixedcol' });
+      S.rows.push({ src: s.u, cells, chosen: null, chosenD: null });
+      S.explain = t.copyrest(); break;
+    }
+    case 'skip': S.edge = [s.u, s.v]; S.edgeOk = 'skip'; S.explain = t.skip(s.u, s.v); break;
+    case 'relax': {
+      S.edge = [s.u, s.v]; S.edgeOk = s.improved ? 'yes' : 'no';
+      if (s.improved) { S.dist[s.v] = s.cand; S.pred[s.v] = s.u; }
+      curRow().cells[s.v] = { d: S.dist[s.v], p: S.pred[s.v], kind: s.improved ? 'update' : 'keep', hot: true };
+      S.explain = s.improved ? t.relaxYes(s.u, s.v, S.dist[s.u], s.w, s.cand, s.old) : t.relaxNo(s.u, s.v, S.dist[s.u], s.w, s.cand, s.old, s.oldPred);
+      break;
+    }
+    case 'copyrest': {
+      const row = curRow();
+      vid().forEach(v => { if (!row.cells[v]) row.cells[v] = { d: S.dist[v], p: S.pred[v], kind: 'keep' }; else row.cells[v].hot = false; });
+      S.explain = t.copyrest(); break;
+    }
+    case 'done': {
+      S.finished = true; S.u = null; done = true;
+      S.treeEdges = vid().filter(v => S.pred[v] != null).map(v => [S.pred[v], v]);
+      if (s.unreachable) { S.explain = t.doneUnreach(); S.unreachable = true; }
+      else if (target && s.reached) {
+        S.path = pathTo(S.pred, start, target);
+        S.explain = t.donePath(start, target, S.path, S.dist[target]);
+        showMsg(T[lang].toastPath(start, target, S.dist[target]), 'win');
+      } else { S.explain = t.doneAll(); showMsg(T[lang].toastAll, 'win'); }
+      playing = false;
+      break;
+    }
+  }
+  if (s.t === 'init') S.dist[start] = 0;
+  renderTable();
+  return !done;
+}
+
+// ─────────────────────── Tableau ───────────────────────
+function renderTable() {
+  const t = T[lang], ids = vid();
+  let h = `<thead><tr><th class="step"></th>${ids.map(v => `<th class="v${v === start ? ' start' : ''}${v === target ? ' target' : ''}">${v}</th>`).join('')}<th class="pick">${t.pick}</th></tr></thead><tbody>`;
+  S.rows.forEach((row, i) => {
+    const last = i === S.rows.length - 1;
+    h += `<tr${last ? ' class="cur"' : ''}><td class="step">${i === 0 ? '0' : row.src}</td>`;
+    for (const v of ids) {
+      const c = row.cells[v];
+      if (!c) h += `<td class="empty"></td>`;
+      else if (c.kind === 'fixedcol') h += `<td class="fixedcol"></td>`;
+      else h += `<td class="${c.kind}${row.chosen === v ? ' chosen' : ''}${c.hot && last ? ' hot' : ''}">${cellHTML(c)}</td>`;
+    }
+    h += `<td class="pick">${row.chosen != null ? `${row.chosen} <span class="p">${fmt(row.chosenD)}</span>` : ''}</td></tr>`;
+  });
+  h += '</tbody>';
+  $('tbl').innerHTML = h;
+  const w = $('tableWrap'); w.scrollTop = w.scrollHeight;
+  $('explain').innerHTML = S.explain;
+  const lines = $('code').children;
+  for (let i = 0; i < lines.length; i++) lines[i].classList.toggle('hl', i + 1 === S.line && S.started && !S.finished);
+  $('hTableR').textContent = S.finished ? '✓' : '';
+}
+
+// ─────────────────────── Graphe (canvas) ───────────────────────
+const cv = $('graph'), ctx = cv.getContext('2d');
+const R = 22;
+let dragging = null, dragMoved = false, pendingEdgeFrom = null, hoverV = null, hoverE = null;
+function toPx(v) { const W = cv.clientWidth, H = cv.clientHeight, p = 46; return [p + v.x * (W - 2 * p), p + 8 + v.y * (H - 2 * p - 8)]; }
+function fromPx(px, py) { const W = cv.clientWidth, H = cv.clientHeight, p = 46; return [(px - p) / (W - 2 * p), (py - p - 8) / (H - 2 * p - 8)]; }
+function edgeMid(e) { const [x1, y1] = toPx(vert(e.a)), [x2, y2] = toPx(vert(e.b)); const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1; return [(x1 + x2) / 2 - dy / L * 12, (y1 + y2) / 2 + dx / L * 12]; }
+function edgeIs(e, a, b) { return (e.a === a && e.b === b) || (!directed && e.a === b && e.b === a); }
+
+function draw() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const now = performance.now() / 1000;
+  // arêtes
+  for (const e of E) {
+    const [x1, y1] = toPx(vert(e.a)), [x2, y2] = toPx(vert(e.b));
+    const onPath = S.path && S.path.some((p, i) => i > 0 && edgeIs(e, S.path[i - 1], p));
+    const inTree = S.pred[e.b] === e.a || (!directed && S.pred[e.a] === e.b);
+    const cur = S.edge && edgeIs(e, S.edge[0], S.edge[1]);
+    let color = 'rgba(255,255,255,0.16)', width = 2, glow = null;
+    if (inTree) { color = 'rgba(181,123,255,0.75)'; width = 3; }
+    if (cur) { color = S.edgeOk === 'yes' ? '#2ee6c5' : S.edgeOk === 'no' ? '#ff5c7a' : '#ffc53d'; width = 4; glow = color; }
+    if (onPath) { color = '#2ee6c5'; width = 6; glow = color; }
+    if (hoverE === e && mode === 'edit') { color = '#ffc53d'; width = 4; }
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round';
+    if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = 16; }
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.shadowBlur = 0;
+    if (cur && !onPath) {   // pointillé animé dans le sens de la relaxation
+      const dx = x2 - x1, dy = y2 - y1;
+      const [fx, fy] = S.edge[0] === e.a ? [x1, y1] : [x2, y2], [tx, ty] = S.edge[0] === e.a ? [x2, y2] : [x1, y1];
+      const k = (now * 1.4) % 1; ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(fx + (tx - fx) * k, fy + (ty - fy) * k, 4, 0, Math.PI * 2); ctx.fill();
+    }
+    if (directed) {
+      const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+      const ax = x2 - ux * (R + 2), ay = y2 - uy * (R + 2);
+      ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax - ux * 12 - uy * 6, ay - uy * 12 + ux * 6); ctx.lineTo(ax - ux * 12 + uy * 6, ay - uy * 12 - ux * 6); ctx.closePath(); ctx.fill();
+    }
+    // poids
+    const [mx, my] = edgeMid(e);
+    ctx.font = '700 12px Inter, sans-serif'; const tw = ctx.measureText(e.w).width + 12;
+    ctx.fillStyle = cur ? color : 'rgba(20,23,34,0.95)'; ctx.strokeStyle = cur ? color : 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+    roundRect(ctx, mx - tw / 2, my - 10, tw, 20, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = cur ? '#0b0d14' : '#e6e8ef'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(e.w, mx, my + 0.5);
+  }
+  // arête en cours de création (édition)
+  if (pendingEdgeFrom && mode === 'edit') {
+    const [x1, y1] = toPx(vert(pendingEdgeFrom));
+    ctx.strokeStyle = 'rgba(255,197,61,0.5)'; ctx.setLineDash([6, 6]); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(lastPointer[0], lastPointer[1]); ctx.stroke(); ctx.setLineDash([]);
+  }
+  // sommets
+  for (const v of V) {
+    const [x, y] = toPx(v);
+    const isFixed = S.fixed.has(v.id), isU = S.u === v.id && !S.finished, isV = S.edge && S.edge[1] === v.id;
+    const onPath = S.path && S.path.includes(v.id);
+    let fill = '#1a1f2e', ring = 'rgba(255,255,255,0.25)', glow = null, ringW = 2;
+    if (isFixed) { fill = '#0f3d36'; ring = '#2ee6c5'; }
+    if (onPath) { fill = '#2ee6c5'; ring = '#2ee6c5'; glow = '#2ee6c5'; }
+    if (v.id === start) { ring = '#6c9eff'; ringW = 3; if (!onPath) glow = 'rgba(108,158,255,0.6)'; }
+    if (v.id === target) { ring = '#ff4fa3'; ringW = 3; if (!onPath) glow = 'rgba(255,79,163,0.6)'; }
+    if (isV) { ring = '#ff4fa3'; glow = '#ff4fa3'; ringW = 3; }
+    if (isU) { fill = '#ffc53d'; ring = '#ffe08a'; glow = '#ffc53d'; ringW = 3; }
+    if (hoverV === v && !dragging) ringW += 1;
+    if (pendingEdgeFrom === v.id) { ring = '#ffc53d'; ringW = 4; }
+    const pulse = isU ? 1 + 0.05 * Math.sin(now * 6) : 1;
+    if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = 24; }
+    ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, R * pulse, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.strokeStyle = ring; ctx.lineWidth = ringW; ctx.stroke();
+    ctx.fillStyle = (isU || onPath) ? '#0b0d14' : '#fff'; ctx.font = '800 16px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(v.id, x, y + 1);
+    // étiquette de distance
+    if (S.started) {
+      const d = S.dist[v.id], txt = fmt(d) + (S.pred[v.id] ? ' (' + S.pred[v.id] + ')' : '');
+      ctx.font = '700 11.5px Inter, sans-serif'; const tw = ctx.measureText(txt).width + 12;
+      const ly = y - R - 16;
+      ctx.fillStyle = isFixed ? 'rgba(46,230,197,0.18)' : 'rgba(20,23,34,0.95)'; ctx.strokeStyle = isFixed ? '#2ee6c5' : (isV && S.edgeOk === 'yes' ? '#ff4fa3' : 'rgba(255,255,255,0.18)'); ctx.lineWidth = 1;
+      roundRect(ctx, x - tw / 2, ly - 10, tw, 20, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = isFixed ? '#7df5df' : (d === Infinity ? 'rgba(255,255,255,0.5)' : '#fff'); ctx.fillText(txt, x, ly + 0.5);
+    }
+  }
+}
+function roundRect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+
+// interactions
+let lastPointer = [0, 0];
+function pos(ev) { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+function vertexAt(px, py) { for (const v of V) { const [x, y] = toPx(v); if (Math.hypot(x - px, y - py) <= R + 4) return v; } return null; }
+function edgeAt(px, py) { for (const e of E) { const [mx, my] = edgeMid(e); if (Math.abs(mx - px) < 18 && Math.abs(my - py) < 12) return e; } return null; }
+cv.addEventListener('pointerdown', ev => {
+  const [px, py] = pos(ev); const v = vertexAt(px, py);
+  if (v) { dragging = v; dragMoved = false; cv.setPointerCapture(ev.pointerId); }
+});
+cv.addEventListener('pointermove', ev => {
+  const [px, py] = pos(ev); lastPointer = [px, py];
+  if (dragging) {
+    const [nx, ny] = fromPx(px, py);
+    if (Math.hypot(nx - dragging.x, ny - dragging.y) > 0.004) dragMoved = true;
+    if (dragMoved) { dragging.x = Math.min(1, Math.max(0, nx)); dragging.y = Math.min(1, Math.max(0, ny)); }
+    return;
+  }
+  hoverV = vertexAt(px, py); hoverE = hoverV ? null : edgeAt(px, py);
+  cv.style.cursor = hoverV ? (mode === 'edit' ? 'pointer' : 'grab') : (hoverE && mode === 'edit') ? 'pointer' : (mode === 'edit' ? 'crosshair' : 'default');
+});
+cv.addEventListener('pointerup', ev => {
+  const [px, py] = pos(ev);
+  if (dragging) {
+    const v = dragging; dragging = null;
+    if (dragMoved) return;
+    clickVertex(v); return;
+  }
+  if (mode !== 'edit') return;
+  const e = edgeAt(px, py);
+  if (e) { editWeight(e); return; }
+  // nouveau sommet
+  if (V.length >= 26) return;
+  const used = new Set(V.map(v => v.id)); let id = 'A'; while (used.has(id)) id = String.fromCharCode(id.charCodeAt(0) + 1);
+  const [x, y] = fromPx(px, py);
+  V.push({ id, x: Math.min(1, Math.max(0, x)), y: Math.min(1, Math.max(0, y)) });
+  pendingEdgeFrom = null; graphChanged();
+});
+cv.addEventListener('dblclick', ev => {
+  if (mode !== 'edit') return;
+  const [px, py] = pos(ev); const v = vertexAt(px, py);
+  if (!v || V.length <= 2) return;
+  V = V.filter(x => x !== v); E = E.filter(e => e.a !== v.id && e.b !== v.id);
+  if (start === v.id) start = V[0].id; if (target === v.id) target = null;
+  pendingEdgeFrom = null; graphChanged();
+});
+function clickVertex(v) {
+  if (mode === 'start') { start = v.id; if (target === start) target = null; resetAlgo(); }
+  else if (mode === 'target') { target = target === v.id ? null : v.id; if (start === target) start = null; resetAlgo(); }
+  else if (mode === 'edit') {
+    if (!pendingEdgeFrom) { pendingEdgeFrom = v.id; return; }
+    if (pendingEdgeFrom === v.id) { pendingEdgeFrom = null; return; }
+    const a = pendingEdgeFrom, b = v.id; pendingEdgeFrom = null;
+    const ex = findEdge(a, b);
+    const ans = prompt(T[lang].weightPrompt(a, b), ex ? ex.w : 1);
+    if (ans === null) return;
+    const w = parseInt(ans, 10);
+    if (!(w > 0)) { if (ex) E = E.filter(e => e !== ex); }
+    else if (ex) { ex.w = w; if (directed && !(ex.a === a && ex.b === b)) { ex.a = a; ex.b = b; } }
+    else E.push({ a, b, w });
+    graphChanged();
+  }
+}
+function editWeight(e) {
+  const ans = prompt(T[lang].weightPrompt(e.a, e.b), e.w);
+  if (ans === null) return;
+  const w = parseInt(ans, 10);
+  if (!(w > 0)) E = E.filter(x => x !== e); else e.w = w;
+  graphChanged();
+}
+function graphChanged() { if (!V.some(v => v.id === start)) start = V[0] ? V[0].id : null; resetAlgo(); }
+
+// ─────────────────────── Lecture ───────────────────────
+function delayMs() { return 1400 * Math.pow(1 - speed / 100, 1.8) + 80; }
+function schedule() {
+  clearTimeout(timer); if (!playing) return;
+  timer = setTimeout(() => { step(); if (done) playing = false; setUI(); schedule(); }, delayMs());
+}
+(function loop() { requestAnimationFrame(loop); draw(); })();
+
+// ─────────────────────── UI ───────────────────────
+function highlight(src) {
+  return src.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/("[^"]*")/g, '<span class="st">$1</span>')
+    .replace(/\b(def|for|in|if|else|while|and|or|return|not|lambda)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(min|set|float)\b/g, '<span class="fn">$1</span>')
+    .replace(/\b(\d+)\b/g, '<span class="nb">$1</span>');
+}
+function setUI() {
+  const t = T[lang];
+  document.title = t.title; $('tTitle').textContent = t.title; $('tHint').textContent = t.hint;
+  $('bLang').textContent = t.lang; $('bInfo').textContent = t.info; $('close').setAttribute('aria-label', t.close);
+  $('mStart').textContent = t.start; $('mTarget').textContent = t.target; $('mEdit').textContent = t.edit;
+  document.querySelectorAll('.seg').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
+  $('editHint').textContent = mode === 'edit' ? t.editHint : mode === 'target' ? t.dragHintT : t.dragHint;
+  $('graphLegend').innerHTML = t.legend.map(([c, l]) => `<span><i style="background:${c}"></i>${l}</span>`).join('');
+  $('bRandom').textContent = t.random; $('bDirected').title = t.directed; $('bDirected').classList.toggle('on', directed);
+  $('lblSpeed').textContent = t.speed; $('vSpeed').textContent = speed;
+  const sel = $('preset'); const cur = sel.value;
+  sel.innerHTML = Object.keys(t.presets).map(k => `<option value="${k}">${t.presets[k]}</option>`).join('');
+  sel.value = cur || 'p1';
+  $('bPlay').textContent = playing ? t.pause : (done ? t.replay : t.play);
+  $('bPlay').className = 'btn ' + (playing ? '' : 'teal');
+  $('bPlay').disabled = !start; $('bStep').disabled = playing || done || !start;
+  $('hTable').textContent = t.table; $('hExplain').textContent = t.explain; $('hCode').textContent = t.codeTitle;
+  $('code').innerHTML = t.code.map(l => `<li>${highlight(l)}</li>`).join('');
+  $('infoContent').innerHTML = t.infoHTML;
+  renderTable();
+}
+document.querySelectorAll('.seg').forEach(b => b.onclick = () => { mode = b.dataset.m; pendingEdgeFrom = null; setUI(); });
+$('preset').onchange = e => { loadPreset(e.target.value); $('preset').value = e.target.value; resetAlgo(); };
+$('bRandom').onclick = () => { randomGraph(); $('preset').value = 'rnd'; resetAlgo(); };
+$('bDirected').onclick = () => { directed = !directed; resetAlgo(); };
+$('rSpeed').oninput = e => { speed = +e.target.value; setUI(); schedule(); };
+$('bReset').onclick = () => resetAlgo();
+$('bPlay').onclick = () => { if (!start) return; if (done) resetAlgo(); playing = !playing; hideMsg(); setUI(); schedule(); };
+$('bStep').onclick = () => { playing = false; clearTimeout(timer); hideMsg(); step(); setUI(); };
+$('bLang').onclick = () => { lang = lang === 'fr' ? 'en' : 'fr'; document.documentElement.lang = lang; if (!S.started) S.explain = start ? T[lang].ex.ready() : T[lang].ex.noStart(); setUI(); };
+$('bInfo').onclick = () => { $('overlay').classList.add('open'); $('close').focus(); };
+$('close').onclick = () => $('overlay').classList.remove('open');
+$('overlay').onclick = ev => { if (ev.target.id === 'overlay') $('overlay').classList.remove('open'); };
+window.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') { $('overlay').classList.remove('open'); pendingEdgeFrom = null; return; }
+  if ($('overlay').classList.contains('open') || ['INPUT', 'SELECT'].includes(ev.target.tagName)) return;
+  if (ev.key === ' ' || ev.code === 'Space') { ev.preventDefault(); $('bPlay').click(); }
+  else if (ev.key === 'ArrowRight') { ev.preventDefault(); if (!$('bStep').disabled) $('bStep').click(); }
+  else if (ev.key.toLowerCase() === 'r') $('bRandom').click();
+});
+function showMsg(text, kind) { const m = $('msg'); m.textContent = text; m.className = 'toast glass show' + (kind ? ' ' + kind : ''); }
+function hideMsg() { $('msg').classList.remove('show'); }
+
+// ─────────────────────── Démarrage ───────────────────────
+loadPreset('p1');
+resetAlgo();
+$('preset').value = 'p1';
+</script>
+</body>
+</html>
