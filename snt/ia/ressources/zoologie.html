@@ -376,6 +376,46 @@
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
 
+  .langsw{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);display:flex;gap:.25rem;z-index:2}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* =========================================================
+     SCÈNE 8 — CE QUE JE DOIS RETENIR (fiche de fin, même
+     gabarit que la séance 1)
+     ========================================================= */
+  .recap{justify-content:center}
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.4rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.5rem,4.6vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.3rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.3vh,.7rem);max-width:96ch;counter-reset:r;margin:0}
+  .rc-list li{list-style:none;position:relative;padding-left:2.3rem;
+    font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.38;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.55rem;height:1.55rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.78rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:clamp(.7rem,2.2vh,1.2rem);max-width:110ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .7rem;
+    border-left:4px solid var(--signal);font-size:clamp(.72rem,1.25vw,.9rem);line-height:1.32;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.86em;letter-spacing:.02em;display:block;margin-bottom:.12rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.2rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.6rem,1.8vh,.9rem);
+    font-size:clamp(.95rem,1.9vw,1.25rem);color:var(--signal-dk);max-width:82ch}
+  .rc-key b{font-style:normal}
+
+  /* chinois : pas d'espacement de lettres sur les titres, un peu sur les sur-titres */
+  html[lang="zh"] .stitle,html[lang="zh"] .big,html[lang="zh"] .act h2,html[lang="zh"] h3,
+  html[lang="zh"] .ev-title,html[lang="zh"] .rc-title,html[lang="zh"] .rc-term b,html[lang="zh"] .branch h3{letter-spacing:0}
+  html[lang="zh"] .eyebrow,html[lang="zh"] .tag,html[lang="zh"] .ev-tag,html[lang="zh"] .kick,
+  html[lang="zh"] .rc-eye,html[lang="zh"] .bareme,html[lang="zh"] .tl-head-k{letter-spacing:.06em}
+
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.01ms!important;transition-duration:.01ms!important}
   }
@@ -384,6 +424,7 @@
     .split-grid,.vbody,.gdgrid{grid-template-columns:1fr}
     .lgrid{grid-template-columns:1fr}
     .pcard{max-width:46vw}
+    .rc-voc{grid-template-columns:1fr 1fr}
   }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
@@ -393,78 +434,78 @@
 
   <!-- ============ SCÈNE 0 : OUVERTURE ============ -->
   <div class="pane dark intro on" id="intro">
-    <a class="back" href="intro.html">◂ Séance 1 · Où en est l'IA&nbsp;?</a>
-    <div class="tag">SNT · Enseignement IA · Séance 2</div>
-    <h1 class="big">Zoologie<br>de l'<em>IA</em></h1>
-    <p class="line">Deux questions simples&nbsp;: <strong style="color:#fff">d'où ça vient</strong>, et <strong style="color:#fff">comment on range tout ce zoo</strong>. Deep Blue, les hivers, ChatGPT… puis une carte pour ne plus jamais confondre «&nbsp;IA&nbsp;», «&nbsp;machine learning&nbsp;» et «&nbsp;deep learning&nbsp;».</p>
-    <div class="kick">La semaine dernière&nbsp;: où on en est. Aujourd'hui&nbsp;: on ouvre le capot.</div>
+    <a class="back" href="intro.html" data-i18n="s0.back">◂ Séance 1 · Où en est l'IA&nbsp;?</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA · Séance 2</div>
+    <h1 class="big" data-i18n="s0.title">Zoologie<br>de l'<em>IA</em></h1>
+    <p class="line" data-i18n="s0.line">Deux questions simples&nbsp;: <strong style="color:#fff">d'où ça vient</strong>, et <strong style="color:#fff">comment on range tout ce zoo</strong>. Deep Blue, les hivers, ChatGPT… puis une carte pour ne plus jamais confondre «&nbsp;IA&nbsp;», «&nbsp;machine learning&nbsp;» et «&nbsp;deep learning&nbsp;».</p>
+    <div class="kick" data-i18n="s0.kick">La semaine dernière&nbsp;: où on en est. Aujourd'hui&nbsp;: on ouvre le capot.</div>
   </div>
 
   <!-- ============ SCÈNE 1 : FRISE HISTORIQUE ============ -->
   <div class="timeline" id="frise">
     <div class="tl-head">
-      <span class="tl-head-k">Soixante-dix ans en accéléré</span>
-      <span class="tl-head-scroll">défilez ↓</span>
+      <span class="tl-head-k" data-i18n="f.head">Soixante-dix ans en accéléré</span>
+      <span class="tl-head-scroll" data-i18n="f.scroll">défilez ↓</span>
     </div>
     <div class="tl-track" id="tlTrack">
 
       <article class="ev cold" data-year="1956">
         <div class="ev-year">1956</div>
         <div class="ev-body">
-          <div class="ev-tag">Dartmouth College — acte de naissance</div>
-          <h3 class="ev-title">Le terme «&nbsp;intelligence artificielle&nbsp;» est inventé</h3>
-          <p class="ev-note">Un séminaire d'été réunit les pionniers du domaine. L'idée est déjà là&nbsp;: faire faire à des machines ce qui, chez l'humain, demande de l'intelligence. Le mot est né&nbsp;; la réalité mettra des décennies.</p>
+          <div class="ev-tag" data-i18n="f.e1tag">Dartmouth College — acte de naissance</div>
+          <h3 class="ev-title" data-i18n="f.e1t">Le terme «&nbsp;intelligence artificielle&nbsp;» est inventé</h3>
+          <p class="ev-note" data-i18n="f.e1n">Un séminaire d'été réunit les pionniers du domaine. L'idée est déjà là&nbsp;: faire faire à des machines ce qui, chez l'humain, demande de l'intelligence. Le mot est né&nbsp;; la réalité mettra des décennies.</p>
         </div>
       </article>
 
       <article class="ev cold" data-year="1997">
         <div class="ev-year">1997</div>
         <div class="ev-body">
-          <div class="ev-tag">IBM Deep Blue · échecs</div>
-          <h3 class="ev-title">Une machine bat le champion du monde d'échecs</h3>
-          <p class="ev-note">Deep Blue bat Garry Kasparov. Choc mondial — mais attention&nbsp;: la machine ne «&nbsp;comprend&nbsp;» rien. Elle <b>calcule des millions de coups</b> à l'aide de règles écrites par des humains. C'est de l'IA… <b>sans le moindre apprentissage</b>. Gardez ça en tête pour la suite.</p>
+          <div class="ev-tag" data-i18n="f.e2tag">IBM Deep Blue · échecs</div>
+          <h3 class="ev-title" data-i18n="f.e2t">Une machine bat le champion du monde d'échecs</h3>
+          <p class="ev-note" data-i18n="f.e2n">Deep Blue bat Garry Kasparov. Choc mondial — mais attention&nbsp;: la machine ne «&nbsp;comprend&nbsp;» rien. Elle <b>calcule des millions de coups</b> à l'aide de règles écrites par des humains. C'est de l'IA… <b>sans le moindre apprentissage</b>. Gardez ça en tête pour la suite.</p>
         </div>
       </article>
 
       <!-- charnière : les hivers -->
       <div class="ev-turn">
-        <div class="k">Les deux hivers de l'IA</div>
-        <p>Années 1970, puis fin 1980–1990&nbsp;: deux fois, les promesses dépassent les résultats, les financements sont coupés, le domaine hiberne. L'IA a bien failli disparaître — deux fois.</p>
+        <div class="k" data-i18n="f.turnk">Les deux hivers de l'IA</div>
+        <p data-i18n="f.turnp">Années 1970, puis fin 1980–1990&nbsp;: deux fois, les promesses dépassent les résultats, les financements sont coupés, le domaine hiberne. L'IA a bien failli disparaître — deux fois.</p>
       </div>
 
       <article class="ev hot" data-year="2012">
         <div class="ev-year">2012</div>
         <div class="ev-body">
-          <div class="ev-tag">AlexNet · concours ImageNet</div>
-          <h3 class="ev-title">La vision par ordinateur bascule</h3>
-          <p class="ev-note">Un réseau de neurones profond, <b>AlexNet</b>, pulvérise le concours de reconnaissance d'images ImageNet. C'est le vrai coup d'envoi du <b>deep learning</b>&nbsp;: on arrête d'écrire les règles à la main, on laisse la machine les apprendre à partir d'exemples.</p>
+          <div class="ev-tag" data-i18n="f.e3tag">AlexNet · concours ImageNet</div>
+          <h3 class="ev-title" data-i18n="f.e3t">La vision par ordinateur bascule</h3>
+          <p class="ev-note" data-i18n="f.e3n">Un réseau de neurones profond, <b>AlexNet</b>, pulvérise le concours de reconnaissance d'images ImageNet. C'est le vrai coup d'envoi du <b>deep learning</b>&nbsp;: on arrête d'écrire les règles à la main, on laisse la machine les apprendre à partir d'exemples.</p>
         </div>
       </article>
 
       <article class="ev hot" data-year="2016">
         <div class="ev-year">2016</div>
         <div class="ev-body">
-          <div class="ev-tag">Google DeepMind · AlphaGo</div>
-          <h3 class="ev-title">AlphaGo gagne au jeu de Go</h3>
-          <p class="ev-note">Le Go était réputé hors de portée des machines&nbsp;: trop de combinaisons pour tout calculer. AlphaGo bat un champion en <b>apprenant par essai-erreur</b> (apprentissage par renforcement). Un mot à retenir&nbsp;: on y revient dans dix minutes.</p>
+          <div class="ev-tag" data-i18n="f.e4tag">Google DeepMind · AlphaGo</div>
+          <h3 class="ev-title" data-i18n="f.e4t">AlphaGo gagne au jeu de Go</h3>
+          <p class="ev-note" data-i18n="f.e4n">Le Go était réputé hors de portée des machines&nbsp;: trop de combinaisons pour tout calculer. AlphaGo bat un champion en <b>apprenant par essai-erreur</b> (apprentissage par renforcement). Un mot à retenir&nbsp;: on y revient dans dix minutes.</p>
         </div>
       </article>
 
       <article class="ev hot" data-year="2017">
         <div class="ev-year">2017</div>
         <div class="ev-body">
-          <div class="ev-tag">Google · « Attention Is All You Need »</div>
-          <h3 class="ev-title">L'invention des «&nbsp;transformers&nbsp;»</h3>
-          <p class="ev-note">Une nouvelle architecture de réseau de neurones. Discrète, technique — et pourtant décisive&nbsp;: c'est le <b>«&nbsp;T&nbsp;» de Chat<span style="color:#fff">GPT</span></b> (<span class="ev-en">Generative Pre-trained Transformer</span>). Sans elle, rien de ce qui suit n'existe.</p>
+          <div class="ev-tag" data-i18n="f.e5tag">Google · « Attention Is All You Need »</div>
+          <h3 class="ev-title" data-i18n="f.e5t">L'invention des «&nbsp;transformers&nbsp;»</h3>
+          <p class="ev-note" data-i18n="f.e5n">Une nouvelle architecture de réseau de neurones. Discrète, technique — et pourtant décisive&nbsp;: c'est le <b>«&nbsp;T&nbsp;» de Chat<span style="color:#fff">GPT</span></b> (<span class="ev-en">Generative Pre-trained Transformer</span>). Sans elle, rien de ce qui suit n'existe.</p>
         </div>
       </article>
 
       <article class="ev climax" data-year="2022">
         <div class="ev-year">2022</div>
         <div class="ev-body">
-          <div class="ev-tag">OpenAI · 30 novembre 2022</div>
-          <h3 class="ev-title climax-title">ChatGPT</h3>
-          <p class="ev-note">Le grand public découvre l'<b>IA générative</b>. <b>100 millions d'utilisateurs en deux mois</b>&nbsp;: le produit le plus vite adopté de l'histoire. En réalité, l'aboutissement de tout ce qui précède — Dartmouth, le deep learning de 2012, les transformers de 2017.</p>
+          <div class="ev-tag" data-i18n="f.e6tag">OpenAI · 30 novembre 2022</div>
+          <h3 class="ev-title climax-title" data-i18n="f.e6t">ChatGPT</h3>
+          <p class="ev-note" data-i18n="f.e6n">Le grand public découvre l'<b>IA générative</b>. <b>100 millions d'utilisateurs en deux mois</b>&nbsp;: le produit le plus vite adopté de l'histoire. En réalité, l'aboutissement de tout ce qui précède — Dartmouth, le deep learning de 2012, les transformers de 2017.</p>
         </div>
       </article>
 
@@ -474,135 +515,135 @@
   <!-- ============ SCÈNE 2 : COUPURES DE PRESSE ============ -->
   <div class="pane light presse pad" id="presse">
     <div class="pintro">
-      <div class="eyebrow">Fin 2022 – 2023 · l'onde de choc</div>
-      <h2 class="stitle">Comment la presse<br>a vu débarquer ChatGPT</h2>
-      <p class="plead">En quelques semaines, un outil de laboratoire devient un sujet de société. Petit florilège de réactions — toutes bien réelles.</p>
+      <div class="eyebrow" data-i18n="p.eyebrow">Fin 2022 – 2023 · l'onde de choc</div>
+      <h2 class="stitle" data-i18n="p.title">Comment la presse<br>a vu débarquer ChatGPT</h2>
+      <p class="plead" data-i18n="p.lead">En quelques semaines, un outil de laboratoire devient un sujet de société. Petit florilège de réactions — toutes bien réelles.</p>
     </div>
 
     <div class="pgrid">
       <div class="pcard" style="--r:-2deg">
-        <div class="kick">Éducation · janvier 2023</div>
-        <h3>New York interdit ChatGPT dans ses écoles publiques</h3>
-        <div class="src">décision du rectorat de la ville</div>
+        <div class="kick" data-i18n="p.c1k">Éducation · janvier 2023</div>
+        <h3 data-i18n="p.c1t">New York interdit ChatGPT dans ses écoles publiques</h3>
+        <div class="src" data-i18n="p.c1s">décision du rectorat de la ville</div>
       </div>
       <div class="pcard alarm" style="--r:1.5deg">
-        <div class="kick">Silicon Valley · décembre 2022</div>
-        <h3>Google déclare un «&nbsp;code rouge&nbsp;» en interne</h3>
-        <div class="src">rapporté par la presse américaine</div>
+        <div class="kick" data-i18n="p.c2k">Silicon Valley · décembre 2022</div>
+        <h3 data-i18n="p.c2t">Google déclare un «&nbsp;code rouge&nbsp;» en interne</h3>
+        <div class="src" data-i18n="p.c2s">rapporté par la presse américaine</div>
       </div>
       <div class="pcard" style="--r:-1deg">
-        <div class="kick">Examens · 2023</div>
-        <h3>Il réussit l'examen du barreau, un test de médecine, un MBA</h3>
-        <div class="src">plusieurs universités</div>
+        <div class="kick" data-i18n="p.c3k">Examens · 2023</div>
+        <h3 data-i18n="p.c3t">Il réussit l'examen du barreau, un test de médecine, un MBA</h3>
+        <div class="src" data-i18n="p.c3s">plusieurs universités</div>
       </div>
       <div class="pcard alarm" style="--r:2.2deg">
-        <div class="kick">Vie privée · mars 2023</div>
-        <h3>L'Italie bloque temporairement ChatGPT</h3>
-        <div class="src">autorité de protection des données</div>
+        <div class="kick" data-i18n="p.c4k">Vie privée · mars 2023</div>
+        <h3 data-i18n="p.c4t">L'Italie bloque temporairement ChatGPT</h3>
+        <div class="src" data-i18n="p.c4s">autorité de protection des données</div>
       </div>
       <div class="pcard" style="--r:-2.4deg">
-        <div class="kick">Alerte · mars 2023</div>
-        <h3>Une lettre ouverte réclame de «&nbsp;suspendre&nbsp;» les IA géantes</h3>
-        <div class="src">signée par des chercheurs et des industriels</div>
+        <div class="kick" data-i18n="p.c5k">Alerte · mars 2023</div>
+        <h3 data-i18n="p.c5t">Une lettre ouverte réclame de «&nbsp;suspendre&nbsp;» les IA géantes</h3>
+        <div class="src" data-i18n="p.c5s">signée par des chercheurs et des industriels</div>
       </div>
       <div class="pcard" style="--r:1.2deg">
-        <div class="kick">Société · 2023</div>
-        <h3>Va-t-il tuer la dissertation&nbsp;? Les profs face à la triche</h3>
-        <div class="src">un débat qui n'a jamais cessé depuis</div>
+        <div class="kick" data-i18n="p.c6k">Société · 2023</div>
+        <h3 data-i18n="p.c6t">Va-t-il tuer la dissertation&nbsp;? Les profs face à la triche</h3>
+        <div class="src" data-i18n="p.c6s">un débat qui n'a jamais cessé depuis</div>
       </div>
       <div class="pcard alarm" style="--r:-1.6deg">
-        <div class="kick">Record · janvier 2023</div>
-        <h3>100&nbsp;millions d'utilisateurs en deux mois</h3>
-        <div class="src">l'adoption la plus rapide de l'histoire</div>
+        <div class="kick" data-i18n="p.c7k">Record · janvier 2023</div>
+        <h3 data-i18n="p.c7t">100&nbsp;millions d'utilisateurs en deux mois</h3>
+        <div class="src" data-i18n="p.c7s">l'adoption la plus rapide de l'histoire</div>
       </div>
     </div>
 
-    <div class="pfoot">Panique, fascination, interdictions&nbsp;: exactement le «&nbsp;chaos&nbsp;» de la séance&nbsp;1. Reste une question — <span style="color:var(--signal-dk)">qu'y a-t-il vraiment sous le capot&nbsp;?</span></div>
+    <div class="pfoot" data-i18n="p.foot">Panique, fascination, interdictions&nbsp;: exactement le «&nbsp;chaos&nbsp;» de la séance&nbsp;1. Reste une question — <span style="color:var(--signal-dk)">qu'y a-t-il vraiment sous le capot&nbsp;?</span></div>
   </div>
 
   <!-- ============ SCÈNE 3 : LE GRAND PARTAGE ============ -->
   <div class="pane light pad" id="partage">
-    <div class="eyebrow">Taxonomie · le premier embranchement</div>
-    <h2 class="stitle">Deux façons de rendre<br>une machine «&nbsp;intelligente&nbsp;»</h2>
+    <div class="eyebrow" data-i18n="g.eyebrow">Taxonomie · le premier embranchement</div>
+    <h2 class="stitle" data-i18n="g.title">Deux façons de rendre<br>une machine «&nbsp;intelligente&nbsp;»</h2>
 
     <div class="split">
       <div class="split-grid">
         <div class="branch sym">
-          <h3>IA symbolique</h3>
-          <div class="fr">les règles écrites à la main</div>
-          <p>On <b>dit à la machine quoi faire</b>, règle après règle. «&nbsp;Si… alors…&nbsp;». Ce sont les systèmes experts, les moteurs de règles — et Deep Blue.</p>
-          <p><b>Force&nbsp;:</b> c'est explicable, on sait pourquoi elle répond ça.<br><b>Limite&nbsp;:</b> il faut <b>tout prévoir à l'avance</b>&nbsp;; face à un cas nouveau, elle est perdue.</p>
-          <div class="ex">◦ Deep Blue · systèmes experts · moteurs de règles</div>
+          <h3 data-i18n="g.symh">IA symbolique</h3>
+          <div class="fr" data-i18n="g.symfr">les règles écrites à la main</div>
+          <p data-i18n="g.symp1">On <b>dit à la machine quoi faire</b>, règle après règle. «&nbsp;Si… alors…&nbsp;». Ce sont les systèmes experts, les moteurs de règles — et Deep Blue.</p>
+          <p data-i18n="g.symp2"><b>Force&nbsp;:</b> c'est explicable, on sait pourquoi elle répond ça.<br><b>Limite&nbsp;:</b> il faut <b>tout prévoir à l'avance</b>&nbsp;; face à un cas nouveau, elle est perdue.</p>
+          <div class="ex" data-i18n="g.symex">◦ Deep Blue · systèmes experts · moteurs de règles</div>
         </div>
         <div class="branch ml">
-          <h3>Apprentissage</h3>
-          <div class="fr">machine learning · la machine apprend</div>
-          <p>On ne donne <b>pas</b> les règles&nbsp;: on donne des <b>exemples</b>, et la machine trouve les règles toute seule. «&nbsp;Voici 10&nbsp;000 photos de chats et de chiens&nbsp;: débrouille-toi.&nbsp;»</p>
-          <p><b>Force&nbsp;:</b> elle gère des cas qu'on n'avait pas prévus.<br><b>Limite&nbsp;:</b> c'est une «&nbsp;boîte noire&nbsp;», et il faut <b>beaucoup de données</b>.</p>
-          <div class="ex">◦ AlexNet · AlphaGo · ChatGPT · Claude</div>
+          <h3 data-i18n="g.mlh">Apprentissage</h3>
+          <div class="fr" data-i18n="g.mlfr">machine learning · la machine apprend</div>
+          <p data-i18n="g.mlp1">On ne donne <b>pas</b> les règles&nbsp;: on donne des <b>exemples</b>, et la machine trouve les règles toute seule. «&nbsp;Voici 10&nbsp;000 photos de chats et de chiens&nbsp;: débrouille-toi.&nbsp;»</p>
+          <p data-i18n="g.mlp2"><b>Force&nbsp;:</b> elle gère des cas qu'on n'avait pas prévus.<br><b>Limite&nbsp;:</b> c'est une «&nbsp;boîte noire&nbsp;», et il faut <b>beaucoup de données</b>.</p>
+          <div class="ex" data-i18n="g.mlex">◦ AlexNet · AlphaGo · ChatGPT · Claude</div>
         </div>
       </div>
-      <p class="split-punch">À retenir&nbsp;: «&nbsp;IA&nbsp;» n'est <b>pas</b> un synonyme de «&nbsp;machine learning&nbsp;». Un système à base de règles, c'est de l'IA <b>sans le moindre apprentissage</b>. C'est précisément ce qu'on va lire sur la carte.</p>
+      <p class="split-punch" data-i18n="g.punch">À retenir&nbsp;: «&nbsp;IA&nbsp;» n'est <b>pas</b> un synonyme de «&nbsp;machine learning&nbsp;». Un système à base de règles, c'est de l'IA <b>sans le moindre apprentissage</b>. C'est précisément ce qu'on va lire sur la carte.</p>
     </div>
   </div>
 
   <!-- ============ SCÈNE 4 : DIAGRAMME DE VENN ============ -->
   <div class="pane dark venn pad" id="venn">
     <div class="vhead">
-      <div class="eyebrow">La carte à retenir</div>
-      <h2 class="stitle">Des poupées russes,<br>pas des rivales</h2>
-      <p class="vlead">«&nbsp;IA&nbsp;», «&nbsp;machine learning&nbsp;», «&nbsp;deep learning&nbsp;», «&nbsp;IA générative&nbsp;» ne sont ni des concurrents ni des synonymes&nbsp;: ils <em style="color:#fff;font-style:normal">s'emboîtent</em>.</p>
+      <div class="eyebrow" data-i18n="v.eyebrow">La carte à retenir</div>
+      <h2 class="stitle" data-i18n="v.title">Des poupées russes,<br>pas des rivales</h2>
+      <p class="vlead" data-i18n="v.lead">«&nbsp;IA&nbsp;», «&nbsp;machine learning&nbsp;», «&nbsp;deep learning&nbsp;», «&nbsp;IA générative&nbsp;» ne sont ni des concurrents ni des synonymes&nbsp;: ils <em style="color:#fff;font-style:normal">s'emboîtent</em>.</p>
     </div>
 
     <div class="vbody">
       <svg class="vsvg" viewBox="0 0 660 520" role="img" aria-label="Blocs emboîtés : l'intelligence artificielle contient deux domaines frères, l'IA symbolique et le machine learning. Le machine learning contient le deep learning. L'IA générative est presque entièrement dans le deep learning, mais déborde un peu sur sa droite, dans le machine learning non profond.">
         <!-- INTELLIGENCE ARTIFICIELLE : le cadre englobant -->
         <rect x="8" y="8" width="644" height="504" rx="16" fill="rgba(233,228,216,.035)" stroke="#b8b0a0" stroke-width="2"/>
-        <text x="30" y="42" fill="#d8d0c0" font-size="18" letter-spacing="1.5">INTELLIGENCE ARTIFICIELLE</text>
+        <text x="30" y="42" fill="#d8d0c0" font-size="18" letter-spacing="1.5" data-i18n="v.svg.ai">INTELLIGENCE ARTIFICIELLE</text>
 
         <!-- IA SYMBOLIQUE : bloc frère, à gauche -->
         <rect x="32" y="68" width="176" height="420" rx="12" fill="rgba(233,228,216,.06)" stroke="#b8b0a0" stroke-width="2"/>
-        <text x="48" y="106" fill="#cfc8b8" font-size="15" font-weight="bold">IA symbolique</text>
-        <text x="48" y="130" fill="#9a927f" font-size="11">règles écrites</text>
-        <text x="48" y="147" fill="#9a927f" font-size="11">à la main</text>
-        <text x="48" y="186" fill="#8a8272" font-size="11">Deep Blue</text>
-        <text x="48" y="203" fill="#8a8272" font-size="11">systèmes experts</text>
+        <text x="48" y="106" fill="#cfc8b8" font-size="15" font-weight="bold" data-i18n="v.svg.sym">IA symbolique</text>
+        <text x="48" y="130" fill="#9a927f" font-size="11" data-i18n="v.svg.sym1">règles écrites</text>
+        <text x="48" y="147" fill="#9a927f" font-size="11" data-i18n="v.svg.sym2">à la main</text>
+        <text x="48" y="186" fill="#8a8272" font-size="11" data-i18n="v.svg.sym3">Deep Blue</text>
+        <text x="48" y="203" fill="#8a8272" font-size="11" data-i18n="v.svg.sym4">systèmes experts</text>
 
         <!-- MACHINE LEARNING : bloc frère, à droite -->
         <rect x="232" y="68" width="396" height="420" rx="12" fill="rgba(127,160,255,.08)" stroke="#7fa0ff" stroke-width="2"/>
-        <text x="252" y="106" fill="#9fb8ff" font-size="17" font-weight="bold">Machine learning</text>
-        <text x="252" y="128" fill="#8fa8e0" font-size="11">régression · arbres de décision · k-means</text>
+        <text x="252" y="106" fill="#9fb8ff" font-size="17" font-weight="bold" data-i18n="v.svg.ml">Machine learning</text>
+        <text x="252" y="128" fill="#8fa8e0" font-size="11" data-i18n="v.svg.ml2">régression · arbres de décision · k-means</text>
 
         <!-- DEEP LEARNING : dans le machine learning -->
         <rect x="262" y="142" width="338" height="316" rx="10" fill="rgba(31,92,255,.16)" stroke="#1f5cff" stroke-width="2.5"/>
-        <text x="282" y="176" fill="#bcd0ff" font-size="15" font-weight="bold">Deep learning</text>
+        <text x="282" y="176" fill="#bcd0ff" font-size="15" font-weight="bold" data-i18n="v.svg.dl">Deep learning</text>
 
         <!-- IA GÉNÉRATIVE : déborde volontairement à droite du deep learning -->
         <rect x="380" y="240" width="240" height="170" rx="10" fill="rgba(255,106,77,.18)" stroke="#ff6a4d" stroke-width="2.5"/>
-        <text x="500" y="320" fill="#ffd9cf" font-size="16" font-weight="bold" text-anchor="middle">IA générative</text>
-        <text x="500" y="342" fill="#ffb9a8" font-size="11" text-anchor="middle">LLM · diffusion</text>
+        <text x="500" y="320" fill="#ffd9cf" font-size="16" font-weight="bold" text-anchor="middle" data-i18n="v.svg.gen">IA générative</text>
+        <text x="500" y="342" fill="#ffb9a8" font-size="11" text-anchor="middle" data-i18n="v.svg.gen2">LLM · diffusion</text>
       </svg>
 
       <div class="vlegend">
         <div class="vrow sym">
-          <div class="n">IA symbolique</div>
-          <div class="d">Dans l'IA, <em>hors</em> machine learning. On écrit les règles. <em>Deep Blue, systèmes experts.</em></div>
+          <div class="n" data-i18n="v.l1n">IA symbolique</div>
+          <div class="d" data-i18n="v.l1d">Dans l'IA, <em>hors</em> machine learning. On écrit les règles. <em>Deep Blue, systèmes experts.</em></div>
         </div>
         <div class="vrow ml">
-          <div class="n">Machine learning (hors deep)</div>
-          <div class="d">La machine apprend, mais sans réseau profond. <em>Régression, arbres de décision, k-means.</em></div>
+          <div class="n" data-i18n="v.l2n">Machine learning (hors deep)</div>
+          <div class="d" data-i18n="v.l2d">La machine apprend, mais sans réseau profond. <em>Régression, arbres de décision, k-means.</em></div>
         </div>
         <div class="vrow dl">
-          <div class="n">Deep learning</div>
-          <div class="d">Apprentissage par réseaux de neurones à plusieurs couches. <em>AlexNet, reconnaissance vocale.</em></div>
+          <div class="n" data-i18n="v.l3n">Deep learning</div>
+          <div class="d" data-i18n="v.l3d">Apprentissage par réseaux de neurones à plusieurs couches. <em>AlexNet, reconnaissance vocale.</em></div>
         </div>
         <div class="vrow gen">
-          <div class="n">IA générative</div>
-          <div class="d">Produit du nouveau contenu. <em>ChatGPT, Claude (texte), Midjourney (images).</em></div>
+          <div class="n" data-i18n="v.l4n">IA générative</div>
+          <div class="d" data-i18n="v.l4d">Produit du nouveau contenu. <em>ChatGPT, Claude (texte), Midjourney (images).</em></div>
         </div>
         <div class="vcare">
-          <p><b>«&nbsp;IA&nbsp;» ≠ «&nbsp;machine learning&nbsp;».</b> La preuve est à gauche&nbsp;: l'IA symbolique est de l'IA sans aucun apprentissage.</p>
-          <p><b>Pourquoi le cercle orange déborde&nbsp;?</b> Presque toute l'IA générative de 2026 est du deep learning — mais pas <em>par définition</em>&nbsp;: il a existé du génératif «&nbsp;non profond&nbsp;» (chaînes de Markov, n-grammes). D'où le petit débordement.</p>
+          <p data-i18n="v.care1"><b>«&nbsp;IA&nbsp;» ≠ «&nbsp;machine learning&nbsp;».</b> La preuve est à gauche&nbsp;: l'IA symbolique est de l'IA sans aucun apprentissage.</p>
+          <p data-i18n="v.care2"><b>Pourquoi le cercle orange déborde&nbsp;?</b> Presque toute l'IA générative de 2026 est du deep learning — mais pas <em>par définition</em>&nbsp;: il a existé du génératif «&nbsp;non profond&nbsp;» (chaînes de Markov, n-grammes). D'où le petit débordement.</p>
         </div>
       </div>
     </div>
@@ -610,48 +651,48 @@
 
   <!-- ============ SCÈNE 5 : TROIS FAÇONS D'APPRENDRE ============ -->
   <div class="pane light pad" id="apprendre">
-    <div class="eyebrow">Zoom sur la branche «&nbsp;apprentissage&nbsp;»</div>
-    <h2 class="stitle">Trois façons d'apprendre</h2>
+    <div class="eyebrow" data-i18n="l.eyebrow">Zoom sur la branche «&nbsp;apprentissage&nbsp;»</div>
+    <h2 class="stitle" data-i18n="l.title">Trois façons d'apprendre</h2>
 
     <div class="learn">
       <div class="lgrid">
         <div class="lcard">
           <div class="num">01</div>
-          <h3>Supervisé</h3>
-          <div class="an">« apprendre avec un corrigé »</div>
-          <p>Les données sont <b>étiquetées</b>&nbsp;: chaque photo vient avec la bonne réponse (photo → «&nbsp;chat&nbsp;»). La machine apprend à relier l'un à l'autre.</p>
-          <div class="ex">▸ trier les mails spam / non-spam<br>▸ reconnaître un chiffre manuscrit</div>
+          <h3 data-i18n="l.c1h">Supervisé</h3>
+          <div class="an" data-i18n="l.c1an">« apprendre avec un corrigé »</div>
+          <p data-i18n="l.c1p">Les données sont <b>étiquetées</b>&nbsp;: chaque photo vient avec la bonne réponse (photo → «&nbsp;chat&nbsp;»). La machine apprend à relier l'un à l'autre.</p>
+          <div class="ex" data-i18n="l.c1ex">▸ trier les mails spam / non-spam<br>▸ reconnaître un chiffre manuscrit</div>
         </div>
         <div class="lcard">
           <div class="num">02</div>
-          <h3>Non&#8209;supervisé</h3>
-          <div class="an">« ranger sans consigne »</div>
-          <p>Les données sont <b>brutes</b>, sans étiquette. La machine cherche seule des <b>regroupements</b>, des structures cachées.</p>
-          <div class="ex">▸ regrouper des clients par comportement<br>▸ compresser, détecter l'anomalie</div>
+          <h3 data-i18n="l.c2h">Non&#8209;supervisé</h3>
+          <div class="an" data-i18n="l.c2an">« ranger sans consigne »</div>
+          <p data-i18n="l.c2p">Les données sont <b>brutes</b>, sans étiquette. La machine cherche seule des <b>regroupements</b>, des structures cachées.</p>
+          <div class="ex" data-i18n="l.c2ex">▸ regrouper des clients par comportement<br>▸ compresser, détecter l'anomalie</div>
         </div>
         <div class="lcard">
           <div class="num">03</div>
-          <h3>Renforcement</h3>
-          <div class="an">« apprendre par récompense »</div>
-          <p>Un <b>agent</b> agit, puis gagne ou perd des points. Par <b>essai-erreur</b>, il apprend la stratégie qui rapporte le plus.</p>
-          <div class="ex">▸ AlphaGo, robots qui marchent<br>▸ le «&nbsp;RLHF&nbsp;» qui a poli ChatGPT</div>
+          <h3 data-i18n="l.c3h">Renforcement</h3>
+          <div class="an" data-i18n="l.c3an">« apprendre par récompense »</div>
+          <p data-i18n="l.c3p">Un <b>agent</b> agit, puis gagne ou perd des points. Par <b>essai-erreur</b>, il apprend la stratégie qui rapporte le plus.</p>
+          <div class="ex" data-i18n="l.c3ex">▸ AlphaGo, robots qui marchent<br>▸ le «&nbsp;RLHF&nbsp;» qui a poli ChatGPT</div>
         </div>
       </div>
-      <p class="lnote">Trois régimes différents pour une même idée&nbsp;: <b>apprendre à partir de données</b> plutôt que de règles écrites à la main.</p>
+      <p class="lnote" data-i18n="l.note">Trois régimes différents pour une même idée&nbsp;: <b>apprendre à partir de données</b> plutôt que de règles écrites à la main.</p>
     </div>
   </div>
 
   <!-- ============ SCÈNE 6 : GÉNÉRATIF vs DISCRIMINATIF ============ -->
   <div class="pane light pad" id="gendisc">
-    <div class="eyebrow">Une coupe transversale — ⚠ ce n'est PAS une poupée russe</div>
-    <h2 class="stitle">Discriminatif<br>ou génératif&nbsp;?</h2>
-    <p class="glead">Ces deux-là ne s'emboîtent pas&nbsp;: c'est une autre façon de trancher un modèle d'apprentissage, selon <b>ce qu'il apprend</b>.</p>
+    <div class="eyebrow" data-i18n="d.eyebrow">Une coupe transversale — ⚠ ce n'est PAS une poupée russe</div>
+    <h2 class="stitle" data-i18n="d.title">Discriminatif<br>ou génératif&nbsp;?</h2>
+    <p class="glead" data-i18n="d.lead">Ces deux-là ne s'emboîtent pas&nbsp;: c'est une autre façon de trancher un modèle d'apprentissage, selon <b>ce qu'il apprend</b>.</p>
 
     <div class="gd">
       <div class="gdgrid">
         <div class="gdcard disc">
-          <h3>Discriminatif</h3>
-          <div class="q">« Chat ou chien&nbsp;? »</div>
+          <h3 data-i18n="d.c1h">Discriminatif</h3>
+          <div class="q" data-i18n="d.c1q">« Chat ou chien&nbsp;? »</div>
           <svg class="mini" viewBox="0 0 240 150" role="img" aria-label="Deux nuages de points séparés par une droite.">
             <line x1="35" y1="140" x2="205" y2="20" stroke="#1f5cff" stroke-width="3"/>
             <g fill="#123bab">
@@ -663,12 +704,12 @@
               <circle cx="190" cy="105" r="6"/><circle cx="140" cy="95" r="6"/><circle cx="185" cy="60" r="6"/>
             </g>
           </svg>
-          <p>Il apprend la <b>frontière</b> entre les catégories. Il sait <b>séparer</b>, pas dessiner.</p>
-          <div class="ex">▸ filtre anti-spam · «&nbsp;tumeur / pas tumeur&nbsp;»</div>
+          <p data-i18n="d.c1p">Il apprend la <b>frontière</b> entre les catégories. Il sait <b>séparer</b>, pas dessiner.</p>
+          <div class="ex" data-i18n="d.c1ex">▸ filtre anti-spam · «&nbsp;tumeur / pas tumeur&nbsp;»</div>
         </div>
         <div class="gdcard gen">
-          <h3>Génératif</h3>
-          <div class="q">« Dessine-moi un chat. »</div>
+          <h3 data-i18n="d.c2h">Génératif</h3>
+          <div class="q" data-i18n="d.c2q">« Dessine-moi un chat. »</div>
           <svg class="mini" viewBox="0 0 240 150" role="img" aria-label="Un nuage de points modélisé par une distribution, d'où l'on tire un nouveau point.">
             <ellipse cx="95" cy="80" rx="62" ry="42" fill="rgba(181,48,31,.12)" stroke="#b5301f" stroke-width="2" stroke-dasharray="5 5"/>
             <g fill="#123bab">
@@ -676,39 +717,67 @@
               <circle cx="80" cy="95" r="5"/><circle cx="120" cy="70" r="5"/><circle cx="95" cy="90" r="5"/>
             </g>
             <circle cx="185" cy="70" r="8" fill="#b5301f"/>
-            <text x="185" y="100" fill="#b5301f" font-family="Courier New,monospace" font-size="12" text-anchor="middle">nouveau&nbsp;!</text>
+            <text x="185" y="100" fill="#b5301f" font-family="Courier New,monospace" font-size="12" text-anchor="middle" data-i18n="d.c2new">nouveau&nbsp;!</text>
             <path d="M150 75 L172 71" stroke="#b5301f" stroke-width="2" marker-end="url(#ah)"/>
             <defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
               <path d="M0 0 L6 3 L0 6 Z" fill="#b5301f"/></marker></defs>
           </svg>
-          <p>Il apprend <b>à quoi ressemblent</b> les données — pour en <b>produire de nouvelles</b>.</p>
-          <div class="ex">▸ ChatGPT, Claude · Midjourney</div>
+          <p data-i18n="d.c2p">Il apprend <b>à quoi ressemblent</b> les données — pour en <b>produire de nouvelles</b>.</p>
+          <div class="ex" data-i18n="d.c2ex">▸ ChatGPT, Claude · Midjourney</div>
         </div>
       </div>
-      <p class="gdfoot">Presque tout le bruit de 2026 est <b>génératif</b>. Mais un anti-spam ou un diagnostic «&nbsp;oui / non&nbsp;», c'est <b>discriminatif</b> — souvent la même techno (du deep learning), un but différent.</p>
+      <p class="gdfoot" data-i18n="d.foot">Presque tout le bruit de 2026 est <b>génératif</b>. Mais un anti-spam ou un diagnostic «&nbsp;oui / non&nbsp;», c'est <b>discriminatif</b> — souvent la même techno (du deep learning), un but différent.</p>
     </div>
   </div>
 
   <!-- ============ SCÈNE 7 : ACTIVITÉ ============ -->
   <div class="pane dark act" id="activite">
-    <div class="tag">Activité de la séance</div>
-    <h2>Votre <em>zoologie</em><br>de l'IA</h2>
-    <p class="sub">Par groupes&nbsp;: réalisez une <strong style="color:#fff">infographie claire et belle</strong> qui range tout ce zoo. Le but&nbsp;: qu'un élève de 3<sup>e</sup> comprenne d'un coup d'œil.</p>
+    <div class="tag" data-i18n="a.tag">Activité de la séance</div>
+    <h2 data-i18n="a.title">Votre <em>zoologie</em><br>de l'IA</h2>
+    <p class="sub" data-i18n="a.sub">Par groupes&nbsp;: réalisez une <strong style="color:#fff">infographie claire et belle</strong> qui range tout ce zoo. Le but&nbsp;: qu'un élève de 3<sup>e</sup> comprenne d'un coup d'œil.</p>
     <ul class="crit">
-      <li>L'emboîtement <b>IA ⊃ machine learning ⊃ deep learning</b> — et où se glisse le génératif.</li>
-      <li>La distinction <b>symbolique / apprentissage</b> (montrez qu'«&nbsp;IA&nbsp;» ≠ «&nbsp;machine learning&nbsp;»).</li>
-      <li>Les <b>trois façons d'apprendre</b>, avec une image pour chacune.</li>
-      <li>Au moins <b>un exemple réel par case</b> (Deep Blue, anti-spam, AlexNet, ChatGPT…).</li>
-      <li><b>Bonus&nbsp;:</b> la coupe génératif / discriminatif, à part.</li>
+      <li data-i18n="a.i1">L'emboîtement <b>IA ⊃ machine learning ⊃ deep learning</b> — et où se glisse le génératif.</li>
+      <li data-i18n="a.i2">La distinction <b>symbolique / apprentissage</b> (montrez qu'«&nbsp;IA&nbsp;» ≠ «&nbsp;machine learning&nbsp;»).</li>
+      <li data-i18n="a.i3">Les <b>trois façons d'apprendre</b>, avec une image pour chacune.</li>
+      <li data-i18n="a.i4">Au moins <b>un exemple réel par case</b> (Deep Blue, anti-spam, AlexNet, ChatGPT…).</li>
+      <li data-i18n="a.i5"><b>Bonus&nbsp;:</b> la coupe génératif / discriminatif, à part.</li>
     </ul>
-    <div class="bareme">Notée sur&nbsp;: exactitude · lisibilité · esthétique</div>
+    <div class="bareme" data-i18n="a.bareme">Notée sur&nbsp;: exactitude · lisibilité · esthétique</div>
+  </div>
+
+  <!-- ============ SCÈNE 8 : CE QUE JE DOIS RETENIR ============ -->
+  <div class="pane light pad recap" id="recap">
+    <div class="rc-eye" data-i18n="rc.eye">Fin de la séance 2</div>
+    <h2 class="rc-title" data-i18n="rc.title">Ce que je dois <span>retenir</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">L'IA a <b>soixante-dix ans</b> (Dartmouth, 1956), a survécu à deux hivers, et a basculé trois fois&nbsp;: deep learning (2012), transformers (2017), ChatGPT (2022).</li>
+      <li data-i18n="rc.i2">Deux façons de rendre une machine intelligente&nbsp;: <span class="hl">symbolique</span> (règles écrites à la main) ou <span class="hl">apprentissage</span> (règles trouvées à partir d'exemples). Donc <b>«&nbsp;IA&nbsp;» ≠ «&nbsp;machine learning&nbsp;»</b>.</li>
+      <li data-i18n="rc.i3">Des poupées russes&nbsp;: <b>IA ⊃ machine learning ⊃ deep learning</b>. L'IA générative vit (presque) entièrement dans le deep learning.</li>
+      <li data-i18n="rc.i4">Trois façons d'apprendre — <span class="hl">supervisé</span>, <span class="hl">non supervisé</span>, <span class="hl">renforcement</span> — et une coupe transversale&nbsp;: <span class="hl">discriminatif</span> (séparer) vs <span class="hl">génératif</span> (produire).</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Intelligence artificielle</b>Faire faire à une machine ce qui, chez l'humain, demande de l'intelligence.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>IA symbolique</b>Des règles écrites à la main («&nbsp;si… alors…&nbsp;»). Deep Blue.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Machine learning</b>La machine trouve les règles toute seule, à partir d'exemples.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Deep learning</b>Apprentissage par réseaux de neurones à plusieurs couches.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>IA générative</b>Produit du nouveau contenu&nbsp;: texte, images, code.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Supervisé / non supervisé / renforcement</b>Avec corrigé / sans consigne / par récompense.</div>
+      <div class="rc-term" data-i18n="rc.v7"><b>Discriminatif vs génératif</b>Séparer (chat ou chien&nbsp;?) vs produire (dessine un chat).</div>
+      <div class="rc-term" data-i18n="rc.v8"><b>Transformer</b>L'architecture de 2017 — le «&nbsp;T&nbsp;» de GPT.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Avant de juger une «&nbsp;IA&nbsp;», toujours demander&nbsp;: <b>de quelle IA parle-t-on&nbsp;?</b></p>
   </div>
 
 </div>
 
 <!-- HUD — barre de navigation, hors de la scène -->
 <div class="hud">
-  <button class="btn" id="prev">◀ Retour</button>
+  <div class="langsw" id="langsw">
+    <button data-lang="fr" class="on">FR</button>
+    <button data-lang="en">EN</button>
+    <button data-lang="zh">中</button>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div>
     <div class="dot" data-i="1"></div>
@@ -718,38 +787,313 @@
     <div class="dot" data-i="5"></div>
     <div class="dot" data-i="6"></div>
     <div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div>
   </div>
-  <button class="btn" id="next">Suite ▶</button>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
 <script>
-  const intro     = document.getElementById('intro');
-  const frise     = document.getElementById('frise');
-  const presse    = document.getElementById('presse');
-  const partage   = document.getElementById('partage');
-  const venn      = document.getElementById('venn');
-  const apprendre = document.getElementById('apprendre');
-  const gendisc   = document.getElementById('gendisc');
-  const activite  = document.getElementById('activite');
-  const dots      = [...document.querySelectorAll('.dot')];
-  let scene = 0;   // 0 ouverture·1 frise·2 presse·3 partage·4 venn·5 apprendre·6 gén/disc·7 activité
-  const MAX = 7;
+  /* =========================================================
+     I18N — le français reste la source dans la page (capturé au
+     démarrage) ; seuls l'anglais et le chinois vivent ici.
+     Même mécanique que intro.html et token.html : applyLang(lang)
+     est global, la séance miroir s'en sert.
+     ========================================================= */
+  const I18N = {
+    en: {
+      's0.back':`◂ Lesson 1 · Where does AI stand?`,
+      's0.tag':`SNT · AI Course · Lesson 2`,
+      's0.title':`A zoo<br>of <em>AI</em>`,
+      's0.line':`Two simple questions: <strong style="color:#fff">where it comes from</strong>, and <strong style="color:#fff">how to sort out this whole zoo</strong>. Deep Blue, the winters, ChatGPT… then a map so you never again confuse “AI”, “machine learning” and “deep learning”.`,
+      's0.kick':`Last week: where things stand. Today: we open the hood.`,
+
+      'f.head':`Seventy years, fast-forwarded`,
+      'f.scroll':`scroll ↓`,
+      'f.e1tag':`Dartmouth College — the birth certificate`,
+      'f.e1t':`The term “artificial intelligence” is coined`,
+      'f.e1n':`A summer workshop gathers the field's pioneers. The idea is already there: make machines do what, in humans, takes intelligence. The word is born; the reality will take decades.`,
+      'f.e2tag':`IBM Deep Blue · chess`,
+      'f.e2t':`A machine beats the world chess champion`,
+      'f.e2n':`Deep Blue beats Garry Kasparov. A worldwide shock — but careful: the machine “understands” nothing. It <b>computes millions of moves</b> using rules written by humans. It's AI… <b>without any learning at all</b>. Keep that in mind for later.`,
+      'f.turnk':`The two AI winters`,
+      'f.turnp':`The 1970s, then the late 1980s–1990s: twice, promises outrun results, funding is cut, the field hibernates. AI very nearly disappeared — twice.`,
+      'f.e3tag':`AlexNet · the ImageNet contest`,
+      'f.e3t':`Computer vision tips over`,
+      'f.e3n':`A deep neural network, <b>AlexNet</b>, crushes the ImageNet image-recognition contest. The real kick-off of <b>deep learning</b>: we stop writing the rules by hand and let the machine learn them from examples.`,
+      'f.e4tag':`Google DeepMind · AlphaGo`,
+      'f.e4t':`AlphaGo wins at the game of Go`,
+      'f.e4n':`Go was thought to be out of reach for machines: too many combinations to compute them all. AlphaGo beats a champion by <b>learning through trial and error</b> (reinforcement learning). A word to remember: we'll be back to it in ten minutes.`,
+      'f.e5tag':`Google · “Attention Is All You Need”`,
+      'f.e5t':`The invention of “transformers”`,
+      'f.e5n':`A new neural-network architecture. Quiet, technical — and yet decisive: it's the <b>“T” in Chat<span style="color:#fff">GPT</span></b> (<span class="ev-en">Generative Pre-trained Transformer</span>). Without it, nothing that follows exists.`,
+      'f.e6tag':`OpenAI · 30 November 2022`,
+      'f.e6t':`ChatGPT`,
+      'f.e6n':`The general public discovers <b>generative AI</b>. <b>100 million users in two months</b>: the fastest-adopted product in history. In truth, the culmination of everything before — Dartmouth, the deep learning of 2012, the transformers of 2017.`,
+
+      'p.eyebrow':`Late 2022 – 2023 · the shock wave`,
+      'p.title':`How the press<br>saw ChatGPT arrive`,
+      'p.lead':`Within weeks, a lab tool becomes a social issue. A small anthology of reactions — all very real.`,
+      'p.c1k':`Education · January 2023`, 'p.c1t':`New York bans ChatGPT in its public schools`, 'p.c1s':`decision by the city's school authority`,
+      'p.c2k':`Silicon Valley · December 2022`, 'p.c2t':`Google declares an internal “code red”`, 'p.c2s':`reported by the American press`,
+      'p.c3k':`Exams · 2023`, 'p.c3t':`It passes the bar exam, a medical test, an MBA`, 'p.c3s':`several universities`,
+      'p.c4k':`Privacy · March 2023`, 'p.c4t':`Italy temporarily blocks ChatGPT`, 'p.c4s':`data-protection authority`,
+      'p.c5k':`Alert · March 2023`, 'p.c5t':`An open letter calls for a “pause” on giant AIs`, 'p.c5s':`signed by researchers and industry leaders`,
+      'p.c6k':`Society · 2023`, 'p.c6t':`Will it kill the essay? Teachers facing cheating`, 'p.c6s':`a debate that has never stopped since`,
+      'p.c7k':`Record · January 2023`, 'p.c7t':`100&nbsp;million users in two months`, 'p.c7s':`the fastest adoption in history`,
+      'p.foot':`Panic, fascination, bans: exactly the “chaos” of Lesson&nbsp;1. One question remains — <span style="color:var(--signal-dk)">what is really under the hood?</span>`,
+
+      'g.eyebrow':`Taxonomy · the first fork`,
+      'g.title':`Two ways to make<br>a machine “intelligent”`,
+      'g.symh':`Symbolic AI`,
+      'g.symfr':`rules written by hand`,
+      'g.symp1':`We <b>tell the machine what to do</b>, rule after rule. “If… then…”. These are expert systems, rule engines — and Deep Blue.`,
+      'g.symp2':`<b>Strength:</b> it's explainable, we know why it answers that.<br><b>Limit:</b> you must <b>foresee everything in advance</b>; faced with a new case, it's lost.`,
+      'g.symex':`◦ Deep Blue · expert systems · rule engines`,
+      'g.mlh':`Learning`,
+      'g.mlfr':`machine learning · the machine learns`,
+      'g.mlp1':`We do <b>not</b> give the rules: we give <b>examples</b>, and the machine finds the rules on its own. “Here are 10,000 photos of cats and dogs: figure it out.”`,
+      'g.mlp2':`<b>Strength:</b> it handles cases we hadn't foreseen.<br><b>Limit:</b> it's a “black box”, and it needs <b>a lot of data</b>.`,
+      'g.mlex':`◦ AlexNet · AlphaGo · ChatGPT · Claude`,
+      'g.punch':`Remember: “AI” is <b>not</b> a synonym for “machine learning”. A rule-based system is AI <b>without any learning at all</b>. That's exactly what we're about to read on the map.`,
+
+      'v.eyebrow':`The map to remember`,
+      'v.title':`Russian dolls,<br>not rivals`,
+      'v.lead':`“AI”, “machine learning”, “deep learning”, “generative AI” are neither competitors nor synonyms: they <em style="color:#fff;font-style:normal">nest inside one another</em>.`,
+      'v.svg.ai':`ARTIFICIAL INTELLIGENCE`,
+      'v.svg.sym':`Symbolic AI`, 'v.svg.sym1':`rules written`, 'v.svg.sym2':`by hand`, 'v.svg.sym3':`Deep Blue`, 'v.svg.sym4':`expert systems`,
+      'v.svg.ml':`Machine learning`, 'v.svg.ml2':`regression · decision trees · k-means`,
+      'v.svg.dl':`Deep learning`,
+      'v.svg.gen':`Generative AI`, 'v.svg.gen2':`LLM · diffusion`,
+      'v.l1n':`Symbolic AI`, 'v.l1d':`Inside AI, <em>outside</em> machine learning. We write the rules. <em>Deep Blue, expert systems.</em>`,
+      'v.l2n':`Machine learning (non-deep)`, 'v.l2d':`The machine learns, but without a deep network. <em>Regression, decision trees, k-means.</em>`,
+      'v.l3n':`Deep learning`, 'v.l3d':`Learning with multi-layer neural networks. <em>AlexNet, speech recognition.</em>`,
+      'v.l4n':`Generative AI`, 'v.l4d':`Produces new content. <em>ChatGPT, Claude (text), Midjourney (images).</em>`,
+      'v.care1':`<b>“AI” ≠ “machine learning”.</b> The proof is on the left: symbolic AI is AI with no learning at all.`,
+      'v.care2':`<b>Why does the orange box stick out?</b> Almost all generative AI in 2026 is deep learning — but not <em>by definition</em>: there has been “non-deep” generative AI (Markov chains, n-grams). Hence the small overhang.`,
+
+      'l.eyebrow':`Zoom on the “learning” branch`,
+      'l.title':`Three ways to learn`,
+      'l.c1h':`Supervised`, 'l.c1an':`“learning with the answer key”`,
+      'l.c1p':`The data is <b>labelled</b>: each photo comes with the right answer (photo → “cat”). The machine learns to link one to the other.`,
+      'l.c1ex':`▸ sorting spam / not-spam mail<br>▸ recognising a handwritten digit`,
+      'l.c2h':`Unsupervised`, 'l.c2an':`“tidying up without instructions”`,
+      'l.c2p':`The data is <b>raw</b>, unlabelled. The machine looks on its own for <b>groupings</b>, hidden structures.`,
+      'l.c2ex':`▸ grouping customers by behaviour<br>▸ compressing, spotting the anomaly`,
+      'l.c3h':`Reinforcement`, 'l.c3an':`“learning by reward”`,
+      'l.c3p':`An <b>agent</b> acts, then wins or loses points. By <b>trial and error</b>, it learns the strategy that pays off most.`,
+      'l.c3ex':`▸ AlphaGo, walking robots<br>▸ the “RLHF” that polished ChatGPT`,
+      'l.note':`Three different regimes for one same idea: <b>learning from data</b> rather than from hand-written rules.`,
+
+      'd.eyebrow':`A cross-section — ⚠ this is NOT a Russian doll`,
+      'd.title':`Discriminative<br>or generative?`,
+      'd.lead':`These two don't nest: it's another way of splitting a learning model, by <b>what it learns</b>.`,
+      'd.c1h':`Discriminative`, 'd.c1q':`“Cat or dog?”`,
+      'd.c1p':`It learns the <b>boundary</b> between categories. It can <b>separate</b>, not draw.`,
+      'd.c1ex':`▸ spam filter · “tumour / no tumour”`,
+      'd.c2h':`Generative`, 'd.c2q':`“Draw me a cat.”`, 'd.c2new':`new!`,
+      'd.c2p':`It learns <b>what the data looks like</b> — in order to <b>produce new data</b>.`,
+      'd.c2ex':`▸ ChatGPT, Claude · Midjourney`,
+      'd.foot':`Almost all the noise of 2026 is <b>generative</b>. But a spam filter or a “yes / no” diagnosis is <b>discriminative</b> — often the same tech (deep learning), a different goal.`,
+
+      'a.tag':`This lesson's activity`,
+      'a.title':`Your <em>zoo</em><br>of AI`,
+      'a.sub':`In groups: make a <strong style="color:#fff">clear and beautiful infographic</strong> that sorts out this whole zoo. The goal: a 14-year-old gets it at a glance.`,
+      'a.i1':`The nesting <b>AI ⊃ machine learning ⊃ deep learning</b> — and where generative slips in.`,
+      'a.i2':`The <b>symbolic / learning</b> distinction (show that “AI” ≠ “machine learning”).`,
+      'a.i3':`The <b>three ways to learn</b>, with one picture for each.`,
+      'a.i4':`At least <b>one real example per box</b> (Deep Blue, spam filter, AlexNet, ChatGPT…).`,
+      'a.i5':`<b>Bonus:</b> the generative / discriminative cross-section, set apart.`,
+      'a.bareme':`Graded on: accuracy · readability · looks`,
+
+      'rc.eye':`End of Lesson 2`,
+      'rc.title':`What I must <span>remember</span>`,
+      'rc.i1':`AI is <b>seventy years old</b> (Dartmouth, 1956), survived two winters, and tipped over three times: deep learning (2012), transformers (2017), ChatGPT (2022).`,
+      'rc.i2':`Two ways to make a machine intelligent: <span class="hl">symbolic</span> (rules written by hand) or <span class="hl">learning</span> (rules found from examples). So <b>“AI” ≠ “machine learning”</b>.`,
+      'rc.i3':`Russian dolls: <b>AI ⊃ machine learning ⊃ deep learning</b>. Generative AI lives (almost) entirely inside deep learning.`,
+      'rc.i4':`Three ways to learn — <span class="hl">supervised</span>, <span class="hl">unsupervised</span>, <span class="hl">reinforcement</span> — and a cross-section: <span class="hl">discriminative</span> (separate) vs <span class="hl">generative</span> (produce).`,
+      'rc.v1':`<b>Artificial intelligence</b>Making a machine do what, in a human, takes intelligence.`,
+      'rc.v2':`<b>Symbolic AI</b>Rules written by hand (“if… then…”). Deep Blue.`,
+      'rc.v3':`<b>Machine learning</b>The machine finds the rules on its own, from examples.`,
+      'rc.v4':`<b>Deep learning</b>Learning with multi-layer neural networks.`,
+      'rc.v5':`<b>Generative AI</b>Produces new content: text, images, code.`,
+      'rc.v6':`<b>Supervised / unsupervised / reinforcement</b>With an answer key / without instructions / by reward.`,
+      'rc.v7':`<b>Discriminative vs generative</b>Separates (cat or dog?) vs produces (draw a cat).`,
+      'rc.v8':`<b>Transformer</b>The 2017 architecture — the “T” in GPT.`,
+      'rc.key':`Before judging an “AI”, always ask: <b>which AI are we talking about?</b>`,
+
+      'hud.prev':`◀ Back`, 'hud.next':`Next ▶`
+    },
+    zh: {
+      's0.back':`◂ 第1课 · 人工智能到哪一步了？`,
+      's0.tag':`SNT · 人工智能课 · 第2课`,
+      's0.title':`人工智能<br><em>动物园</em>`,
+      's0.line':`两个简单的问题：<strong style="color:#fff">它从哪里来</strong>，以及<strong style="color:#fff">怎么给这个「动物园」分类</strong>。深蓝、AI 寒冬、ChatGPT……然后是一张地图，让你再也不会混淆「人工智能」「机器学习」和「深度学习」。`,
+      's0.kick':`上周：现状如何。今天：打开引擎盖。`,
+
+      'f.head':`七十年，快进`,
+      'f.scroll':`向下滚动 ↓`,
+      'f.e1tag':`达特茅斯学院——出生证明`,
+      'f.e1t':`「人工智能」一词诞生`,
+      'f.e1n':`一场暑期研讨会聚集了这个领域的先驱。想法当时就已经有了：让机器去做那些在人类身上需要智能的事。词诞生了；现实还要等几十年。`,
+      'f.e2tag':`IBM 深蓝 · 国际象棋`,
+      'f.e2t':`机器击败国际象棋世界冠军`,
+      'f.e2n':`深蓝击败卡斯帕罗夫。举世震惊——但注意：机器什么都不「理解」。它靠人类写好的规则<b>计算数百万步棋</b>。这是人工智能……<b>却没有任何学习</b>。记住这一点，后面会用到。`,
+      'f.turnk':`两次 AI 寒冬`,
+      'f.turnp':`1970 年代，然后是 1980 年代末到 1990 年代：两次，承诺超过了成果，经费被砍，领域进入冬眠。人工智能差点消失——两次。`,
+      'f.e3tag':`AlexNet · ImageNet 竞赛`,
+      'f.e3t':`计算机视觉的转折`,
+      'f.e3n':`一个深度神经网络 <b>AlexNet</b> 横扫 ImageNet 图像识别竞赛。这是<b>深度学习</b>真正的开球：不再手写规则，而是让机器从样例中自己学。`,
+      'f.e4tag':`Google DeepMind · AlphaGo`,
+      'f.e4t':`AlphaGo 赢下围棋`,
+      'f.e4n':`围棋曾被认为是机器够不着的：组合太多，算不完。AlphaGo 通过<b>试错学习</b>（强化学习）击败了冠军。记住这个词：十分钟后我们会回来讲它。`,
+      'f.e5tag':`Google · 《Attention Is All You Need》`,
+      'f.e5t':`「Transformer」的发明`,
+      'f.e5n':`一种新的神经网络架构。低调、技术性——却是决定性的：它就是 Chat<span style="color:#fff">GPT</span> 里的<b>「T」</b>（<span class="ev-en">Generative Pre-trained Transformer</span>）。没有它，后面的一切都不存在。`,
+      'f.e6tag':`OpenAI · 2022 年 11 月 30 日`,
+      'f.e6t':`ChatGPT`,
+      'f.e6n':`大众发现了<b>生成式 AI</b>。<b>两个月一亿用户</b>：史上普及最快的产品。其实，它是此前一切的集大成——达特茅斯、2012 年的深度学习、2017 年的 Transformer。`,
+
+      'p.eyebrow':`2022 年底 – 2023 · 冲击波`,
+      'p.title':`媒体如何看待<br>ChatGPT 的登场`,
+      'p.lead':`几周之内，一个实验室工具变成了社会议题。一小组反应集锦——全都真实发生。`,
+      'p.c1k':`教育 · 2023 年 1 月`, 'p.c1t':`纽约市公立学校禁用 ChatGPT`, 'p.c1s':`市教育局的决定`,
+      'p.c2k':`硅谷 · 2022 年 12 月`, 'p.c2t':`Google 内部宣布「红色警报」`, 'p.c2s':`美国媒体报道`,
+      'p.c3k':`考试 · 2023`, 'p.c3t':`它通过了律师资格考试、医学测试、MBA`, 'p.c3s':`多所大学`,
+      'p.c4k':`隐私 · 2023 年 3 月`, 'p.c4t':`意大利暂时封禁 ChatGPT`, 'p.c4s':`数据保护机构`,
+      'p.c5k':`警报 · 2023 年 3 月`, 'p.c5t':`一封公开信要求「暂停」巨型 AI`, 'p.c5s':`研究者与业界人士联署`,
+      'p.c6k':`社会 · 2023`, 'p.c6t':`它会杀死作文吗？老师面对作弊`, 'p.c6s':`一场至今没有停止的争论`,
+      'p.c7k':`纪录 · 2023 年 1 月`, 'p.c7t':`两个月一亿用户`, 'p.c7s':`史上最快的普及`,
+      'p.foot':`恐慌、着迷、禁令：正是第 1 课里的「混乱」。还剩一个问题——<span style="color:var(--signal-dk)">引擎盖下面到底是什么？</span>`,
+
+      'g.eyebrow':`分类学 · 第一个分岔`,
+      'g.title':`让机器「智能」的<br>两种方式`,
+      'g.symh':`符号主义 AI`,
+      'g.symfr':`手写的规则`,
+      'g.symp1':`我们<b>告诉机器该做什么</b>，一条规则接一条。「如果……那么……」。这就是专家系统、规则引擎——还有深蓝。`,
+      'g.symp2':`<b>优点：</b>可解释，我们知道它为什么这样回答。<br><b>局限：</b>必须<b>事先预见一切</b>；遇到新情况，它就懵了。`,
+      'g.symex':`◦ 深蓝 · 专家系统 · 规则引擎`,
+      'g.mlh':`学习`,
+      'g.mlfr':`机器学习 · 机器自己学`,
+      'g.mlp1':`我们<b>不</b>给规则：我们给<b>样例</b>，机器自己找出规则。「这是一万张猫和狗的照片：你自己看着办。」`,
+      'g.mlp2':`<b>优点：</b>能处理我们没预见到的情况。<br><b>局限：</b>它是个「黑箱」，而且需要<b>大量数据</b>。`,
+      'g.mlex':`◦ AlexNet · AlphaGo · ChatGPT · Claude`,
+      'g.punch':`记住：「人工智能」<b>不是</b>「机器学习」的同义词。基于规则的系统，是<b>没有任何学习</b>的人工智能。这正是我们马上要在地图上读到的。`,
+
+      'v.eyebrow':`要记住的地图`,
+      'v.title':`俄罗斯套娃，<br>不是对手`,
+      'v.lead':`「人工智能」「机器学习」「深度学习」「生成式 AI」既不是竞争者也不是同义词：它们<em style="color:#fff;font-style:normal">层层嵌套</em>。`,
+      'v.svg.ai':`人工智能`,
+      'v.svg.sym':`符号主义 AI`, 'v.svg.sym1':`手写的`, 'v.svg.sym2':`规则`, 'v.svg.sym3':`深蓝`, 'v.svg.sym4':`专家系统`,
+      'v.svg.ml':`机器学习`, 'v.svg.ml2':`回归 · 决策树 · k-means`,
+      'v.svg.dl':`深度学习`,
+      'v.svg.gen':`生成式 AI`, 'v.svg.gen2':`LLM · 扩散模型`,
+      'v.l1n':`符号主义 AI`, 'v.l1d':`在人工智能之内，机器学习<em>之外</em>。规则由人来写。<em>深蓝、专家系统。</em>`,
+      'v.l2n':`机器学习（非深度）`, 'v.l2d':`机器在学，但没有深度网络。<em>回归、决策树、k-means。</em>`,
+      'v.l3n':`深度学习`, 'v.l3d':`用多层神经网络来学习。<em>AlexNet、语音识别。</em>`,
+      'v.l4n':`生成式 AI`, 'v.l4d':`产生新内容。<em>ChatGPT、Claude（文本），Midjourney（图像）。</em>`,
+      'v.care1':`<b>「人工智能」≠「机器学习」。</b>证据就在左边：符号主义 AI 是完全不学习的人工智能。`,
+      'v.care2':`<b>为什么橙色框会伸出来？</b>2026 年几乎所有生成式 AI 都是深度学习——但这不是<em>定义</em>使然：曾经存在过「非深度」的生成模型（马尔可夫链、n-gram）。所以有一点点伸出。`,
+
+      'l.eyebrow':`聚焦「学习」这一支`,
+      'l.title':`三种学习方式`,
+      'l.c1h':`监督学习`, 'l.c1an':`「带着答案学」`,
+      'l.c1p':`数据是<b>带标签</b>的：每张照片都附有正确答案（照片 → 「猫」）。机器学会把两者对应起来。`,
+      'l.c1ex':`▸ 区分垃圾邮件 / 正常邮件<br>▸ 识别手写数字`,
+      'l.c2h':`无监督学习`, 'l.c2an':`「没有指令地整理」`,
+      'l.c2p':`数据是<b>原始</b>的，没有标签。机器自己寻找<b>分组</b>和隐藏的结构。`,
+      'l.c2ex':`▸ 按行为给客户分群<br>▸ 压缩、发现异常`,
+      'l.c3h':`强化学习`, 'l.c3an':`「靠奖励来学」`,
+      'l.c3p':`一个<b>智能体</b>行动，然后得分或失分。通过<b>试错</b>，它学会最赚分的策略。`,
+      'l.c3ex':`▸ AlphaGo、会走路的机器人<br>▸ 把 ChatGPT 打磨出来的「RLHF」`,
+      'l.note':`三种不同的方式，同一个想法：<b>从数据中学习</b>，而不是靠手写规则。`,
+
+      'd.eyebrow':`一个横切面——⚠ 这不是套娃`,
+      'd.title':`判别式<br>还是生成式？`,
+      'd.lead':`这两者不互相嵌套：这是给学习模型分类的另一种方式，按<b>它学的是什么</b>。`,
+      'd.c1h':`判别式`, 'd.c1q':`「猫还是狗？」`,
+      'd.c1p':`它学的是类别之间的<b>边界</b>。它会<b>区分</b>，不会画。`,
+      'd.c1ex':`▸ 垃圾邮件过滤 · 「肿瘤 / 非肿瘤」`,
+      'd.c2h':`生成式`, 'd.c2q':`「给我画一只猫。」`, 'd.c2new':`新的！`,
+      'd.c2p':`它学的是数据<b>长什么样</b>——为了<b>产生新的数据</b>。`,
+      'd.c2ex':`▸ ChatGPT、Claude · Midjourney`,
+      'd.foot':`2026 年几乎所有的喧嚣都是<b>生成式</b>的。但垃圾邮件过滤或「是 / 否」诊断是<b>判别式</b>的——常常是同一种技术（深度学习），目标不同。`,
+
+      'a.tag':`本课活动`,
+      'a.title':`你的人工智能<br><em>动物园</em>`,
+      'a.sub':`分组：做一张<strong style="color:#fff">清晰又好看的信息图</strong>，把整个动物园分门别类。目标：让一个初三学生一眼就懂。`,
+      'a.i1':`嵌套关系 <b>人工智能 ⊃ 机器学习 ⊃ 深度学习</b>——以及生成式塞在哪里。`,
+      'a.i2':`<b>符号主义 / 学习</b>的区分（要表明「人工智能」≠「机器学习」）。`,
+      'a.i3':`<b>三种学习方式</b>，每种配一张图。`,
+      'a.i4':`每个格子至少<b>一个真实例子</b>（深蓝、垃圾邮件过滤、AlexNet、ChatGPT……）。`,
+      'a.i5':`<b>加分：</b>生成式 / 判别式的横切面，单独画出来。`,
+      'a.bareme':`评分标准：准确 · 易读 · 美观`,
+
+      'rc.eye':`第 2 课结束`,
+      'rc.title':`我要<span>记住</span>什么`,
+      'rc.i1':`人工智能已经<b>七十岁</b>了（达特茅斯，1956），熬过两次寒冬，翻转了三次：深度学习（2012）、Transformer（2017）、ChatGPT（2022）。`,
+      'rc.i2':`让机器智能的两种方式：<span class="hl">符号主义</span>（手写规则）或<span class="hl">学习</span>（从样例中找规则）。所以<b>「人工智能」≠「机器学习」</b>。`,
+      'rc.i3':`俄罗斯套娃：<b>人工智能 ⊃ 机器学习 ⊃ 深度学习</b>。生成式 AI（几乎）全部住在深度学习里。`,
+      'rc.i4':`三种学习方式——<span class="hl">监督</span>、<span class="hl">无监督</span>、<span class="hl">强化</span>——再加一个横切面：<span class="hl">判别式</span>（区分）vs <span class="hl">生成式</span>（产生）。`,
+      'rc.v1':`<b>人工智能</b>让机器去做在人类身上需要智能的事。`,
+      'rc.v2':`<b>符号主义 AI</b>手写的规则（「如果……那么……」）。深蓝。`,
+      'rc.v3':`<b>机器学习</b>机器从样例中自己找出规则。`,
+      'rc.v4':`<b>深度学习</b>用多层神经网络来学习。`,
+      'rc.v5':`<b>生成式 AI</b>产生新内容：文本、图像、代码。`,
+      'rc.v6':`<b>监督 / 无监督 / 强化</b>带答案 / 没有指令 / 靠奖励。`,
+      'rc.v7':`<b>判别式 vs 生成式</b>区分（猫还是狗？）vs 产生（画一只猫）。`,
+      'rc.v8':`<b>Transformer</b>2017 年的架构——GPT 里的「T」。`,
+      'rc.key':`在评判一个「AI」之前，永远先问：<b>说的是哪一种 AI？</b>`,
+
+      'hud.prev':`◀ 返回`, 'hud.next':`下一页 ▶`
+    }
+  };
+  const MSG = {
+    fr:{title:`Zoologie de l'IA`, hint:`↔ flèches · espace · clic`, hintScroll:`↑↓ défiler · → suite`},
+    en:{title:`A Zoo of AI`,       hint:`↔ arrows · space · click`,   hintScroll:`↑↓ scroll · → next`},
+    zh:{title:`人工智能动物园`,      hint:`↔ 方向键 · 空格 · 点击`,      hintScroll:`↑↓ 滚动 · → 下一页`}
+  };
+
+  // le français est capturé depuis le DOM : pas besoin de le redéclarer
+  const frCache = {};
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+  let curLang = 'fr';
+
+  function applyLang(lang){
+    curLang = lang;
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k = el.dataset.i18n;
+      let v = frCache[k];
+      if(lang !== 'fr' && I18N[lang] && I18N[lang][k] != null) v = I18N[lang][k];
+      el.innerHTML = v;
+    });
+    document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang===lang));
+    document.title = MSG[lang].title;
+    try{ localStorage.setItem('snt-ia-lang', lang); }catch(e){}
+    updateHint();
+  }
+  document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+
+  /* =========================================================
+     NAVIGATION
+     ========================================================= */
+  const panes = ['intro','frise','presse','partage','venn','apprendre','gendisc','activite','recap']
+    .map(id=>document.getElementById(id));
+  const dots  = [...document.querySelectorAll('.dot')];
+  let scene = 0;   // 0 ouverture·1 frise·2 presse·3 partage·4 venn·5 apprendre·6 gén/disc·7 activité·8 retenir
+  const MAX = 8;
   // scènes défilables : ↑↓ y font défiler le contenu, le clic n'avance pas.
   const SCROLLABLE = {1:'tlTrack'};
 
+  function updateHint(){
+    const h = document.getElementById('hint');
+    if(h) h.textContent = SCROLLABLE[scene] ? MSG[curLang].hintScroll : MSG[curLang].hint;
+  }
   function render(){
-    intro.classList.toggle('on',     scene === 0);
-    frise.classList.toggle('on',     scene === 1);
-    presse.classList.toggle('on',    scene === 2);
-    partage.classList.toggle('on',   scene === 3);
-    venn.classList.toggle('on',      scene === 4);
-    apprendre.classList.toggle('on', scene === 5);
-    gendisc.classList.toggle('on',   scene === 6);
-    activite.classList.toggle('on',  scene === 7);
+    panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
     dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
-    const hint = document.getElementById('hint');
-    if(hint) hint.textContent = SCROLLABLE[scene] ? '↑↓ défiler · → suite' : '↔ flèches · espace · clic';
+    updateHint();
     if(scene === 1 && typeof window.resetTimeline === 'function') window.resetTimeline();
   }
   function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
@@ -798,6 +1142,17 @@
         });
       });
     };
+  })();
+
+  /* =========================================================
+     BOOT
+     ========================================================= */
+  (function(){
+    let saved='fr';
+    try{ saved = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+    if(!['fr','en','zh'].includes(saved)) saved='fr';
+    applyLang(saved);
+    render();
   })();
 </script>
 </body>
