@@ -195,7 +195,46 @@
   .lev-foot b{color:var(--signal-dk)}
 
   /* =========================================================
-     SCÈNE 6 — TEMPÉRATURE
+     SCÈNE 6 — CHANGER DE LANGUE ? (formule + trois différences)
+     ========================================================= */
+  .lg{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .lg-formula{margin:clamp(.8rem,2.4vh,1.4rem) auto 0;font-family:var(--mono);text-align:center;
+    display:flex;flex-direction:column;gap:.25rem;font-size:clamp(.8rem,1.6vw,1.12rem);color:#cfc8b8;
+    border:1px solid rgba(233,228,216,.22);padding:.8rem 1.4rem;background:rgba(233,228,216,.04)}
+  .lg-formula b{color:#fff}
+  .lg-formula em{font-style:normal;color:#ff8a72;font-weight:bold;margin-right:.4rem}
+  .lg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.8rem,2.2vw,1.8rem);margin:clamp(.9rem,2.8vh,1.6rem) 0}
+  .lg-card{border:1px solid rgba(233,228,216,.2);border-top:5px solid var(--signal);padding:clamp(.8rem,2vw,1.3rem);
+    background:rgba(233,228,216,.04)}
+  .lg-card .k{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9fb8ff;margin-bottom:.35rem}
+  .lg-card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;font-size:clamp(.95rem,1.9vw,1.3rem);margin-bottom:.5rem}
+  .lg-card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.48;color:#c9c2b2}
+  .lg-card p b{color:#fff} .lg-card p i{color:#ffd9cf}
+  .lg-foot{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.9rem,1.65vw,1.1rem);line-height:1.45;color:#cfc8b8}
+  .lg-foot b{color:#fff}
+
+  /* =========================================================
+     SCÈNE 7 — UN MOT, TROIS VOISINAGES
+     ========================================================= */
+  .nb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.8rem,2.2vw,1.8rem);margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .nb{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:clamp(.8rem,1.8vw,1.2rem);text-align:center}
+  .nb-lang{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .nb-word{font-family:var(--display);font-size:clamp(1.4rem,3.2vw,2.2rem);color:var(--signal-dk);margin:.2rem 0 .5rem;line-height:1}
+  .nb-cloud{display:flex;flex-wrap:wrap;justify-content:center;gap:.3rem .45rem;line-height:1.2}
+  .nb-cloud span{font-family:var(--serif);color:#3a352c;border:1px solid rgba(0,0,0,.14);border-radius:999px;padding:.22em .6em;background:var(--paper)}
+  .nb-cloud .s3{font-size:clamp(.9rem,1.6vw,1.1rem);font-weight:bold;color:var(--ink)}
+  .nb-cloud .s2{font-size:clamp(.8rem,1.4vw,.98rem)}
+  .nb-cloud .s1{font-size:clamp(.72rem,1.2vw,.86rem);color:#6c6355}
+  .nb-cloud small{display:block;font-size:.72em;color:var(--muted);font-family:var(--mono)}
+  .nb-foot{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.8rem,2vw,1.6rem);max-width:110ch}
+  .nb-care,.nb-try{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#3a352c;padding:.5rem .85rem;background:var(--paper-2)}
+  .nb-care{border-left:4px solid var(--alarm)} .nb-care b{color:var(--alarm)}
+  .nb-try{border-left:4px solid var(--signal)} .nb-try b{color:var(--signal-dk)}
+  .nb-try .soft{color:var(--muted);font-style:italic}
+
+  /* =========================================================
+     SCÈNE 8 — TEMPÉRATURE
      ========================================================= */
   .temp{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
   .temp-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3.5vw,3rem);
@@ -260,7 +299,7 @@
 
   /* le chinois : on annule l'inter-lettrage prévu pour le latin */
   html[lang="zh"] .stitle,html[lang="zh"] .intro .big,html[lang="zh"] .act h2,
-  html[lang="zh"] h3,html[lang="zh"] .tcard .need{letter-spacing:0}
+  html[lang="zh"] h3,html[lang="zh"] .tcard .need,html[lang="zh"] .nb-word{letter-spacing:0}
   html[lang="zh"] .eyebrow,html[lang="zh"] .tag,html[lang="zh"] .tok-cap,
   html[lang="zh"] .lbox .n,html[lang="zh"] .tmode .sub,html[lang="zh"] .loop-back{letter-spacing:.06em}
 
@@ -268,7 +307,7 @@
   @media (max-width:900px){
     .hint{display:none}
     .tok-notes,.triv-grid,.lev-grid{grid-template-columns:1fr}
-    .temp-grid{grid-template-columns:1fr}
+    .temp-grid,.lg-grid,.nb-grid,.nb-foot{grid-template-columns:1fr}
     .dbar .lab{flex-basis:7rem}
   }
 </style>
@@ -400,7 +439,71 @@
     </div>
   </div>
 
-  <!-- ============ 6 · TEMPÉRATURE ============ -->
+  <!-- ============ 6 · CHANGER DE LANGUE, EST-CE CHANGER LE MODÈLE ? ============ -->
+  <div class="pane dark pad" id="langue1">
+    <div class="eyebrow" data-i18n="l1.eyebrow">Le troisième levier, de plus près</div>
+    <h2 class="stitle" data-i18n="l1.title">Changer de langue,<br>est-ce changer le modèle&nbsp;?</h2>
+
+    <div class="lg">
+      <div class="lg-formula" data-i18n="l1.formula">
+        <span class="row"><b>même modèle</b> + <b>même question</b> + <b>langue différente</b></span>
+        <span class="row"><em>≠</em> nécessairement même représentation interne</span>
+        <span class="row"><em>≠</em> nécessairement même réponse</span>
+      </div>
+
+      <div class="lg-grid">
+        <div class="lg-card">
+          <div class="k" data-i18n="l1.c1k">01 · linguistique</div>
+          <h3 data-i18n="l1.c1h">Les mots ne se découpent pas pareil</h3>
+          <p data-i18n="l1.c1p">Tokenisation, syntaxe, ambiguïtés. Une phrase française coûte <b>≈ 1,5× plus de tokens</b> que la même en anglais&nbsp;; 家庭 se découpe encore autrement. Même «&nbsp;prochain token&nbsp;», mais pas les mêmes briques.</p>
+        </div>
+        <div class="lg-card">
+          <div class="k" data-i18n="l1.c2k">02 · sémantique</div>
+          <h3 data-i18n="l1.c2h">Les concepts n'ont pas les mêmes frontières</h3>
+          <p data-i18n="l1.c2p">«&nbsp;famille&nbsp;», <i>family</i> et 家庭 se recouvrent largement — pas exactement. Chaque langue trace ses limites entre les idées&nbsp;: ce qui est un seul mot ici en demande trois là-bas.</p>
+        </div>
+        <div class="lg-card">
+          <div class="k" data-i18n="l1.c3k">03 · culturelle</div>
+          <h3 data-i18n="l1.c3h">Les textes ne parlent pas du monde pareil</h3>
+          <p data-i18n="l1.c3p">Le modèle a appris chaque langue sur <b>d'autres textes</b>, écrits par d'autres gens, avec d'autres références. Les mots «&nbsp;voisins&nbsp;» de <i>famille</i> en chinois ne sont pas ceux du français.</p>
+        </div>
+      </div>
+
+      <p class="lg-foot" data-i18n="l1.foot">Vous l'avez vu dans la démo&nbsp;: «&nbsp;Le chat mange&nbsp;» et «&nbsp;猫吃&nbsp;» ne donnent pas les mêmes candidats. Ce n'est pas une traduction qui rate&nbsp;: ce sont <b>d'autres régularités, apprises sur d'autres textes</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · EXPÉRIENCE — UN MOT, TROIS VOISINAGES ============ -->
+  <div class="pane light pad" id="langue2">
+    <div class="eyebrow" data-i18n="l2.eyebrow">Même modèle · même question · trois langues</div>
+    <h2 class="stitle" data-i18n="l2.title">«&nbsp;Famille&nbsp;» n'a pas<br>les mêmes voisins</h2>
+    <p class="lead" data-i18n="l2.lead">Pour un modèle, chaque mot a des <b>voisins</b>&nbsp;: ceux qui apparaissent souvent dans les mêmes contextes. Voici, schématiquement, le voisinage d'un même concept dans trois langues.</p>
+
+    <div class="nb-grid">
+      <div class="nb">
+        <div class="nb-lang">français</div>
+        <div class="nb-word">famille</div>
+        <div class="nb-cloud" data-i18n="l2.fr"><span class="s3">parents</span><span class="s3">frères et sœurs</span><span class="s2">repas du dimanche</span><span class="s2">vacances</span><span class="s2">famille recomposée</span><span class="s1">Noël</span><span class="s1">«&nbsp;c'est sacré&nbsp;»</span><span class="s1">allocations</span></div>
+      </div>
+      <div class="nb">
+        <div class="nb-lang">english</div>
+        <div class="nb-word">family</div>
+        <div class="nb-cloud" data-i18n="l2.en"><span class="s3">household</span><span class="s3">kids</span><span class="s2">Thanksgiving</span><span class="s2">family values</span><span class="s2">siblings</span><span class="s1">family tree</span><span class="s1">nuclear family</span><span class="s1">family business</span></div>
+      </div>
+      <div class="nb">
+        <div class="nb-lang">中文</div>
+        <div class="nb-word">家庭</div>
+        <div class="nb-cloud" data-i18n="l2.zh"><span class="s3">家人 <small>les siens</small></span><span class="s3">孝 <small>piété filiale</small></span><span class="s2">团圆 <small>réunion</small></span><span class="s2">春节 <small>Nouvel An</small></span><span class="s2">长辈 <small>les aînés</small></span><span class="s1">祖先 <small>ancêtres</small></span><span class="s1">家训 <small>règles de la maison</small></span><span class="s1">户口 <small>livret de famille</small></span></div>
+      </div>
+    </div>
+
+    <div class="nb-foot">
+      <p class="nb-care" data-i18n="l2.care"><b>⚠ Pas trois cerveaux séparés.</b> Un grand modèle multilingue construit des représentations <b>en partie communes</b> aux langues&nbsp;: <i>family</i> et 家庭 sont proches l'un de l'autre. Mais cet alignement n'efface pas tout — la statistique des textes reste différente.</p>
+      <p class="nb-try" data-i18n="l2.try"><b>À tester&nbsp;:</b> posez la même question à la même IA en français, puis en chinois, sur un sujet chargé culturellement — la famille, la réussite, la politesse. Comparez. <span class="soft">(Schéma illustratif&nbsp;: les voisinages réels dépendent du modèle et se mesurent avec des «&nbsp;embeddings&nbsp;».)</span></p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · TEMPÉRATURE ============ -->
   <div class="pane dark pad" id="temp">
     <div class="eyebrow" data-i18n="s6.eyebrow">Du choix à la génération</div>
     <h2 class="stitle" data-i18n="s6.title">Toujours le n°1&nbsp;?<br>Pas forcément.</h2>
@@ -423,7 +526,7 @@
     </div>
   </div>
 
-  <!-- ============ 7 · ACTIVITÉ ============ -->
+  <!-- ============ 9 · ACTIVITÉ ============ -->
   <div class="pane dark act" id="activite">
     <div class="tag" data-i18n="s7.tag">Activité centrale · sur PédagoIA</div>
     <h2 data-i18n="s7.title">Faites manger<br>un <em>dinosaure</em> au chat 🦖</h2>
@@ -459,6 +562,8 @@
     <div class="dot" data-i="5"></div>
     <div class="dot" data-i="6"></div>
     <div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div>
+    <div class="dot" data-i="9"></div>
   </div>
   <button class="btn" id="next" data-i18n="s.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
@@ -523,6 +628,24 @@
       's5.c3h':`Language`,
       's5.c3cc':`Tokens and probabilities change; so does the training (often mostly English).`,
       's5.foot':`These are exactly the <b>three knobs</b> you'll turn in the activity to steer the prediction.`,
+      'l1.eyebrow':`The third lever, up close`,
+      'l1.title':`Does changing the language<br>change the model?`,
+      'l1.formula':`<span class="row"><b>same model</b> + <b>same question</b> + <b>different language</b></span><span class="row"><em>≠</em> necessarily the same internal representation</span><span class="row"><em>≠</em> necessarily the same answer</span>`,
+      'l1.c1k':`01 · linguistic`, 'l1.c1h':`Words don't split the same way`,
+      'l1.c1p':`Tokenisation, syntax, ambiguities. A French sentence costs <b>≈ 1.5× more tokens</b> than the same one in English; 家庭 splits differently again. Same “next token”, but not the same bricks.`,
+      'l1.c2k':`02 · semantic`, 'l1.c2h':`Concepts don't have the same borders`,
+      'l1.c2p':`“famille”, <i>family</i> and 家庭 overlap widely — not exactly. Each language draws its own lines between ideas: what is one word here takes three over there.`,
+      'l1.c3k':`03 · cultural`, 'l1.c3h':`The texts don't talk about the world the same way`,
+      'l1.c3p':`The model learned each language from <b>other texts</b>, written by other people, with other references. The “neighbours” of <i>family</i> in Chinese are not those of French.`,
+      'l1.foot':`You saw it in the demo: “The cat eats” and “猫吃” don't give the same candidates. It's not a translation going wrong: these are <b>other regularities, learned from other texts</b>.`,
+      'l2.eyebrow':`Same model · same question · three languages`,
+      'l2.title':`“Family” doesn't have<br>the same neighbours`,
+      'l2.lead':`For a model, every word has <b>neighbours</b>: the ones that often show up in the same contexts. Here, schematically, is the neighbourhood of one concept in three languages.`,
+      'l2.fr':`<span class="s3">parents</span><span class="s3">frères et sœurs <small>siblings</small></span><span class="s2">repas du dimanche <small>Sunday lunch</small></span><span class="s2">vacances <small>holidays</small></span><span class="s2">famille recomposée <small>blended family</small></span><span class="s1">Noël</span><span class="s1">« c'est sacré » <small>“it's sacred”</small></span><span class="s1">allocations <small>family benefits</small></span>`,
+      'l2.en':`<span class="s3">household</span><span class="s3">kids</span><span class="s2">Thanksgiving</span><span class="s2">family values</span><span class="s2">siblings</span><span class="s1">family tree</span><span class="s1">nuclear family</span><span class="s1">family business</span>`,
+      'l2.zh':`<span class="s3">家人 <small>one's own people</small></span><span class="s3">孝 <small>filial piety</small></span><span class="s2">团圆 <small>reunion</small></span><span class="s2">春节 <small>Spring Festival</small></span><span class="s2">长辈 <small>the elders</small></span><span class="s1">祖先 <small>ancestors</small></span><span class="s1">家训 <small>house rules</small></span><span class="s1">户口 <small>household register</small></span>`,
+      'l2.care':`<b>⚠ Not three separate brains.</b> A large multilingual model builds representations <b>partly shared</b> across languages: <i>family</i> and 家庭 sit close to each other. But that alignment doesn't erase everything — the statistics of the texts remain different.`,
+      'l2.try':`<b>Try it:</b> ask the same AI the same question in French, then in Chinese, on a culturally loaded topic — family, success, politeness. Compare. <span class="soft">(Illustrative diagram: real neighbourhoods depend on the model and are measured with “embeddings”.)</span>`,
       's6.eyebrow':`From choice to generation`,
       's6.title':`Always no. 1?<br>Not necessarily.`,
       's6.lead':`Once the probabilities are computed, one must <b>be chosen</b>. Two strategies — that's the “temperature” setting.`,
@@ -597,6 +720,24 @@
       's5.c3h':`语言`,
       's5.c3cc':`词元和概率都变了；训练数据（往往以英语为主）也不同。`,
       's5.foot':`这正是你在活动中要转动的<b>三个旋钮</b>，用来操控预测。`,
+      'l1.eyebrow':`第三个杠杆，看得更近一点`,
+      'l1.title':`换一种语言，<br>是换了一个模型吗？`,
+      'l1.formula':`<span class="row"><b>同一个模型</b> + <b>同一个问题</b> + <b>不同的语言</b></span><span class="row"><em>≠</em> 不一定是同样的内部表示</span><span class="row"><em>≠</em> 不一定是同样的回答</span>`,
+      'l1.c1k':`01 · 语言层面`, 'l1.c1h':`词的切分方式不一样`,
+      'l1.c1p':`词元切分、句法、歧义。一句法语比同样的英语句子<b>多花约 1.5 倍的词元</b>；「家庭」的切法又不同。同样是「预测下一个词元」，砖块却不一样。`,
+      'l1.c2k':`02 · 语义层面`, 'l1.c2h':`概念的边界不一样`,
+      'l1.c2p':`「famille」、<i>family</i> 和「家庭」大体重合——但不完全。每种语言在观念之间画的线不同：这里一个词，那里要三个。`,
+      'l1.c3k':`03 · 文化层面`, 'l1.c3h':`文本谈论世界的方式不一样`,
+      'l1.c3p':`模型学每种语言，用的是<b>不同的文本</b>，由不同的人写，带着不同的参照。「家庭」在中文里的「邻居」，和法语里的不是同一批。`,
+      'l1.foot':`你在演示里已经看到了：「Le chat mange」和「猫吃」给出的候选词不一样。这不是翻译出了错：这是<b>从不同文本中学到的不同规律</b>。`,
+      'l2.eyebrow':`同一个模型 · 同一个问题 · 三种语言`,
+      'l2.title':`「家庭」的邻居<br>各不相同`,
+      'l2.lead':`对模型来说，每个词都有<b>邻居</b>：经常出现在相同语境里的那些词。下面是同一个概念在三种语言里的邻居示意图。`,
+      'l2.fr':`<span class="s3">parents <small>父母</small></span><span class="s3">frères et sœurs <small>兄弟姐妹</small></span><span class="s2">repas du dimanche <small>周日家宴</small></span><span class="s2">vacances <small>假期</small></span><span class="s2">famille recomposée <small>重组家庭</small></span><span class="s1">Noël <small>圣诞节</small></span><span class="s1">« c'est sacré » <small>「神圣不可侵犯」</small></span><span class="s1">allocations <small>家庭补助</small></span>`,
+      'l2.en':`<span class="s3">household <small>一户人家</small></span><span class="s3">kids <small>孩子们</small></span><span class="s2">Thanksgiving <small>感恩节</small></span><span class="s2">family values <small>家庭价值观</small></span><span class="s2">siblings <small>兄弟姐妹</small></span><span class="s1">family tree <small>家谱</small></span><span class="s1">nuclear family <small>核心家庭</small></span><span class="s1">family business <small>家族企业</small></span>`,
+      'l2.zh':`<span class="s3">家人</span><span class="s3">孝</span><span class="s2">团圆</span><span class="s2">春节</span><span class="s2">长辈</span><span class="s1">祖先</span><span class="s1">家训</span><span class="s1">户口</span>`,
+      'l2.care':`<b>⚠ 不是三个分开的大脑。</b>一个大型多语言模型建立的表示在各语言之间<b>部分共享</b>：<i>family</i> 和「家庭」彼此靠得很近。但这种对齐并不能抹平一切——文本的统计规律仍然不同。`,
+      'l2.try':`<b>试一试：</b>用法语、再用中文，向同一个 AI 提同一个问题，选一个文化色彩浓的话题——家庭、成功、礼貌。比较一下。<span class="soft">（示意图：真实的邻居取决于模型，用「嵌入向量」来度量。）</span>`,
       's6.eyebrow':`从「选择」到「生成」`,
       's6.title':`总选第一名？<br>不一定。`,
       's6.lead':`算出概率之后，还得<b>选一个</b>。有两种策略——这就是「温度」这个参数。`,
@@ -650,11 +791,11 @@
   /* =========================================================
      NAVIGATION
      ========================================================= */
-  const panes = ['intro','tokens','tache','demo','triv','leviers','temp','activite']
+  const panes = ['intro','tokens','tache','demo','triv','leviers','langue1','langue2','temp','activite']
     .map(id=>document.getElementById(id));
   const dots  = [...document.querySelectorAll('.dot')];
   let scene = 0;
-  const MAX = 7;
+  const MAX = 9;
 
   function updateHint(){
     const h = document.getElementById('hint');

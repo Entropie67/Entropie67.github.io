@@ -416,6 +416,87 @@
   html[lang="zh"] .eyebrow,html[lang="zh"] .tag,html[lang="zh"] .ev-tag,html[lang="zh"] .kick,
   html[lang="zh"] .rc-eye,html[lang="zh"] .bareme,html[lang="zh"] .tl-head-k{letter-spacing:.06em}
 
+  /* =========================================================
+     DÉMOS — gabarit commun (scènes 6, 7, 8, 10, 11)
+     colonne de consignes à gauche, zone manipulable à droite
+     ========================================================= */
+  .dz{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(15rem,1fr) 2.1fr;
+    gap:clamp(.8rem,2vw,1.6rem);margin-top:clamp(.5rem,1.6vh,1rem);align-items:stretch}
+  .dz-side{display:flex;flex-direction:column;gap:.5rem;min-height:0}
+  .dz-step{border-left:4px solid var(--signal);padding:.42rem .75rem;background:var(--paper-2);
+    font-size:clamp(.76rem,1.3vw,.94rem);line-height:1.38;color:#3a352c}
+  .dz-step b{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--signal-dk);margin-bottom:.12rem}
+  .dz-step i{color:var(--ink);font-style:normal;font-weight:bold}
+  .dz-src{margin-top:auto;font-family:var(--mono);font-size:.62rem;color:var(--muted);line-height:1.4}
+  .dz-main{border:1px solid rgba(0,0,0,.18);background:#f4f0e6;position:relative;
+    display:flex;flex-direction:column;min-height:0;min-width:0}
+  .dz-ctrl{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;padding:.5rem .65rem;
+    border-bottom:1px solid rgba(0,0,0,.12);font-family:var(--mono);font-size:.68rem;color:#4a4436}
+  .dz-ctrl .lbl{letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-size:.6rem;margin-right:.2rem}
+  .dz-btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;
+    padding:.36rem .62rem;transition:.15s;position:relative}
+  .dz-btn:hover,.dz-btn.on{background:var(--ink);color:var(--paper)}
+  .dz-btn.go{background:var(--signal);border-color:var(--signal);color:#fff}
+  .dz-btn.go:hover{background:var(--signal-dk);border-color:var(--signal-dk)}
+  .dz-btn:disabled{opacity:.4;cursor:default}
+  .dz-btn .cnt{position:absolute;top:-.55rem;right:-.45rem;min-width:1.15rem;height:1.15rem;border-radius:.6rem;
+    background:var(--alarm);color:#fff;font-size:.58rem;display:flex;align-items:center;justify-content:center;padding:0 .25rem}
+  .dz-stat{margin-left:auto;color:var(--muted);font-size:.66rem;white-space:nowrap}
+  .dz-stat b{color:var(--ink)}
+  .dz-canvas{flex:1 1 auto;min-height:0;position:relative}
+  .dz-canvas svg{position:absolute;inset:0;width:100%;height:100%}
+  .dz-out{padding:.5rem .8rem;border-top:1px solid rgba(0,0,0,.12);font-family:var(--serif);
+    font-size:clamp(.82rem,1.45vw,1rem);line-height:1.38;color:#3a352c;min-height:2.9em}
+  .dz-out b{color:var(--signal-dk)}
+
+  /* scène 6 — supervisé : ardoise + mémoire des exemples */
+  .sup-wrap{position:absolute;inset:0;display:grid;grid-template-columns:auto 1fr;gap:.8rem;padding:.7rem;align-items:start}
+  .sup-board{border:2px solid var(--ink);background:#fdfbf5;touch-action:none;cursor:crosshair;
+    width:min(100%,36vh);aspect-ratio:1;display:block}
+  .sup-mem{min-width:0;height:100%;overflow:auto;display:flex;flex-direction:column;gap:.4rem}
+  .sup-mem .h{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .sup-row{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center}
+  .sup-row .lab{font-family:var(--display);font-size:1rem;color:var(--signal-dk);width:1.3rem;text-align:center}
+  .sup-row img{width:30px;height:30px;border:1px solid rgba(0,0,0,.2);background:#fff;image-rendering:pixelated}
+  .sup-row img.near{outline:3px solid var(--alarm)}
+  .sup-empty{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:.85rem}
+
+  /* scènes 7, 10 — nuages de points */
+  .pt{transition:fill .35s}
+  .ax{font-family:'Courier New',monospace;font-size:11px;fill:#6c6355}
+  .axl{font-family:'Courier New',monospace;font-size:12px;fill:#3a352c;letter-spacing:.06em}
+  .cen{stroke-width:3;fill:none}
+
+  /* scène 8 — renforcement */
+  .rl-cell{stroke:#d9d2c2;stroke-width:1}
+  .rl-arrow{font-size:26px;text-anchor:middle;dominant-baseline:central;fill:#14110d;pointer-events:none}
+  .rl-emoji{font-size:34px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+
+  /* scène 11 — génératif : prompt à gauche, image à droite */
+  .genlay{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(16rem,1fr) 1.6fr;
+    gap:clamp(1rem,2.5vw,2rem);margin-top:clamp(.6rem,2vh,1.2rem);align-items:stretch}
+  .gen-chat{display:flex;flex-direction:column;gap:.7rem;min-height:0}
+  .bubble{padding:.7rem .95rem;border-radius:14px;font-family:var(--serif);font-size:clamp(.86rem,1.5vw,1.05rem);line-height:1.45;max-width:95%}
+  .bubble.user{background:var(--ink);color:var(--paper);align-self:flex-end;border-bottom-right-radius:4px}
+  .bubble.user .who{color:#8f9cb8}
+  .bubble.ai{background:var(--paper-2);border:1px solid rgba(0,0,0,.14);align-self:flex-start;border-bottom-left-radius:4px}
+  .bubble .who{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.25rem;color:var(--muted)}
+  .gen-note{margin-top:auto;border-left:4px solid var(--alarm);padding:.45rem .8rem;background:var(--paper-2);
+    font-size:clamp(.78rem,1.35vw,.95rem);line-height:1.4;color:#3a352c}
+  .gen-note b{color:var(--alarm)}
+  .gen-pic{position:relative;min-height:0;border:1px solid rgba(0,0,0,.18);background:#e2dccb;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .gen-pic img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  .gen-pic .missing{display:none;padding:1.5rem;text-align:center;font-family:var(--mono);font-size:.72rem;line-height:1.6;color:var(--muted)}
+  .gen-pic.nopic .missing{display:block}
+  .gen-pic.nopic img{display:none}
+  .gen-pic .cap{position:absolute;left:0;right:0;bottom:0;background:rgba(20,17,13,.7);color:#cfc8b8;
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .6rem}
+  .gen-foot{margin-top:clamp(.5rem,1.6vh,1rem);text-align:center;font-family:var(--serif);max-width:90ch;margin-inline:auto;
+    font-size:clamp(.86rem,1.55vw,1.08rem);line-height:1.42;color:#3a352c}
+  .gen-foot b{color:var(--alarm)}
+
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.01ms!important;transition-duration:.01ms!important}
   }
@@ -425,6 +506,7 @@
     .lgrid{grid-template-columns:1fr}
     .pcard{max-width:46vw}
     .rc-voc{grid-template-columns:1fr 1fr}
+    .dz,.genlay{grid-template-columns:1fr}
   }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
@@ -682,7 +764,88 @@
     </div>
   </div>
 
-  <!-- ============ SCÈNE 6 : GÉNÉRATIF vs DISCRIMINATIF ============ -->
+  <!-- ============ SCÈNE 6 : DÉMO SUPERVISÉ — reconnaître un chiffre ============ -->
+  <div class="pane light pad" id="d-sup">
+    <div class="eyebrow" data-i18n="sup.eyebrow">Démo 01 · supervisé — « apprendre avec un corrigé »</div>
+    <h2 class="stitle" data-i18n="sup.title">Apprenez-lui à lire<br>vos chiffres</h2>
+    <div class="dz">
+      <div class="dz-side">
+        <div class="dz-step" data-i18n="sup.s1"><b>1 · Entraîner</b>Dessinez un chiffre, puis cliquez sur sa bonne réponse&nbsp;: c'est le <i>corrigé</i>. Recommencez plusieurs fois, avec deux ou trois chiffres différents.</div>
+        <div class="dz-step" data-i18n="sup.s2"><b>2 · Tester</b>Dessinez un chiffre et cliquez «&nbsp;Devine&nbsp;». La machine cherche, parmi vos exemples corrigés, ceux qui ressemblent le plus.</div>
+        <div class="dz-step" data-i18n="sup.s3"><b>3 · Observer</b>Avec un exemple par chiffre, elle se trompe souvent. Avec cinq, beaucoup moins. <i>Il faut des données</i> — et elles doivent être corrigées.</div>
+        <div class="dz-src" data-i18n="sup.src">Même principe que la lecture des chèques, des plaques d'immatriculation ou des adresses postales — avec des millions d'exemples au lieu de dix.</div>
+      </div>
+      <div class="dz-main">
+        <div class="dz-ctrl">
+          <button class="dz-btn" id="supClear" data-i18n="sup.clear">Effacer</button>
+          <span class="lbl" data-i18n="sup.lbl">corrigé&nbsp;: c'est un…</span>
+          <span id="supDigits"></span>
+          <button class="dz-btn go" id="supGuess" data-i18n="sup.guess">Devine ▶</button>
+          <span class="dz-stat" id="supStat"></span>
+        </div>
+        <div class="dz-canvas">
+          <div class="sup-wrap">
+            <canvas class="sup-board" id="supCanvas" width="240" height="240"></canvas>
+            <div class="sup-mem" id="supMem"></div>
+          </div>
+        </div>
+        <div class="dz-out" id="supOut"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 7 : DÉMO NON SUPERVISÉ — ranger la classe ============ -->
+  <div class="pane light pad" id="d-unsup">
+    <div class="eyebrow" data-i18n="unsup.eyebrow">Démo 02 · non supervisé — « ranger sans consigne »</div>
+    <h2 class="stitle" data-i18n="unsup.title">Trouver des groupes<br>que personne n'a nommés</h2>
+    <div class="dz">
+      <div class="dz-side">
+        <div class="dz-step" data-i18n="unsup.s1"><b>1 · Regarder</b>Chaque point est un élève&nbsp;: son temps de jeu vidéo et son temps de musique par jour. <i>Aucun point n'a d'étiquette.</i></div>
+        <div class="dz-step" data-i18n="unsup.s2"><b>2 · Regrouper</b>La machine pose k centres au hasard, rattache chaque point au centre le plus proche, déplace les centres au milieu de leur groupe… et recommence jusqu'à ce que plus rien ne bouge.</div>
+        <div class="dz-step" data-i18n="unsup.s3"><b>3 · Douter</b>Changez k. Le <i>nombre</i> de groupes, c'est vous qui le choisissez&nbsp;: elle ne sait pas s'il y en a 2 ou 3 «&nbsp;en vrai&nbsp;». Et ce n'est pas elle qui les nommera.</div>
+        <div class="dz-src" data-i18n="unsup.src">C'est ainsi que Spotify ou YouTube rangent leurs utilisateurs en «&nbsp;profils&nbsp;» — sans que personne n'ait défini ces profils à l'avance. Données fictives. Cliquez pour ajouter un élève.</div>
+      </div>
+      <div class="dz-main">
+        <div class="dz-ctrl">
+          <span class="lbl">k =</span>
+          <button class="dz-btn kbtn" data-k="2">2</button>
+          <button class="dz-btn kbtn on" data-k="3">3</button>
+          <button class="dz-btn kbtn" data-k="4">4</button>
+          <button class="dz-btn go" id="unsupRun" data-i18n="unsup.run">Regrouper ▶</button>
+          <button class="dz-btn" id="unsupReset" data-i18n="unsup.reset">Recommencer</button>
+          <span class="dz-stat" id="unsupStat"></span>
+        </div>
+        <div class="dz-canvas"><svg id="unsupSvg" viewBox="0 0 560 330" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="dz-out" id="unsupOut"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 8 : DÉMO RENFORCEMENT — le robot et la cible ============ -->
+  <div class="pane light pad" id="d-rl">
+    <div class="eyebrow" data-i18n="rl.eyebrow">Démo 03 · renforcement — « apprendre par récompense »</div>
+    <h2 class="stitle" data-i18n="rl.title">Un robot, une cible,<br>et des points</h2>
+    <div class="dz">
+      <div class="dz-side">
+        <div class="dz-step" data-i18n="rl.s1"><b>1 · Au départ</b>Le robot 🤖 ne connaît ni la cible 🎯, ni le piège 🔥, ni les murs. Personne ne lui montre le chemin&nbsp;: <i>pas de corrigé</i>.</div>
+        <div class="dz-step" data-i18n="rl.s2"><b>2 · Un essai</b>Il se déplace au hasard. Arriver à la cible&nbsp;: +20 points. Tomber dans le piège&nbsp;: −20. Chaque pas coûte 1 point. À la fin de l'essai, il ajuste sa stratégie.</div>
+        <div class="dz-step" data-i18n="rl.s3"><b>3 · Entraîner</b>Lancez des essais par paquets de 50. Les flèches — sa <i>stratégie</i> — se dessinent case par case, et ses trajets raccourcissent. C'est ainsi qu'AlphaGo a appris&nbsp;; c'est le «&nbsp;R&nbsp;» de RLHF.</div>
+        <div class="dz-src" data-i18n="rl.src">Algorithme : Q-learning, le plus simple de la famille. La couleur d'une case dit ce que le robot en espère&nbsp;: bleu = bonne affaire, rouge = danger.</div>
+      </div>
+      <div class="dz-main">
+        <div class="dz-ctrl">
+          <button class="dz-btn go" id="rlTrain" data-i18n="rl.train">Entraîner ×50 ▶</button>
+          <button class="dz-btn" id="rlWatch" data-i18n="rl.watch">Regarder un essai</button>
+          <button class="dz-btn" id="rlReset" data-i18n="rl.reset">Tout oublier</button>
+          <span class="dz-stat" id="rlStat"></span>
+        </div>
+        <div class="dz-canvas"><svg id="rlSvg" viewBox="0 0 560 400" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="dz-out" id="rlOut"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 9 : GÉNÉRATIF vs DISCRIMINATIF ============ -->
   <div class="pane light pad" id="gendisc">
     <div class="eyebrow" data-i18n="d.eyebrow">Une coupe transversale — ⚠ ce n'est PAS une poupée russe</div>
     <h2 class="stitle" data-i18n="d.title">Discriminatif<br>ou génératif&nbsp;?</h2>
@@ -730,7 +893,53 @@
     </div>
   </div>
 
-  <!-- ============ SCÈNE 7 : ACTIVITÉ ============ -->
+  <!-- ============ SCÈNE 10 : DÉMO DISCRIMINATIF — k plus proches voisins ============ -->
+  <div class="pane light pad" id="d-knn">
+    <div class="eyebrow" data-i18n="knn.eyebrow">Démo 04 · discriminatif — « chat ou chien ? »</div>
+    <h2 class="stitle" data-i18n="knn.title">Adélie ou Papou&nbsp;?<br>La machine tranche</h2>
+    <div class="dz">
+      <div class="dz-side">
+        <div class="dz-step" data-i18n="knn.s1"><b>1 · Les exemples</b>Deux espèces de manchots, mesurées par des biologistes&nbsp;: longueur du bec, longueur de la nageoire. Chaque point a son <i>étiquette</i> (c'est du supervisé).</div>
+        <div class="dz-step" data-i18n="knn.s2"><b>2 · Un inconnu</b>Cliquez n'importe où&nbsp;: un manchot inconnu arrive. La machine regarde ses <i>k plus proches voisins</i> et les fait voter. C'est l'algorithme des «&nbsp;k plus proches voisins&nbsp;».</div>
+        <div class="dz-step" data-i18n="knn.s3"><b>3 · La frontière</b>Cliquez «&nbsp;Montrer la frontière&nbsp;»&nbsp;: voilà tout ce que la machine «&nbsp;sait&nbsp;». Elle <i>sépare</i>. Elle ne saurait pas dessiner un manchot.</div>
+        <div class="dz-src" data-i18n="knn.src">Valeurs inspirées du jeu de données Palmer Penguins (Antarctique, 2007–2009), le «&nbsp;jeu d'exemples&nbsp;» préféré des cours de machine learning.</div>
+      </div>
+      <div class="dz-main">
+        <div class="dz-ctrl">
+          <span class="lbl">k =</span>
+          <button class="dz-btn kbtn2" data-k="1">1</button>
+          <button class="dz-btn kbtn2 on" data-k="3">3</button>
+          <button class="dz-btn kbtn2" data-k="5">5</button>
+          <button class="dz-btn" id="knnBorder" data-i18n="knn.border">Montrer la frontière</button>
+          <button class="dz-btn" id="knnReset" data-i18n="knn.reset">Effacer l'inconnu</button>
+          <span class="dz-stat" id="knnStat"></span>
+        </div>
+        <div class="dz-canvas"><svg id="knnSvg" viewBox="0 0 560 330" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="dz-out" id="knnOut"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCÈNE 11 : GÉNÉRATIF — un prompt, une image ============ -->
+  <div class="pane light pad" id="d-gen">
+    <div class="eyebrow" data-i18n="gen.eyebrow">Démo 05 · génératif — « dessine-moi… »</div>
+    <h2 class="stitle" data-i18n="gen.title">Un prompt,<br>une image qui n'existait pas</h2>
+    <div class="genlay">
+      <div class="gen-chat">
+        <div class="bubble user"><span class="who" data-i18n="gen.who1">Le prof · à une IA générative d'images</span><span data-i18n="gen.prompt">«&nbsp;génère une image symbolisant l'amitié entre un lycée de Strasbourg et un lycée de Shanghai&nbsp;»</span></div>
+        <div class="bubble ai"><span class="who" data-i18n="gen.who2">L'IA · quelques secondes plus tard</span><span data-i18n="gen.answer">Voici l'image → Cathédrale, colombages, tour de la Perle, lanternes, deux drapeaux noués en cœur… et quatre lycéens qui se serrent la main.</span></div>
+        <div class="gen-note" data-i18n="gen.note"><b>Rien de tout ça n'a été copié.</b> Aucune photo de ce genre n'existait. Le modèle a appris, sur des millions d'images, <i>à quoi ressemblent</i> une cathédrale, un drapeau, une poignée de main — et il en a produit une combinaison nouvelle. Même principe pour le texte&nbsp;: c'est la séance 3.</div>
+      </div>
+      <div class="gen-pic" id="genPic">
+        <img src="img/amitie-strasbourg-shanghai.jpg" alt="Image générée : deux lycéens strasbourgeois et deux lycéens shanghaïens se serrent la main devant la cathédrale et la tour de la Perle" onerror="this.parentNode.classList.add('nopic')">
+        <div class="missing">image générée à déposer ici :<br>snt/ia/ressources/img/amitie-strasbourg-shanghai.jpg</div>
+        <div class="cap" data-i18n="gen.cap">image générée par IA · septembre 2026 · prompt ci-contre</div>
+      </div>
+    </div>
+    <p class="gen-foot" data-i18n="gen.foot">C'est ça, nos fameuses «&nbsp;IA&nbsp;»&nbsp;: ChatGPT, Claude, Gemini, Midjourney… Elles ne <b>trient</b> pas des images, elles en <b>produisent</b>. Et vous avez maintenant tous les mots pour les situer&nbsp;: IA → machine learning → deep learning → <b>génératif</b>.</p>
+  </div>
+
+  <!-- ============ SCÈNE 12 : ACTIVITÉ ============ -->
   <div class="pane dark act" id="activite">
     <div class="tag" data-i18n="a.tag">Activité de la séance</div>
     <h2 data-i18n="a.title">Votre <em>arbre</em><br>de la famille IA</h2>
@@ -745,7 +954,7 @@
     <div class="bareme" data-i18n="a.bareme">Notée sur&nbsp;: exactitude · lisibilité · esthétique</div>
   </div>
 
-  <!-- ============ SCÈNE 8 : CE QUE JE DOIS RETENIR ============ -->
+  <!-- ============ SCÈNE 13 : CE QUE JE DOIS RETENIR ============ -->
   <div class="pane light pad recap" id="recap">
     <div class="rc-eye" data-i18n="rc.eye">Fin de la séance 2</div>
     <h2 class="rc-title" data-i18n="rc.title">Ce que je dois <span>retenir</span></h2>
@@ -788,6 +997,11 @@
     <div class="dot" data-i="6"></div>
     <div class="dot" data-i="7"></div>
     <div class="dot" data-i="8"></div>
+    <div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div>
+    <div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div>
+    <div class="dot" data-i="13"></div>
   </div>
   <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
@@ -922,6 +1136,43 @@
       'rc.v8':`<b>Transformer</b>The 2017 architecture — the “T” in GPT.`,
       'rc.key':`Before judging an “AI”, always ask: <b>which AI are we talking about?</b>`,
 
+      'sup.eyebrow':`Demo 01 · supervised — “learning with the answer key”`,
+      'sup.title':`Teach it to read<br>your digits`,
+      'sup.s1':`<b>1 · Train</b>Draw a digit, then click its right answer: that's the <i>answer key</i>. Do it several times, with two or three different digits.`,
+      'sup.s2':`<b>2 · Test</b>Draw a digit and click “Guess”. The machine looks, among your corrected examples, for the ones that look most alike.`,
+      'sup.s3':`<b>3 · Observe</b>With one example per digit, it's often wrong. With five, much less so. <i>It needs data</i> — and the data must be labelled.`,
+      'sup.src':`Same principle as reading cheques, number plates or postal addresses — with millions of examples instead of ten.`,
+      'sup.clear':`Clear`, 'sup.lbl':`answer key: it's a…`, 'sup.guess':`Guess ▶`,
+      'unsup.eyebrow':`Demo 02 · unsupervised — “tidying up without instructions”`,
+      'unsup.title':`Finding groups<br>nobody has named`,
+      'unsup.s1':`<b>1 · Look</b>Each point is a pupil: daily time on video games, daily time on music. <i>No point has a label.</i>`,
+      'unsup.s2':`<b>2 · Group</b>The machine drops k centres at random, attaches each point to the nearest centre, moves the centres to the middle of their group… and repeats until nothing moves.`,
+      'unsup.s3':`<b>3 · Doubt</b>Change k. The <i>number</i> of groups is your choice: it can't tell whether there are “really” 2 or 3. And it won't be the one naming them.`,
+      'unsup.src':`This is how Spotify or YouTube sort their users into “profiles” — without anyone defining those profiles beforehand. Made-up data. Click to add a pupil.`,
+      'unsup.run':`Group ▶`, 'unsup.reset':`Start over`,
+      'rl.eyebrow':`Demo 03 · reinforcement — “learning by reward”`,
+      'rl.title':`A robot, a target,<br>and points`,
+      'rl.s1':`<b>1 · At the start</b>The robot 🤖 knows neither the target 🎯, nor the trap 🔥, nor the walls. Nobody shows it the way: <i>no answer key</i>.`,
+      'rl.s2':`<b>2 · One trial</b>It moves at random. Reaching the target: +20 points. Falling into the trap: −20. Each step costs 1 point. At the end of the trial, it adjusts its strategy.`,
+      'rl.s3':`<b>3 · Train</b>Run trials in batches of 50. The arrows — its <i>strategy</i> — appear cell by cell, and its runs get shorter. That's how AlphaGo learned; it's the “R” in RLHF.`,
+      'rl.src':`Algorithm: Q-learning, the simplest of the family. A cell's colour says what the robot expects from it: blue = good deal, red = danger.`,
+      'rl.train':`Train ×50 ▶`, 'rl.watch':`Watch a trial`, 'rl.reset':`Forget everything`,
+      'knn.eyebrow':`Demo 04 · discriminative — “cat or dog?”`,
+      'knn.title':`Adélie or Gentoo?<br>The machine decides`,
+      'knn.s1':`<b>1 · The examples</b>Two penguin species, measured by biologists: bill length, flipper length. Each point has its <i>label</i> (this is supervised).`,
+      'knn.s2':`<b>2 · A stranger</b>Click anywhere: an unknown penguin arrives. The machine looks at its <i>k nearest neighbours</i> and lets them vote. That's the “k-nearest neighbours” algorithm.`,
+      'knn.s3':`<b>3 · The boundary</b>Click “Show the boundary”: that's all the machine “knows”. It <i>separates</i>. It could not draw a penguin.`,
+      'knn.src':`Values inspired by the Palmer Penguins dataset (Antarctica, 2007–2009), the favourite “example set” of machine-learning courses.`,
+      'knn.border':`Show the boundary`, 'knn.reset':`Clear the stranger`,
+      'gen.eyebrow':`Demo 05 · generative — “draw me…”`,
+      'gen.title':`One prompt,<br>an image that didn't exist`,
+      'gen.who1':`The teacher · to an image-generating AI`,
+      'gen.prompt':`“generate an image symbolising the friendship between a high school in Strasbourg and a high school in Shanghai” <span style="opacity:.6">(prompt given in French)</span>`,
+      'gen.who2':`The AI · a few seconds later`,
+      'gen.answer':`Here's the image → Cathedral, half-timbered houses, Pearl Tower, lanterns, two flags tied into a heart… and four students shaking hands.`,
+      'gen.note':`<b>None of this was copied.</b> No such photo existed. The model learned, from millions of images, <i>what</i> a cathedral, a flag, a handshake <i>look like</i> — and produced a new combination. Same principle for text: that's Lesson 3.`,
+      'gen.cap':`AI-generated image · September 2026 · prompt opposite`,
+      'gen.foot':`That's them, our famous “AIs”: ChatGPT, Claude, Gemini, Midjourney… They don't <b>sort</b> images, they <b>produce</b> them. And you now have every word to place them: AI → machine learning → deep learning → <b>generative</b>.`,
       'hud.prev':`◀ Back`, 'hud.next':`Next ▶`
     },
     zh: {
@@ -1045,6 +1296,43 @@
       'rc.v8':`<b>Transformer</b>2017 年的架构——GPT 里的「T」。`,
       'rc.key':`在评判一个「AI」之前，永远先问：<b>说的是哪一种 AI？</b>`,
 
+      'sup.eyebrow':`演示 01 · 监督学习——「带着答案学」`,
+      'sup.title':`教它认出<br>你写的数字`,
+      'sup.s1':`<b>1 · 训练</b>画一个数字，然后点它的正确答案：这就是<i>答案</i>。多来几次，用两三个不同的数字。`,
+      'sup.s2':`<b>2 · 测试</b>画一个数字，点「猜」。机器会在你给过答案的例子里，找最像的那几个。`,
+      'sup.s3':`<b>3 · 观察</b>每个数字只有一个例子时，它经常猜错。有五个时，就好多了。<i>它需要数据</i>——而且数据必须带答案。`,
+      'sup.src':`读支票、车牌、邮政地址用的是同一个原理——只不过用的是几百万个例子，而不是十个。`,
+      'sup.clear':`清除`, 'sup.lbl':`答案：这是……`, 'sup.guess':`猜 ▶`,
+      'unsup.eyebrow':`演示 02 · 无监督学习——「没有指令地整理」`,
+      'unsup.title':`找出没有人<br>命名过的组`,
+      'unsup.s1':`<b>1 · 看</b>每个点是一个学生：每天玩游戏的时间、听音乐的时间。<i>没有一个点带标签。</i>`,
+      'unsup.s2':`<b>2 · 分组</b>机器随机放 k 个中心，把每个点归到最近的中心，再把中心移到各组的中间……如此反复，直到不再变动。`,
+      'unsup.s3':`<b>3 · 质疑</b>换一个 k。组的<i>数量</i>是你选的：它不知道「真实」是 2 组还是 3 组。给组起名字的也不会是它。`,
+      'unsup.src':`Spotify 或 YouTube 就是这样把用户分成「画像」的——事先没有任何人定义过这些画像。数据为虚构。点击可添加一个学生。`,
+      'unsup.run':`分组 ▶`, 'unsup.reset':`重来`,
+      'rl.eyebrow':`演示 03 · 强化学习——「靠奖励来学」`,
+      'rl.title':`一个机器人、一个目标、<br>还有分数`,
+      'rl.s1':`<b>1 · 起点</b>机器人 🤖 不知道目标 🎯、陷阱 🔥，也不知道墙在哪。没人给它指路：<i>没有答案</i>。`,
+      'rl.s2':`<b>2 · 一次尝试</b>它随机移动。到达目标：+20 分。掉进陷阱：−20。每走一步扣 1 分。一次尝试结束后，它调整策略。`,
+      'rl.s3':`<b>3 · 训练</b>每次跑 50 次尝试。箭头——它的<i>策略</i>——一格一格显现，路线越来越短。AlphaGo 就是这样学的；这也是 RLHF 里的「R」。`,
+      'rl.src':`算法：Q-learning，这一家族里最简单的。格子的颜色表示机器人对它的期望：蓝 = 划算，红 = 危险。`,
+      'rl.train':`训练 ×50 ▶`, 'rl.watch':`看一次尝试`, 'rl.reset':`全部忘掉`,
+      'knn.eyebrow':`演示 04 · 判别式——「猫还是狗？」`,
+      'knn.title':`阿德利还是巴布亚？<br>机器来判断`,
+      'knn.s1':`<b>1 · 例子</b>两种企鹅，由生物学家测量：喙长、鳍长。每个点都有<i>标签</i>（这是监督学习）。`,
+      'knn.s2':`<b>2 · 陌生者</b>点击任意位置：来了一只身份不明的企鹅。机器看它<i>最近的 k 个邻居</i>，让它们投票。这就是「k 近邻」算法。`,
+      'knn.s3':`<b>3 · 边界</b>点「显示边界」：这就是机器「知道」的全部。它会<i>区分</i>。它画不出一只企鹅。`,
+      'knn.src':`数值参考 Palmer Penguins 数据集（南极，2007–2009），机器学习课程最爱的「示例集」。`,
+      'knn.border':`显示边界`, 'knn.reset':`清除陌生者`,
+      'gen.eyebrow':`演示 05 · 生成式——「给我画……」`,
+      'gen.title':`一句提示词，<br>一张从未存在过的图`,
+      'gen.who1':`老师 · 对一个图像生成 AI 说`,
+      'gen.prompt':`「生成一张图，象征斯特拉斯堡一所高中与上海一所高中之间的友谊」<span style="opacity:.6">（原提示词为法语）</span>`,
+      'gen.who2':`AI · 几秒钟之后`,
+      'gen.answer':`图在这里 → 大教堂、木筋房、东方明珠、灯笼、两面国旗系成一颗心……还有四个握手的高中生。`,
+      'gen.note':`<b>这些都不是复制来的。</b>这样的照片从未存在过。模型从几百万张图片中学会了大教堂、国旗、握手<i>长什么样</i>——然后产生了一个新的组合。文本也是同一个原理：那是第 3 课。`,
+      'gen.cap':`AI 生成图像 · 2026 年 9 月 · 提示词见左侧`,
+      'gen.foot':`这就是我们那些著名的「AI」：ChatGPT、Claude、Gemini、Midjourney……它们不<b>分类</b>图片，它们<b>产生</b>图片。现在你有了给它们定位的所有词：人工智能 → 机器学习 → 深度学习 → <b>生成式</b>。`,
       'hud.prev':`◀ 返回`, 'hud.next':`下一页 ▶`
     }
   };
@@ -1072,17 +1360,18 @@
     document.title = MSG[lang].title;
     try{ localStorage.setItem('snt-ia-lang', lang); }catch(e){}
     updateHint();
+    if(window.redrawDemos) window.redrawDemos();
   }
   document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
 
   /* =========================================================
      NAVIGATION
      ========================================================= */
-  const panes = ['intro','frise','presse','partage','venn','apprendre','gendisc','activite','recap']
+  const panes = ['intro','frise','presse','partage','venn','apprendre','d-sup','d-unsup','d-rl','gendisc','d-knn','d-gen','activite','recap']
     .map(id=>document.getElementById(id));
   const dots  = [...document.querySelectorAll('.dot')];
-  let scene = 0;   // 0 ouverture·1 frise·2 presse·3 partage·4 venn·5 apprendre·6 gén/disc·7 activité·8 retenir
-  const MAX = 8;
+  let scene = 0;   // 0 ouverture·1 frise·2 presse·3 partage·4 venn·5 apprendre·6-8 démos·9 gén/disc·10 knn·11 génératif·12 activité·13 retenir
+  const MAX = 13;
   // scènes défilables : ↑↓ y font défiler le contenu, le clic n'avance pas.
   const SCROLLABLE = {1:'tlTrack'};
 
@@ -1118,6 +1407,7 @@
   document.querySelector('.stage').addEventListener('click', e=>{
     if(e.target.closest('a,button')) return;
     if(SCROLLABLE[scene] && e.target.closest('#frise')) return; // laisse lire la frise
+    if(e.target.closest('.dz,.genlay')) return;                      // zones de démo : on manipule, on n'avance pas
     go(scene+1);
   });
 
@@ -1142,6 +1432,269 @@
         });
       });
     };
+  })();
+
+  /* =========================================================
+     DÉMOS — quatre petites machines, entièrement dans la page.
+     Les textes dynamiques vivent ici (DZ), par langue ; les
+     rendus relisent curLang à chaque appel.
+     ========================================================= */
+  const DZ = {
+    fr:{
+      sup:{ need:`Montrez-moi d'abord des exemples corrigés&nbsp;: dessinez un chiffre, puis cliquez sur sa bonne réponse.`,
+            blank:`Dessinez d'abord un chiffre sur l'ardoise.`,
+            learned:(d,n)=>`Noté&nbsp;: ceci est un «&nbsp;${d}&nbsp;». J'ai maintenant <b>${n}</b> exemple${n>1?'s':''} corrigé${n>1?'s':''}.`,
+            guess:(d,votes)=>`Je pense que c'est un <b>${d}</b> — les exemples qui ressemblent le plus (entourés en rouge) disent&nbsp;: ${votes}.`,
+            stat:n=>`${n} exemple${n>1?'s':''} corrigé${n>1?'s':''}`, mem:`ce qu'elle a mémorisé`, empty:`rien encore — la machine ne sait rien.` },
+      unsup:{ start:n=>`${n} élèves, aucune étiquette. La machine ne sait pas ce qu'est «&nbsp;un joueur&nbsp;» ou «&nbsp;un mélomane&nbsp;».`,
+              step:(i,k)=>`Étape ${i}&nbsp;: chaque point rejoint le centre ✕ le plus proche, puis les ${k} centres se déplacent au milieu de leur groupe.`,
+              done:(i,k)=>`Plus rien ne bouge après ${i} étapes&nbsp;: <b>${k} groupes trouvés tout seuls</b>. Reste à les nommer — et ça, c'est votre travail.`,
+              axes:[`jeux vidéo (min / jour)`,`musique (min / jour)`], stat:n=>`${n} élèves` },
+      rl:{ start:`Le robot ne connaît ni la cible, ni le piège. Il n'a que des essais — et des points.`,
+           trained:(n,len,r)=>`Après <b>${n} essais</b>&nbsp;: dernier trajet en ${len} pas, score ${r>0?'+':''}${r}.`,
+           watching:`Essai en cours…`,
+           result:(len,ok)=> ok ? `🎯 Arrivé en <b>${len} pas</b>.` : `🔥 Raté (${len} pas). Encore un peu d'entraînement&nbsp;?`,
+           stat:n=>`${n} essais` },
+      knn:{ start:`Cliquez n'importe où sur le graphique&nbsp;: un manchot inconnu arrive.`,
+            vote:(k,a,g,res)=>`Ses ${k} plus proche${k>1?'s':''} voisin${k>1?'s':''}&nbsp;: ${a} Adélie, ${g} Papou → c'est un <b>${res}</b>.`,
+            names:[`Adélie`,`Papou`], axes:[`longueur du bec (mm)`,`longueur de la nageoire (mm)`],
+            border:`La frontière, c'est tout ce que la machine «&nbsp;sait&nbsp;». Elle sépare — elle ne saurait pas dessiner un manchot.`,
+            stat:n=>`${n} manchots étiquetés` }
+    },
+    en:{
+      sup:{ need:`Show me some corrected examples first: draw a digit, then click its right answer.`,
+            blank:`Draw a digit on the board first.`,
+            learned:(d,n)=>`Noted: this is a “${d}”. I now have <b>${n}</b> corrected example${n>1?'s':''}.`,
+            guess:(d,votes)=>`I think it's a <b>${d}</b> — the most similar examples (circled in red) say: ${votes}.`,
+            stat:n=>`${n} corrected example${n>1?'s':''}`, mem:`what it has memorised`, empty:`nothing yet — the machine knows nothing.` },
+      unsup:{ start:n=>`${n} pupils, no labels. The machine has no idea what “a gamer” or “a music lover” is.`,
+              step:(i,k)=>`Step ${i}: each point joins the nearest centre ✕, then the ${k} centres move to the middle of their group.`,
+              done:(i,k)=>`Nothing moves any more after ${i} steps: <b>${k} groups found on its own</b>. Naming them is your job.`,
+              axes:[`video games (min / day)`,`music (min / day)`], stat:n=>`${n} pupils` },
+      rl:{ start:`The robot knows neither the target nor the trap. All it has is trials — and points.`,
+           trained:(n,len,r)=>`After <b>${n} trials</b>: last run in ${len} steps, score ${r>0?'+':''}${r}.`,
+           watching:`Trial in progress…`,
+           result:(len,ok)=> ok ? `🎯 Made it in <b>${len} steps</b>.` : `🔥 Failed (${len} steps). A bit more training?`,
+           stat:n=>`${n} trials` },
+      knn:{ start:`Click anywhere on the chart: an unknown penguin arrives.`,
+            vote:(k,a,g,res)=>`Its ${k} nearest neighbour${k>1?'s':''}: ${a} Adélie, ${g} Gentoo → it's a <b>${res}</b>.`,
+            names:[`Adélie`,`Gentoo`], axes:[`bill length (mm)`,`flipper length (mm)`],
+            border:`The boundary is all the machine “knows”. It separates — it could not draw a penguin.`,
+            stat:n=>`${n} labelled penguins` }
+    },
+    zh:{
+      sup:{ need:`先给我看一些带答案的例子：画一个数字，然后点它的正确答案。`,
+            blank:`先在写字板上画一个数字。`,
+            learned:(d,n)=>`记下了：这是「${d}」。我现在有 <b>${n}</b> 个带答案的例子。`,
+            guess:(d,votes)=>`我觉得这是 <b>${d}</b>——最像的几个例子（红框）说：${votes}。`,
+            stat:n=>`${n} 个带答案的例子`, mem:`它记住的东西`, empty:`还没有——机器什么都不知道。` },
+      unsup:{ start:n=>`${n} 个学生，没有任何标签。机器不知道什么叫「游戏玩家」或「音乐迷」。`,
+              step:(i,k)=>`第 ${i} 步：每个点归到最近的中心 ✕，然后 ${k} 个中心移到各自组的中间。`,
+              done:(i,k)=>`${i} 步之后不再变动：<b>自己找出了 ${k} 个组</b>。给它们起名字——那是你的工作。`,
+              axes:[`电子游戏（分钟 / 天）`,`音乐（分钟 / 天）`], stat:n=>`${n} 个学生` },
+      rl:{ start:`机器人既不知道目标，也不知道陷阱。它只有一次次尝试——和分数。`,
+           trained:(n,len,r)=>`<b>${n} 次尝试</b>之后：最后一次 ${len} 步，得分 ${r>0?'+':''}${r}。`,
+           watching:`尝试进行中……`,
+           result:(len,ok)=> ok ? `🎯 <b>${len} 步</b>到达。` : `🔥 失败（${len} 步）。再练一练？`,
+           stat:n=>`${n} 次尝试` },
+      knn:{ start:`点击图上任意位置：来了一只身份不明的企鹅。`,
+            vote:(k,a,g,res)=>`它最近的 ${k} 个邻居：${a} 只阿德利，${g} 只巴布亚 → 它是<b>${res}</b>。`,
+            names:[`阿德利企鹅`,`巴布亚企鹅`], axes:[`喙长（毫米）`,`鳍长（毫米）`],
+            border:`这条边界就是机器「知道」的全部。它会区分——却画不出一只企鹅。`,
+            stat:n=>`${n} 只带标签的企鹅` }
+    }
+  };
+  const dz = ()=> DZ[curLang] || DZ.fr;
+  // générateur pseudo-aléatoire à graine : les mêmes points à chaque ouverture
+  function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+  function gauss(r){ let u=0,v=0; while(u===0)u=r(); while(v===0)v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  const SVGNS='http://www.w3.org/2000/svg';
+  function svgEl(tag,attrs,text){ const e=document.createElementNS(SVGNS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(text!=null) e.textContent=text; return e; }
+  const redraws=[];
+  window.redrawDemos = ()=>redraws.forEach(f=>f());
+
+  /* ---------- 01 · supervisé : l'ardoise et la mémoire d'exemples ---------- */
+  (function(){
+    const cv=document.getElementById('supCanvas'); if(!cv) return;
+    const ctx=cv.getContext('2d'); const W=cv.width; const S=20;
+    const out=document.getElementById('supOut'), mem=document.getElementById('supMem'), stat=document.getElementById('supStat');
+    const digits=document.getElementById('supDigits');
+    let drawing=false, last=null, ink=false, examples=[], nearIdx=[];
+    function clear(){ ctx.fillStyle='#fdfbf5'; ctx.fillRect(0,0,W,W); ink=false; }
+    clear();
+    function pos(e){ const r=cv.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return [(t.clientX-r.left)*W/r.width,(t.clientY-r.top)*W/r.height]; }
+    cv.addEventListener('pointerdown',e=>{ drawing=true; last=pos(e); cv.setPointerCapture(e.pointerId); e.preventDefault(); });
+    cv.addEventListener('pointermove',e=>{ if(!drawing) return; const p=pos(e);
+      ctx.strokeStyle='#14110d'; ctx.lineWidth=18; ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(last[0],last[1]); ctx.lineTo(p[0],p[1]); ctx.stroke(); last=p; ink=true; });
+    cv.addEventListener('pointerup',()=>{ drawing=false; }); cv.addEventListener('pointercancel',()=>{ drawing=false; });
+    cv.addEventListener('click',e=>e.stopPropagation());
+    // l'image devient un vecteur : on recadre sur l'encre, on réduit à 20×20, on normalise
+    function vec(){
+      const d=ctx.getImageData(0,0,W,W).data; let x0=W,y0=W,x1=-1,y1=-1;
+      for(let y=0;y<W;y++)for(let x=0;x<W;x++){ if(d[(y*W+x)*4]<140){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } }
+      if(x1<0) return null;
+      const bw=x1-x0+1, bh=y1-y0+1, m=Math.max(bw,bh), sc=(S-4)/m, dw=bw*sc, dh=bh*sc;
+      const off=document.createElement('canvas'); off.width=S; off.height=S; const oc=off.getContext('2d');
+      oc.fillStyle='#fff'; oc.fillRect(0,0,S,S); oc.imageSmoothingEnabled=true;
+      oc.drawImage(cv,x0,y0,bw,bh,(S-dw)/2,(S-dh)/2,dw,dh);
+      const od=oc.getImageData(0,0,S,S).data; const v=new Float32Array(S*S); let n=0;
+      for(let i=0;i<S*S;i++){ v[i]=1-od[i*4]/255; n+=v[i]*v[i]; }
+      n=Math.sqrt(n)||1; for(let i=0;i<S*S;i++) v[i]/=n;
+      return {v, thumb:off.toDataURL()};
+    }
+    function dist(a,b){ let s=0; for(let i=0;i<a.length;i++){ const d=a[i]-b[i]; s+=d*d; } return Math.sqrt(s); }
+    function renderMem(){
+      const D=dz().sup; stat.textContent = D.stat(examples.length);
+      if(!examples.length){ mem.innerHTML=`<div class="h">${D.mem}</div><div class="sup-empty">${D.empty}</div>`; return; }
+      const by={}; examples.forEach((ex,i)=>{ (by[ex.label]=by[ex.label]||[]).push(i); });
+      mem.innerHTML=`<div class="h">${D.mem}</div>`+Object.keys(by).sort().map(l=>
+        `<div class="sup-row"><span class="lab">${l}</span>${by[l].map(i=>`<img src="${examples[i].thumb}" class="${nearIdx.includes(i)?'near':''}" alt="">`).join('')}</div>`).join('');
+      digits.querySelectorAll('button').forEach(b=>{ const c=(by[b.dataset.d]||[]).length; b.querySelector('.cnt').textContent=c; b.querySelector('.cnt').style.display=c?'flex':'none'; });
+    }
+    digits.innerHTML=[0,1,2,3,4,5,6,7,8,9].map(d=>`<button class="dz-btn" data-d="${d}">${d}<span class="cnt" style="display:none"></span></button>`).join('');
+    digits.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+      const D=dz().sup; if(!ink){ out.innerHTML=D.blank; return; }
+      const r=vec(); if(!r){ out.innerHTML=D.blank; return; }
+      examples.push({label:b.dataset.d, v:r.v, thumb:r.thumb}); nearIdx=[]; clear();
+      out.innerHTML=D.learned(b.dataset.d, examples.length); renderMem();
+    });
+    document.getElementById('supClear').onclick=()=>{ clear(); nearIdx=[]; renderMem(); };
+    document.getElementById('supGuess').onclick=()=>{
+      const D=dz().sup;
+      if(!examples.length){ out.innerHTML=D.need; return; }
+      if(!ink){ out.innerHTML=D.blank; return; }
+      const r=vec(); if(!r){ out.innerHTML=D.blank; return; }
+      const ranked=examples.map((ex,i)=>({i,d:dist(ex.v,r.v),label:ex.label})).sort((a,b)=>a.d-b.d);
+      const k=Math.min(3,ranked.length), top=ranked.slice(0,k), score={};
+      top.forEach(t=>{ score[t.label]=(score[t.label]||0)+1/(t.d+0.05); });
+      const best=Object.keys(score).sort((a,b)=>score[b]-score[a])[0];
+      nearIdx=top.map(t=>t.i);
+      out.innerHTML=D.guess(best, top.map(t=>t.label).join(', ')); renderMem();
+    };
+    redraws.push(()=>{ renderMem(); if(!examples.length) out.innerHTML=dz().sup.need; });
+    renderMem(); out.innerHTML=dz().sup.need;
+  })();
+
+  /* ---------- 02 · non supervisé : k-moyennes animé ---------- */
+  (function(){
+    const svg=document.getElementById('unsupSvg'); if(!svg) return;
+    const out=document.getElementById('unsupOut'), stat=document.getElementById('unsupStat');
+    const COL=['#1f5cff','#b5301f','#2a8a4a','#7a3fb5'], GREY='#a9a294';
+    const M={l:52,r:14,t:12,b:40}, VW=560, VH=330, MAX=240;
+    const r=rng(20260917), pts=[];
+    [[38,195,16],[200,42,16],[150,150,11]].forEach(([cx,cy,n])=>{ for(let i=0;i<n;i++) pts.push({x:Math.min(MAX,Math.max(2,cx+gauss(r)*24)), y:Math.min(MAX,Math.max(2,cy+gauss(r)*24)), c:-1}); });
+    for(let i=0;i<4;i++) pts.push({x:10+r()*220,y:10+r()*220,c:-1});
+    let k=3, cents=[], step=0, timer=null, done=false;
+    const sx=v=>M.l+(v/MAX)*(VW-M.l-M.r), sy=v=>VH-M.b-(v/MAX)*(VH-M.t-M.b);
+    function draw(){
+      const D=dz().unsup; svg.innerHTML='';
+      svg.appendChild(svgEl('rect',{x:M.l,y:M.t,width:VW-M.l-M.r,height:VH-M.t-M.b,fill:'#fbf9f3',stroke:'#d9d2c2'}));
+      [0,60,120,180,240].forEach(v=>{ svg.appendChild(svgEl('text',{x:sx(v),y:VH-M.b+14,class:'ax','text-anchor':'middle'},v)); svg.appendChild(svgEl('text',{x:M.l-6,y:sy(v)+4,class:'ax','text-anchor':'end'},v)); });
+      svg.appendChild(svgEl('text',{x:(M.l+VW-M.r)/2,y:VH-8,class:'axl','text-anchor':'middle'},D.axes[0]));
+      const yl=svgEl('text',{x:14,y:(M.t+VH-M.b)/2,class:'axl','text-anchor':'middle',transform:`rotate(-90 14 ${(M.t+VH-M.b)/2})`},D.axes[1]); svg.appendChild(yl);
+      pts.forEach(p=>svg.appendChild(svgEl('circle',{cx:sx(p.x),cy:sy(p.y),r:6,class:'pt',fill:p.c<0?GREY:COL[p.c],stroke:'#fff','stroke-width':1.5})));
+      cents.forEach((c,i)=>{ const g=svgEl('g',{transform:`translate(${sx(c.x)} ${sy(c.y)})`,class:'cen',stroke:COL[i]}); g.appendChild(svgEl('line',{x1:-9,y1:-9,x2:9,y2:9})); g.appendChild(svgEl('line',{x1:-9,y1:9,x2:9,y2:-9})); svg.appendChild(g); });
+      stat.textContent=D.stat(pts.length);
+      out.innerHTML = done ? D.done(step,k) : (step ? D.step(step,k) : D.start(pts.length));
+    }
+    function assign(){ let ch=false; pts.forEach(p=>{ let b=0,bd=1e9; cents.forEach((c,i)=>{ const d=(p.x-c.x)**2+(p.y-c.y)**2; if(d<bd){bd=d;b=i;} }); if(p.c!==b){p.c=b;ch=true;} }); return ch; }
+    function move(){ cents=cents.map((c,i)=>{ const g=pts.filter(p=>p.c===i); if(!g.length) return c; return {x:g.reduce((s,p)=>s+p.x,0)/g.length, y:g.reduce((s,p)=>s+p.y,0)/g.length}; }); }
+    function reset(){ clearTimeout(timer); timer=null; cents=[]; step=0; done=false; pts.forEach(p=>p.c=-1); draw(); }
+    function run(){
+      if(timer) return; reset();
+      const used=new Set(); while(cents.length<k){ const i=Math.floor(Math.random()*pts.length); if(!used.has(i)){ used.add(i); cents.push({x:pts[i].x,y:pts[i].y}); } }
+      draw();
+      const loop=()=>{ step++; const ch=assign(); draw(); timer=setTimeout(()=>{ move(); draw(); if(!ch || step>=25){ done=true; timer=null; draw(); return; } timer=setTimeout(loop,650); },650); };
+      timer=setTimeout(loop,500);
+    }
+    document.getElementById('unsupRun').onclick=run;
+    document.getElementById('unsupReset').onclick=reset;
+    document.querySelectorAll('.kbtn').forEach(b=>b.onclick=()=>{ k=+b.dataset.k; document.querySelectorAll('.kbtn').forEach(x=>x.classList.toggle('on',x===b)); reset(); });
+    svg.addEventListener('click',e=>{ e.stopPropagation(); const pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+      const x=(pt.x-M.l)/(VW-M.l-M.r)*MAX, y=(VH-M.b-pt.y)/(VH-M.t-M.b)*MAX; if(x<0||x>MAX||y<0||y>MAX) return;
+      pts.push({x,y,c:-1}); if(done||step){ reset(); } else draw(); });
+    redraws.push(draw); draw();
+  })();
+
+  /* ---------- 03 · renforcement : Q-learning sur une grille ---------- */
+  (function(){
+    const svg=document.getElementById('rlSvg'); if(!svg) return;
+    const out=document.getElementById('rlOut'), stat=document.getElementById('rlStat');
+    const C=7,R=5,CS=80, START=[0,4], GOAL=[6,0], TRAP=[5,2];
+    const WALL=new Set(['2,2','2,3','2,4','4,0','4,1','4,2']);
+    const DIRS=[[0,-1],[1,0],[0,1],[-1,0]], ARR=['↑','→','↓','←'];
+    let Q, episodes, lastLen, lastR, pos=null, anim=null;
+    const key=(x,y)=>y*C+x;
+    function reset(){ Q=Array.from({length:C*R},()=>[0,0,0,0]); episodes=0; lastLen=0; lastR=0; pos=null; clearTimeout(anim); anim=null; draw(); }
+    function stepEnv(x,y,a){ let nx=x+DIRS[a][0], ny=y+DIRS[a][1]; if(nx<0||nx>=C||ny<0||ny>=R||WALL.has(nx+','+ny)){nx=x;ny=y;}
+      if(nx===GOAL[0]&&ny===GOAL[1]) return [nx,ny,20,true]; if(nx===TRAP[0]&&ny===TRAP[1]) return [nx,ny,-20,true]; return [nx,ny,-1,false]; }
+    function argmax(q){ const m=Math.max(...q); const c=q.map((v,i)=>v===m?i:-1).filter(i=>i>=0); return c[Math.floor(Math.random()*c.length)]; }
+    function episode(eps){ let [x,y]=START, tot=0, len=0, done=false;
+      while(!done && len<80){ const a=Math.random()<eps?Math.floor(Math.random()*4):argmax(Q[key(x,y)]); const [nx,ny,rw,d]=stepEnv(x,y,a);
+        const q=Q[key(x,y)]; const target=rw+(d?0:0.92*Math.max(...Q[key(nx,ny)])); q[a]+=0.5*(target-q[a]); x=nx;y=ny;tot+=rw;len++;done=d; }
+      episodes++; lastLen=len; lastR=tot; }
+    function draw(){
+      const D=dz().rl; svg.innerHTML='';
+      const allq=Q.flat(); const mx=Math.max(1,...allq.map(v=>Math.abs(v)));
+      for(let y=0;y<R;y++)for(let x=0;x<C;x++){
+        const isW=WALL.has(x+','+y), q=Q[key(x,y)], best=Math.max(...q);
+        let fill='#fbf9f3'; if(isW) fill='#5a5344'; else if(best>0) fill=`rgba(31,92,255,${Math.min(.75,best/mx*.8)})`; else if(best<0) fill=`rgba(181,48,31,${Math.min(.75,-best/mx*.8)})`;
+        svg.appendChild(svgEl('rect',{x:x*CS,y:y*CS,width:CS,height:CS,class:'rl-cell',fill}));
+        if(!isW && best!==0 && !(x===GOAL[0]&&y===GOAL[1]) && !(x===TRAP[0]&&y===TRAP[1])) svg.appendChild(svgEl('text',{x:x*CS+CS/2,y:y*CS+CS/2,class:'rl-arrow'},ARR[q.indexOf(best)]));
+      }
+      svg.appendChild(svgEl('text',{x:GOAL[0]*CS+CS/2,y:GOAL[1]*CS+CS/2,class:'rl-emoji'},'🎯'));
+      svg.appendChild(svgEl('text',{x:TRAP[0]*CS+CS/2,y:TRAP[1]*CS+CS/2,class:'rl-emoji'},'🔥'));
+      const p=pos||START; svg.appendChild(svgEl('text',{x:p[0]*CS+CS/2,y:p[1]*CS+CS/2,class:'rl-emoji'},'🤖'));
+      stat.textContent=D.stat(episodes);
+      if(anim) out.innerHTML=D.watching; else out.innerHTML = episodes ? D.trained(episodes,lastLen,lastR) : D.start;
+    }
+    document.getElementById('rlTrain').onclick=()=>{ if(anim) return; for(let i=0;i<50;i++) episode(0.25); pos=null; draw(); };
+    document.getElementById('rlWatch').onclick=()=>{ if(anim) return; let [x,y]=START, len=0; pos=[x,y]; anim=true; draw();
+      const tick=()=>{ const [nx,ny,rw,d]=stepEnv(x,y,argmax(Q[key(x,y)])); x=nx;y=ny;len++; pos=[x,y]; draw();
+        if(d||len>=60){ anim=null; out.innerHTML=dz().rl.result(len, rw===20); return; } anim=setTimeout(tick,140); };
+      anim=setTimeout(tick,300); };
+    document.getElementById('rlReset').onclick=reset;
+    svg.addEventListener('click',e=>e.stopPropagation());
+    redraws.push(draw); reset();
+  })();
+
+  /* ---------- 04 · discriminatif : k plus proches voisins ---------- */
+  (function(){
+    const svg=document.getElementById('knnSvg'); if(!svg) return;
+    const out=document.getElementById('knnOut'), stat=document.getElementById('knnStat');
+    const COL=['#1f5cff','#b5301f'], M={l:52,r:14,t:12,b:40}, VW=560, VH=330, X0=30,X1=60,Y0=170,Y1=235;
+    const r=rng(1130), pts=[];
+    for(let i=0;i<16;i++) pts.push({x:38.8+gauss(r)*2.6,y:190+gauss(r)*6,c:0});
+    for(let i=0;i<16;i++) pts.push({x:47.5+gauss(r)*3,y:217+gauss(r)*6,c:1});
+    let k=3, q=null, border=false;
+    const sx=v=>M.l+(v-X0)/(X1-X0)*(VW-M.l-M.r), sy=v=>VH-M.b-(v-Y0)/(Y1-Y0)*(VH-M.t-M.b);
+    const d2=(a,b)=>((a.x-b.x)/(X1-X0))**2+((a.y-b.y)/(Y1-Y0))**2;   // distances sur des axes normalisés
+    function vote(p){ const near=pts.map((e,i)=>({i,d:d2(e,p),c:e.c})).sort((a,b)=>a.d-b.d).slice(0,k); const g=near.filter(n=>n.c===1).length; return {near, a:k-g, g, res:g>k/2?1:0}; }
+    function draw(){
+      const D=dz().knn; svg.innerHTML='';
+      svg.appendChild(svgEl('rect',{x:M.l,y:M.t,width:VW-M.l-M.r,height:VH-M.t-M.b,fill:'#fbf9f3',stroke:'#d9d2c2'}));
+      if(border){ const NX=44,NY=28, cw=(VW-M.l-M.r)/NX, ch=(VH-M.t-M.b)/NY;
+        for(let i=0;i<NX;i++)for(let j=0;j<NY;j++){ const p={x:X0+(i+.5)/NX*(X1-X0), y:Y1-(j+.5)/NY*(Y1-Y0)}; const v=vote(p);
+          svg.appendChild(svgEl('rect',{x:M.l+i*cw,y:M.t+j*ch,width:cw+.5,height:ch+.5,fill:v.res?'rgba(181,48,31,.16)':'rgba(31,92,255,.16)'})); } }
+      [30,40,50,60].forEach(v=>svg.appendChild(svgEl('text',{x:sx(v),y:VH-M.b+14,class:'ax','text-anchor':'middle'},v)));
+      [180,200,220].forEach(v=>svg.appendChild(svgEl('text',{x:M.l-6,y:sy(v)+4,class:'ax','text-anchor':'end'},v)));
+      svg.appendChild(svgEl('text',{x:(M.l+VW-M.r)/2,y:VH-8,class:'axl','text-anchor':'middle'},D.axes[0]));
+      svg.appendChild(svgEl('text',{x:14,y:(M.t+VH-M.b)/2,class:'axl','text-anchor':'middle',transform:`rotate(-90 14 ${(M.t+VH-M.b)/2})`},D.axes[1]));
+      // légende
+      D.names.forEach((n,i)=>{ svg.appendChild(svgEl('circle',{cx:M.l+14+i*120,cy:M.t+14,r:5,fill:COL[i]})); svg.appendChild(svgEl('text',{x:M.l+24+i*120,y:M.t+18,class:'ax'},n)); });
+      let v=null; if(q){ v=vote(q); v.near.forEach(n=>svg.appendChild(svgEl('line',{x1:sx(q.x),y1:sy(q.y),x2:sx(pts[n.i].x),y2:sy(pts[n.i].y),stroke:'#14110d','stroke-width':1.5,'stroke-dasharray':'4 3'}))); }
+      pts.forEach((p,i)=>svg.appendChild(svgEl('circle',{cx:sx(p.x),cy:sy(p.y),r:v&&v.near.some(n=>n.i===i)?8:6,class:'pt',fill:COL[p.c],stroke:v&&v.near.some(n=>n.i===i)?'#14110d':'#fff','stroke-width':2})));
+      if(q){ svg.appendChild(svgEl('circle',{cx:sx(q.x),cy:sy(q.y),r:11,fill:COL[v.res],stroke:'#14110d','stroke-width':2.5})); svg.appendChild(svgEl('text',{x:sx(q.x),y:sy(q.y)+5,'text-anchor':'middle','font-size':'14','fill':'#fff','font-weight':'bold'},'?')); }
+      stat.textContent=D.stat(pts.length);
+      out.innerHTML = q ? D.vote(k,v.a,v.g,D.names[v.res]) + (border?' '+D.border:'') : (border ? D.border : D.start);
+    }
+    svg.addEventListener('click',e=>{ e.stopPropagation(); const pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+      const x=X0+(pt.x-M.l)/(VW-M.l-M.r)*(X1-X0), y=Y1-(pt.y-M.t)/(VH-M.t-M.b)*(Y1-Y0); if(x<X0||x>X1||y<Y0||y>Y1) return; q={x,y}; draw(); });
+    document.querySelectorAll('.kbtn2').forEach(b=>b.onclick=()=>{ k=+b.dataset.k; document.querySelectorAll('.kbtn2').forEach(x=>x.classList.toggle('on',x===b)); draw(); });
+    document.getElementById('knnBorder').onclick=function(){ border=!border; this.classList.toggle('on',border); draw(); };
+    document.getElementById('knnReset').onclick=()=>{ q=null; draw(); };
+    redraws.push(draw); draw();
   })();
 
   /* =========================================================
