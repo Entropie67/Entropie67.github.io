@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Se tester</title>
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .45s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(.9rem,2.6vh,1.7rem) clamp(1.2rem,4.5vw,3.4rem)}
+
+  /* ---- ouverture ---- */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.1rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.9;
+    font-size:clamp(2.2rem,9vw,6.6rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.3rem;max-width:58ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .chapters{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.3rem;
+    opacity:0;animation:rise .7s ease .8s forwards}
+  .chapter{border:1px solid rgba(233,228,216,.25);padding:.45rem .8rem;font-family:var(--mono);
+    font-size:.74rem;color:#cfc8b8}
+  .chapter b{color:var(--signal)}
+  .intro .go{margin-top:1.6rem;opacity:0;animation:rise .7s ease 1s forwards}
+  .gobtn{cursor:pointer;border:0;background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;
+    padding:.9rem 1.8rem;box-shadow:5px 5px 0 rgba(255,106,77,.85);transition:transform .15s,box-shadow .15s}
+  .gobtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 rgba(255,106,77,.95)}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ---- quiz ---- */
+  .qtop{flex:0 0 auto;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.5rem}
+  .qcount{font-family:var(--display);text-transform:uppercase;font-size:clamp(.85rem,1.8vw,1.15rem);
+    color:var(--signal-dk)}
+  .qcat{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+    padding:.25rem .6rem;background:var(--paper-2);border:1px solid rgba(0,0,0,.16);color:var(--muted)}
+  .qscore{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+  .qscore b{color:var(--green);font-size:1.05em}
+  .qbar{flex:0 0 auto;height:5px;background:rgba(0,0,0,.12);margin-bottom:clamp(.7rem,2.2vh,1.2rem)}
+  .qbar i{display:block;height:100%;background:var(--signal);transition:width .35s ease}
+
+  .qmid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+  .qtext{font-family:var(--display);text-transform:uppercase;line-height:1.08;
+    font-size:clamp(1.05rem,2.7vw,1.9rem);max-width:30ch;margin-bottom:clamp(.8rem,2.4vh,1.2rem)}
+  .qchoices{display:grid;gap:.45rem;max-width:74ch}
+  .qc{text-align:left;cursor:pointer;font-family:var(--serif);
+    font-size:clamp(.85rem,1.6vw,1.05rem);line-height:1.35;
+    padding:.6rem .85rem;border:1px solid rgba(0,0,0,.2);background:var(--paper-2);color:var(--ink);
+    display:flex;gap:.7rem;align-items:flex-start;transition:.12s}
+  .qc:hover:not(.done){border-color:var(--signal);background:#e6e0d0}
+  .qc .ltr{font-family:var(--mono);font-weight:bold;color:var(--signal-dk);flex:0 0 auto}
+  .qc.ok{border-color:var(--green);background:rgba(18,146,79,.14)}
+  .qc.ok .ltr{color:var(--green)}
+  .qc.ko{border-color:var(--alarm);background:rgba(181,48,31,.12);opacity:.85}
+  .qc.ko .ltr{color:var(--alarm)}
+  .qc.done{cursor:default}
+  .qwhy{margin-top:.8rem;max-width:80ch;border-left:4px solid var(--signal);padding:.6rem .9rem;
+    background:rgba(31,92,255,.07);font-size:clamp(.82rem,1.5vw,1rem);line-height:1.45;color:#3a352c;
+    display:none}
+  .qwhy.show{display:block}
+  .qwhy b{color:var(--signal-dk)}
+  .qfoot{flex:0 0 auto;display:flex;justify-content:flex-end;margin-top:clamp(.6rem,2vh,1rem)}
+  .qnext{cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.8rem;letter-spacing:.07em;text-transform:uppercase;
+    padding:.6rem 1.2rem;transition:.15s;visibility:hidden}
+  .qnext.show{visibility:visible}
+  .qnext:hover{background:transparent;color:var(--ink)}
+
+  /* ---- bilan ---- */
+  .bil{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 35%, #10233f 0%, var(--ink) 62%)}
+  .bil .tag{font-family:var(--mono);font-size:.74rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:.8rem}
+  .bscore{font-family:var(--display);line-height:.92;font-size:clamp(3rem,13vw,8rem);color:var(--signal);
+    text-shadow:0 0 34px rgba(31,92,255,.55)}
+  .bscore small{font-size:.38em;color:#cfc8b8;text-shadow:none}
+  .bmsg{margin-top:.8rem;max-width:56ch;font-size:clamp(.98rem,1.95vw,1.3rem);line-height:1.5;color:#cfc8b8}
+  .bmsg b{color:#fff}
+  .bcats{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:1.4rem}
+  .bcat{border:1px solid rgba(233,228,216,.22);padding:.6rem .9rem;min-width:12rem;text-align:left}
+  .bcat .n{font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.2rem}
+  .bcat .s{font-family:var(--display);font-size:clamp(1rem,2.2vw,1.4rem);line-height:1}
+  .bcat .s.hi{color:#7fe0ac} .bcat .s.mid{color:#ffd27f} .bcat .s.lo{color:#ff6a4d}
+  .bcat a{display:block;margin-top:.3rem;font-family:var(--mono);font-size:.68rem;
+    color:#7fa0ff;text-decoration:none;border-bottom:1px solid rgba(127,160,255,.35)}
+  .bagain{margin-top:1.5rem}
+
+  /* ---- HUD ---- */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.6rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.5rem}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){ .hint{display:none} .qscore{margin-left:0;width:100%} }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+
+  <!-- 0 · OUVERTURE -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="idees-recues.html">◂ Séance précédente</a>
+    <div class="tag">SNT · Enseignement IA · Faire un point</div>
+    <h1 class="big">Se <em>tester</em></h1>
+    <p class="line">Vingt questions sur tout ce qu'on a vu depuis la rentrée. Pas de piège&nbsp;: si vous avez suivi, vous saurez répondre. Et à chaque réponse, <strong style="color:#fff">on explique pourquoi</strong>.</p>
+    <div class="chapters">
+      <div class="chapter"><b>1</b> · Où en est l'IA</div>
+      <div class="chapter"><b>2</b> · La famille des IA</div>
+      <div class="chapter"><b>3</b> · Le prochain mot</div>
+    </div>
+    <div class="go"><button class="gobtn" id="start">Commencer ▶</button></div>
+  </div>
+
+  <!-- 1 · QUIZ -->
+  <div class="pane light pad" id="s1">
+    <div class="qtop">
+      <span class="qcount" id="qcount">Question 1 / 20</span>
+      <span class="qcat" id="qcat">—</span>
+      <span class="qscore" id="qscore">score : <b>0</b></span>
+    </div>
+    <div class="qbar"><i id="qbar" style="width:0%"></i></div>
+
+    <div class="qmid">
+      <div class="qtext" id="qtext">—</div>
+      <div class="qchoices" id="qchoices"></div>
+      <div class="qwhy" id="qwhy"></div>
+    </div>
+
+    <div class="qfoot"><button class="qnext" id="qnext">Question suivante ▶</button></div>
+  </div>
+
+  <!-- 2 · BILAN -->
+  <div class="pane dark bil" id="s2">
+    <div class="tag">Bilan</div>
+    <div class="bscore" id="bscore">—<small> / 20</small></div>
+    <p class="bmsg" id="bmsg"></p>
+    <div class="bcats" id="bcats"></div>
+    <div class="bagain"><button class="gobtn" id="again">Recommencer ↺</button></div>
+  </div>
+
+</div>
+
+<div class="hud">
+  <button class="btn" id="prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div>
+    <div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div>
+  </div>
+  <button class="btn" id="next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+  /* ================= navigation ================= */
+  const panes = ['s0','s1','s2'].map(id=>document.getElementById(id));
+  const dots  = [...document.querySelectorAll('.dot')];
+  let scene = 0;
+  const MAX = 2;
+  function render(){
+    panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
+    dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
+    const h=document.getElementById('hint');
+    if(h) h.textContent = (scene===1) ? 'répondez en cliquant' : '↔ flèches · espace · clic';
+  }
+  function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+  document.getElementById('next').onclick = ()=>go(scene+1);
+  document.getElementById('prev').onclick = ()=>go(scene-1);
+  dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
+  window.addEventListener('keydown', e=>{
+    if(scene===1) return;                     // pendant le quiz, on répond à la souris
+    if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
+  });
+  document.querySelector('.stage').addEventListener('click', e=>{
+    if(e.target.closest('a,button')) return;
+    if(scene===1) return;                     // scène interactive
+    go(scene+1);
+  });
+
+  /* ================= les 20 questions ================= */
+  const C1='Où en est l’IA', C2='La famille des IA', C3='Le prochain mot';
+  const Q = [
+    {c:C1, q:`Un « benchmark », c’est quoi ?`,
+      a:[`Un test standardisé qui sert à comparer les IA entre elles`,
+         `Un modèle d’IA particulièrement puissant`,
+         `L’entreprise qui fabrique un modèle`],
+      ok:0, why:`Même questionnaire, même note pour tout le monde : c’est ce qui permet de <b>comparer</b> les modèles et de suivre leurs progrès.`},
+
+    {c:C1, q:`Qu’appelle-t-on un « modèle frontière » ?`,
+      a:[`Un modèle qui fonctionne sans connexion Internet`,
+         `Les modèles les plus avancés du moment, ceux qui repoussent la limite`,
+         `Un modèle réservé à la recherche militaire`],
+      ok:1, why:`Un petit club, très disputé, qui <b>change au fil des mois</b>. Ce n’est pas un label officiel.`},
+
+    {c:C1, q:`Sur GPQA, les experts du domaine plafonnaient à 65 %. En 2026, un modèle dépasse 94 %. Qu’en conclure ?`,
+      a:[`Que l’IA est plus intelligente qu’un docteur`,
+         `Que ce test a cessé d’être une frontière : il est saturé`,
+         `Que les experts avaient mal travaillé`],
+      ok:1, why:`Un bon score ne prouve ni la compréhension ni l’intelligence. Il dit qu’on mesurait <b>une chose précise</b> — et qu’il faudra inventer un autre test.`},
+
+    {c:C1, q:`Deux classements donnent des scores différents sur le même examen. Pourquoi être prudent ?`,
+      a:[`Parce que l’un des deux ment forcément`,
+         `Parce que les protocoles d’évaluation ne sont pas identiques`,
+         `Parce que les scores changent tous les jours`],
+      ok:1, why:`Avec ou sans outils, sur quel sous-ensemble de questions… C’est <b>l’ordre de grandeur</b> qui compte, pas le dixième de point.`},
+
+    {c:C1, q:`En 2023, un article de recherche s’intitulait « GPT-4 CAN’T REASON ». Aujourd’hui, on doit surtout en retenir que…`,
+      a:[`ces chercheurs étaient incompétents`,
+         `les comportements observables ont tant changé qu’il faut réinterroger nos mots`,
+         `l’IA raisonne exactement comme un humain`],
+      ok:1, why:`Comprendre, raisonner, être intelligent, être conscient sont <b>quatre choses différentes</b>. Ce qui a bougé, ce sont nos catégories.`},
+
+    {c:C2, q:`« IA » et « machine learning », est-ce la même chose ?`,
+      a:[`Oui, ce sont deux mots pour la même idée`,
+         `Non : l’IA symbolique est de l’IA sans le moindre apprentissage`,
+         `Non : le machine learning est plus large que l’IA`],
+      ok:1, why:`L’IA symbolique (des règles écrites à la main) est bien de l’IA — et elle n’apprend rien. D’où : <b>IA ≠ machine learning</b>.`},
+
+    {c:C2, q:`Deep Blue, qui bat Kasparov aux échecs en 1997, relève de…`,
+      a:[`l’IA symbolique : des règles écrites par des humains`,
+         `le deep learning`,
+         `l’IA générative`],
+      ok:0, why:`Il calcule des millions de coups à l’aide de règles écrites à la main. C’est de l’IA <b>sans apprentissage</b>.`},
+
+    {c:C2, q:`Le deep learning, c’est…`,
+      a:[`un concurrent du machine learning`,
+         `un sous-ensemble du machine learning`,
+         `la même chose que l’IA générative`],
+      ok:1, why:`Des poupées russes : <b>IA ⊃ machine learning ⊃ deep learning</b>. Ce ne sont ni des synonymes ni des rivaux.`},
+
+    {c:C2, q:`On montre à la machine 10 000 photos étiquetées « chat » ou « chien ». Quel type d’apprentissage ?`,
+      a:[`Non supervisé`, `Supervisé`, `Par renforcement`],
+      ok:1, why:`Les données sont <b>étiquetées</b> : chaque exemple vient avec la bonne réponse. C’est « apprendre avec un corrigé ».`},
+
+    {c:C2, q:`On donne des données brutes, sans étiquette, et on demande de former des groupes. C’est…`,
+      a:[`du non supervisé`, `du supervisé`, `du renforcement`],
+      ok:0, why:`Aucune consigne, aucune bonne réponse fournie : la machine cherche seule des <b>regroupements</b>.`},
+
+    {c:C2, q:`Un robot apprend à marcher : il gagne des points quand il avance, en perd quand il tombe. C’est…`,
+      a:[`du supervisé`, `du non supervisé`, `de l’apprentissage par renforcement`],
+      ok:2, why:`Un agent agit, reçoit une <b>récompense</b>, recommence. C’est aussi comme ça qu’AlphaGo a appris le Go.`},
+
+    {c:C2, q:`Un filtre anti-spam qui répond « spam » ou « pas spam » est un modèle…`,
+      a:[`génératif`, `discriminatif`, `symbolique`],
+      ok:1, why:`Il apprend la <b>frontière</b> entre deux catégories. Il sait séparer — pas produire du nouveau contenu.`},
+
+    {c:C2, q:`L’IA générative, qu’est-ce qui la caractérise ?`,
+      a:[`Elle classe les données en catégories`,
+         `Elle produit du nouveau contenu`,
+         `Elle fonctionne uniquement avec des règles`],
+      ok:1, why:`Texte, images, code… Presque toute l’IA générative actuelle est du deep learning — mais pas <b>par définition</b>.`},
+
+    {c:C2, q:`Que s’est-il passé d’essentiel en 2017 ?`,
+      a:[`La sortie de ChatGPT`,
+         `L’invention des « transformers »`,
+         `La victoire d’AlphaGo au jeu de Go`],
+      ok:1, why:`Une architecture de réseau de neurones, discrète mais décisive : c’est le <b>« T » de ChatGPT</b> (Generative Pre-trained <b>Transformer</b>).`},
+
+    {c:C3, q:`Un « token », c’est…`,
+      a:[`une lettre`,
+         `un morceau de mot : l’unité que le modèle lit et produit`,
+         `une phrase complète`],
+      ok:1, why:`Parfois un mot entier, parfois un fragment. En moyenne <b>3 à 4 caractères</b> — et ça dépend du modèle.`},
+
+    {c:C3, q:`« Le chat mange une souris. » — combien de tokens, environ ?`,
+      a:[`Environ 6`, `Environ 25`, `Exactement 1`],
+      ok:0, why:`Chaque mot courant tient dans un token, et la ponctuation compte. Un mot rare, lui, éclaterait en plusieurs morceaux.`},
+
+    {c:C3, q:`Fondamentalement, que fait un grand modèle de langage ?`,
+      a:[`Il cherche la réponse dans une base de données`,
+         `Il prédit le prochain token, encore et encore`,
+         `Il applique des règles de grammaire écrites par des linguistes`],
+      ok:1, why:`Écrire une phrase, un paragraphe, une dissertation : c’est <b>répéter des centaines de fois</b> « quel est le prochain token ? ».`},
+
+    {c:C3, q:`Pourquoi ChatGPT ne répond-il pas deux fois exactement pareil ?`,
+      a:[`Parce qu’il apprend de chaque conversation`,
+         `Parce qu’on tire le token au hasard en respectant les probabilités`,
+         `Parce qu’il consulte Internet à chaque fois`],
+      ok:1, why:`C’est le réglage de <b>température</b> : toujours le n°1 donne du répétitif, un tirage selon les probabilités donne du varié.`},
+
+    {c:C3, q:`Je place une phrase de contexte avant « le chat mange ». Que se passe-t-il ?`,
+      a:[`Rien : le modèle a déjà appris ses réponses`,
+         `Les probabilités du prochain mot se redistribuent`,
+         `Le modèle est réentraîné`],
+      ok:1, why:`C’est tout le principe du défi dinosaure : avec le bon contexte, un mot absurde peut devenir <b>le plus probable</b>.`},
+
+    {c:C3, q:`« Quand je lui pose une question, le modèle va chercher sur Internet. » Vrai ou faux ?`,
+      a:[`Vrai, toujours`,
+         `Faux : seul, il ne fait que prédire à partir de ce qu’il a appris`,
+         `Vrai, mais seulement pour l’actualité`],
+      ok:1, why:`Un modèle <b>seul</b> ne cherche rien. On peut le <b>brancher</b> à un moteur de recherche ou à des outils — mais c’est une couche ajoutée par-dessus.`}
+  ];
+
+  /* ================= moteur du quiz ================= */
+  let idx=0, score=0, answered=false;
+  const per = {};                                   // score par chapitre
+  Q.forEach(q=>{ per[q.c] = per[q.c] || {ok:0,tot:0}; per[q.c].tot++; });
+
+  const el = id=>document.getElementById(id);
+  const LTR = ['A','B','C','D'];
+
+  function drawQ(){
+    const q = Q[idx];
+    answered = false;
+    el('qcount').textContent = 'Question ' + (idx+1) + ' / ' + Q.length;
+    el('qcat').textContent = q.c;
+    el('qbar').style.width = (idx / Q.length * 100) + '%';
+    el('qtext').textContent = q.q;
+    el('qwhy').classList.remove('show');
+    el('qnext').classList.remove('show');
+    el('qnext').textContent = (idx === Q.length-1) ? 'Voir le bilan ▶' : 'Question suivante ▶';
+
+    el('qchoices').innerHTML = q.a.map(function(t,i){
+      return '<button class="qc" data-i="'+i+'"><span class="ltr">'+LTR[i]+'</span><span>'+t+'</span></button>';
+    }).join('');
+
+    el('qchoices').querySelectorAll('.qc').forEach(function(b){
+      b.onclick = function(){
+        if(answered) return;
+        answered = true;
+        const chosen = +b.dataset.i;
+        const good = (chosen === q.ok);
+        if(good){ score++; per[q.c].ok++; }
+        el('qchoices').querySelectorAll('.qc').forEach(function(x){
+          const i = +x.dataset.i;
+          x.classList.add('done');
+          if(i === q.ok) x.classList.add('ok');
+          else if(i === chosen) x.classList.add('ko');
+        });
+        el('qscore').innerHTML = 'score : <b>'+score+'</b>';
+        el('qwhy').innerHTML = (good ? '✅ <b>Exact.</b> ' : '❌ <b>Raté.</b> ') + q.why;
+        el('qwhy').classList.add('show');
+        el('qnext').classList.add('show');
+      };
+    });
+  }
+
+  el('qnext').onclick = function(){
+    if(idx === Q.length-1){ drawBilan(); go(2); }
+    else { idx++; drawQ(); }
+  };
+
+  function drawBilan(){
+    el('bscore').innerHTML = score + '<small> / ' + Q.length + '</small>';
+    let msg;
+    if(score >= 17)      msg = '<b>Excellent.</b> Les bases sont solides : vous pouvez expliquer ce qu’est un token, situer une IA dans sa famille, et lire un score de benchmark sans vous faire avoir.';
+    else if(score >= 12) msg = '<b>Bien.</b> L’essentiel est là. Reprenez les chapitres où vous avez perdu des points — c’est indiqué ci-dessous.';
+    else                 msg = 'Pas d’inquiétude : ce sont des notions neuves. Reprenez les chapitres en rouge, puis refaites le test.';
+    el('bmsg').innerHTML = msg;
+
+    const links = {};
+    links[C1] = 'intro.html'; links[C2] = 'zoologie.html'; links[C3] = 'token.html';
+    el('bcats').innerHTML = Object.keys(per).map(function(c){
+      const p = per[c], r = p.ok / p.tot;
+      const cls = r >= .75 ? 'hi' : (r >= .5 ? 'mid' : 'lo');
+      const rev = r >= .75 ? '' : '<a href="'+links[c]+'">↺ revoir ce chapitre</a>';
+      return '<div class="bcat"><div class="n">'+c+'</div>'+
+             '<div class="s '+cls+'">'+p.ok+' / '+p.tot+'</div>'+rev+'</div>';
+    }).join('');
+  }
+
+  function reset(){
+    idx=0; score=0;
+    Object.keys(per).forEach(function(k){ per[k].ok = 0; });
+    el('qscore').innerHTML = 'score : <b>0</b>';
+    drawQ();
+  }
+
+  el('start').onclick = function(){ reset(); go(1); };
+  el('again').onclick = function(){ reset(); go(1); };
+  drawQ();
+</script>
+</body>
+</html>
