@@ -397,10 +397,10 @@
 
   /* ---- questions à plusieurs bonnes réponses ---- */
   const MULTI = [
-    {t:'multi', c:C2, q:`Sélectionnez les LLM — les grands modèles de langage.`,
-      a:[`ChatGPT`,`Chrome`,`Claude`,`Wikipédia`,`Gemini`,`Excel`,`Le Chat (Mistral)`,`Google Maps`],
-      ok:[0,2,4,6],
-      why:`Un LLM est un <b>modèle</b> entraîné à prédire le prochain token. Les autres sont des <b>logiciels</b>&nbsp;: Chrome est un navigateur, Wikipédia une encyclopédie écrite par des humains, Excel un tableur, Google Maps une carte. Attention : un logiciel peut très bien <i>utiliser</i> un LLM sans en être un.`},
+    {t:'multi', c:C2, q:`Lesquels sont des <u>modèles</u> de langage — des LLM&nbsp;?`,
+      a:[`GPT-5`,`Chrome`,`Llama`,`ChatGPT`,`Mistral`,`Wikipédia`,`Excel`,`Google Maps`],
+      ok:[0,2,4],
+      why:`Deux pièges dans la même liste. Le premier est facile : Chrome, Wikipédia, Excel et Google Maps sont des <b>logiciels</b> — un navigateur, une encyclopédie écrite par des humains, un tableur, une carte. Le second l’est moins : <b>ChatGPT n’est pas un LLM</b>. C’est le <b>produit</b> d’OpenAI — l’application, la mémoire, la recherche web, les garde-fous — et le modèle GPT-5 n’en est qu’une pièce. Dire « ChatGPT est un LLM », c’est comme dire qu’une voiture est un moteur.`},
 
     {t:'multi', c:C1, q:`Lesquels sont des benchmarks — des tests — et non des modèles&nbsp;?`,
       a:[`HLE (Humanity’s Last Exam)`,`GPT-5`,`GPQA Diamond`,`Gemini`,`MMLU`,`Transformer`],
@@ -531,6 +531,7 @@
     el('qchoices').querySelectorAll('.qc').forEach(function(x){
       const i = +x.dataset.i;
       x.classList.add('done');
+      x.classList.remove('sel');       // sinon le bleu masque le vert / rouge
       if(q.t === 'multi'){
         const isOk = q.ok.indexOf(i) >= 0, picked = sel.indexOf(i) >= 0;
         if(isOk && picked)       x.classList.add('ok');
@@ -544,7 +545,8 @@
     el('qvalid').disabled = true;
     el('qscore').innerHTML = 'score : <b>'+score+'</b>';
     let head = good ? '✅ <b>Exact.</b> ' : '❌ <b>Raté.</b> ';
-    if(q.t === 'multi' && !good) head += '<i>(en pointillés : ce qu’il fallait cocher aussi)</i> ';
+    if(q.t === 'multi' && el('qchoices').querySelector('.miss'))
+      head += '<i>(en pointillés : ce qu’il fallait cocher aussi)</i> ';
     el('qwhy').innerHTML = head + q.why;
     el('qwhy').classList.add('show');
     el('qnext').classList.add('show');
