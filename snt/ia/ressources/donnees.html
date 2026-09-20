@@ -90,7 +90,7 @@
   .chain-note b{color:#fff}
 
   /* ---- cartes génériques ---- */
-  .cards{display:grid;gap:clamp(.9rem,2.4vw,1.8rem);margin:clamp(1rem,3vh,1.7rem) 0}
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.75rem,2.3vh,1.3rem) 0}
   .c3{grid-template-columns:repeat(3,1fr)}
   .c2{grid-template-columns:1fr 1fr}
   .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
@@ -145,6 +145,53 @@
     align-items:stretch;margin:clamp(1rem,3vh,1.8rem) 0}
   .vs-mid{align-self:center;font-family:var(--display);text-transform:uppercase;
     color:var(--muted);font-size:clamp(.8rem,1.6vw,1.05rem)}
+
+  /* ---- simulation « entraîne ton détecteur » ---- */
+  .simchips{display:flex;flex-wrap:wrap;gap:.45rem;margin:.55rem 0 .7rem}
+  .simchip{font-family:var(--mono);font-size:clamp(.72rem,1.35vw,.88rem);
+    padding:.4rem .75rem;border:1px solid rgba(233,228,216,.3);background:transparent;
+    color:#cfc8b8;cursor:pointer;transition:.15s;text-align:left;line-height:1.35}
+  .simchip:hover{border-color:#9fb8ff;color:#fff}
+  .simchip.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .simchip small{display:block;opacity:.75;font-size:.85em}
+  .simgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.8rem,2.2vw,1.5rem);align-items:start}
+  .simbox{border:1px solid rgba(233,228,216,.2);padding:clamp(.6rem,1.5vw,.9rem)}
+  .simbox h4{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+    color:#7fa0ff;margin-bottom:.6rem}
+  .g8{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem}
+  .exc{height:clamp(32px,6.2vh,54px);display:flex;align-items:center;justify-content:center;
+    font-size:clamp(1rem,2.4vw,1.6rem);border-radius:5px;border:1px solid rgba(0,0,0,.18)}
+  .bg-snow{background:linear-gradient(160deg,#eef5fc,#c8dcf0)}
+  .bg-grass{background:linear-gradient(160deg,#e2f1cf,#aed489)}
+  .simrule{margin-top:.55rem;font-family:var(--display);text-transform:uppercase;
+    font-size:clamp(.85rem,1.8vw,1.15rem);line-height:1.15}
+  .simrule.bad{color:#ff6a4d}
+  .simrule.good{color:#7fe0ac}
+  .simrule small{display:block;font-family:var(--serif);text-transform:none;font-weight:normal;
+    font-size:clamp(.76rem,1.35vw,.9rem);color:#a9a294;margin-top:.3rem;line-height:1.4}
+  .simtests{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.5rem}
+  .simtest{text-align:center;font-family:var(--mono);font-size:.66rem;color:#a9a294;width:4.6rem}
+  .simtest .exc{width:100%;margin-bottom:.2rem}
+  .simtest .v{font-weight:bold}
+  .simtest .v.ok{color:#7fe0ac}
+  .simtest .v.ko{color:#ff6a4d}
+  .simscore{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.55rem}
+  .sc{flex:1 1 8rem;border:1px solid rgba(233,228,216,.18);padding:.5rem .6rem}
+  .sc b{display:block;font-family:var(--display);font-size:clamp(1rem,2.2vw,1.5rem);line-height:1}
+  .sc span{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .sc.hi b{color:#7fe0ac} .sc.lo b{color:#ff6a4d}
+  .simverdict{margin-top:.6rem;font-family:var(--serif);font-size:clamp(.86rem,1.6vw,1.05rem);
+    line-height:1.4;color:#cfc8b8;border-top:1px solid rgba(233,228,216,.15);padding-top:.55rem}
+  .simverdict b{color:#fff}
+
+  /* ---- définition du biais ---- */
+  .biasdef{margin:0 auto clamp(.55rem,1.7vh,.9rem);max-width:80ch;text-align:center;
+    border-bottom:1px solid rgba(233,228,216,.15);padding-bottom:clamp(.5rem,1.4vh,.75rem)}
+  .biasdef .k{font-family:var(--display);text-transform:uppercase;color:var(--signal);
+    font-size:clamp(1rem,2.5vw,1.7rem);line-height:1.05;margin-bottom:.45rem;
+    text-shadow:0 0 26px rgba(31,92,255,.45)}
+  .biasdef p{font-size:clamp(.85rem,1.6vw,1.05rem);line-height:1.5;color:#cfc8b8}
+  .biasdef p b{color:#fff}
 
   /* ---- exemples de biais ---- */
   .bias-ex{border-left:4px solid var(--alarm);padding-left:.9rem;margin-top:.5rem}
@@ -413,13 +460,41 @@
     </div>
   </div>
 
-  <!-- ============ 7 · LE BIAIS ============ -->
+  <!-- ============ 7 · SIMULATION : ENTRAÎNE TON DÉTECTEUR ============ -->
+  <div class="pane dark pad" id="sim">
+    <div class="eyebrow">À vous de jouer</div>
+    <h2 class="stitle">Entraîne<br>ton détecteur</h2>
+    <p class="lead">Objectif&nbsp;: distinguer un <b>loup 🐺</b> d'un <b>husky 🐕</b>. Deux jeux de données possibles. <b>Vous choisissez</b> — la machine apprend, puis on la teste sur des images qu'elle n'a jamais vues.</p>
+
+    <div class="simchips" id="simchips"></div>
+
+    <div class="simgrid">
+      <div class="simbox">
+        <h4>Le jeu d'entraînement choisi</h4>
+        <div class="g8" id="simtrain"></div>
+        <div class="simrule" id="simrule"></div>
+      </div>
+      <div class="simbox">
+        <h4>Le test — des images jamais vues</h4>
+        <div class="simtests" id="simtests"></div>
+        <div class="simscore" id="simscore"></div>
+      </div>
+    </div>
+
+    <p class="simverdict" id="simverdict"></p>
+  </div>
+
+  <!-- ============ 8 · LE BIAIS ============ -->
   <div class="pane dark pad" id="s7">
     <div class="eyebrow">Le point critique</div>
     <h2 class="stitle">D'où vient<br>un <em style="font-style:normal;color:var(--signal)">biais</em>&nbsp;?</h2>
-    <p class="lead">Un modèle ne « croit » rien et ne « veut » rien. Il <b>reproduit les régularités</b> de ce qu'on lui a montré. Si le corpus penche, le modèle penche.</p>
+    <p class="lead">Vous venez de le provoquer vous-même. Un modèle ne « croit » rien et ne « veut » rien&nbsp;: il <b>reproduit les régularités</b> de ce qu'on lui a montré. Si le corpus penche, le modèle penche.</p>
 
     <div class="mid">
+      <div class="biasdef">
+        <div class="k">Un biais, c'est un écart <span style="color:#fff">systématique</span></div>
+        <p>Pas une erreur au hasard, qui tomberait une fois d'un côté, une fois de l'autre. Un biais se trompe <b>toujours dans le même sens</b> — parce que les données penchaient dans ce sens. C'est pour ça qu'on ne le corrige pas en relançant le calcul&nbsp;: il faut <b>revenir aux données</b>.</p>
+      </div>
       <div class="cards c2">
         <div class="card">
           <h3>Traduction</h3>
@@ -525,17 +600,18 @@
     <div class="dot" data-i="9"></div>
     <div class="dot" data-i="10"></div>
     <div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div>
   </div>
   <button class="btn" id="next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
 <script>
-  const panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
+  const panes = ['s0','s1','s2','s3','s4','s5','s6','sim','s7','s8','s9','s10','s11']
     .map(id=>document.getElementById(id));
   const dots  = [...document.querySelectorAll('.dot')];
   let scene = 0;
-  const MAX = 11;
+  const MAX = 12;
 
   function render(){
     panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
@@ -555,8 +631,75 @@
   });
   document.querySelector('.stage').addEventListener('click', e=>{
     if(e.target.closest('a,button')) return;
+    if(panes[scene] && panes[scene].id === 'sim') return; // scène interactive
     go(scene+1);
   });
+
+  /* =========================================================
+     SIMULATION — « entraîne ton détecteur » (scriptée, contrôlée)
+     ========================================================= */
+  (function(){
+    const W='🐺', D='🐕';
+    const SETS = {
+      A:{
+        label:'🅰 Photos « faciles à trouver »',
+        hint:'les loups dans la neige, les huskies sur l\'herbe',
+        train:[[W,'snow'],[W,'snow'],[W,'snow'],[W,'snow'],[D,'grass'],[D,'grass'],[D,'grass'],[D,'grass']],
+        rule:'« Fond blanc → loup »',
+        ruleSub:'Le modèle n\'a jamais regardé l\'animal. Il a trouvé un raccourci qui marchait sur toutes les photos : le décor.',
+        bad:true,
+        tests:[[D,'snow','loup ?',false],[W,'grass','husky ?',false],[W,'snow','loup',true]],
+        train_s:'100 %', new_s:'33 %',
+        verdict:'Score parfait à l\'entraînement, catastrophique sur de nouvelles images. Le modèle n\'a pas appris ce qu\'est un loup — il a appris <b>ce qui distinguait vos photos</b>. Vous avez fabriqué un biais sans le vouloir.'
+      },
+      B:{
+        label:'🅱 Photos variées',
+        hint:'chaque animal dans les deux décors',
+        train:[[W,'snow'],[W,'grass'],[W,'grass'],[W,'snow'],[D,'snow'],[D,'grass'],[D,'snow'],[D,'grass']],
+        rule:'« Museau, oreilles, silhouette »',
+        ruleSub:'Le décor ne distingue plus rien : le seul indice qui reste est l\'animal lui-même.',
+        bad:false,
+        tests:[[D,'snow','husky',true],[W,'grass','loup',true],[W,'snow','loup',true]],
+        train_s:'92 %', new_s:'88 %',
+        verdict:'Un peu moins bon à l\'entraînement… et bien meilleur sur ce qu\'il n\'a jamais vu. <b>C\'est ça, apprendre</b> — au lieu de retenir un décor.'
+      }
+    };
+    let cur='A';
+    const chips=document.getElementById('simchips');
+    if(!chips) return;
+
+    function card(a,bg){ return '<div class="exc bg-'+bg+'">'+a+'</div>'; }
+
+    function draw(){
+      const S=SETS[cur];
+      chips.innerHTML = Object.keys(SETS).map(function(k){
+        return '<button class="dsim simchip'+(k===cur?' on':'')+'" data-k="'+k+'">'+
+               SETS[k].label+'<small>'+SETS[k].hint+'</small></button>';
+      }).join('');
+      chips.querySelectorAll('.dsim').forEach(function(b){
+        b.onclick=function(){ cur=b.dataset.k; draw(); };
+      });
+
+      document.getElementById('simtrain').innerHTML = S.train.map(function(t){return card(t[0],t[1]);}).join('');
+
+      document.getElementById('simrule').className = 'simrule ' + (S.bad?'bad':'good');
+      document.getElementById('simrule').innerHTML =
+        'Ce que le modèle a retenu :<br>'+S.rule+'<small>'+S.ruleSub+'</small>';
+
+      document.getElementById('simtests').innerHTML = S.tests.map(function(t){
+        return '<div class="simtest">'+card(t[0],t[1])+
+               '<div class="v '+(t[3]?'ok':'ko')+'">'+(t[3]?'✓':'✗')+' '+t[2]+'</div></div>';
+      }).join('');
+
+      document.getElementById('simscore').innerHTML =
+        '<div class="sc hi"><b>'+S.train_s+'</b><span>sur ses photos d\'entraînement</span></div>'+
+        '<div class="sc '+(S.bad?'lo':'hi')+'"><b>'+S.new_s+'</b><span>sur de nouvelles photos</span></div>';
+
+      document.getElementById('simverdict').innerHTML = S.verdict;
+    }
+    window.drawSim = draw;
+    draw();
+  })();
 </script>
 </body>
 </html>
