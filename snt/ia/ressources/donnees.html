@@ -271,6 +271,13 @@
     font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
     padding:.5rem .9rem;transition:.2s}
   .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
 
@@ -586,6 +593,7 @@
 
 <!-- HUD -->
 <div class="hud">
+  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span>Parcours</span></a>
   <button class="btn" id="prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div>

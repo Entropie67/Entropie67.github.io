@@ -54,6 +54,15 @@
     font-size:.74rem;color:#cfc8b8}
   .chapter b{color:var(--signal)}
   .intro .go{margin-top:1.6rem;opacity:0;animation:rise .7s ease 1s forwards}
+  .gobtn small{display:block;font-size:.62em;letter-spacing:.04em;opacity:.8;margin-top:.2rem}
+  .series{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;align-items:center;
+    margin-top:1.1rem;opacity:0;animation:rise .7s ease 1.15s forwards}
+  .series .slbl{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;
+    text-transform:uppercase;color:#8f9cb8}
+  .serie{cursor:pointer;border:1px solid rgba(233,228,216,.28);background:transparent;color:#cfc8b8;
+    font-family:var(--mono);font-size:.72rem;padding:.45rem .8rem;transition:.15s}
+  .serie:hover{border-color:#9fb8ff;color:#fff}
+  .serie b{color:var(--signal)}
   .gobtn{cursor:pointer;border:0;background:var(--signal);color:#fff;
     font-family:var(--mono);font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;
     padding:.9rem 1.8rem;box-shadow:5px 5px 0 rgba(255,106,77,.85);transition:transform .15s,box-shadow .15s}
@@ -75,6 +84,7 @@
   .qtext{font-family:var(--display);text-transform:uppercase;line-height:1.08;
     font-size:clamp(1.05rem,2.7vw,1.9rem);max-width:30ch;margin-bottom:clamp(.8rem,2.4vh,1.2rem)}
   .qchoices{display:grid;gap:.45rem;max-width:74ch}
+  .qchoices.two{grid-template-columns:1fr 1fr;max-width:86ch;gap:.4rem .55rem}
   .qc{text-align:left;cursor:pointer;font-family:var(--serif);
     font-size:clamp(.85rem,1.6vw,1.05rem);line-height:1.35;
     padding:.6rem .85rem;border:1px solid rgba(0,0,0,.2);background:var(--paper-2);color:var(--ink);
@@ -86,6 +96,18 @@
   .qc.ko{border-color:var(--alarm);background:rgba(181,48,31,.12);opacity:.85}
   .qc.ko .ltr{color:var(--alarm)}
   .qc.done{cursor:default}
+  .qc.sel{border-color:var(--signal);background:#dde5f8}
+  .qc .box{flex:0 0 auto;width:1em;height:1em;margin-top:.22em;border:2px solid var(--signal-dk);border-radius:3px}
+  .qc.sel .box{background:var(--signal);box-shadow:inset 0 0 0 2px var(--paper-2)}
+  .qc.miss{border-color:var(--green);border-style:dashed;background:rgba(18,146,79,.07)}
+  .qc.miss .box{border-color:var(--green)}
+  .qclaim{font-family:var(--serif);text-transform:none;letter-spacing:0;font-weight:normal;
+    font-size:.7em;line-height:1.3;display:block;margin-top:.45rem;color:#4a4437}
+  .qvalid{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.8rem;letter-spacing:.07em;text-transform:uppercase;
+    padding:.6rem 1.2rem;margin-right:auto;transition:.15s}
+  .qvalid:hover:not([disabled]){background:var(--signal-dk)}
+  .qvalid[disabled]{opacity:.35;cursor:default}
   .qwhy{margin-top:.8rem;max-width:80ch;border-left:4px solid var(--signal);padding:.6rem .9rem;
     background:rgba(31,92,255,.07);font-size:clamp(.82rem,1.5vw,1rem);line-height:1.45;color:#3a352c;
     display:none}
@@ -129,6 +151,13 @@
     font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
     padding:.5rem .9rem;transition:.2s}
   .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
 
@@ -142,22 +171,24 @@
 
   <!-- 0 · OUVERTURE -->
   <div class="pane dark intro on" id="s0">
-    <a class="back" href="idees-recues.html">◂ Séance précédente</a>
+    <a class="back" href="token.html">◂ Séance précédente · Le prochain mot</a>
     <div class="tag">SNT · Enseignement IA · Faire un point</div>
     <h1 class="big">Se <em>tester</em></h1>
-    <p class="line">Vingt questions sur tout ce qu'on a vu depuis la rentrée. Pas de piège&nbsp;: si vous avez suivi, vous saurez répondre. Et à chaque réponse, <strong style="color:#fff">on explique pourquoi</strong>.</p>
+    <p class="line">Tout ce qu’on a vu depuis la rentrée : des questions de cours, les <strong style="color:#fff">idées reçues</strong> à démonter, et des questions à <strong style="color:#fff">plusieurs bonnes réponses</strong>. Pas de piège&nbsp;— et à chaque fois, <strong style="color:#fff">on explique pourquoi</strong>.</p>
     <div class="chapters">
       <div class="chapter"><b>1</b> · Où en est l'IA</div>
       <div class="chapter"><b>2</b> · La famille des IA</div>
       <div class="chapter"><b>3</b> · Le prochain mot</div>
+      <div class="chapter"><b>+</b> · Idées reçues</div>
     </div>
-    <div class="go"><button class="gobtn" id="start">Commencer ▶</button></div>
+    <div class="go"><button class="gobtn" id="start">Commencer ▶<small id="startn"></small></button></div>
+    <div class="series" id="series"></div>
   </div>
 
   <!-- 1 · QUIZ -->
   <div class="pane light pad" id="s1">
     <div class="qtop">
-      <span class="qcount" id="qcount">Question 1 / 20</span>
+      <span class="qcount" id="qcount">Question 1</span>
       <span class="qcat" id="qcat">—</span>
       <span class="qscore" id="qscore">score : <b>0</b></span>
     </div>
@@ -169,21 +200,25 @@
       <div class="qwhy" id="qwhy"></div>
     </div>
 
-    <div class="qfoot"><button class="qnext" id="qnext">Question suivante ▶</button></div>
+    <div class="qfoot">
+      <button class="qvalid" id="qvalid" disabled>Valider ma sélection</button>
+      <button class="qnext" id="qnext">Question suivante ▶</button>
+    </div>
   </div>
 
   <!-- 2 · BILAN -->
   <div class="pane dark bil" id="s2">
     <div class="tag">Bilan</div>
-    <div class="bscore" id="bscore">—<small> / 20</small></div>
+    <div class="bscore" id="bscore">—</div>
     <p class="bmsg" id="bmsg"></p>
     <div class="bcats" id="bcats"></div>
-    <div class="bagain"><button class="gobtn" id="again">Recommencer ↺</button></div>
+    <div class="bagain"><button class="gobtn" id="again">Choisir une autre série ↺</button></div>
   </div>
 
 </div>
 
 <div class="hud">
+  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span>Parcours</span></a>
   <button class="btn" id="prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div>
@@ -222,7 +257,7 @@
   });
 
   /* ================= les 20 questions ================= */
-  const C1='Où en est l’IA', C2='La famille des IA', C3='Le prochain mot';
+  const C1='Où en est l’IA', C2='La famille des IA', C3='Le prochain mot', C4='Idées reçues';
   const Q = [
     {c:C1, q:`Un « benchmark », c’est quoi ?`,
       a:[`Un test standardisé qui sert à comparer les IA entre elles`,
@@ -335,84 +370,206 @@
       ok:1, why:`Un modèle <b>seul</b> ne cherche rien. On peut le <b>brancher</b> à un moteur de recherche ou à des outils — mais c’est une couche ajoutée par-dessus.`}
   ];
 
+  /* ---- 14 idées reçues, en vrai / faux ---- */
+  const VF = [
+    {t:'vf', c:C4, q:`C'est trop compliqué, on ne peut pas comprendre comment ça marche.`, ok:1, why:`Le moteur tient en une phrase : un programme entraîné sur d'énormes quantités de texte à deviner le prochain morceau de mot. Sur ce moteur, on a ensuite <b>construit</b> : une réflexion par écrit avant de répondre, des outils, des enchaînements d'actions. Les détails (des milliards de paramètres, des réseaux de neurones) sont compliqués. Le principe, non. Et un élève de Seconde qui l'a compris démonte tout seul la plupart des cartes suivantes. Séance 3 : prédire le prochain token. C'est le moteur. Le reste est bâti par-dessus, pas à la place.<br><b>À retenir :</b> Comprendre le principe, c'est la clé de toute cette page.`},
+    {t:'vf', c:C4, q:`Même ceux qui l'ont construite ne savent pas expliquer précisément pourquoi elle répond ça.`, ok:0, why:`On sait <b>comment on l'a entraînée</b>. Mais personne ne sait lire ce que ses milliards de paramètres encodent, ni retracer pourquoi telle réponse est sortie plutôt qu'une autre. Des chercheurs en « interprétabilité » ouvrent la boîte petit à petit, un peu comme des neuroscientifiques devant un cerveau. Connaître la recette de l'entraînement, ce n'est pas connaître ce qui a été appris.<br><b>À retenir :</b> Comprendre le principe : oui. Tout comprendre : personne, pour l'instant.`},
+    {t:'vf', c:C4, q:`Quand je pose une question, l'IA va chercher la réponse sur Internet.`, ok:1, why:`Le modèle répond <b>hors ligne</b>, avec ce qu'il a appris pendant l'entraînement, figé à une date donnée. Débranchez Internet : il répond pareil. Certains chatbots peuvent <b>en plus</b> lancer une recherche web, mais c'est un outil branché par-dessus, pas le fonctionnement de base. Il génère la suite la plus probable du texte. Aucune requête n'est envoyée nulle part.<br><b>À retenir :</b> Test : demandez-lui la météo de demain sans outil de recherche. Il ne peut pas.`},
+    {t:'vf', c:C4, q:`Elle a une gigantesque base de données de questions et de réponses.`, ok:1, why:`Il n'existe <b>aucun tableau question → réponse</b>. Il y a des milliards de nombres, les paramètres, réglés pendant l'entraînement, et une phrase fabriquée token par token. Preuve : posez une question que personne n'a jamais posée (« un poème en alexandrins sur mon chat qui fait du ski ») : elle répond quand même. Rien n'est stocké tel quel. Tout est reconstruit à chaque fois.`},
+    {t:'vf', c:C4, q:`Quelqu'un l'a programmée pour répondre ça.`, ok:1, why:`Personne n'a écrit « si on demande X, répondre Y ». Ça, c'est un <b>programme classique</b>, comme en NSI. Une IA n'est pas programmée, elle est <b>entraînée</b> : on lui montre des exemples, elle règle ses paramètres toute seule. C'est pour ça que même ses créateurs sont parfois surpris par ce qu'elle sait faire. Programmé = des règles écrites par un humain. Entraîné = des paramètres ajustés sur des exemples.`},
+    {t:'vf', c:C4, q:`Elle apprend de nos conversations : elle devient plus intelligente chaque jour.`, ok:1, why:`Une fois l'entraînement terminé, les paramètres sont <b>figés</b>. Ce que vous lui dites aujourd'hui ne la rend pas plus intelligente demain. Quand elle « se souvient » de vous, c'est une mémoire externe qu'on lui recolle dans le contexte, pas un apprentissage. Vos conversations peuvent servir au <b>prochain</b> entraînement, des mois plus tard : ce sera un autre modèle. Apprendre = modifier les paramètres. Discuter = ajouter du contexte. Deux choses différentes.`},
+    {t:'vf', c:C4, q:`Ce qu'on appelle ChatGPT, c'est un modèle d'IA.`, ok:1, why:`Le modèle de langage n'est qu'<b>une pièce</b>. Autour, on branche : une recherche web, une calculatrice, un interpréteur Python, une mémoire, une lecture d'images, des règles de sécurité, et parfois plusieurs modèles différents selon la tâche. Ce que vous utilisez est un <b>système</b>. C'est pour ça que « l'IA cherche sur Internet » est vrai pour certains systèmes et faux pour le modèle. Le moteur prédit des tokens. Le reste, c'est de la plomberie autour du moteur.`},
+    {t:'vf', c:C4, q:`Elle n'est pas créative : elle ne fait que recopier ou recombiner.`, ok:1, why:`Elle est créative <b>par construction</b>. Elle ne recopie rien : elle fabrique chaque phrase token par token, avec une part de hasard réglable, la température. Deux fois la même question, deux réponses différentes. Une phrase qu'elle produit n'existe très probablement nulle part. Nuance : créative ne veut pas dire <b>originale</b> ni intéressante. Elle produit souvent du banal, dans le goût de ses données. À chaque token, un tirage au sort pondéré. Elle ne peut pas ne pas inventer.<br><b>À retenir :</b> Et la face cachée de cette créativité, c'est la carte suivante.`},
+    {t:'vf', c:C4, q:`Une hallucination peut ressembler trait pour trait à une bonne réponse.`, ok:0, why:`Une hallucination, ce n'est pas un délire. C'est une réponse fluide, bien écrite, avec un nom, une date, une citation ou une référence de livre… <b>qui n'existe pas</b>. Elle sort exactement de la même machine que le poème inédit : le mécanisme qui invente un vers invente aussi une source. On ne peut pas avoir la créativité sans le risque d'hallucination. Elle produit du texte plausible. Plausible et vrai, ce n'est pas la même chose.<br><b>À retenir :</b> Une IA plus puissante hallucine moins. Et de façon plus convaincante.`},
+    {t:'vf', c:C4, q:`Quand elle répond avec assurance, c'est qu'elle sait.`, ok:1, why:`Le ton n'a <b>aucun rapport</b> avec la justesse. Elle a appris à écrire comme les textes de son entraînement, qui sont écrits avec assurance, y compris quand ils se trompent. Elle n'a pas de voyant rouge interne qui s'allume quand elle invente. Le style est prédit comme le reste. Un ton sûr est juste un ton probable.`},
+    {t:'vf', c:C4, q:`Si je lui demande ses sources, elle me dit d'où vient sa réponse.`, ok:1, why:`Elle ne peut pas retrouver quel texte d'entraînement a produit sa réponse : rien n'est stocké tel quel (carte 4). Si vous insistez, elle <b>fabrique une source plausible</b> : un titre, un auteur, une URL… qui peut ne pas exister. Seul un système avec une recherche web branchée peut citer une vraie page. Et encore faut-il aller la lire. Demander une source à un modèle, c'est lui demander de prédire à quoi ressemblerait une source.`},
+    {t:'vf', c:C4, q:`Elle est nulle en maths.`, ok:1, why:`<b>C’était vrai il y a deux ans — plus aujourd’hui.</b> <b>Vrai en 2023</b> : ChatGPT se trompait sur 17 × 24 et comptait mal les « r » de strawberry. <b>Faux en 2026</b> : médaille d'or aux Olympiades internationales de mathématiques, problèmes ouverts résolus (séance 1). Les modèles écrivent désormais leur brouillon avant de répondre, et sortent une calculatrice quand il faut. Leçon : « ce que l'IA ne sait pas faire » est une cible qui bouge tous les six mois. Prédire « 68 » après « 17 × 4 = » oblige à calculer (séance 3). Et ils ont appris à réfléchir par écrit.<br><b>À retenir :</b> Méfiez-vous des affirmations datées. Vérifiez la date avant de vérifier le fait.`},
+    {t:'vf', c:C4, q:`Ce que je lui raconte reste entre elle et moi.`, ok:1, why:`Vos conversations sont <b>stockées sur les serveurs</b> de l'entreprise, parfois relues par des humains pour contrôle, parfois utilisées pour entraîner le prochain modèle selon vos réglages. Écrire à un chatbot, c'est écrire à une entreprise. Ne lui confiez pas ce que vous ne mettriez pas dans un mail à un inconnu : nom complet, adresse, santé, secrets des autres. Le modèle tourne sur un serveur, pas sur votre téléphone. Tout ce que vous tapez y part.`},
+    {t:'vf', c:C4, q:`Poser une question à l'IA, ça ne coûte rien.`, ok:1, why:`Chaque réponse fait tourner des <b>cartes graphiques</b> dans un centre de données, refroidi à l'eau. Une question de texte : quelques fois une recherche Google. Une image, une vidéo : beaucoup plus. Entraîner un grand modèle coûte des centaines de millions d'euros et l'électricité d'une petite ville pendant des mois. <b>Gratuit pour vous</b> ne veut pas dire gratuit tout court. Des milliards de multiplications par token, sur des machines qui chauffent.`}
+  ];
+
+  /* ---- questions à plusieurs bonnes réponses ---- */
+  const MULTI = [
+    {t:'multi', c:C2, q:`Sélectionnez les LLM — les grands modèles de langage.`,
+      a:[`ChatGPT`,`Chrome`,`Claude`,`Wikipédia`,`Gemini`,`Excel`,`Le Chat (Mistral)`,`Google Maps`],
+      ok:[0,2,4,6],
+      why:`Un LLM est un <b>modèle</b> entraîné à prédire le prochain token. Les autres sont des <b>logiciels</b>&nbsp;: Chrome est un navigateur, Wikipédia une encyclopédie écrite par des humains, Excel un tableur, Google Maps une carte. Attention : un logiciel peut très bien <i>utiliser</i> un LLM sans en être un.`},
+
+    {t:'multi', c:C1, q:`Lesquels sont des benchmarks — des tests — et non des modèles&nbsp;?`,
+      a:[`HLE (Humanity’s Last Exam)`,`GPT-5`,`GPQA Diamond`,`Gemini`,`MMLU`,`Transformer`],
+      ok:[0,2,4],
+      why:`HLE, GPQA et MMLU sont des <b>examens</b> qui servent à comparer les modèles entre eux. GPT-5 et Gemini sont des <b>modèles</b>. Et « transformer » n’est ni l’un ni l’autre : c’est une <b>architecture</b> de réseau de neurones — le « T » de GPT.`},
+
+    {t:'multi', c:C2, q:`Lesquelles de ces situations relèvent de l’apprentissage supervisé&nbsp;?`,
+      a:[`10 000 photos étiquetées « chat » ou « chien »`,
+         `Regrouper des clients par ressemblance, sans aucune consigne`,
+         `Des milliers de mails marqués « spam » / « pas spam »`,
+         `Un programme qui gagne des points quand il avance dans un jeu`,
+         `Des radios annotées par des médecins : « sain » ou « malade »`],
+      ok:[0,2,4],
+      why:`Le supervisé, c’est <b>apprendre avec le corrigé</b> : chaque exemple arrive avec sa bonne réponse. Sans étiquette, c’est du <b>non supervisé</b> ; avec une récompense, du <b>renforcement</b>.`},
+
+    {t:'multi', c:C3, q:`Qu’est-ce qui est vrai à propos des tokens&nbsp;?`,
+      a:[`Un token peut être un mot entier comme un simple fragment de mot`,
+         `Un token correspond toujours à une lettre`,
+         `L’espace avant un mot fait partie du token`,
+         `Une même phrase donne le même nombre de tokens dans toutes les langues`,
+         `Le découpage dépend du modèle utilisé`],
+      ok:[0,2,4],
+      why:`En moyenne <b>3 à 4 caractères</b> par token — donc ni une lettre, ni un mot. Et le découpage change beaucoup d’une langue à l’autre : « 猫吃老鼠。 » ne se découpe pas du tout comme le français.`},
+
+    {t:'multi', c:C4, q:`Que peut faire un assistant IA <u>sans</u> outil supplémentaire&nbsp;?`,
+      a:[`Produire du texte plausible sur à peu près n’importe quel sujet`,
+         `Consulter une page web en temps réel`,
+         `Reformuler, résumer, traduire ce qu’on lui donne`,
+         `Retrouver la source exacte d’une phrase qu’il vient d’écrire`,
+         `Se souvenir tout seul d’une conversation d’hier`],
+      ok:[0,2],
+      why:`Un modèle seul <b>génère du texte</b>, un token après l’autre, à partir de ce qu’il a dans sa fenêtre de contexte. Aller sur le web, garder une mémoire d’une session à l’autre, citer une source : ce sont des <b>outils branchés autour</b> du modèle — pas le modèle lui-même.`}
+  ];
+
   /* ================= moteur du quiz ================= */
-  let idx=0, score=0, answered=false;
-  const per = {};                                   // score par chapitre
-  Q.forEach(q=>{ per[q.c] = per[q.c] || {ok:0,tot:0}; per[q.c].tot++; });
+  Q.forEach(function(q){ q.t = 'qcm'; });
+  const ALL = Q.concat(VF, MULTI);
+  const SERIES = [
+    {k:'all',   lbl:'Tout',                pick:function(){ return ALL; }},
+    {k:'qcm',   lbl:'Questions de cours',  pick:function(){ return ALL.filter(function(q){return q.t==='qcm';}); }},
+    {k:'vf',    lbl:'Vrai ou faux',        pick:function(){ return ALL.filter(function(q){return q.t==='vf';}); }},
+    {k:'multi', lbl:'Plusieurs réponses',  pick:function(){ return ALL.filter(function(q){return q.t==='multi';}); }}
+  ];
 
   const el = id=>document.getElementById(id);
-  const LTR = ['A','B','C','D'];
+  const LTR = ['A','B','C','D','E','F','G','H'];
+  const LINKS = {}; LINKS[C1]='intro.html'; LINKS[C2]='zoologie.html';
+  LINKS[C3]='token.html'; LINKS[C4]='token.html';
 
+  let LIST=[], idx=0, score=0, answered=false, sel=[], per={};
+
+  /* ---- ecran d'accueil : le choix de la serie ---- */
+  el('startn').textContent = ALL.length + ' questions';
+  el('series').innerHTML = '<span class="slbl">ou seulement :</span>' +
+    SERIES.filter(function(x){ return x.k !== 'all'; }).map(function(x){
+      return '<button class="serie" data-k="'+x.k+'">'+x.lbl+' <b>'+x.pick().length+'</b></button>';
+    }).join('');
+  el('series').querySelectorAll('.serie').forEach(function(b){
+    b.onclick = function(){ startSerie(b.dataset.k); };
+  });
+  el('start').onclick = function(){ startSerie('all'); };
+
+  function startSerie(k){
+    LIST = SERIES.filter(function(x){ return x.k === k; })[0].pick();
+    idx=0; score=0; per={};
+    LIST.forEach(function(q){ per[q.c] = per[q.c] || {ok:0,tot:0}; per[q.c].tot++; });
+    el('qscore').innerHTML = 'score : <b>0</b>';
+    drawQ(); go(1);
+  }
+
+  /* ---- affichage d'une question ---- */
   function drawQ(){
-    const q = Q[idx];
-    answered = false;
-    el('qcount').textContent = 'Question ' + (idx+1) + ' / ' + Q.length;
+    const q = LIST[idx];
+    if(!q) return;
+    answered = false; sel = [];
+    el('qcount').textContent = 'Question ' + (idx+1) + ' / ' + LIST.length;
     el('qcat').textContent = q.c;
-    el('qbar').style.width = (idx / Q.length * 100) + '%';
-    el('qtext').textContent = q.q;
+    el('qbar').style.width = (idx / LIST.length * 100) + '%';
     el('qwhy').classList.remove('show');
     el('qnext').classList.remove('show');
-    el('qnext').textContent = (idx === Q.length-1) ? 'Voir le bilan ▶' : 'Question suivante ▶';
+    el('qnext').textContent = (idx === LIST.length-1) ? 'Voir le bilan ▶' : 'Question suivante ▶';
+    el('qvalid').style.display = (q.t === 'multi') ? '' : 'none';
+    el('qvalid').disabled = true;
 
-    el('qchoices').innerHTML = q.a.map(function(t,i){
-      return '<button class="qc" data-i="'+i+'"><span class="ltr">'+LTR[i]+'</span><span>'+t+'</span></button>';
-    }).join('');
+    if(q.t === 'vf'){
+      el('qtext').innerHTML = 'Vrai ou faux ?<span class="qclaim">« ' + q.q + ' »</span>';
+      el('qchoices').classList.remove('two');
+      el('qchoices').innerHTML =
+        '<button class="qc" data-i="0"><span class="ltr">V</span><span>VRAI</span></button>' +
+        '<button class="qc" data-i="1"><span class="ltr">F</span><span>FAUX</span></button>';
+    } else {
+      el('qtext').innerHTML = q.q + (q.t === 'multi'
+        ? '<span class="qclaim">Plusieurs bonnes réponses — cochez-les toutes, puis validez.</span>' : '');
+      el('qchoices').classList.toggle('two', q.t === 'multi' && q.a.length >= 5);
+      el('qchoices').innerHTML = q.a.map(function(t,i){
+        const mark = (q.t === 'multi') ? '<span class="box"></span>' : '<span class="ltr">'+LTR[i]+'</span>';
+        return '<button class="qc" data-i="'+i+'">'+mark+'<span>'+t+'</span></button>';
+      }).join('');
+    }
 
     el('qchoices').querySelectorAll('.qc').forEach(function(b){
       b.onclick = function(){
         if(answered) return;
-        answered = true;
-        const chosen = +b.dataset.i;
-        const good = (chosen === q.ok);
-        if(good){ score++; per[q.c].ok++; }
-        el('qchoices').querySelectorAll('.qc').forEach(function(x){
-          const i = +x.dataset.i;
-          x.classList.add('done');
-          if(i === q.ok) x.classList.add('ok');
-          else if(i === chosen) x.classList.add('ko');
-        });
-        el('qscore').innerHTML = 'score : <b>'+score+'</b>';
-        el('qwhy').innerHTML = (good ? '✅ <b>Exact.</b> ' : '❌ <b>Raté.</b> ') + q.why;
-        el('qwhy').classList.add('show');
-        el('qnext').classList.add('show');
+        const i = +b.dataset.i;
+        if(q.t === 'multi'){
+          const at = sel.indexOf(i);
+          if(at >= 0) sel.splice(at,1); else sel.push(i);
+          b.classList.toggle('sel');
+          el('qvalid').disabled = (sel.length === 0);
+        } else {
+          finish(q, i === q.ok, i);
+        }
       };
     });
   }
 
+  el('qvalid').onclick = function(){
+    const q = LIST[idx];
+    if(answered || q.t !== 'multi') return;
+    const good = q.ok.slice().sort().join(',') === sel.slice().sort().join(',');
+    finish(q, good, -1);
+  };
+
+  /* ---- correction ---- */
+  function finish(q, good, chosen){
+    answered = true;
+    if(good){ score++; per[q.c].ok++; }
+    el('qchoices').querySelectorAll('.qc').forEach(function(x){
+      const i = +x.dataset.i;
+      x.classList.add('done');
+      if(q.t === 'multi'){
+        const isOk = q.ok.indexOf(i) >= 0, picked = sel.indexOf(i) >= 0;
+        if(isOk && picked)       x.classList.add('ok');
+        else if(!isOk && picked) x.classList.add('ko');
+        else if(isOk && !picked) x.classList.add('miss');
+      } else {
+        if(i === q.ok)        x.classList.add('ok');
+        else if(i === chosen) x.classList.add('ko');
+      }
+    });
+    el('qvalid').disabled = true;
+    el('qscore').innerHTML = 'score : <b>'+score+'</b>';
+    let head = good ? '✅ <b>Exact.</b> ' : '❌ <b>Raté.</b> ';
+    if(q.t === 'multi' && !good) head += '<i>(en pointillés : ce qu’il fallait cocher aussi)</i> ';
+    el('qwhy').innerHTML = head + q.why;
+    el('qwhy').classList.add('show');
+    el('qnext').classList.add('show');
+  }
+
   el('qnext').onclick = function(){
-    if(idx === Q.length-1){ drawBilan(); go(2); }
+    if(idx === LIST.length-1){ drawBilan(); go(2); }
     else { idx++; drawQ(); }
   };
 
+  /* ---- bilan ---- */
   function drawBilan(){
-    el('bscore').innerHTML = score + '<small> / ' + Q.length + '</small>';
+    el('bscore').innerHTML = score + '<small> / ' + LIST.length + '</small>';
+    const r = score / LIST.length;
     let msg;
-    if(score >= 17)      msg = '<b>Excellent.</b> Les bases sont solides : vous pouvez expliquer ce qu’est un token, situer une IA dans sa famille, et lire un score de benchmark sans vous faire avoir.';
-    else if(score >= 12) msg = '<b>Bien.</b> L’essentiel est là. Reprenez les chapitres où vous avez perdu des points — c’est indiqué ci-dessous.';
-    else                 msg = 'Pas d’inquiétude : ce sont des notions neuves. Reprenez les chapitres en rouge, puis refaites le test.';
+    if(r >= .85)     msg = '<b>Excellent.</b> Vous savez expliquer ce qu’est un token, situer une IA dans sa famille, lire un score de benchmark — et démonter une idée reçue sans vous faire avoir.';
+    else if(r >= .6) msg = '<b>Bien.</b> L’essentiel est là. Reprenez les chapitres où vous avez perdu des points — c’est indiqué ci-dessous.';
+    else             msg = 'Pas d’inquiétude : ce sont des notions neuves. Reprenez les chapitres en rouge, puis refaites le test.';
     el('bmsg').innerHTML = msg;
 
-    const links = {};
-    links[C1] = 'intro.html'; links[C2] = 'zoologie.html'; links[C3] = 'token.html';
     el('bcats').innerHTML = Object.keys(per).map(function(c){
-      const p = per[c], r = p.ok / p.tot;
-      const cls = r >= .75 ? 'hi' : (r >= .5 ? 'mid' : 'lo');
-      const rev = r >= .75 ? '' : '<a href="'+links[c]+'">↺ revoir ce chapitre</a>';
+      const p = per[c], ratio = p.ok / p.tot;
+      const cls = ratio >= .75 ? 'hi' : (ratio >= .5 ? 'mid' : 'lo');
+      const rev = ratio >= .75 ? '' : '<a href="'+LINKS[c]+'">↺ revoir ce chapitre</a>';
       return '<div class="bcat"><div class="n">'+c+'</div>'+
              '<div class="s '+cls+'">'+p.ok+' / '+p.tot+'</div>'+rev+'</div>';
     }).join('');
   }
 
-  function reset(){
-    idx=0; score=0;
-    Object.keys(per).forEach(function(k){ per[k].ok = 0; });
-    el('qscore').innerHTML = 'score : <b>0</b>';
-    drawQ();
-  }
-
-  el('start').onclick = function(){ reset(); go(1); };
-  el('again').onclick = function(){ reset(); go(1); };
-  drawQ();
+  el('again').onclick = function(){ go(0); };
+  startSerie('all');
+  go(0);
 </script>
 </body>
 </html>

@@ -289,6 +289,16 @@
     font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
     padding:.5rem .9rem;transition:.2s}
   .btn:hover{background:var(--ink);color:var(--paper)}
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .hudleft .langsw{position:static;transform:none;left:auto}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
   .langsw{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);display:flex;gap:.25rem}
@@ -547,10 +557,13 @@
 
 <!-- HUD -->
 <div class="hud">
-  <div class="langsw" id="langsw">
-    <button data-lang="fr" class="on">FR</button>
-    <button data-lang="en">EN</button>
-    <button data-lang="zh">中</button>
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="zh">中</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="s.menu">Parcours</span></a>
   </div>
   <button class="btn" id="prev" data-i18n="s.prev">◀ Retour</button>
   <div class="dots">
@@ -665,7 +678,7 @@
       's7.step4':`Vary the <b>context, content, language</b> and watch the ranking shift.`,
       's7.step5':`<b>The challenge:</b> find the context that puts “a dinosaur” (or “a car”, “a rabbit”…) right at the top.`,
       's7.cta':`Join PédagoIA<small>edu-nsi-web.vercel.app →</small>`,
-      's.prev':`◀ Back`, 's.next':`Next ▶`
+      's.prev':`◀ Back`, 's.menu':`Course map`, 's.next':`Next ▶`
     },
     zh: {
       's0.back':`◂ 第2课 · 人工智能大家族`,
@@ -757,7 +770,7 @@
       's7.step4':`改变<b>上下文、内容、语言</b>，看排名如何变化。`,
       's7.step5':`<b>挑战：</b>找到一个上下文，让「恐龙」（或「汽车」「兔子」……）排到最前面。`,
       's7.cta':`进入 PédagoIA<small>edu-nsi-web.vercel.app →</small>`,
-      's.prev':`◀ 返回`, 's.next':`下一页 ▶`
+      's.prev':`◀ 返回`, 's.menu':`课程目录`, 's.next':`下一页 ▶`
     }
   };
   const MSG = {

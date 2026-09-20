@@ -373,6 +373,16 @@
     padding:.5rem .9rem;transition:.2s;
   }
   .btn:hover{background:var(--ink);color:var(--paper)}
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .hudleft .langsw{position:static;transform:none;left:auto}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
 
@@ -981,10 +991,13 @@
 
 <!-- HUD — barre de navigation, hors de la scène -->
 <div class="hud">
-  <div class="langsw" id="langsw">
-    <button data-lang="fr" class="on">FR</button>
-    <button data-lang="en">EN</button>
-    <button data-lang="zh">中</button>
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="zh">中</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
   </div>
   <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
   <div class="dots">
@@ -1173,7 +1186,7 @@
       'gen.note':`<b>None of this was copied.</b> No such photo existed. The model learned, from millions of images, <i>what</i> a cathedral, a flag, a handshake <i>look like</i> — and produced a new combination. Same principle for text: that's Lesson 3.`,
       'gen.cap':`AI-generated image · September 2026 · prompt opposite`,
       'gen.foot':`That's them, our famous “AIs”: ChatGPT, Claude, Gemini, Midjourney… They don't <b>sort</b> images, they <b>produce</b> them. And you now have every word to place them: AI → machine learning → deep learning → <b>generative</b>.`,
-      'hud.prev':`◀ Back`, 'hud.next':`Next ▶`
+      'hud.prev':`◀ Back`, 'hud.menu':`Course map`, 'hud.next':`Next ▶`
     },
     zh: {
       's0.back':`◂ 第1课 · 人工智能到哪一步了？`,
@@ -1333,7 +1346,7 @@
       'gen.note':`<b>这些都不是复制来的。</b>这样的照片从未存在过。模型从几百万张图片中学会了大教堂、国旗、握手<i>长什么样</i>——然后产生了一个新的组合。文本也是同一个原理：那是第 3 课。`,
       'gen.cap':`AI 生成图像 · 2026 年 9 月 · 提示词见左侧`,
       'gen.foot':`这就是我们那些著名的「AI」：ChatGPT、Claude、Gemini、Midjourney……它们不<b>分类</b>图片，它们<b>产生</b>图片。现在你有了给它们定位的所有词：人工智能 → 机器学习 → 深度学习 → <b>生成式</b>。`,
-      'hud.prev':`◀ 返回`, 'hud.next':`下一页 ▶`
+      'hud.prev':`◀ 返回`, 'hud.menu':`课程目录`, 'hud.next':`下一页 ▶`
     }
   };
   const MSG = {
