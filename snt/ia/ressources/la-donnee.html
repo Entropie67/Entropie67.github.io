@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qu'est-ce qu'une donnée</title>
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.85rem,2vw,1.3rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.48;color:#4a4436;margin-bottom:.45rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+
+  /* chaîne donnée → information → connaissance */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* traces du quotidien */
+  .traces{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:clamp(1rem,3vh,1.8rem) 0}
+  .trace{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.55rem .85rem;
+    font-size:clamp(.78rem,1.4vw,.95rem);line-height:1.3}
+  .trace b{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--signal-dk);margin-top:.15rem}
+
+  /* croisement */
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(1rem,3vh,1.7rem) 0}
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .plus{color:var(--signal);font-size:1.3rem}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+
+  /* tableau structuré */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2)}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.35rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.68em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.32rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .blob{font-family:var(--serif);font-size:clamp(.78rem,1.4vw,.95rem);line-height:1.5;
+    color:#4a4436;background:var(--paper);border:1px dashed rgba(0,0,0,.28);padding:.7rem .8rem}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk)}
+
+  /* métadonnées */
+  .meta-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+  .meta-tag{font-family:var(--mono);font-size:.72rem;padding:.3rem .6rem;
+    border:1px solid rgba(0,0,0,.18);background:var(--paper);color:#4a4436}
+  .meta-tag.hot{border-color:var(--alarm);color:var(--alarm);background:rgba(181,48,31,.08);font-weight:bold}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2{grid-template-columns:1fr}
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+
+  <!-- 0 · OUVERTURE -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="token.html">◂ Séance précédente</a>
+    <div class="tag">SNT · Enseignement IA</div>
+    <h1 class="big">Une <em>donnée</em>,<br>c'est quoi&nbsp;?</h1>
+    <p class="line">Avant de parler de ce qu'une IA fait des données, il faut savoir <strong style="color:#fff">de quoi on parle</strong>. Et vous en produisez des centaines par jour — la plupart du temps sans vous en rendre compte.</p>
+    <div class="kick">Donnée · donnée personnelle · format · structurée ou non</div>
+  </div>
+
+  <!-- 1 · DÉFINITION -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow">Définition</div>
+    <h2 class="stitle">Donnée, information,<br>connaissance</h2>
+    <p class="lead">Trois mots qu'on confond tout le temps — et qui ne désignent pas du tout la même chose.</p>
+
+    <div class="mid">
+      <div class="chain">
+        <div class="cbox">
+          <div class="n">1 · la donnée</div><div class="t">Un fait brut</div>
+          <div class="d">codé sous une forme que la machine peut stocker et traiter</div>
+          <div class="v">14</div>
+        </div>
+        <div class="carrow">→</div>
+        <div class="cbox">
+          <div class="n">2 · l'information</div><div class="t">La donnée + le contexte</div>
+          <div class="d">on sait enfin de quoi il s'agit</div>
+          <div class="v">14 °C à Strasbourg, ce matin</div>
+        </div>
+        <div class="carrow">→</div>
+        <div class="cbox">
+          <div class="n">3 · la connaissance</div><div class="t">Ce qu'on en tire</div>
+          <div class="d">un sens, une décision</div>
+          <div class="v">il fait plus froid qu'hier → je prends un manteau</div>
+        </div>
+      </div>
+      <p class="chain-note">Une machine ne manipule que des <b>données</b>. Le <b>sens</b>, c'est nous qui l'apportons — en disant ce que représente ce «&nbsp;14&nbsp;».</p>
+    </div>
+  </div>
+
+  <!-- 2 · TU EN PRODUIS -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow">Où sont-elles ?</div>
+    <h2 class="stitle">Vous en produisez<br>sans arrêt</h2>
+    <p class="lead">Une journée ordinaire. Chaque geste laisse une trace, quelque part, sur une machine.</p>
+
+    <div class="mid">
+      <div class="traces">
+        <div class="trace">Déverrouiller le téléphone<b>empreinte, heure</b></div>
+        <div class="trace">Prendre le tram<b>carte, arrêt, horaire</b></div>
+        <div class="trace">Envoyer un message<b>texte, destinataire, heure</b></div>
+        <div class="trace">Prendre une photo<b>image, date, lieu</b></div>
+        <div class="trace">Chercher sur le Web<b>requête, clics</b></div>
+        <div class="trace">Regarder une vidéo<b>durée, pauses, reprise</b></div>
+        <div class="trace">Payer en carte<b>montant, commerçant, lieu</b></div>
+        <div class="trace">Se connecter au wifi<b>appareil, réseau, durée</b></div>
+      </div>
+      <p class="chain-note">La question n'est pas «&nbsp;est-ce que je produis des données&nbsp;?&nbsp;» mais <b>lesquelles, qui les garde, et pour combien de temps</b>.</p>
+    </div>
+  </div>
+
+  <!-- 3 · DONNÉE PERSONNELLE -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow">Une catégorie à part — et protégée</div>
+    <h2 class="stitle">La donnée<br>personnelle</h2>
+    <p class="lead">Définition du <b>RGPD</b> (le règlement européen, applicable depuis mai 2018)&nbsp;: <b>toute information se rapportant à une personne physique identifiée ou identifiable</b>.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card">
+          <h3>Directement</h3>
+          <div class="sub">elle vous nomme</div>
+          <p>Nom, prénom, photo du visage, adresse, numéro de téléphone.</p>
+        </div>
+        <div class="card">
+          <h3>Indirectement</h3>
+          <div class="sub">on peut remonter jusqu'à vous</div>
+          <p>Numéro d'élève, adresse IP, identifiant de téléphone, plaque, position GPS.</p>
+          <div class="ex">▸ le mot important : <b>identifiable</b></div>
+        </div>
+        <div class="card warn">
+          <h3>Sensibles</h3>
+          <div class="sub">protection renforcée</div>
+          <p>Santé, opinions politiques, religion, origine, orientation sexuelle, données biométriques.</p>
+          <div class="ex">▸ interdites de traitement, sauf exceptions</div>
+        </div>
+      </div>
+      <p class="chain-note">Le RGPD vous donne des droits sur vos données&nbsp;: <b>y accéder</b>, les <b>corriger</b>, les <b>effacer</b>, les <b>récupérer</b> pour aller ailleurs.</p>
+    </div>
+  </div>
+
+  <!-- 4 · LE CROISEMENT -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow">Le piège que personne ne voit venir</div>
+    <h2 class="stitle">Anodines séparément,<br>identifiantes ensemble</h2>
+    <p class="lead">Prises une par une, ces trois données ne désignent personne. Des millions de gens les partagent.</p>
+
+    <div class="mid">
+      <div class="cross">
+        <div class="chip">code postal</div>
+        <div class="plus">+</div>
+        <div class="chip">date de naissance</div>
+        <div class="plus">+</div>
+        <div class="chip">sexe</div>
+        <div class="eq">=</div>
+        <div class="chip out">une seule personne</div>
+      </div>
+      <p class="chain-note">Une étude américaine devenue classique estimait qu'avec <b>ce seul trio</b>, on identifiait de façon unique <b>environ 87&nbsp;%</b> de la population des États-Unis.<br><br>
+      D'où la leçon&nbsp;: «&nbsp;<b>anonyme</b>&nbsp;» est beaucoup plus fragile qu'on ne le croit. Ce n'est pas une donnée qui vous identifie — <b>c'est leur croisement</b>.</p>
+    </div>
+  </div>
+
+  <!-- 5 · LES FORMATS -->
+  <div class="pane light pad" id="s5">
+    <div class="eyebrow">Sous quelle forme ?</div>
+    <h2 class="stitle">Stocker, c'est<br>choisir un format</h2>
+    <p class="lead">Un <b>format</b>, c'est une convention&nbsp;: une manière d'écrire la donnée — et surtout de pouvoir la <b>relire</b> plus tard, avec un autre logiciel, sur une autre machine.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card">
+          <h3>Texte</h3>
+          <div class="sub">le plus simple</div>
+          <p>Des caractères, rien d'autre.</p>
+          <div class="ex">.txt · .csv · .json · .xml</div>
+        </div>
+        <div class="card">
+          <h3>Image, son, vidéo</h3>
+          <div class="sub">souvent compressés</div>
+          <p>On accepte de perdre un peu de qualité pour gagner beaucoup de place.</p>
+          <div class="ex">.jpg · .png · .mp3 · .mp4</div>
+        </div>
+        <div class="card good">
+          <h3>Ouvert ou fermé</h3>
+          <div class="sub">une question de liberté</div>
+          <p>Un format <b>ouvert</b> est documenté&nbsp;: n'importe qui peut écrire un logiciel qui le lit. Un format <b>fermé</b> vous lie à une entreprise.</p>
+          <div class="ex">▸ enjeu : pouvoir relire dans 20 ans</div>
+        </div>
+      </div>
+      <p class="chain-note">Mauvais format = données <b>illisibles</b> un jour. C'est un vrai problème d'archives, pas une question de détail.</p>
+    </div>
+  </div>
+
+  <!-- 6 · STRUCTURÉE OU NON -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow">La distinction clé du programme</div>
+    <h2 class="stitle">Structurée,<br>ou pas</h2>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card good">
+          <h3>Structurée</h3>
+          <div class="sub">un tableau</div>
+          <p>Des <b>lignes</b> (les enregistrements), des <b>colonnes</b> (les descripteurs), un type fixé par colonne.</p>
+          <table class="tbl">
+            <tr><th>nom</th><th>classe</th><th>note</th></tr>
+            <tr><td>Camille</td><td>2de4</td><td>15</td></tr>
+            <tr><td>Yacine</td><td>2de1</td><td>12</td></tr>
+          </table>
+          <div class="ex" style="margin-top:.5rem">▸ trier, filtrer, calculer : facile</div>
+        </div>
+        <div class="card">
+          <h3>Semi-structurée</h3>
+          <div class="sub">des champs nommés</div>
+          <p>Une hiérarchie, des étiquettes — mais pas forcément les mêmes champs partout.</p>
+          <div class="codebox">{
+  <span class="k">"nom"</span>: "Camille",
+  <span class="k">"classe"</span>: "2de4",
+  <span class="k">"options"</span>: ["chinois"]
+}</div>
+          <div class="ex" style="margin-top:.5rem">▸ JSON, XML — le format des API</div>
+        </div>
+        <div class="card warn">
+          <h3>Non structurée</h3>
+          <div class="sub">le vrac</div>
+          <p>Du texte libre, une image, un son. Aucune case, aucune colonne.</p>
+          <div class="blob">« Super ambiance au forum des métiers, j'ai adoré l'atelier robotique 🤖 »</div>
+          <div class="ex" style="margin-top:.5rem">▸ l'essentiel de ce qu'on produit aujourd'hui</div>
+        </div>
+      </div>
+      <p class="chain-note">Et c'est exactement là que l'IA générative a tout changé&nbsp;: elle sait enfin <b>traiter du non structuré</b> — du texte libre, des images — ce que les tableurs et les bases de données ne savaient pas faire.</p>
+    </div>
+  </div>
+
+  <!-- 7 · MÉTADONNÉES -->
+  <div class="pane dark pad" id="s7">
+    <div class="eyebrow">Les données cachées</div>
+    <h2 class="stitle">Les métadonnées</h2>
+    <p class="lead">Des <b>données sur les données</b>. Elles voyagent avec le fichier, sans que vous les voyiez.</p>
+
+    <div class="mid">
+      <div class="cards c2">
+        <div class="card">
+          <h3>Une photo</h3>
+          <div class="sub">ce que contient le fichier, en plus de l'image</div>
+          <div class="meta-row">
+            <span class="meta-tag">date &amp; heure</span>
+            <span class="meta-tag">modèle d'appareil</span>
+            <span class="meta-tag">réglages</span>
+            <span class="meta-tag hot">coordonnées GPS</span>
+          </div>
+          <p style="margin-top:.6rem">Publier une photo, c'est parfois publier <b>l'endroit exact</b> où vous étiez, et <b>quand</b>.</p>
+        </div>
+        <div class="card">
+          <h3>Un document</h3>
+          <div class="sub">idem</div>
+          <div class="meta-row">
+            <span class="meta-tag">auteur</span>
+            <span class="meta-tag">date de création</span>
+            <span class="meta-tag">modifications</span>
+            <span class="meta-tag">logiciel</span>
+          </div>
+          <p style="margin-top:.6rem">Un fichier rendu anonyme peut trahir son auteur par ses seules métadonnées.</p>
+        </div>
+      </div>
+      <p class="chain-note">Bonne nouvelle&nbsp;: elles se <b>consultent</b> et se <b>suppriment</b>. Encore faut-il savoir qu'elles existent.</p>
+    </div>
+  </div>
+
+  <!-- 8 · STOCKER ET TRANSFÉRER -->
+  <div class="pane light pad" id="s8">
+    <div class="eyebrow">Où vit la donnée ?</div>
+    <h2 class="stitle">Stocker ici,<br>ou chez quelqu'un d'autre</h2>
+
+    <div class="mid">
+      <div class="cards c2">
+        <div class="card">
+          <h3>En local</h3>
+          <div class="sub">sur votre appareil</div>
+          <p>Vous la maîtrisez. Mais si l'appareil casse ou se perd, elle disparaît avec.</p>
+        </div>
+        <div class="card warn">
+          <h3>Sur un serveur</h3>
+          <div class="sub">ce qu'on appelle « le cloud »</div>
+          <p>Accessible partout, sauvegardée — mais elle est <b>sur l'ordinateur de quelqu'un d'autre</b>, dans un pays qui a ses propres lois.</p>
+        </div>
+      </div>
+      <p class="chain-note">Et transférer une donnée, ce n'est pas la déplacer&nbsp;: c'est la <b>copier</b>. L'original reste. <br><span style="color:var(--muted)">Comment elle voyage à travers le réseau — ce sera tout un chapitre.</span></p>
+    </div>
+  </div>
+
+  <!-- 9 · CHARNIÈRE -->
+  <div class="pane dark hinge" id="s9">
+    <div class="eyebrow" style="color:var(--signal)">La question qui ouvre la suite</div>
+    <div class="q">Et si on en donnait<br><em>des milliards</em> à une machine&nbsp;?</div>
+    <p class="a">On sait maintenant ce qu'est une donnée, sous quelle forme elle se range, et laquelle mérite d'être protégée.<br><br>Reste à comprendre ce qu'une IA <b>en fait</b> — et pourquoi <b>ce qu'on lui donne</b> détermine tout ce qu'elle saura.</p>
+    <div class="next">Séance suivante : comment une IA apprend →</div>
+  </div>
+
+  <!-- 10 · ACTIVITÉ -->
+  <div class="pane dark act" id="s10">
+    <div class="tag">Activité de la séance</div>
+    <h2>Que disent<br>mes <em>données</em> de moi&nbsp;?</h2>
+    <p class="sub">Une enquête sur vous-même — puis sur ce que les autres pourraient en déduire.</p>
+    <ol class="steps">
+      <li>Listez <b>dix données</b> que vous avez produites depuis ce matin.</li>
+      <li>Pour chacune&nbsp;: est-elle <b>personnelle</b>&nbsp;? Directement, ou indirectement&nbsp;?</li>
+      <li>Ouvrez les <b>métadonnées</b> d'une de vos photos. Qu'y trouvez-vous&nbsp;? Y a-t-il un lieu&nbsp;?</li>
+      <li>Classez trois de ces données en <b>structurée / semi-structurée / non structurée</b>.</li>
+      <li><b>Le défi du croisement&nbsp;:</b> avec combien de vos données anodines peut-on vous retrouver dans la classe&nbsp;?</li>
+    </ol>
+  </div>
+
+  <!-- 11 · RÉCAP -->
+  <div class="pane light pad" id="s11">
+    <div class="rc-eye">Fin de séance</div>
+    <h2 class="rc-title">Ce que je dois <span>retenir</span></h2>
+    <ol class="rc-list">
+      <li>Une <b>donnée</b> est un fait brut&nbsp;; elle devient <b>information</b> avec un contexte, et <b>connaissance</b> quand on en tire quelque chose.</li>
+      <li>Une <span class="hl">donnée personnelle</span> concerne une personne <b>identifiée ou identifiable</b> — directement ou <b>indirectement</b>.</li>
+      <li>Ce n'est pas une donnée qui vous identifie, c'est leur <b>croisement</b>. «&nbsp;Anonyme&nbsp;» est fragile.</li>
+      <li>Une donnée se range dans un <span class="hl">format</span>&nbsp;; elle est <b>structurée</b> (tableau), <b>semi-structurée</b> (JSON) ou <b>non structurée</b> (texte, image).</li>
+      <li>Les <span class="hl">métadonnées</span> voyagent avec le fichier — dont, souvent, le <b>lieu</b> et la <b>date</b>.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term"><b>Donnée personnelle</b>Toute information se rapportant à une personne identifiée ou identifiable (RGPD).</div>
+      <div class="rc-term"><b>Format</b>La convention qui permet d'écrire une donnée — et de la relire.</div>
+      <div class="rc-term"><b>Donnée structurée</b>Organisée en lignes et colonnes, avec un type par colonne.</div>
+      <div class="rc-term"><b>Métadonnée</b>Une donnée qui décrit une autre donnée.</div>
+    </div>
+    <p class="rc-key">Prochaine étape&nbsp;: <b>ce qu'une machine fait quand on lui en donne des milliards.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <button class="btn" id="prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+  </div>
+  <button class="btn" id="next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+  const panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
+    .map(id=>document.getElementById(id));
+  const dots  = [...document.querySelectorAll('.dot')];
+  let scene = 0;
+  const MAX = 11;
+
+  function render(){
+    panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
+    dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
+  }
+  function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+  document.getElementById('next').onclick = ()=>go(scene+1);
+  document.getElementById('prev').onclick = ()=>go(scene-1);
+  dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
+
+  window.addEventListener('keydown', e=>{
+    if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowDown'){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
+    if(e.key==='ArrowUp'){e.preventDefault();go(scene-1);}
+  });
+  document.querySelector('.stage').addEventListener('click', e=>{
+    if(e.target.closest('a,button')) return;
+    go(scene+1);
+  });
+</script>
+</body>
+</html>
