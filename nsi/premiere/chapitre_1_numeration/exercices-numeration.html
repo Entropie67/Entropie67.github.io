@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TD Numération — exercices autocorrigés — Première NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --ok-dim:rgba(52,211,153,.13);
+         --bad:#ff5c7a; --bad-dim:rgba(255,92,122,.12);
+         --warn:#ffc53d; --vio:#b57bff; }
+
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);
+    text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+
+  /* ── barre de score ── */
+  .scorebar{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.94);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .scorebar-in{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;gap:.7rem;
+    padding:.6rem 1.5rem;flex-wrap:wrap}
+  .scoretxt{font-family:var(--mono);font-size:.88rem;color:var(--text);flex:none}
+  .scoretxt b{color:var(--ok)}
+  .gauge{flex:1 1 90px;height:6px;border-radius:100px;background:var(--bg-card);overflow:hidden;min-width:70px}
+  .gauge i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+  .scorebar button{font-family:inherit;font-size:.8rem;background:var(--bg-card);color:var(--text);
+    border:1px solid var(--border);border-radius:7px;padding:.4rem .75rem;cursor:pointer;flex:none}
+  .scorebar button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .scorebar button.primary{background:var(--nsi-dim);color:var(--nsi);border-color:rgba(108,158,255,.35)}
+
+  /* ── exercices ── */
+  .exo{scroll-margin-top:118px;margin-bottom:2.8rem}
+  .exo > h2{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;font-size:1.3rem;
+    padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem}
+  .exo > h2 .pn{font-family:var(--mono);font-size:.8rem;color:var(--nsi);background:var(--nsi-dim);
+    padding:.2rem .55rem;border-radius:6px;flex:none}
+  .exo > h2 .cnt{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--text-muted);
+    font-weight:400;flex:none}
+  .exo > h2 .cnt.full{color:var(--ok)}
+  .consigne{color:#c9cdda;font-size:.93rem;margin:1.1rem 0 .7rem}
+  .consigne:first-child{margin-top:0}
+  .subhead{font-size:.95rem;color:var(--nsi);font-weight:600;margin:1.3rem 0 .5rem}
+
+  .rappel{border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;
+    background:var(--bg-card);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.88rem;color:#c9cdda}
+  .rappel b{color:var(--text)}
+
+  /* ── champs ── */
+  input.f{font-family:var(--mono);font-size:.9rem;background:var(--bg);color:var(--text);
+    border:1px solid var(--border);border-radius:7px;padding:.38rem .55rem;width:100%;
+    min-width:0;transition:border-color .15s,background .15s}
+  input.f:focus{outline:none;border-color:var(--nsi)}
+  input.f.ok{border-color:var(--ok);background:var(--ok-dim)}
+  input.f.ko{border-color:var(--bad);background:var(--bad-dim)}
+  .fld{position:relative;display:flex;align-items:center;gap:.35rem}
+  .fld .mark{font-size:.95rem;width:1em;flex:none;text-align:center}
+  .fld .mark.ok{color:var(--ok)} .fld .mark.ko{color:var(--bad)}
+  .sol{display:none;font-family:var(--mono);font-size:.78rem;color:var(--ok);
+    margin-top:.25rem;word-break:break-all}
+  .exo.solved .sol{display:block}
+
+  /* ── grille (puissances) ── */
+  .grid{display:grid;gap:.6rem}
+  .gcell{display:flex;align-items:center;gap:.4rem}
+  .gcell .lab{font-family:var(--mono);font-size:.85rem;color:var(--text-muted);flex:none;
+    min-width:3.1rem;text-align:right}
+  .gcell .fld{flex:1;min-width:0}
+  .gcell .sol{position:absolute;left:0;top:100%}
+  .gwrap{position:relative}
+
+  /* ── tableaux d'exercices ── */
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.8rem 0}
+  table.ex{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+  table.ex th,table.ex td{border:1px solid var(--border);padding:.45rem .55rem;text-align:center;
+    vertical-align:middle}
+  table.ex th{background:var(--bg-card);color:var(--nsi);font-size:.72rem;text-transform:uppercase;
+    letter-spacing:.05em;font-weight:600}
+  table.ex td.given{font-family:var(--mono);color:var(--text);word-break:break-all}
+  table.ex td.dir{font-size:.78rem;color:var(--text-muted)}
+  table.ex td.dir small{display:block;font-size:.7rem;opacity:.8;margin-top:.15rem}
+  table.ex td.inp{min-width:150px;padding:.35rem .4rem}
+  table.ex tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+
+  /* ── liste de calculs ── */
+  .calcs{list-style:none;margin:0;padding:0}
+  .calcs li{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.5rem 0;
+    border-bottom:1px solid rgba(255,255,255,.05)}
+  .calcs li:last-child{border-bottom:none}
+  .calcs .expr{font-family:var(--mono);font-size:.9rem;color:#c9cdda;flex:1 1 240px}
+  .calcs .expr small{display:block;font-family:'Inter',sans-serif;font-size:.72rem;
+    color:var(--text-muted);margin-top:.15rem}
+  .calcs .fldwrap{flex:0 1 220px;min-width:150px;position:relative}
+
+  /* ── questions ouvertes ── */
+  .open{border:1px solid var(--border);border-left:3px solid var(--vio);border-radius:0 8px 8px 0;
+    background:var(--bg-card);padding:.95rem 1.1rem;margin:1.1rem 0}
+  .open .q{font-size:.92rem;color:var(--text);margin-bottom:.6rem}
+  .open textarea{width:100%;font-family:inherit;font-size:.88rem;background:var(--bg);color:var(--text);
+    border:1px solid var(--border);border-radius:7px;padding:.5rem .65rem;min-height:4.2rem;resize:vertical}
+  .open textarea:focus{outline:none;border-color:var(--vio)}
+  .open .rev{margin-top:.55rem;font-family:inherit;font-size:.78rem;background:transparent;
+    color:var(--vio);border:1px solid rgba(181,123,255,.35);border-radius:7px;
+    padding:.35rem .7rem;cursor:pointer}
+  .open .rev:hover{background:rgba(181,123,255,.12)}
+  .open .modele{display:none;margin-top:.6rem;font-size:.87rem;color:#c9cdda;line-height:1.55;
+    border-top:1px dashed var(--border);padding-top:.6rem}
+  .open .modele.show{display:block}
+
+  /* ── repli « à la maison » ── */
+  details.repli{border:1px solid var(--border);border-radius:8px;background:var(--bg-card);
+    padding:.2rem .9rem;margin:1.2rem 0}
+  details.repli > summary{cursor:pointer;padding:.6rem 0;font-size:.9rem;color:var(--nsi);
+    font-weight:600;list-style:none}
+  details.repli > summary::-webkit-details-marker{display:none}
+  details.repli > summary::before{content:"▸ ";display:inline-block;transition:transform .2s}
+  details.repli[open] > summary::before{content:"▾ "}
+
+  .exfoot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .exfoot button{font-family:inherit;font-size:.78rem;background:transparent;color:var(--text-muted);
+    border:1px solid var(--border);border-radius:7px;padding:.38rem .7rem;cursor:pointer}
+  .exfoot button:hover{border-color:var(--nsi);color:var(--nsi)}
+
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);
+    border-left:3px solid var(--nsi);border-radius:0 10px 10px 0;background:var(--nsi-dim);
+    padding:1.1rem 1.3rem;margin:1rem 0 2rem}
+  .cta .t{flex:1 1 240px}
+  .cta .t b{display:block;margin-bottom:.2rem}
+  .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--nsi);color:#07182f;font-weight:600;
+    font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+
+  @media (max-width:640px){
+    .scorebar-in{padding:.55rem 1rem;gap:.5rem}
+    .scoretxt{font-size:.8rem}
+    .scorebar button{font-size:.74rem;padding:.35rem .55rem}
+    .exo > h2{font-size:1.1rem}
+    .gcell .lab{min-width:2.6rem;font-size:.78rem}
+    .calcs .expr{flex:1 1 100%}
+    .calcs .fldwrap{flex:1 1 100%}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="scorebar">
+  <div class="scorebar-in">
+    <span class="scoretxt"><b id="sOk">0</b>/<span id="sTot">0</span></span>
+    <span class="gauge"><i id="sBar"></i></span>
+    <button type="button" id="btnCheck" class="primary">Tout vérifier</button>
+    <button type="button" id="btnReset">Effacer</button>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>TD Numération <span class="badge badge-nsi">Première</span></h1>
+    <p class="subtitle">Binaire, hexadécimal, nombres à virgule et complément à deux.
+      Tapez votre réponse : elle est corrigée immédiatement. Vos réponses sont conservées
+      dans ce navigateur, vous pouvez fermer la page et revenir.</p>
+  </div>
+
+  <div class="cta">
+    <div class="t">
+      <b>Besoin d'un rappel ?</b>
+      <span>Toutes les méthodes utilisées ici sont dans le cours.</span>
+    </div>
+    <a href="cours-numeration.html">Voir le cours →</a>
+  </div>
+
+  <div id="exos"></div>
+
+  <div class="cta">
+    <div class="t">
+      <b>Le cours du chapitre</b>
+      <span>Bases 2 et 16, virgule, complément à deux, algèbre de Boole.</span>
+    </div>
+    <a href="cours-numeration.html">Voir le cours →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  var TD = {"exercices":[{"id":"ex1","titre":"Puissances de 2","groupes":[{"type":"grid","cols":4,"consigne":"Compl&eacute;tez les puissances positives de 2.","items":[{"label":"2<sup>0<\/sup>","a":"1","t":"int"},{"label":"2<sup>1<\/sup>","a":"2","t":"int"},{"label":"2<sup>2<\/sup>","a":"4","t":"int"},{"label":"2<sup>3<\/sup>","a":"8","t":"int"},{"label":"2<sup>4<\/sup>","a":"16","t":"int"},{"label":"2<sup>5<\/sup>","a":"32","t":"int"},{"label":"2<sup>6<\/sup>","a":"64","t":"int"},{"label":"2<sup>7<\/sup>","a":"128","t":"int"},{"label":"2<sup>8<\/sup>","a":"256","t":"int"},{"label":"2<sup>9<\/sup>","a":"512","t":"int"},{"label":"2<sup>10<\/sup>","a":"1024","t":"int"},{"label":"2<sup>11<\/sup>","a":"2048","t":"int"},{"label":"2<sup>12<\/sup>","a":"4096","t":"int"},{"label":"2<sup>13<\/sup>","a":"8192","t":"int"},{"label":"2<sup>14<\/sup>","a":"16384","t":"int"},{"label":"2<sup>15<\/sup>","a":"32768","t":"int"},{"label":"2<sup>16<\/sup>","a":"65536","t":"int"},{"label":"2<sup>17<\/sup>","a":"131072","t":"int"},{"label":"2<sup>18<\/sup>","a":"262144","t":"int"},{"label":"2<sup>19<\/sup>","a":"524288","t":"int"},{"label":"2<sup>20<\/sup>","a":"1048576","t":"int"}]},{"type":"rappel","texte":"&Agrave; conna&icirc;tre rapidement : au minimum de 2<sup>0<\/sup> &agrave; 2<sup>16<\/sup>."},{"type":"grid","cols":5,"consigne":"Compl&eacute;tez les puissances n&eacute;gatives de 2, sous forme d&eacute;cimale.","items":[{"label":"2<sup>&minus;1<\/sup>","a":"0,5","t":"dec"},{"label":"2<sup>&minus;2<\/sup>","a":"0,25","t":"dec"},{"label":"2<sup>&minus;3<\/sup>","a":"0,125","t":"dec"},{"label":"2<sup>&minus;4<\/sup>","a":"0,0625","t":"dec"},{"label":"2<sup>&minus;5<\/sup>","a":"0,03125","t":"dec"},{"label":"2<sup>&minus;6<\/sup>","a":"0,015625","t":"dec"},{"label":"2<sup>&minus;7<\/sup>","a":"0,0078125","t":"dec"},{"label":"2<sup>&minus;8<\/sup>","a":"0,00390625","t":"dec"},{"label":"2<sup>&minus;9<\/sup>","a":"0,001953125","t":"dec"},{"label":"2<sup>&minus;10<\/sup>","a":"0,0009765625","t":"dec"}]}]},{"id":"ex2","titre":"Changements de base","groupes":[{"type":"conv","consigne":"Convertissez chaque nombre de la forme de d&eacute;part vers la forme d&#39;arriv&eacute;e. Pas de fraction ni de puissance dans la r&eacute;ponse.","rows":[{"n":"10101011","de":"Binaire","vers":"D&eacute;cimale","note":null,"a":"171","t":"dec"},{"n":"A9B","de":"Hexad&eacute;cimale","vers":"D&eacute;cimale","note":null,"a":"2715","t":"dec"},{"n":"218","de":"D&eacute;cimale","vers":"Binaire","note":null,"a":"11011010","t":"bin"},{"n":"603","de":"D&eacute;cimale","vers":"Hexad&eacute;cimale","note":null,"a":"25B","t":"hex"},{"n":"B8E","de":"Hexad&eacute;cimale","vers":"Binaire","note":null,"a":"101110001110","t":"bin"},{"n":"1011110111100110","de":"Binaire","vers":"Hexad&eacute;cimale","note":null,"a":"BDE6","t":"hex"},{"n":"1010,101","de":"Binaire","vers":"D&eacute;cimale","note":null,"a":"10,625","t":"dec"},{"n":"44,44","de":"Hexad&eacute;cimale","vers":"D&eacute;cimale","note":null,"a":"68,265625","t":"dec"},{"n":"17,42","de":"D&eacute;cimale","vers":"Binaire","note":"5 chiffres apr&egrave;s la virgule","a":"10001,01101","t":"bin"},{"n":"17,42","de":"D&eacute;cimale","vers":"Hexad&eacute;cimale","note":"3 chiffres apr&egrave;s la virgule","a":"11,6B8","t":"hex"},{"n":"B6,F3","de":"Hexad&eacute;cimale","vers":"Binaire","note":null,"a":"10110110,11110011","t":"bin"},{"n":"100101,110011","de":"Binaire","vers":"Hexad&eacute;cimale","note":null,"a":"25,CC","t":"hex"}]},{"type":"conv","repli":true,"consigne":"Pour s&#39;entra&icirc;ner &agrave; la maison","rows":[{"n":"1001100101101100","de":"Binaire","vers":"D&eacute;cimale","note":null,"a":"39276","t":"dec"},{"n":"12BE","de":"Hexad&eacute;cimale","vers":"D&eacute;cimale","note":null,"a":"4798","t":"dec"},{"n":"631","de":"D&eacute;cimale","vers":"Binaire","note":null,"a":"1001110111","t":"bin"},{"n":"3129","de":"D&eacute;cimale","vers":"Hexad&eacute;cimale","note":null,"a":"C39","t":"hex"},{"n":"BD9F","de":"Hexad&eacute;cimale","vers":"Binaire","note":null,"a":"1011110110011111","t":"bin"},{"n":"110111011010011001","de":"Binaire","vers":"Hexad&eacute;cimale","note":null,"a":"37699","t":"hex"},{"n":"110101,1011001","de":"Binaire","vers":"D&eacute;cimale","note":null,"a":"53,6953125","t":"dec"},{"n":"A4C,148","de":"Hexad&eacute;cimale","vers":"D&eacute;cimale","note":null,"a":"2636,080078125","t":"dec"},{"n":"48,12","de":"D&eacute;cimale","vers":"Binaire","note":"7 chiffres apr&egrave;s la virgule","a":"110000,0001111","t":"bin"},{"n":"92,47","de":"D&eacute;cimale","vers":"Hexad&eacute;cimale","note":"4 chiffres apr&egrave;s la virgule","a":"5C,7851","t":"hex"},{"n":"8,DECA","de":"Hexad&eacute;cimale","vers":"Binaire","note":null,"a":"1000,110111101100101","t":"bin"},{"n":"11001010110,01101011","de":"Binaire","vers":"Hexad&eacute;cimale","note":null,"a":"656,6B","t":"hex"}]}]},{"id":"ex3","titre":"Calculs en binaire et en hexad&eacute;cimal","groupes":[{"type":"calc","consigne":"Additions binaires","items":[{"label":"10101010<sub>2<\/sub> + 11001110<sub>2<\/sub>","a":"101111000","t":"bin"},{"label":"1100011<sub>2<\/sub> + 1110111<sub>2<\/sub> + 1001011<sub>2<\/sub> + 101<sub>2<\/sub>","a":"100101010","t":"bin"}]},{"type":"calc","consigne":"Soustractions binaires","items":[{"label":"11100001<sub>2<\/sub> &minus; 10011011<sub>2<\/sub>","a":"1000110","t":"bin"},{"label":"11101100110<sub>2<\/sub> &minus; 110110110<sub>2<\/sub>","a":"10110110000","t":"bin"}]},{"type":"calc","consigne":"Multiplications binaires","items":[{"label":"1101011<sub>2<\/sub> &times; 10101<sub>2<\/sub>","a":"100011000111","t":"bin"},{"label":"10001100<sub>2<\/sub> &times; 100101<sub>2<\/sub>","a":"1010000111100","t":"bin"}]},{"type":"calc","consigne":"Divisions binaires","items":[{"label":"1100110<sub>2<\/sub> &divide; 101<sub>2<\/sub>","note":"6 chiffres apr&egrave;s la virgule","a":"10100,011001","t":"bin"},{"label":"1011000100<sub>2<\/sub> &divide; 1101<sub>2<\/sub>","note":"4 chiffres apr&egrave;s la virgule","a":"110110,0111","t":"bin"}]},{"type":"calc","consigne":"Additions hexad&eacute;cimales","items":[{"label":"BEBE<sub>16<\/sub> + CAFE<sub>16<\/sub>","a":"189BC","t":"hex"},{"label":"467<sub>16<\/sub> + 94C<sub>16<\/sub> + F1A<sub>16<\/sub>","a":"1CCD","t":"hex"}]}]},{"id":"ex4","titre":"Lire un compl&eacute;ment &agrave; deux sur 8 bits","groupes":[{"type":"rappel","texte":"Un octet repr&eacute;sente les entiers de &minus;128 &agrave; 127. Le bit de poids fort donne le signe : 0 &rarr; positif ou nul, 1 &rarr; n&eacute;gatif. Pour d&eacute;coder une valeur n&eacute;gative : inverser les 8 bits, ajouter 1, puis placer le signe moins."},{"type":"c2read","consigne":"Ces mots de 8 bits sont &eacute;crits en hexad&eacute;cimal. Donnez leur binaire, leur signe, puis leur valeur d&eacute;cimale sign&eacute;e.","rows":[{"h":"FF","bits":"11111111","signe":"negatif","val":"-1"},{"h":"27","bits":"00100111","signe":"positif","val":"39"},{"h":"7E","bits":"01111110","signe":"positif","val":"126"},{"h":"9A","bits":"10011010","signe":"negatif","val":"-102"},{"h":"B7","bits":"10110111","signe":"negatif","val":"-73"},{"h":"6D","bits":"01101101","signe":"positif","val":"109"},{"h":"81","bits":"10000001","signe":"negatif","val":"-127"}]},{"type":"open","q":"Sans faire toute la conversion, expliquez pourquoi 9A, B7 et 81 sont n&eacute;gatifs en compl&eacute;ment &agrave; deux sur 8 bits.","modele":"Leur premier chiffre hexad&eacute;cimal vaut 8 ou plus (9, B, 8), donc le quartet de gauche commence par un 1 : le bit de poids fort du mot vaut 1, ce qui signale un entier n&eacute;gatif. Autrement dit, tout octet dont l&#39;&eacute;criture hexad&eacute;cimale commence par 8, 9, A, B, C, D, E ou F est n&eacute;gatif."},{"type":"open","q":"Quelle est la valeur hexad&eacute;cimale du plus petit entier repr&eacute;sentable sur 8 bits sign&eacute;s ? Et celle de &minus;1 ?","modele":"Le plus petit entier est &minus;128, cod&eacute; 10000000<sub>2<\/sub>, soit 80<sub>16<\/sub>. Et &minus;1 est cod&eacute; 11111111<sub>2<\/sub>, soit FF<sub>16<\/sub>."}]},{"id":"ex5","titre":"Convertir vers et depuis le compl&eacute;ment &agrave; deux","groupes":[{"type":"c2enc","consigne":"Codez ces entiers en compl&eacute;ment &agrave; deux sur 8 bits, puis donnez l&#39;&eacute;criture hexad&eacute;cimale.","rows":[{"dec":42,"bits":"00101010","hex":"2A"},{"dec":100,"bits":"01100100","hex":"64"},{"dec":-1,"bits":"11111111","hex":"FF"},{"dec":-18,"bits":"11101110","hex":"EE"},{"dec":-42,"bits":"11010110","hex":"D6"},{"dec":-100,"bits":"10011100","hex":"9C"},{"dec":-128,"bits":"10000000","hex":"80"}]},{"type":"c2dec","consigne":"Faites la conversion inverse.","rows":[{"bits":"00110101","hex":"35","dec":"53"},{"bits":"01111111","hex":"7F","dec":"127"},{"bits":"11111111","hex":"FF","dec":"-1"},{"bits":"11101100","hex":"EC","dec":"-20"},{"bits":"10101010","hex":"AA","dec":"-86"},{"bits":"10000000","hex":"80","dec":"-128"}]}]},{"id":"ex6","titre":"Calculs sign&eacute;s et d&eacute;passement de capacit&eacute;","groupes":[{"type":"ovf","consigne":"Tout se fait sur 8 bits en compl&eacute;ment &agrave; deux : codez les op&eacute;randes, additionnez, interpr&eacute;tez le r&eacute;sultat, puis dites s&#39;il y a d&eacute;passement.","rows":[{"calc":"45 + 37","bits":"01010010","val":"82","ovf":"non"},{"calc":"100 + 40","bits":"10001100","val":"-116","ovf":"oui"},{"calc":"&minus;30 + 12","bits":"11101110","val":"-18","ovf":"non"},{"calc":"&minus;70 + (&minus;50)","bits":"10001000","val":"-120","ovf":"non"},{"calc":"75 + (&minus;90)","bits":"11110001","val":"-15","ovf":"non"},{"calc":"&minus;128 + (&minus;1)","bits":"01111111","val":"127","ovf":"oui"}]},{"type":"rappel","texte":"D&eacute;tecter un overflow : en additionnant deux nombres de <b>m&ecirc;me signe<\/b>, si le r&eacute;sultat a le <b>signe oppos&eacute;<\/b>, il y a d&eacute;passement. Une retenue finale seule ne permet pas de conclure."},{"type":"open","q":"Pourquoi l&#39;ordinateur peut-il utiliser le m&ecirc;me additionneur binaire pour les entiers non sign&eacute;s et pour les entiers sign&eacute;s en compl&eacute;ment &agrave; deux ?","modele":"Sur 8 bits, l&#39;addition se fait modulo 256 : le circuit additionne les motifs de bits et jette la retenue finale. Or le compl&eacute;ment &agrave; deux code l&#39;entier n&eacute;gatif &minus;x par le motif 256&minus;x. Additionner les motifs revient donc &agrave; calculer la somme modulo 256 dans les deux interpr&eacute;tations : seul le <i>sens<\/i> qu&#39;on donne au motif obtenu change, pas le calcul. Un m&ecirc;me additionneur suffit ; seule la d&eacute;tection du d&eacute;passement diff&egrave;re."}]}]};
+  var STORE = 'nsi-td-numeration-v1';
+
+  /* ================= normalisation des réponses ================= */
+  function strip(s){
+    return String(s == null ? '' : s)
+      .replace(/ /g, ' ')
+      .replace(/[−–—]/g, '-')   /* moins unicode -> - */
+      .replace(/\s+/g, '')
+      .trim();
+  }
+  function noAccent(s){
+    return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
+  }
+  /* binaire / hexa : virgule unifiée, zéros inutiles retirés */
+  function normPos(s, digits){
+    s = strip(s).toUpperCase().replace(/\./g, ',');
+    if (!s) return '';
+    if (!new RegExp('^[' + digits + ']+(,[' + digits + ']*)?$').test(s)) return null;
+    var p = s.split(','), ip = p[0], fp = p.length > 1 ? p[1] : '';
+    ip = ip.replace(/^0+(?=.)/, '');
+    fp = fp.replace(/0+$/, '');
+    return fp ? ip + ',' + fp : ip;
+  }
+  function normNum(s){
+    s = strip(s).replace(/,/g, '.');
+    if (!/^-?\d*\.?\d*$/.test(s) || s === '' || s === '-' || s === '.') return null;
+    var v = parseFloat(s);
+    return isNaN(v) ? null : v;
+  }
+  function padTo(s, n){
+    s = strip(s).toUpperCase();
+    while (s.length < n) s = '0' + s;
+    return s;
+  }
+
+  function isRight(type, given, answer){
+    var g = strip(given);
+    if (!g) return false;
+    switch (type){
+      case 'int': {
+        var a = normNum(g), b = normNum(answer);
+        return a !== null && a === b;
+      }
+      case 'dec': {
+        var x = normNum(g), y = normNum(answer);
+        if (x === null || y === null) return false;
+        return Math.abs(x - y) <= 1e-9 * Math.max(1, Math.abs(y));
+      }
+      case 'bin': {
+        var nb = normPos(g, '01');
+        return nb !== null && nb === normPos(answer, '01');
+      }
+      case 'hex': {
+        var nh = normPos(g, '0-9A-F');
+        return nh !== null && nh === normPos(answer, '0-9A-F');
+      }
+      case 'bin8':
+        return /^[01]+$/.test(strip(g)) && padTo(g, 8) === answer;
+      case 'hex2':
+        return /^[0-9A-F]+$/i.test(strip(g)) && padTo(g, 2) === String(answer).toUpperCase();
+      case 'sign': {
+        var s1 = noAccent(g.toLowerCase());
+        if (/^(positif|positive|pos|\+)$/.test(s1)) return answer === 'positif';
+        if (/^(negatif|negative|neg|-)$/.test(s1)) return answer === 'negatif';
+        return false;
+      }
+      case 'ovf': {
+        var s2 = noAccent(g.toLowerCase());
+        if (/^(oui|o|yes|y|vrai|true)$/.test(s2)) return answer === 'oui';
+        if (/^(non|n|no|faux|false)$/.test(s2)) return answer === 'non';
+        return false;
+      }
+    }
+    return false;
+  }
+
+  /* affichage de la solution */
+  function showAns(type, a){
+    if (type === 'sign') return a === 'negatif' ? 'négatif' : 'positif';
+    return String(a);
+  }
+
+  /* ================= état ================= */
+  var fields = [];            /* {id,type,answer,input,mark,sol,exo} */
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+
+  var saveTimer = null;
+  function persist(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      var o = {};
+      fields.forEach(function(f){ if (f.input.value) o[f.id] = f.input.value; });
+      document.querySelectorAll('textarea[data-id]').forEach(function(t){
+        if (t.value) o[t.dataset.id] = t.value;
+      });
+      try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) {}
+    }, 350);
+  }
+
+  /* ================= construction du DOM ================= */
+  function el(tag, cls, html){
+    var d = document.createElement(tag);
+    if (cls) d.className = cls;
+    if (html != null) d.innerHTML = html;
+    return d;
+  }
+
+  function makeField(id, type, answer, exoEl, width){
+    var wrap = el('div', 'fld');
+    var inp = el('input', 'f');
+    inp.type = 'text';
+    inp.autocomplete = 'off';
+    inp.spellcheck = false;
+    inp.setAttribute('aria-label', 'réponse');
+    if (type === 'int' || type === 'dec') inp.inputMode = 'decimal';
+    if (type === 'bin8' || type === 'bin') inp.inputMode = 'numeric';
+    if (width) inp.style.maxWidth = width;
+    var mark = el('span', 'mark');
+    wrap.appendChild(inp);
+    wrap.appendChild(mark);
+
+    var sol = el('div', 'sol', '→ ' + showAns(type, answer));
+    var f = { id: id, type: type, answer: answer, input: inp, mark: mark, sol: sol, exo: exoEl };
+    fields.push(f);
+
+    if (saved[id]) inp.value = saved[id];
+
+    inp.addEventListener('input', function(){
+      if (isRight(type, inp.value, answer)) setState(f, 'ok');
+      else setState(f, '');
+      persist();
+      refresh();
+    });
+    inp.addEventListener('blur', function(){
+      if (!strip(inp.value)) { setState(f, ''); refresh(); return; }
+      setState(f, isRight(type, inp.value, answer) ? 'ok' : 'ko');
+      refresh();
+    });
+    inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') inp.blur(); });
+
+    return { wrap: wrap, sol: sol, f: f };
+  }
+
+  function setState(f, st){
+    f.input.classList.remove('ok', 'ko');
+    f.mark.classList.remove('ok', 'ko');
+    f.mark.textContent = '';
+    if (st === 'ok'){ f.input.classList.add('ok'); f.mark.classList.add('ok'); f.mark.textContent = '✓'; }
+    if (st === 'ko'){ f.input.classList.add('ko'); f.mark.classList.add('ko'); f.mark.textContent = '✗'; }
+  }
+
+  var host = document.getElementById('exos');
+
+  TD.exercices.forEach(function(ex, xi){
+    var sec = el('section', 'exo');
+    sec.id = ex.id;
+    var h = el('h2', null, '<span class="pn">Ex. ' + (xi + 1) + '</span>' + ex.titre +
+                           '<span class="cnt"></span>');
+    sec.appendChild(h);
+
+    ex.groupes.forEach(function(g, gi){
+      var target = sec;
+
+      if (g.type === 'rappel'){
+        sec.appendChild(el('div', 'rappel', g.texte));
+        return;
+      }
+
+      if (g.repli){
+        var det = el('details', 'repli');
+        det.appendChild(el('summary', null, g.consigne));
+        sec.appendChild(det);
+        target = det;
+      } else if (g.consigne){
+        target.appendChild(el('div', g.type === 'calc' ? 'subhead' : 'consigne', g.consigne));
+      }
+
+      var key = ex.id + '-' + gi;
+
+      /* ---- grille de champs ---- */
+      if (g.type === 'grid'){
+        var grid = el('div', 'grid');
+        grid.style.gridTemplateColumns = 'repeat(auto-fit,minmax(' +
+          (g.cols >= 5 ? '116px' : '132px') + ',1fr))';
+        g.items.forEach(function(it, i){
+          var cell = el('div', 'gcell gwrap');
+          cell.appendChild(el('span', 'lab', it.label + ' ='));
+          var mf = makeField(key + '-' + i, it.t, it.a, sec);
+          cell.appendChild(mf.wrap);
+          cell.appendChild(mf.sol);
+          grid.appendChild(cell);
+        });
+        target.appendChild(grid);
+        return;
+      }
+
+      /* ---- conversions ---- */
+      if (g.type === 'conv'){
+        var sc = el('div', 'scrollx');
+        var t = el('table', 'ex');
+        t.innerHTML = '<thead><tr><th>Nombre</th><th>Départ</th><th>Arrivée</th><th>Résultat</th></tr></thead>';
+        var tb = el('tbody');
+        g.rows.forEach(function(r, i){
+          var tr = el('tr');
+          tr.appendChild(el('td', 'given', r.n));
+          tr.appendChild(el('td', 'dir', r.de));
+          tr.appendChild(el('td', 'dir', r.vers + (r.note ? '<small>' + r.note + '</small>' : '')));
+          var td = el('td', 'inp');
+          var mf = makeField(key + '-' + i, r.t, r.a, sec);
+          td.appendChild(mf.wrap); td.appendChild(mf.sol);
+          tr.appendChild(td);
+          tb.appendChild(tr);
+        });
+        t.appendChild(tb); sc.appendChild(t); target.appendChild(sc);
+        return;
+      }
+
+      /* ---- calculs ---- */
+      if (g.type === 'calc'){
+        var ul = el('ul', 'calcs');
+        g.items.forEach(function(it, i){
+          var li = el('li');
+          li.appendChild(el('span', 'expr', it.label +
+            (it.note ? '<small>' + it.note + '</small>' : '')));
+          var w = el('div', 'fldwrap');
+          var mf = makeField(key + '-' + i, it.t, it.a, sec);
+          w.appendChild(mf.wrap); w.appendChild(mf.sol);
+          li.appendChild(w);
+          ul.appendChild(li);
+        });
+        target.appendChild(ul);
+        return;
+      }
+
+      /* ---- tableaux du complément à deux ---- */
+      var SPEC = {
+        c2read: { head: ['Hexa', 'Binaire sur 8 bits', 'Signe', 'Valeur décimale'],
+                  given: 'h', cols: [['bits', 'bin8'], ['signe', 'sign'], ['val', 'int']] },
+        c2enc:  { head: ['Décimal signé', 'Binaire sur 8 bits', 'Hexadécimal'],
+                  given: 'dec', cols: [['bits', 'bin8'], ['hex', 'hex2']] },
+        c2dec:  { head: ['Binaire sur 8 bits', 'Hexadécimal', 'Décimal signé'],
+                  given: 'bits', cols: [['hex', 'hex2'], ['dec', 'int']] },
+        ovf:    { head: ['Calcul', 'Résultat binaire', 'Valeur signée', 'Overflow ?'],
+                  given: 'calc', cols: [['bits', 'bin8'], ['val', 'int'], ['ovf', 'ovf']] }
+      };
+      var spec = SPEC[g.type];
+      if (!spec) return;
+
+      var sc2 = el('div', 'scrollx');
+      var t2 = el('table', 'ex');
+      t2.innerHTML = '<thead><tr>' + spec.head.map(function(x){ return '<th>' + x + '</th>'; }).join('') +
+                     '</tr></thead>';
+      var tb2 = el('tbody');
+      g.rows.forEach(function(r, i){
+        var tr = el('tr');
+        var gv = r[spec.given];
+        tr.appendChild(el('td', 'given', (typeof gv === 'number' && gv > 0 ? '+' : '') + gv));
+        spec.cols.forEach(function(c, j){
+          var td = el('td', 'inp');
+          var mf = makeField(key + '-' + i + '-' + j, c[1], r[c[0]], sec);
+          td.appendChild(mf.wrap); td.appendChild(mf.sol);
+          tr.appendChild(td);
+        });
+        tb2.appendChild(tr);
+      });
+      t2.appendChild(tb2); sc2.appendChild(t2); target.appendChild(sc2);
+    });
+
+    /* ---- questions ouvertes ---- */
+    ex.groupes.filter(function(g){ return g.type === 'open'; }).forEach(function(g, i){
+      var box = el('div', 'open');
+      box.appendChild(el('div', 'q', g.q));
+      var ta = el('textarea');
+      ta.dataset.id = ex.id + '-open-' + i;
+      ta.setAttribute('aria-label', 'votre réponse');
+      if (saved[ta.dataset.id]) ta.value = saved[ta.dataset.id];
+      ta.addEventListener('input', persist);
+      box.appendChild(ta);
+      var btn = el('button', 'rev', 'Afficher une réponse attendue');
+      var mod = el('div', 'modele', g.modele);
+      btn.type = 'button';
+      btn.addEventListener('click', function(){
+        var on = mod.classList.toggle('show');
+        btn.textContent = on ? 'Masquer la réponse attendue' : 'Afficher une réponse attendue';
+      });
+      box.appendChild(btn);
+      box.appendChild(mod);
+      sec.appendChild(box);
+    });
+
+    /* ---- pied d'exercice ---- */
+    var foot = el('div', 'exfoot');
+    var bSol = el('button', null, 'Voir la correction');
+    bSol.type = 'button';
+    bSol.addEventListener('click', function(){
+      var on = sec.classList.toggle('solved');
+      bSol.textContent = on ? 'Masquer la correction' : 'Voir la correction';
+    });
+    var bClr = el('button', null, 'Effacer cet exercice');
+    bClr.type = 'button';
+    bClr.addEventListener('click', function(){
+      fields.forEach(function(f){
+        if (f.exo === sec){ f.input.value = ''; setState(f, ''); }
+      });
+      sec.querySelectorAll('textarea[data-id]').forEach(function(t){ t.value = ''; });
+      persist(); refresh();
+    });
+    foot.appendChild(bSol); foot.appendChild(bClr);
+    sec.appendChild(foot);
+
+    host.appendChild(sec);
+  });
+
+  /* ================= score ================= */
+  var sOk = document.getElementById('sOk'), sTot = document.getElementById('sTot'),
+      sBar = document.getElementById('sBar');
+  sTot.textContent = fields.length;
+
+  function refresh(){
+    var n = 0;
+    fields.forEach(function(f){ if (f.input.classList.contains('ok')) n++; });
+    sOk.textContent = n;
+    sBar.style.width = (fields.length ? n / fields.length * 100 : 0) + '%';
+
+    TD.exercices.forEach(function(ex){
+      var sec = document.getElementById(ex.id);
+      var tot = 0, got = 0;
+      fields.forEach(function(f){
+        if (f.exo !== sec) return;
+        tot++;
+        if (f.input.classList.contains('ok')) got++;
+      });
+      var c = sec.querySelector('.cnt');
+      c.textContent = got + '/' + tot;
+      c.classList.toggle('full', tot > 0 && got === tot);
+    });
+  }
+
+  /* état initial d'après le stockage */
+  fields.forEach(function(f){
+    if (!strip(f.input.value)) return;
+    setState(f, isRight(f.type, f.input.value, f.answer) ? 'ok' : 'ko');
+  });
+  refresh();
+
+  document.getElementById('btnCheck').addEventListener('click', function(){
+    var first = null;
+    fields.forEach(function(f){
+      if (!strip(f.input.value)) { setState(f, ''); return; }
+      var good = isRight(f.type, f.input.value, f.answer);
+      setState(f, good ? 'ok' : 'ko');
+      if (!good && !first) first = f.input;
+    });
+    refresh();
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if (!window.confirm('Effacer toutes vos réponses ?')) return;
+    fields.forEach(function(f){ f.input.value = ''; setState(f, ''); });
+    document.querySelectorAll('textarea[data-id]').forEach(function(t){ t.value = ''; });
+    document.querySelectorAll('.exo.solved').forEach(function(s){ s.classList.remove('solved'); });
+    document.querySelectorAll('.exfoot button').forEach(function(b){
+      if (b.textContent.indexOf('correction') > -1) b.textContent = 'Voir la correction';
+    });
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    refresh();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+</body>
+</html>

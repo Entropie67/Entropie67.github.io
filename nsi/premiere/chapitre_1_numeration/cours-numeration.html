@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Numération et représentation des entiers — Première NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --warn:#ffc53d; --bad:#ff5c7a; --vio:#b57bff; }
+
+  /* ── fil de navigation entre parties ── */
+  .chapnav{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.92);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .chapnav-in{max-width:var(--max-w);margin:0 auto;display:flex;gap:.4rem;overflow-x:auto;
+    padding:.55rem 1.5rem;scrollbar-width:none}
+  .chapnav-in::-webkit-scrollbar{display:none}
+  .chapnav a{flex:none;text-decoration:none;color:var(--text-muted);font-size:.82rem;font-weight:500;
+    padding:.35rem .7rem;border-radius:100px;border:1px solid transparent;white-space:nowrap;transition:.18s}
+  .chapnav a:hover{color:var(--text);background:var(--bg-card)}
+  .chapnav a.on{color:var(--nsi);background:var(--nsi-dim);border-color:rgba(108,158,255,.3)}
+
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);
+    text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+
+  /* ── structure des parties ── */
+  .part{scroll-margin-top:110px;margin-bottom:3.2rem}
+  .part > h2{display:flex;align-items:baseline;gap:.7rem;font-size:1.45rem;
+    padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.3rem}
+  .part > h2 .pn{font-family:var(--mono);font-size:.85rem;color:var(--nsi);
+    background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .part h3{font-size:1.02rem;color:var(--nsi);margin:1.6rem 0 .5rem}
+  .part p{margin-bottom:.85rem;color:#c9cdda}
+  .part ul,.part ol{margin:0 0 .9rem 1.2rem;color:#c9cdda}
+  .part li{margin-bottom:.35rem}
+  .part b,.part strong{color:var(--text);font-weight:600}
+  code,.m{font-family:var(--mono);font-size:.92em}
+  .m{color:var(--nsi);background:rgba(108,158,255,.09);padding:.08em .35em;border-radius:4px;
+     white-space:nowrap}
+  .m.v{color:var(--vio);background:rgba(181,123,255,.11)}
+  .m.o{color:var(--warn);background:rgba(255,197,61,.11)}
+  sub,sup{font-size:.72em}
+
+  /* ── encadrés ── */
+  .box{border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 8px 8px 0;
+    background:var(--bg-card);padding:1rem 1.2rem;margin:1.1rem 0}
+  .box .lbl{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--nsi);display:block;margin-bottom:.5rem}
+  .box.meth{border-left-color:var(--vio)} .box.meth .lbl{color:var(--vio)}
+  .box.warn{border-left-color:var(--warn)} .box.warn .lbl{color:var(--warn)}
+  .box.key{border-left-color:var(--ok);background:rgba(52,211,153,.06)} .box.key .lbl{color:var(--ok)}
+  .box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+
+  /* ── tableaux ── */
+  .tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}
+  .tbl th,.tbl td{border:1px solid var(--border);padding:.45rem .6rem;text-align:center}
+  .tbl th{background:var(--bg-card);color:var(--nsi);font-weight:600;font-size:.78rem;
+    text-transform:uppercase;letter-spacing:.05em}
+  .tbl td{font-family:var(--mono);color:#c9cdda}
+  .tbl td.txt{font-family:inherit}
+  .tbl tr:nth-child(even) td{background:rgba(255,255,255,.017)}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1rem 0}
+  .scrollx .tbl{margin:0;min-width:400px}
+
+  /* ── calcul posé / décomposition ── */
+  .calc{font-family:var(--mono);font-size:.88rem;line-height:1.75;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;
+    overflow-x:auto;white-space:pre;color:#c9cdda}
+  .calc .hi{color:var(--warn)} .calc .dim{color:var(--text-muted)}
+
+  /* ── poids des bits ── */
+  .weights{display:flex;gap:.3rem;margin:1rem 0;overflow-x:auto;padding-bottom:.4rem}
+  .weights div{flex:1;min-width:52px;text-align:center;border:1px solid var(--border);
+    border-radius:7px;padding:.45rem .2rem;background:var(--bg-card)}
+  .weights .p{font-family:var(--mono);font-size:.72rem;color:var(--text-muted)}
+  .weights .w{font-family:var(--mono);font-size:.88rem;color:var(--nsi);font-weight:600}
+  .weights .b{font-family:var(--mono);font-size:1.15rem;margin-top:.15rem}
+
+  /* ── widgets ── */
+  .widget{border:1px solid var(--border);border-radius:10px;background:var(--bg-card);
+    padding:1.1rem 1.2rem;margin:1.4rem 0}
+  .widget > h4{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--vio);
+    margin-bottom:.9rem;font-weight:700}
+  .bits{display:flex;gap:.35rem;justify-content:center;flex-wrap:nowrap;overflow-x:auto;padding-bottom:.3rem}
+  .bit{flex:1 1 0;min-width:38px;max-width:62px;border:1px solid var(--border);border-radius:8px;
+    background:var(--bg);cursor:pointer;padding:.4rem .1rem .3rem;text-align:center;
+    transition:.15s;user-select:none;font-family:var(--mono)}
+  .bit:hover{border-color:var(--nsi)}
+  .bit .bv{font-size:1.3rem;font-weight:600;color:var(--text-muted);line-height:1.1}
+  .bit .bw{font-size:.6rem;color:var(--text-muted);margin-top:.1rem}
+  .bit.on{background:var(--nsi-dim);border-color:var(--nsi)}
+  .bit.on .bv{color:var(--nsi)}
+  .bit.sign.on{background:rgba(255,92,122,.14);border-color:var(--bad)}
+  .bit.sign.on .bv{color:var(--bad)}
+  .readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin-top:1rem}
+  .ro{border:1px solid var(--border);border-radius:8px;padding:.55rem .7rem;background:var(--bg)}
+  .ro .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted)}
+  .ro .v{font-family:var(--mono);font-size:1.02rem;color:var(--text);margin-top:.15rem;word-break:break-all}
+  .ro.hl .v{color:var(--bad)}
+  .wrow{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.9rem}
+  .wrow label{font-size:.8rem;color:var(--text-muted)}
+  .wrow input{font-family:var(--mono);background:var(--bg);color:var(--text);
+    border:1px solid var(--border);border-radius:7px;padding:.4rem .6rem;width:9rem;font-size:.9rem}
+  .wrow input:focus{outline:none;border-color:var(--nsi)}
+  .wrow button{font-family:inherit;font-size:.8rem;background:var(--nsi-dim);color:var(--nsi);
+    border:1px solid rgba(108,158,255,.3);border-radius:7px;padding:.4rem .75rem;cursor:pointer}
+  .wrow button:hover{background:rgba(108,158,255,.2)}
+  .hintline{font-size:.78rem;color:var(--text-muted);margin-top:.7rem}
+
+  /* ── table de vérité interactive ── */
+  .tt{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.9rem;margin-top:.8rem}
+  .tt th,.tt td{border:1px solid var(--border);padding:.4rem;text-align:center}
+  .tt th{background:var(--bg);color:var(--nsi);font-size:.78rem}
+  .tt tr.live td{background:var(--nsi-dim);color:var(--text)}
+  .tt td.one{color:var(--ok)} .tt td.zero{color:var(--text-muted)}
+  .toggles{display:flex;gap:.6rem;justify-content:center;margin-bottom:.4rem}
+  .tog{border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;
+    padding:.45rem .9rem;font-family:var(--mono);font-size:.95rem;color:var(--text-muted);user-select:none}
+  .tog.on{background:var(--nsi-dim);border-color:var(--nsi);color:var(--nsi)}
+
+  /* ── bandeau vers les exercices ── */
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);
+    border-left:3px solid var(--ok);border-radius:0 10px 10px 0;background:rgba(52,211,153,.06);
+    padding:1.1rem 1.3rem;margin:2.5rem 0 1rem}
+  .cta .t{flex:1 1 240px}
+  .cta .t b{display:block;margin-bottom:.2rem}
+  .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--ok);color:#06281c;font-weight:600;
+    font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+
+  @media (max-width:640px){
+    .chapnav{top:56px}
+    .chapnav-in{padding:.5rem 1rem}
+    .part > h2{font-size:1.2rem}
+    .weights div{min-width:46px}
+    .bit{min-width:33px}
+    .calc{font-size:.78rem}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="chapnav">
+  <div class="chapnav-in" id="chapnav">
+    <a href="#p1">1 · Pourquoi le binaire</a>
+    <a href="#p2">2 · Base 2</a>
+    <a href="#p3">3 · Hexadécimal</a>
+    <a href="#p4">4 · Nombres à virgule</a>
+    <a href="#p5">5 · Complément à deux</a>
+    <a href="#p6">6 · Algèbre de Boole</a>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>Numération <span class="badge badge-nsi">Première</span></h1>
+    <p class="subtitle">Représenter les nombres avec des 0 et des 1 : bases 2 et 16, nombres à virgule,
+      entiers signés en complément à deux, et l'algèbre de Boole qui fait fonctionner les circuits.</p>
+  </div>
+
+  <!-- ══════════════════ 1 ══════════════════ -->
+  <section class="part" id="p1">
+    <h2><span class="pn">1</span> Pourquoi le binaire ?</h2>
+
+    <p>Un circuit électronique ne sait distinguer que deux états stables : <b>le courant passe</b> ou
+      <b>il ne passe pas</b>. Un ordinateur ne dispose donc que de deux symboles pour tout représenter :
+      <span class="m">0</span> et <span class="m">1</span>.</p>
+
+    <ul>
+      <li>Un <b>bit</b> (<i>binary digit</i>) est un chiffre binaire : 0 ou 1.</li>
+      <li>Un <b>octet</b> (<i>byte</i>) est un paquet de <b>8 bits</b>.</li>
+      <li>Le bit le plus à gauche est le <b>bit de poids fort</b>, celui le plus à droite le
+        <b>bit de poids faible</b>.</li>
+    </ul>
+
+    <p>Avec <span class="m">n</span> bits on forme <span class="m">2<sup>n</sup></span> motifs différents.
+      Un octet offre donc <span class="m">2<sup>8</sup> = 256</span> motifs : c'est peu, et toute la
+      question du chapitre est de décider <i>ce que veut dire</i> un motif donné. Le même octet
+      <span class="m">10011010</span> vaut 154 si on le lit comme un entier positif, et &minus;102 si on
+      le lit en complément à deux. <b>Un motif de bits ne signifie rien tout seul : il faut connaître
+      la convention de lecture.</b></p>
+
+    <div class="box key">
+      <span class="lbl">À retenir</span>
+      <p>Texte, images, sons, programmes : tout est codé en binaire. Ce qui change d'un type de donnée
+        à l'autre, c'est uniquement la <b>convention</b> qui associe un sens à chaque motif de bits.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 2 ══════════════════ -->
+  <section class="part" id="p2">
+    <h2><span class="pn">2</span> La base 2</h2>
+
+    <h3>Écriture positionnelle</h3>
+    <p>En base 10, la position d'un chiffre indique la puissance de 10 qui lui est associée :</p>
+    <div class="calc">2745 = 2×10³ + 7×10² + 4×10¹ + 5×10⁰</div>
+
+    <p>En base 2, on ne dispose que des chiffres 0 et 1, et chaque position vaut une <b>puissance de 2</b> :</p>
+
+    <div class="weights">
+      <div><div class="p">2⁷</div><div class="w">128</div><div class="b">1</div></div>
+      <div><div class="p">2⁶</div><div class="w">64</div><div class="b">0</div></div>
+      <div><div class="p">2⁵</div><div class="w">32</div><div class="b">1</div></div>
+      <div><div class="p">2⁴</div><div class="w">16</div><div class="b">0</div></div>
+      <div><div class="p">2³</div><div class="w">8</div><div class="b">1</div></div>
+      <div><div class="p">2²</div><div class="w">4</div><div class="b">0</div></div>
+      <div><div class="p">2¹</div><div class="w">2</div><div class="b">1</div></div>
+      <div><div class="p">2⁰</div><div class="w">1</div><div class="b">1</div></div>
+    </div>
+
+    <h3>Binaire → décimal</h3>
+    <p>Il suffit d'additionner les poids des positions qui portent un 1.</p>
+    <div class="calc">10101011<sub>2</sub> = 128 + 32 + 8 + 2 + 1 = <span class="hi">171</span></div>
+
+    <h3>Décimal → binaire : les divisions successives</h3>
+    <div class="box meth">
+      <span class="lbl">Méthode</span>
+      <p>On divise par 2 de façon répétée en notant le reste, jusqu'à obtenir un quotient nul.
+        On lit ensuite <b>les restes de bas en haut</b>.</p>
+      <div class="calc">218 ÷ 2 = 109  reste <span class="hi">0</span>   ↑
+109 ÷ 2 =  54  reste <span class="hi">1</span>   │
+ 54 ÷ 2 =  27  reste <span class="hi">0</span>   │
+ 27 ÷ 2 =  13  reste <span class="hi">1</span>   │  on lit
+ 13 ÷ 2 =   6  reste <span class="hi">1</span>   │  dans ce
+  6 ÷ 2 =   3  reste <span class="hi">0</span>   │  sens
+  3 ÷ 2 =   1  reste <span class="hi">1</span>   │
+  1 ÷ 2 =   0  reste <span class="hi">1</span>   │
+
+218 = <span class="hi">11011010</span><sub>2</sub></div>
+    </div>
+
+    <p>Une autre méthode, souvent plus rapide de tête : on soustrait les puissances de 2 en partant de
+      la plus grande qui tient dans le nombre. Pour 218 : 128 tient (reste 90), 64 tient (reste 26),
+      32 ne tient pas, 16 tient (reste 10), 8 tient (reste 2), 4 non, 2 tient (reste 0), 1 non.
+      On obtient bien <span class="m">11011010</span>.</p>
+
+    <h3>Les puissances de 2 à connaître</h3>
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>n</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr>
+        <tr><th>2<sup>n</sup></th><td>1</td><td>2</td><td>4</td><td>8</td><td>16</td><td>32</td><td>64</td><td>128</td><td>256</td><td>512</td><td>1024</td></tr>
+      </table>
+    </div>
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>n</th><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>20</td></tr>
+        <tr><th>2<sup>n</sup></th><td>2048</td><td>4096</td><td>8192</td><td>16384</td><td>32768</td><td>65536</td><td>1048576</td></tr>
+      </table>
+    </div>
+
+    <div class="box">
+      <span class="lbl">Bon réflexe</span>
+      <p><span class="m">2<sup>10</sup> = 1024 ≈ 10<sup>3</sup></span>. C'est pourquoi un kibioctet vaut
+        1024 octets et non 1000 : les informaticiens comptent par puissances de 2.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 3 ══════════════════ -->
+  <section class="part" id="p3">
+    <h2><span class="pn">3</span> L'hexadécimal</h2>
+
+    <p>Le binaire est illisible pour un humain : <span class="m">1011110111100110</span> ne dit rien à
+      personne. La base 16, dite <b>hexadécimale</b>, sert d'écriture compacte. Elle utilise seize
+      chiffres : <span class="m">0</span> à <span class="m">9</span>, puis
+      <span class="m">A</span>=10, <span class="m">B</span>=11, <span class="m">C</span>=12,
+      <span class="m">D</span>=13, <span class="m">E</span>=14, <span class="m">F</span>=15.</p>
+
+    <div class="box key">
+      <span class="lbl">L'idée clé</span>
+      <p><span class="m">16 = 2<sup>4</sup></span>, donc <b>un chiffre hexadécimal correspond
+        exactement à 4 bits</b> (un <b>quartet</b>). La conversion entre binaire et hexadécimal se fait
+        sans le moindre calcul : on regroupe ou on éclate les chiffres.</p>
+    </div>
+
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>Hexa</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+        <tr><th>Binaire</th><td>0000</td><td>0001</td><td>0010</td><td>0011</td><td>0100</td><td>0101</td><td>0110</td><td>0111</td></tr>
+        <tr><th>Décimal</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+      </table>
+    </div>
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>Hexa</th><td>8</td><td>9</td><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td></tr>
+        <tr><th>Binaire</th><td>1000</td><td>1001</td><td>1010</td><td>1011</td><td>1100</td><td>1101</td><td>1110</td><td>1111</td></tr>
+        <tr><th>Décimal</th><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+      </table>
+    </div>
+
+    <h3>Binaire → hexadécimal</h3>
+    <p>On regroupe les bits <b>par quatre en partant de la droite</b>, en complétant par des zéros à
+      gauche si nécessaire, puis on remplace chaque quartet par son chiffre.</p>
+    <div class="calc">1011110111100110
+<span class="dim">→</span> 1011 <span class="dim">|</span> 1101 <span class="dim">|</span> 1110 <span class="dim">|</span> 0110
+<span class="dim">→</span>   B  <span class="dim">|</span>   D  <span class="dim">|</span>   E  <span class="dim">|</span>   6     =  <span class="hi">BDE6</span><sub>16</sub></div>
+
+    <h3>Hexadécimal → binaire</h3>
+    <p>Chaque chiffre devient son quartet. On supprime éventuellement les zéros inutiles à gauche.</p>
+    <div class="calc">B8E<sub>16</sub>  <span class="dim">→</span>  B=1011  8=1000  E=1110  <span class="dim">→</span>  <span class="hi">1011 1000 1110</span></div>
+
+    <h3>Hexadécimal ↔ décimal</h3>
+    <p>Comme en base 2, les positions valent les puissances de la base — ici 16.</p>
+    <div class="calc">A9B<sub>16</sub> = 10×16² + 9×16¹ + 11×16⁰ = 2560 + 144 + 11 = <span class="hi">2715</span></div>
+    <p>Dans l'autre sens, on procède par divisions successives <b>par 16</b>, exactement comme pour le
+      binaire : <span class="m">603 = 2×256 + 5×16 + 11</span>, soit <span class="m">25B<sub>16</sub></span>.</p>
+
+    <div class="box">
+      <span class="lbl">Où le croise-t-on ?</span>
+      <p>Les couleurs du web (<span class="m">#6C9EFF</span> = 108 de rouge, 158 de vert, 255 de bleu),
+        les adresses mémoire, les adresses MAC, les codes d'erreur, les plages Unicode. Dès qu'il faut
+        montrer des octets à un humain, on les écrit en hexadécimal.</p>
+    </div>
+
+    <div class="widget">
+      <h4>Convertisseur — cliquez sur les bits</h4>
+      <div class="bits" id="bits"></div>
+      <div class="readout">
+        <div class="ro"><div class="k">Binaire</div><div class="v" id="oBin">00000000</div></div>
+        <div class="ro"><div class="k">Hexadécimal</div><div class="v" id="oHex">00</div></div>
+        <div class="ro"><div class="k">Décimal non signé</div><div class="v" id="oUns">0</div></div>
+        <div class="ro" id="roSig"><div class="k">Complément à deux</div><div class="v" id="oSig">0</div></div>
+      </div>
+      <div class="wrow">
+        <label for="inDec">Entrer un décimal :</label>
+        <input id="inDec" type="text" inputmode="numeric" placeholder="ex. 171 ou -42" autocomplete="off">
+        <button type="button" id="btnRand">Au hasard</button>
+        <button type="button" id="btnClr">Remettre à zéro</button>
+      </div>
+      <p class="hintline">Le bit de poids fort est en rouge quand il vaut 1 : en complément à deux, c'est
+        le signe. Voir la partie 5.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 4 ══════════════════ -->
+  <section class="part" id="p4">
+    <h2><span class="pn">4</span> Les nombres à virgule</h2>
+
+    <p>Le principe de l'écriture positionnelle ne s'arrête pas à la virgule : les positions suivantes
+      valent les <b>puissances négatives</b> de la base.</p>
+
+    <div class="weights">
+      <div><div class="p">2¹</div><div class="w">2</div></div>
+      <div><div class="p">2⁰</div><div class="w">1</div></div>
+      <div><div class="p">,</div><div class="w">&nbsp;</div></div>
+      <div><div class="p">2⁻¹</div><div class="w">0,5</div></div>
+      <div><div class="p">2⁻²</div><div class="w">0,25</div></div>
+      <div><div class="p">2⁻³</div><div class="w">0,125</div></div>
+      <div><div class="p">2⁻⁴</div><div class="w">0,0625</div></div>
+    </div>
+
+    <h3>Binaire → décimal</h3>
+    <div class="calc">1010,101<sub>2</sub> = 8 + 2 <span class="dim">+</span> 0,5 + 0,125 = <span class="hi">10,625</span></div>
+
+    <h3>Décimal → binaire : les multiplications successives</h3>
+    <div class="box meth">
+      <span class="lbl">Méthode</span>
+      <p>La partie entière se traite par divisions (partie 2). Pour la <b>partie fractionnaire</b>, on
+        multiplie par 2 de façon répétée : la partie entière obtenue donne le chiffre, et on repart de
+        la partie fractionnaire restante. On lit <b>de haut en bas</b>.</p>
+      <div class="calc">17,42        partie entière : 17 = 10001<sub>2</sub>
+
+0,42 × 2 = <span class="hi">0</span>,84   ↓
+0,84 × 2 = <span class="hi">1</span>,68   │
+0,68 × 2 = <span class="hi">1</span>,36   │  on lit
+0,36 × 2 = <span class="hi">0</span>,72   │  dans ce sens
+0,72 × 2 = <span class="hi">1</span>,44   ↓
+
+17,42 ≈ <span class="hi">10001,01101</span><sub>2</sub>   (5 chiffres après la virgule)</div>
+    </div>
+
+    <div class="box warn">
+      <span class="lbl">Attention</span>
+      <p>Ici le procédé <b>ne s'arrête jamais</b> : 0,42 n'a pas d'écriture binaire finie, exactement
+        comme 1/3 n'a pas d'écriture décimale finie. On est donc obligé de tronquer, et la valeur
+        stockée n'est qu'une <b>approximation</b>.</p>
+      <p>C'est la raison de ce grand classique, que vous pouvez tester dans une console Python :</p>
+      <div class="calc">&gt;&gt;&gt; 0.1 + 0.2
+0.30000000000000004
+&gt;&gt;&gt; 0.1 + 0.2 == 0.3
+False</div>
+      <p>Une fraction ne se code exactement en binaire que si son dénominateur est une puissance de 2.
+        <span class="m">0,5</span>, <span class="m">0,25</span> et <span class="m">0,625</span> sont
+        exacts ; <span class="m">0,1</span> et <span class="m">0,42</span> ne le sont pas.</p>
+    </div>
+
+    <h3>Et en hexadécimal</h3>
+    <p>Même méthode, en multipliant par 16. Pour <span class="m">17,42</span> avec 3 chiffres :
+      <span class="m">0,42×16 = 6,72</span> → 6 ; <span class="m">0,72×16 = 11,52</span> → B ;
+      <span class="m">0,52×16 = 8,32</span> → 8. D'où <span class="m">11,6B8<sub>16</sub></span>.</p>
+
+    <div class="box key">
+      <span class="lbl">Binaire ↔ hexadécimal à virgule</span>
+      <p>Le regroupement par quartets reste valable, mais on regroupe <b>de part et d'autre de la
+        virgule</b> : vers la gauche pour la partie entière, vers la <b>droite</b> pour la partie
+        fractionnaire, en complétant par des zéros du côté extérieur.</p>
+      <div class="calc">100101,110011
+<span class="dim">→</span>  <span class="dim">00</span>10 0101 <span class="dim">,</span> 1100 11<span class="dim">00</span>
+<span class="dim">→</span>    2    5   <span class="dim">,</span>   C    C      =  <span class="hi">25,CC</span><sub>16</sub></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 5 ══════════════════ -->
+  <section class="part" id="p5">
+    <h2><span class="pn">5</span> Les entiers signés : le complément à deux</h2>
+
+    <p>Comment écrire un nombre <b>négatif</b> quand on ne dispose que de 0 et de 1 ? Il n'y a pas de
+      case pour le signe « &minus; » : il faut le coder dans les bits eux-mêmes.</p>
+
+    <h3>La fausse bonne idée</h3>
+    <p>On pourrait réserver le bit de poids fort au signe et coder la valeur absolue sur les 7 autres.
+      Deux problèmes rédhibitoires :</p>
+    <ul>
+      <li><span class="m">00000000</span> et <span class="m">10000000</span> représenteraient tous deux
+        zéro : <b>deux zéros différents</b>, ce qui casse les tests d'égalité ;</li>
+      <li>l'addition ordinaire ne fonctionnerait plus : il faudrait un circuit séparé pour les
+        soustractions.</li>
+    </ul>
+
+    <h3>Le complément à deux</h3>
+    <div class="box key">
+      <span class="lbl">Définition</span>
+      <p>Sur 8 bits, on code l'entier négatif <span class="m">&minus;x</span> par le motif
+        <span class="m">256 &minus; x</span>. Les entiers représentables vont alors de
+        <b>&minus;128 à +127</b>.</p>
+      <ul>
+        <li>bit de poids fort à <span class="m">0</span> → entier positif ou nul (0 à 127) ;</li>
+        <li>bit de poids fort à <span class="m">1</span> → entier négatif (&minus;128 à &minus;1).</li>
+      </ul>
+    </div>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — coder un négatif</span>
+      <p>Écrire la valeur absolue sur 8 bits, <b>inverser tous les bits</b>, puis <b>ajouter 1</b>.</p>
+      <div class="calc">−42   42 sur 8 bits  :  00101010
+      on inverse   :  11010101
+      on ajoute 1  :  <span class="hi">11010110</span>  =  D6<sub>16</sub></div>
+    </div>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — décoder un négatif</span>
+      <p>La même recette redonne la valeur absolue. Le bit de poids fort à 1 signale qu'il faut
+        l'appliquer, puis placer le signe moins.</p>
+      <div class="calc">9A<sub>16</sub> = 10011010   bit de poids fort = 1 → négatif
+      on inverse   :  01100101
+      on ajoute 1  :  01100110  =  102
+
+9A<sub>16</sub> représente donc <span class="hi">−102</span></div>
+    </div>
+
+    <div class="box">
+      <span class="lbl">Lecture directe, sans inverser</span>
+      <p>Il suffit de donner au bit de poids fort un poids <b>négatif</b> :
+        <span class="m">&minus;128</span> au lieu de <span class="m">+128</span>. Les autres poids ne
+        changent pas.</p>
+      <div class="calc">10011010  =  <span class="hi">−128</span> + 16 + 8 + 2  =  −102</div>
+    </div>
+
+    <div class="box">
+      <span class="lbl">Astuce hexadécimale</span>
+      <p>Le signe se lit sur le <b>premier chiffre hexadécimal</b> : s'il vaut 8, 9, A, B, C, D, E ou F,
+        le quartet commence par un 1, donc l'octet est négatif. <span class="m">7E</span> est positif,
+        <span class="m">9A</span> est négatif.</p>
+    </div>
+
+    <h3>Quelques repères</h3>
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>Décimal</th><td>0</td><td>1</td><td>127</td><td>&minus;1</td><td>&minus;2</td><td>&minus;127</td><td>&minus;128</td></tr>
+        <tr><th>Binaire</th><td>00000000</td><td>00000001</td><td>01111111</td><td>11111111</td><td>11111110</td><td>10000001</td><td>10000000</td></tr>
+        <tr><th>Hexa</th><td>00</td><td>01</td><td>7F</td><td>FF</td><td>FE</td><td>81</td><td>80</td></tr>
+      </table>
+    </div>
+    <p>La plage est <b>asymétrique</b> : il y a un négatif de plus que de positifs, parce qu'un seul
+      motif est consacré au zéro. Sur <span class="m">n</span> bits, on couvre
+      <span class="m">&minus;2<sup>n−1</sup></span> à <span class="m">2<sup>n−1</sup>&minus;1</span>.</p>
+
+    <h3>L'addition ne change pas</h3>
+    <p>C'est tout l'intérêt du procédé : le processeur additionne les motifs de bits et jette la retenue
+      qui sort à gauche. Le résultat est correct dans les deux interprétations.</p>
+    <div class="calc">  75          01001011
++ (−90)       10100110
+            <span class="dim">──────────</span>
+              <span class="hi">11110001</span>  =  −15   ✓</div>
+
+    <div class="box warn">
+      <span class="lbl">Dépassement de capacité (overflow)</span>
+      <p>Le résultat doit tenir dans 8 bits. Sinon il « repasse de l'autre côté » :</p>
+      <div class="calc">  100          01100100
++  40          00101000
+             <span class="dim">──────────</span>
+               <span class="hi">10001100</span>  =  −116   ✗  (on attendait 140)</div>
+      <p><b>Règle de détection :</b> en additionnant deux nombres de <b>même signe</b>, si le résultat
+        a le <b>signe opposé</b>, il y a dépassement. Si les deux opérandes sont de signes contraires,
+        le dépassement est impossible. Une retenue sortante seule ne permet pas de conclure.</p>
+    </div>
+
+    <p>Vous pouvez vérifier tout cela avec le convertisseur de la partie 3 : activez le bit de poids
+      fort et comparez la lecture non signée et la lecture en complément à deux.</p>
+  </section>
+
+  <!-- ══════════════════ 6 ══════════════════ -->
+  <section class="part" id="p6">
+    <h2><span class="pn">6</span> Algèbre de Boole et tables de vérité</h2>
+
+    <p>Une variable <b>booléenne</b> ne prend que deux valeurs : <span class="m">0</span> (faux) ou
+      <span class="m">1</span> (vrai). L'algèbre de Boole est le calcul sur ces variables ; c'est elle
+      qui décrit le fonctionnement des circuits d'un processeur.</p>
+
+    <h3>Les opérateurs de base</h3>
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>Nom</th><th>Notation</th><th>Python</th><th>Se lit</th></tr>
+        <tr><td class="txt">NON</td><td>¬a  ou  ā</td><td>not a</td><td class="txt">inverse la valeur</td></tr>
+        <tr><td class="txt">ET</td><td>a · b</td><td>a and b</td><td class="txt">vrai si les deux le sont</td></tr>
+        <tr><td class="txt">OU</td><td>a + b</td><td>a or b</td><td class="txt">vrai si au moins un l'est</td></tr>
+        <tr><td class="txt">OU EXCLUSIF</td><td>a ⊕ b</td><td>a != b</td><td class="txt">vrai si exactement un l'est</td></tr>
+      </table>
+    </div>
+
+    <div class="box warn">
+      <span class="lbl">Piège de notation</span>
+      <p>Le <span class="m">+</span> de l'algèbre de Boole est un <b>OU</b>, pas une addition :
+        <span class="m">1 + 1 = 1</span>. Ne pas confondre avec l'addition binaire de la partie 5, où
+        <span class="m">1 + 1 = 10</span>.</p>
+    </div>
+
+    <h3>Tables de vérité</h3>
+    <p>Une <b>table de vérité</b> énumère toutes les combinaisons possibles des entrées et donne la
+      sortie pour chacune. Avec <span class="m">n</span> variables, elle compte
+      <span class="m">2<sup>n</sup></span> lignes. C'est l'outil de preuve de base : deux expressions
+      sont équivalentes si et seulement si elles ont la même table.</p>
+
+    <div class="widget">
+      <h4>Table de vérité — cliquez sur a et b</h4>
+      <div class="toggles">
+        <div class="tog" id="tA">a = 0</div>
+        <div class="tog" id="tB">b = 0</div>
+      </div>
+      <div class="scrollx">
+        <table class="tt" id="ttab">
+          <thead><tr><th>a</th><th>b</th><th>¬a</th><th>a · b</th><th>a + b</th><th>a ⊕ b</th><th>¬(a·b)</th></tr></thead>
+          <tbody id="ttbody"></tbody>
+        </table>
+      </div>
+      <p class="hintline">La ligne surlignée est celle qui correspond aux valeurs choisies.</p>
+    </div>
+
+    <h3>Les propriétés utiles</h3>
+    <ul>
+      <li><b>Éléments neutres :</b> <span class="m">a · 1 = a</span> et <span class="m">a + 0 = a</span></li>
+      <li><b>Éléments absorbants :</b> <span class="m">a · 0 = 0</span> et <span class="m">a + 1 = 1</span></li>
+      <li><b>Idempotence :</b> <span class="m">a · a = a</span> et <span class="m">a + a = a</span></li>
+      <li><b>Complément :</b> <span class="m">a · ¬a = 0</span> et <span class="m">a + ¬a = 1</span></li>
+      <li><b>Involution :</b> <span class="m">¬(¬a) = a</span></li>
+      <li><b>Distributivité :</b> <span class="m">a · (b + c) = a·b + a·c</span> — et aussi, contrairement
+        à l'arithmétique ordinaire, <span class="m">a + (b · c) = (a+b) · (a+c)</span></li>
+    </ul>
+
+    <div class="box key">
+      <span class="lbl">Lois de De Morgan</span>
+      <p><span class="m">¬(a · b) = ¬a + ¬b</span> &nbsp;&nbsp;et&nbsp;&nbsp;
+         <span class="m">¬(a + b) = ¬a · ¬b</span></p>
+      <p>Autrement dit : la négation échange le ET et le OU. « Il n'est pas vrai que les deux soient
+        vrais » équivaut à « au moins l'un des deux est faux ».</p>
+    </div>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — prouver une équivalence par table</span>
+      <p>On construit une colonne par membre et on vérifie qu'elles coïncident ligne à ligne.</p>
+      <div class="scrollx">
+        <table class="tbl">
+          <tr><th>a</th><th>b</th><th>a · b</th><th>¬(a · b)</th><th>¬a</th><th>¬b</th><th>¬a + ¬b</th></tr>
+          <tr><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+          <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        </table>
+      </div>
+      <p>Les deux dernières colonnes sont identiques : la première loi de De Morgan est démontrée.</p>
+    </div>
+
+    <h3>Du circuit à l'addition : le demi-additionneur</h3>
+    <p>Ces opérateurs sont réalisés physiquement par des <b>portes logiques</b>. En les combinant, on
+      construit le circuit qui additionne deux bits et produit une somme <span class="m">S</span> et
+      une retenue <span class="m">R</span> :</p>
+
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>a</th><th>b</th><th>R = a · b</th><th>S = a ⊕ b</th><th>Lecture</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td class="txt">0 + 0 = 0</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>1</td><td class="txt">0 + 1 = 1</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>1</td><td class="txt">1 + 0 = 1</td></tr>
+        <tr><td>1</td><td>1</td><td>1</td><td>0</td><td class="txt">1 + 1 = 10<sub>2</sub></td></tr>
+      </table>
+    </div>
+
+    <p>La somme est un <b>OU EXCLUSIF</b>, la retenue un <b>ET</b>. En chaînant huit de ces circuits —
+      chacun recevant en plus la retenue du précédent — on obtient l'additionneur 8 bits qui exécute
+      les calculs de la partie 5. <b>L'algèbre de Boole est donc bien ce qui fait fonctionner
+      l'arithmétique binaire.</b></p>
+
+    <div class="box">
+      <span class="lbl">En Python</span>
+      <p>Les opérateurs <span class="m">and</span>, <span class="m">or</span>,
+        <span class="m">not</span> travaillent sur des booléens. Les opérateurs <b>bit à bit</b>
+        appliquent la même logique à chaque bit d'un entier :</p>
+      <div class="calc">&gt;&gt;&gt; 0b1100 &amp; 0b1010     # ET  bit à bit
+8                        # 0b1000
+&gt;&gt;&gt; 0b1100 | 0b1010     # OU  bit à bit
+14                       # 0b1110
+&gt;&gt;&gt; 0b1100 ^ 0b1010     # XOR bit à bit
+6                        # 0b0110
+&gt;&gt;&gt; 0b0011 &lt;&lt; 2         # décalage à gauche = ×4
+12</div>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div class="t">
+      <b>À vous de jouer</b>
+      <span>Le TD complet, avec correction immédiate de chaque réponse.</span>
+    </div>
+    <a href="exercices-numeration.html">Ouvrir les exercices →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- convertisseur 8 bits ---------- */
+  var bitsBox = document.getElementById('bits');
+  var val = 0;
+
+  function render(){
+    var bin = ('00000000' + val.toString(2)).slice(-8);
+    [].forEach.call(bitsBox.children, function(el, i){
+      var on = bin[i] === '1';
+      el.classList.toggle('on', on);
+      el.querySelector('.bv').textContent = bin[i];
+    });
+    document.getElementById('oBin').textContent = bin;
+    document.getElementById('oHex').textContent =
+      ('0' + val.toString(16).toUpperCase()).slice(-2) + '₁₆';
+    document.getElementById('oUns').textContent = String(val);
+    var sig = val >= 128 ? val - 256 : val;
+    document.getElementById('oSig').textContent = String(sig);
+    document.getElementById('roSig').classList.toggle('hl', sig < 0);
+  }
+
+  for (var i = 0; i < 8; i++){
+    var w = Math.pow(2, 7 - i);
+    var d = document.createElement('div');
+    d.className = 'bit' + (i === 0 ? ' sign' : '');
+    d.innerHTML = '<div class="bv">0</div><div class="bw">' + w + '</div>';
+    d.setAttribute('role', 'button');
+    d.setAttribute('tabindex', '0');
+    d.dataset.w = w;
+    bitsBox.appendChild(d);
+  }
+  bitsBox.addEventListener('click', function(e){
+    var b = e.target.closest('.bit');
+    if (!b) return;
+    val ^= (+b.dataset.w);
+    document.getElementById('inDec').value = '';
+    render();
+  });
+  bitsBox.addEventListener('keydown', function(e){
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var b = e.target.closest('.bit');
+    if (!b) return;
+    e.preventDefault();
+    val ^= (+b.dataset.w);
+    render();
+  });
+  document.getElementById('inDec').addEventListener('input', function(e){
+    var t = e.target.value.trim().replace(/−/g, '-');
+    if (!/^-?\d+$/.test(t)) return;
+    var n = parseInt(t, 10);
+    if (n < -128 || n > 255) return;
+    val = n & 0xFF;
+    render();
+  });
+  document.getElementById('btnRand').addEventListener('click', function(){
+    val = Math.floor(Math.random() * 256);
+    document.getElementById('inDec').value = '';
+    render();
+  });
+  document.getElementById('btnClr').addEventListener('click', function(){
+    val = 0;
+    document.getElementById('inDec').value = '';
+    render();
+  });
+  render();
+
+  /* ---------- table de vérité ---------- */
+  var a = 0, b = 0;
+  var tA = document.getElementById('tA'), tB = document.getElementById('tB');
+  var body = document.getElementById('ttbody');
+
+  function cell(v){ return '<td class="' + (v ? 'one' : 'zero') + '">' + v + '</td>'; }
+
+  function drawTable(){
+    var html = '';
+    for (var x = 0; x < 2; x++){
+      for (var y = 0; y < 2; y++){
+        var live = (x === a && y === b) ? ' class="live"' : '';
+        html += '<tr' + live + '>' + cell(x) + cell(y) + cell(x ? 0 : 1) +
+                cell(x && y ? 1 : 0) + cell(x || y ? 1 : 0) +
+                cell(x !== y ? 1 : 0) + cell(x && y ? 0 : 1) + '</tr>';
+      }
+    }
+    body.innerHTML = html;
+    tA.textContent = 'a = ' + a; tA.classList.toggle('on', !!a);
+    tB.textContent = 'b = ' + b; tB.classList.toggle('on', !!b);
+  }
+  tA.addEventListener('click', function(){ a = a ? 0 : 1; drawTable(); });
+  tB.addEventListener('click', function(){ b = b ? 0 : 1; drawTable(); });
+  drawTable();
+
+  /* ---------- surlignage de la partie courante ---------- */
+  var links = [].slice.call(document.querySelectorAll('#chapnav a'));
+  var parts = links.map(function(l){ return document.querySelector(l.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 140, k = 0;
+    parts.forEach(function(p, i){ if (p && p.offsetTop <= y) k = i; });
+    links.forEach(function(l, i){ l.classList.toggle('on', i === k); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>
