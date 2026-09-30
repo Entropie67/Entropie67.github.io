@@ -255,6 +255,36 @@
   /* =========================================================
      SCÈNE 7 — ACTIVITÉ
      ========================================================= */
+  /* =========================================================
+     10 · CE QUE JE DOIS RETENIR (fiche de fin, même gabarit que les séances 1 et 2)
+     ========================================================= */
+  .recap{justify-content:center}
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.4rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.5rem,4.6vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.3rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.3vh,.7rem);max-width:96ch;counter-reset:r;margin:0;padding:0}
+  .rc-list li{list-style:none;position:relative;padding-left:2.3rem;
+    font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.38;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.55rem;height:1.55rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.78rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:clamp(.7rem,2.2vh,1.2rem);max-width:110ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .7rem;
+    border-left:4px solid var(--signal);font-size:clamp(.72rem,1.25vw,.9rem);line-height:1.32;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.86em;letter-spacing:.02em;display:block;margin-bottom:.12rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.2rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.6rem,1.8vh,.9rem);
+    font-size:clamp(.95rem,1.9vw,1.25rem);color:var(--signal-dk);max-width:82ch}
+  .rc-key b{font-style:normal}
+  html[lang="zh"] .rc-title,html[lang="zh"] .rc-term b{letter-spacing:0}
+  html[lang="zh"] .rc-eye{letter-spacing:.06em}
+  @media (max-width:820px){ .rc-voc{grid-template-columns:1fr 1fr} }
+
   .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
     background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
   .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
@@ -553,6 +583,29 @@
     </a>
   </div>
 
+  <!-- ============ 10 · CE QUE JE DOIS RETENIR ============ -->
+  <div class="pane light pad recap" id="recap">
+    <div class="rc-eye" data-i18n="rc.eye">Fin de la séance 3</div>
+    <h2 class="rc-title" data-i18n="rc.title">Ce que je dois <span>retenir</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">Un modèle de langue ne lit ni des lettres ni vraiment des mots&nbsp;: il découpe le texte en <span class="hl">tokens</span> (≈&nbsp;3 à 4 lettres), son unité de base pour lire <em>et</em> pour écrire.</li>
+      <li data-i18n="rc.i2">Son moteur ne fait qu'<b>une seule chose</b>&nbsp;: donner une probabilité à chaque token possible pour <span class="hl">deviner le suivant</span>, l'ajouter au contexte, et recommencer. Écrire un texte, c'est poser cette question des centaines de fois.</li>
+      <li data-i18n="rc.i3">«&nbsp;Deviner la suite&nbsp;» n'est pas trivial&nbsp;: pour bien prédire, il faut avoir stocké des faits, savoir calculer, avoir suivi le récit — c'est-à-dire <b>modéliser le monde</b> qui a produit ces mots.</li>
+      <li data-i18n="rc.i4">Trois leviers font bouger les probabilités&nbsp;: le <span class="hl">contexte</span>, le <span class="hl">contenu</span> (registre, style) et la <span class="hl">langue</span>. La <span class="hl">température</span> règle ensuite le choix&nbsp;: le plus probable (stable) ou un tirage au sort (varié).</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Token</b>Morceau de mot&nbsp;: l'unité que le modèle lit et produit.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Tokenisation</b>Le découpage d'un texte en tokens&nbsp;; il dépend du modèle et de la langue.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Contexte</b>Le texte déjà écrit, à partir duquel on prédit la suite.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Prédiction du prochain token</b>La tâche unique du moteur d'un LLM.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Probabilité</b>Le score donné à chaque token candidat&nbsp;; le total fait 100&nbsp;%.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Génération</b>Choisir un token, l'ajouter au contexte, recommencer — token après token.</div>
+      <div class="rc-term" data-i18n="rc.v7"><b>Température</b>Le réglage entre «&nbsp;toujours le plus probable&nbsp;» et «&nbsp;tirage au sort&nbsp;».</div>
+      <div class="rc-term" data-i18n="rc.v8"><b>LLM</b>Grand modèle de langue&nbsp;: un réseau entraîné sur des milliards de textes à prédire le prochain token.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Le moteur est simple à décrire. <b>Ce qu'il faut savoir pour bien prédire, lui, ne l'est pas.</b></p>
+  </div>
+
 </div>
 
 <!-- HUD -->
@@ -577,6 +630,7 @@
     <div class="dot" data-i="7"></div>
     <div class="dot" data-i="8"></div>
     <div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div>
   </div>
   <button class="btn" id="next" data-i18n="s.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
@@ -678,6 +732,21 @@
       's7.step4':`Vary the <b>context, content, language</b> and watch the ranking shift.`,
       's7.step5':`<b>The challenge:</b> find the context that puts “a dinosaur” (or “a car”, “a rabbit”…) right at the top.`,
       's7.cta':`Join PédagoIA<small>edu-nsi-web.vercel.app →</small>`,
+      'rc.eye':`End of lesson 3`,
+      'rc.title':`What I must <span>remember</span>`,
+      'rc.i1':`A language model reads neither letters nor quite words: it cuts text into <span class="hl">tokens</span> (≈ 3 to 4 letters), its basic unit for reading <em>and</em> writing.`,
+      'rc.i2':`Its engine does <b>one single thing</b>: give a probability to every possible token to <span class="hl">guess the next one</span>, add it to the context, and start again. Writing a text means asking that question hundreds of times.`,
+      'rc.i3':`“Guessing what comes next” is not trivial: to predict well, it must have stored facts, be able to calculate, have followed the story — in other words, <b>model the world</b> that produced those words.`,
+      'rc.i4':`Three levers move the probabilities: the <span class="hl">context</span>, the <span class="hl">content</span> (register, style) and the <span class="hl">language</span>. The <span class="hl">temperature</span> then sets the choice: the most likely (stable) or a lottery (varied).`,
+      'rc.v1':`<b>Token</b>A piece of a word: the unit the model reads and produces.`,
+      'rc.v2':`<b>Tokenisation</b>Cutting a text into tokens; it depends on the model and the language.`,
+      'rc.v3':`<b>Context</b>The text already written, from which the continuation is predicted.`,
+      'rc.v4':`<b>Next-token prediction</b>The one and only task of an LLM's engine.`,
+      'rc.v5':`<b>Probability</b>The score given to each candidate token; they add up to 100%.`,
+      'rc.v6':`<b>Generation</b>Pick a token, add it to the context, start again — token after token.`,
+      'rc.v7':`<b>Temperature</b>The setting between “always the most likely” and “draw at random”.`,
+      'rc.v8':`<b>LLM</b>Large language model: a network trained on billions of texts to predict the next token.`,
+      'rc.key':`The engine is simple to describe. <b>What it takes to predict well is not.</b>`,
       's.prev':`◀ Back`, 's.menu':`Course map`, 's.next':`Next ▶`
     },
     zh: {
@@ -770,6 +839,21 @@
       's7.step4':`改变<b>上下文、内容、语言</b>，看排名如何变化。`,
       's7.step5':`<b>挑战：</b>找到一个上下文，让「恐龙」（或「汽车」「兔子」……）排到最前面。`,
       's7.cta':`进入 PédagoIA<small>edu-nsi-web.vercel.app →</small>`,
+      'rc.eye':`第3课结束`,
+      'rc.title':`我该<span>记住</span>什么`,
+      'rc.i1':`语言模型读的既不是字母，也不完全是词：它把文本切成<span class="hl">词元（token）</span>（约 3 到 4 个字母），这是它读<em>和</em>写的基本单位。`,
+      'rc.i2':`它的引擎只做<b>一件事</b>：给每个可能的词元一个概率，来<span class="hl">猜下一个</span>，把它加进上下文，再来一遍。写一段文字，就是把这个问题问上几百次。`,
+      'rc.i3':`「猜下一个」并不简单：要猜得准，得存住事实、会计算、跟上故事——也就是要<b>为产生这些词的世界建模</b>。`,
+      'rc.i4':`三根杠杆会改变概率：<span class="hl">上下文</span>、<span class="hl">内容</span>（语域、风格）和<span class="hl">语言</span>。然后由<span class="hl">温度</span>决定怎么选：总选最可能的（稳定），还是按概率抽签（多样）。`,
+      'rc.v1':`<b>词元 token</b>词的一个片段：模型读入和产出的单位。`,
+      'rc.v2':`<b>分词 tokenisation</b>把文本切成词元；取决于模型和语言。`,
+      'rc.v3':`<b>上下文</b>已经写出来的文本，据此预测后面的内容。`,
+      'rc.v4':`<b>预测下一个词元</b>LLM 引擎唯一的任务。`,
+      'rc.v5':`<b>概率</b>给每个候选词元的分数；加起来是 100%。`,
+      'rc.v6':`<b>生成</b>选一个词元，加进上下文，再来一遍——一个词元接一个词元。`,
+      'rc.v7':`<b>温度</b>在「总选最可能的」和「随机抽签」之间的调节旋钮。`,
+      'rc.v8':`<b>LLM</b>大语言模型：在数十亿文本上训练、用来预测下一个词元的网络。`,
+      'rc.key':`引擎说起来很简单。<b>要预测得准所需要的东西，一点都不简单。</b>`,
       's.prev':`◀ 返回`, 's.menu':`课程目录`, 's.next':`下一页 ▶`
     }
   };
@@ -804,11 +888,11 @@
   /* =========================================================
      NAVIGATION
      ========================================================= */
-  const panes = ['intro','tokens','tache','demo','triv','leviers','langue1','langue2','temp','activite']
+  const panes = ['intro','tokens','tache','demo','triv','leviers','langue1','langue2','temp','activite','recap']
     .map(id=>document.getElementById(id));
   const dots  = [...document.querySelectorAll('.dot')];
   let scene = 0;
-  const MAX = 9;
+  const MAX = 10;
 
   function updateHint(){
     const h = document.getElementById('hint');

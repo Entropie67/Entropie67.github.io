@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TD Arbres binaires — exercices autocorrigés — Terminale NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --ok-dim:rgba(52,211,153,.13); --bad:#ff5c7a; --bad-dim:rgba(255,92,122,.12);
+         --warn:#ffc53d; --vio:#b57bff; }
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+  .scorebar{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .scorebar-in{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;gap:.7rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+  .scoretxt{font-family:var(--mono);font-size:.88rem;color:var(--text);flex:none} .scoretxt b{color:var(--ok)}
+  .gauge{flex:1 1 90px;height:6px;border-radius:100px;background:var(--bg-card);overflow:hidden;min-width:70px}
+  .gauge i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+  .scorebar button{font-family:inherit;font-size:.8rem;background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.4rem .75rem;cursor:pointer;flex:none}
+  .scorebar button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .scorebar button.primary{background:var(--nsi-dim);color:var(--nsi);border-color:rgba(108,158,255,.35)}
+
+  .exo{scroll-margin-top:118px;margin-bottom:2.8rem}
+  .exo > h2{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;font-size:1.3rem;padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem}
+  .exo > h2 .pn{font-family:var(--mono);font-size:.8rem;color:var(--nsi);background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .exo > h2 .cnt{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--text-muted);font-weight:400;flex:none}
+  .exo > h2 .cnt.full{color:var(--ok)}
+  .consigne{color:#c9cdda;font-size:.93rem;margin:1.1rem 0 .7rem;line-height:1.55}
+  .consigne b{color:var(--text)}
+  .subhead{font-size:.95rem;color:var(--nsi);font-weight:600;margin:1.3rem 0 .5rem}
+  .rappel{border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.88rem;color:#c9cdda}
+  .rappel b{color:var(--text)}
+  code,.m{font-family:var(--mono);font-size:.92em}
+
+  .fig{margin:.8rem 0 1rem;text-align:center;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:.6rem}
+  .fig svg{max-width:100%;height:auto}
+  .fig .cap{font-size:.8rem;color:var(--text-muted);margin-top:.3rem}
+  svg .e{stroke:rgba(255,255,255,.3);stroke-width:2;stroke-linecap:round}
+  svg .n circle{fill:#1a1f2e;stroke:rgba(255,255,255,.4);stroke-width:2}
+  svg .n text{fill:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;text-anchor:middle;dominant-baseline:central}
+  svg .n.op circle{fill:#2a1d3f;stroke:var(--vio)}
+  svg .n.bad circle{stroke:var(--bad)}
+
+  .qs{display:grid;gap:.55rem}
+  .q{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:.6rem;align-items:center;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .q:last-child{border-bottom:none}
+  .q .lab{font-size:.9rem;color:#c9cdda} .q .lab small{display:block;font-size:.74rem;color:var(--text-muted);margin-top:.1rem}
+  .fld{position:relative;display:flex;align-items:center;gap:.35rem}
+  input.f{font-family:var(--mono);font-size:.9rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.38rem .55rem;width:100%;min-width:0;transition:.15s}
+  input.f:focus{outline:none;border-color:var(--nsi)}
+  input.f.ok{border-color:var(--ok);background:var(--ok-dim)} input.f.ko{border-color:var(--bad);background:var(--bad-dim)}
+  .fld .mark{font-size:.95rem;width:1em;flex:none;text-align:center} .fld .mark.ok{color:var(--ok)} .fld .mark.ko{color:var(--bad)}
+  .sol{display:none;font-family:var(--mono);font-size:.76rem;color:var(--ok);margin-top:.2rem;word-break:break-all;grid-column:2}
+  .exo.solved .sol{display:block}
+
+  .mcq{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.8rem 1rem;margin:.6rem 0}
+  .mcq .qt{font-size:.92rem;color:var(--text);margin-bottom:.55rem}
+  .mcq label{display:flex;align-items:center;gap:.6rem;padding:.35rem .5rem;border-radius:7px;cursor:pointer;font-size:.88rem;color:#c9cdda;border:1px solid transparent}
+  .mcq label:hover{background:rgba(255,255,255,.04)}
+  .mcq input{accent-color:var(--nsi)}
+  .mcq.ok label.checked{border-color:var(--ok);background:var(--ok-dim)} .mcq.ko label.checked{border-color:var(--bad);background:var(--bad-dim)}
+  .exo.solved .mcq label.right{border-color:var(--ok)}
+  .mcq.figs .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem}
+  .mcq.figs label{flex-direction:column;align-items:stretch;text-align:center;border:1px solid var(--border)}
+  .mcq.figs label svg{width:100%;height:auto}
+  .mcq .expl{display:none;font-size:.84rem;color:#c9cdda;margin-top:.5rem;border-top:1px dashed var(--border);padding-top:.5rem}
+  .exo.solved .mcq .expl{display:block}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.9;background:#0c0e15;border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;margin:.7rem 0;overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c} pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+  pre.code input.f{display:inline-block;width:auto;min-width:9ch;padding:.1rem .45rem;font-size:.84rem;vertical-align:baseline;margin:0 .1rem}
+  pre.code .csol{display:none;color:var(--ok);font-size:.78rem} .exo.solved pre.code .csol{display:inline}
+
+  .open{border:1px solid var(--border);border-left:3px solid var(--vio);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.95rem 1.1rem;margin:1.1rem 0}
+  .open .qt{font-size:.92rem;color:var(--text);margin-bottom:.6rem}
+  .open textarea{width:100%;font-family:inherit;font-size:.88rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.5rem .65rem;min-height:4.2rem;resize:vertical}
+  .open textarea:focus{outline:none;border-color:var(--vio)}
+  .open .rev{margin-top:.55rem;font-family:inherit;font-size:.78rem;background:transparent;color:var(--vio);border:1px solid rgba(181,123,255,.35);border-radius:7px;padding:.35rem .7rem;cursor:pointer}
+  .open .rev:hover{background:rgba(181,123,255,.12)}
+  .open .modele{display:none;margin-top:.6rem;font-size:.87rem;color:#c9cdda;line-height:1.55;border-top:1px dashed var(--border);padding-top:.6rem}
+  .open .modele.show{display:block}
+  details.repli{border:1px solid var(--border);border-radius:8px;background:var(--bg-card);padding:.2rem .9rem;margin:1.2rem 0}
+  details.repli > summary{cursor:pointer;padding:.6rem 0;font-size:.9rem;color:var(--nsi);font-weight:600;list-style:none}
+  details.repli > summary::-webkit-details-marker{display:none}
+  details.repli > summary::before{content:"▸ "} details.repli[open] > summary::before{content:"▾ "}
+  .exfoot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .exfoot button{font-family:inherit;font-size:.78rem;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:7px;padding:.38rem .7rem;cursor:pointer}
+  .exfoot button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 10px 10px 0;background:var(--nsi-dim);padding:1.1rem 1.3rem;margin:1rem 0 2rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--nsi);color:#07182f;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+  .cta.anim{border-left-color:var(--vio);background:rgba(181,123,255,.07)} .cta.anim a{background:var(--vio);color:#1b0f2e}
+  @media (max-width:640px){
+    .scorebar-in{padding:.55rem 1rem;gap:.5rem} .scoretxt{font-size:.8rem}
+    .exo > h2{font-size:1.1rem}
+    .q{grid-template-columns:1fr} .sol{grid-column:1}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="scorebar">
+  <div class="scorebar-in">
+    <span class="scoretxt"><b id="sOk">0</b>/<span id="sTot">0</span></span>
+    <span class="gauge"><i id="sBar"></i></span>
+    <button type="button" id="btnCheck" class="primary">Tout vérifier</button>
+    <button type="button" id="btnReset">Effacer</button>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>TD Arbres binaires <span class="badge badge-nsi">Terminale</span></h1>
+    <p class="subtitle">Vocabulaire, parcours, arbres d'expression, arbres binaires de recherche et code Python.
+      Tapez votre réponse : elle est corrigée immédiatement. Vos réponses sont conservées dans ce navigateur.</p>
+  </div>
+
+  <div class="cta">
+    <div class="t"><b>Besoin d'un rappel ?</b><span>Toutes les définitions et les fonctions utilisées ici sont dans le cours.</span></div>
+    <a href="cours-arbres.html">Voir le cours →</a>
+  </div>
+  <div class="cta anim">
+    <div class="t"><b>Pour vérifier une intuition</b><span>L'animation permet d'explorer un arbre, de dérouler un parcours ou de construire un ABR.</span></div>
+    <a href="../../animation/arbres.html" target="_blank" rel="noopener">Ouvrir l'animation ↗</a>
+  </div>
+
+  <div id="exos"></div>
+
+  <div class="cta">
+    <div class="t"><b>Le cours du chapitre</b><span>Vocabulaire, implémentation, parcours, ABR, complexité.</span></div>
+    <a href="cours-arbres.html">Voir le cours →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  'use strict';
+  var STORE = 'nsi-td-arbres-v1';
+
+  /* ================= arbres : [valeur, gauche, droit] ================= */
+  function build(a){ return a == null ? null : { v: a[0], l: build(a[1]), r: build(a[2]) }; }
+  function size(t){ return t ? 1 + size(t.l) + size(t.r) : 0; }
+  function height(t){ return t ? 1 + Math.max(height(t.l), height(t.r)) : 0; }
+  function leaves(t){ return t ? (!t.l && !t.r ? 1 : leaves(t.l) + leaves(t.r)) : 0; }
+  function pre(t, o){ o = o || []; if (t){ o.push(t.v); pre(t.l, o); pre(t.r, o); } return o; }
+  function ino(t, o){ o = o || []; if (t){ ino(t.l, o); o.push(t.v); ino(t.r, o); } return o; }
+  function post(t, o){ o = o || []; if (t){ post(t.l, o); post(t.r, o); o.push(t.v); } return o; }
+  function bfs(t){ var o = [], q = t ? [t] : []; while (q.length){ var n = q.shift(); o.push(n.v); if (n.l) q.push(n.l); if (n.r) q.push(n.r); } return o; }
+  function insert(t, x){ if (!t) return { v: x, l: null, r: null }; if (x < t.v) t.l = insert(t.l, x); else t.r = insert(t.r, x); return t; }
+  function bst(vals){ var t = null; vals.forEach(function(x){ t = insert(t, x); }); return t; }
+  function find(t, x){ var p = null, n = t; while (n){ if (n.v === x) return { node: n, parent: p }; p = n; n = x < n.v ? n.l : n.r; } return null; }
+  function depthOf(t, x){ var d = 0, n = t; while (n){ if (n.v === x) return d; n = x < n.v ? n.l : n.r; d++; } return -1; }
+  function evalExpr(t){ if (!t.l && !t.r) return +t.v; var g = evalExpr(t.l), d = evalExpr(t.r); return t.v === '+' ? g + d : t.v === '−' ? g - d : t.v === '×' ? g * d : g / d; }
+  function infixExpr(t){ if (!t.l && !t.r) return String(t.v); return '(' + infixExpr(t.l) + ' ' + t.v + ' ' + infixExpr(t.r) + ')'; }
+
+  /* dessin SVG : x = rang infixe, y = profondeur */
+  function svgTree(t, opts){
+    opts = opts || {};
+    var nodes = [], idx = 0, DX = opts.dx || 44, DY = opts.dy || 58, R = opts.r || 17;
+    (function walk(n, d){ if (!n) return; walk(n.l, d + 1); n._x = idx++ * DX; n._y = d * DY; nodes.push(n); walk(n.r, d + 1); })(t, 0);
+    var W = (idx - 1) * DX, H = (height(t) - 1) * DY;
+    var s = '<svg viewBox="' + (-R - 6) + ' ' + (-R - 6) + ' ' + (W + 2 * R + 12) + ' ' + (H + 2 * R + 12) + '" ' + (opts.w ? 'style="max-width:' + opts.w + 'px"' : '') + '>';
+    nodes.forEach(function(n){ if (n.l) s += '<line class="e" x1="' + n._x + '" y1="' + n._y + '" x2="' + n.l._x + '" y2="' + n.l._y + '"/>'; if (n.r) s += '<line class="e" x1="' + n._x + '" y1="' + n._y + '" x2="' + n.r._x + '" y2="' + n.r._y + '"/>'; });
+    nodes.forEach(function(n){ var cls = 'n' + (opts.ops && isNaN(+n.v) ? ' op' : '') + (opts.bad && opts.bad.indexOf(n.v) >= 0 ? ' bad' : ''); s += '<g class="' + cls + '"><circle cx="' + n._x + '" cy="' + n._y + '" r="' + R + '"/><text x="' + n._x + '" y="' + n._y + '">' + n.v + '</text></g>'; });
+    return s + '</svg>';
+  }
+
+  /* ================= les arbres du TD ================= */
+  var T1 = build(['A', ['B', ['D', ['H', null, null], ['I', null, null]], ['E', null, null]], ['C', ['F', null, ['J', null, null]], ['G', null, null]]]);
+  var T2 = build([12, [7, [3, null, null], [9, null, [10, null, null]]], [21, null, [30, [25, null, null], null]]]);
+  var E1 = build(['×', ['−', [7, null, null], [2, null, null]], ['+', [3, null, null], ['÷', [4, null, null], [2, null, null]]]]);
+  var E2 = build(['+', [5, null, null], ['×', ['+', [1, null, null], [2, null, null]], [4, null, null]]]);
+  var ABR_SEQ = [41, 20, 65, 11, 29, 50, 91, 32, 72];
+  var ABR = bst(ABR_SEQ);
+  var HOME_SEQ = [8, 3, 10, 1, 6, 14, 4, 7, 13];
+  var ABR2 = bst(HOME_SEQ);
+
+  function seq(arr){ return arr.join(' '); }
+
+  /* ================= énoncé ================= */
+  var TD = [
+    { id: 'ex1', titre: 'Vocabulaire', groupes: [
+      { type: 'fig', tree: T1, cap: 'Arbre T1' },
+      { type: 'qs', consigne: 'On considère l\'arbre <b>T1</b> ci-dessus. La hauteur est comptée <b>en nombre de niveaux</b> (la racine seule : hauteur 1).', items: [
+        { lab: 'La racine', a: 'A', t: 'txt' },
+        { lab: 'Le nombre de feuilles', a: leaves(T1), t: 'int' },
+        { lab: 'La liste des feuilles', small: 'lettres séparées par des espaces, dans n\'importe quel ordre', a: 'H I E J G', t: 'set' },
+        { lab: 'La liste des nœuds internes', a: 'A B C D F', t: 'set' },
+        { lab: 'La taille de T1', a: size(T1), t: 'int' },
+        { lab: 'La hauteur de T1 (niveaux)', a: height(T1), t: 'int' },
+        { lab: 'La hauteur de T1 si on compte les arêtes', a: height(T1) - 1, t: 'int' },
+        { lab: 'La profondeur du nœud J', a: 3, t: 'int' },
+        { lab: 'Le père de J', a: 'F', t: 'txt' },
+        { lab: 'Le fils droit de F', a: 'J', t: 'txt' },
+        { lab: 'Le fils gauche de F', small: 'écrire « vide » s\'il n\'existe pas', a: ['vide', 'aucun', 'none', '∅'], t: 'txt' },
+        { lab: 'L\'arité de F', a: 1, t: 'int' },
+        { lab: 'Les ancêtres de I', a: 'D B A', t: 'set' },
+        { lab: 'Le nombre de descendants de B', a: size(T1.l) - 1, t: 'int' },
+        { lab: 'La taille du sous-arbre de racine C', a: size(T1.r), t: 'int' },
+        { lab: 'Les nœuds du niveau 2', a: 'D E F G', t: 'set' },
+      ] },
+      { type: 'mcq', q: 'T1 est-il un arbre binaire <b>complet</b> (chaque nœud a 0 ou 2 fils) ?', opts: ['Oui', 'Non, à cause de F', 'Non, à cause de E'], ok: 1, expl: 'F n\'a qu\'un seul fils (J). E est une feuille, ce qui est autorisé.' },
+    ] },
+
+    { id: 'ex2', titre: 'Les quatre parcours', groupes: [
+      { type: 'rappel', texte: '<b>Préfixe</b> : nœud, gauche, droit. <b>Infixe</b> : gauche, nœud, droit. <b>Suffixe</b> : gauche, droit, nœud. <b>Largeur</b> : niveau par niveau, de gauche à droite. Méthode du contour : on longe l\'arbre en partant de la racine par la gauche ; un nœud est noté quand on passe à sa gauche (préfixe), dessous (infixe) ou à sa droite (suffixe).' },
+      { type: 'qs', consigne: 'Donnez les parcours de l\'arbre <b>T1</b> (exercice 1). Séparez les lettres par des espaces.', items: [
+        { lab: 'Parcours préfixe', a: seq(pre(T1)), t: 'seq' },
+        { lab: 'Parcours infixe', a: seq(ino(T1)), t: 'seq' },
+        { lab: 'Parcours suffixe', a: seq(post(T1)), t: 'seq' },
+        { lab: 'Parcours en largeur', a: seq(bfs(T1)), t: 'seq' },
+      ] },
+      { type: 'fig', tree: T2, cap: 'Arbre T2' },
+      { type: 'qs', consigne: 'Mêmes questions pour l\'arbre <b>T2</b>.', items: [
+        { lab: 'Parcours préfixe', a: seq(pre(T2)), t: 'seq' },
+        { lab: 'Parcours infixe', a: seq(ino(T2)), t: 'seq' },
+        { lab: 'Parcours suffixe', a: seq(post(T2)), t: 'seq' },
+        { lab: 'Parcours en largeur', a: seq(bfs(T2)), t: 'seq' },
+      ] },
+      { type: 'mcq', q: 'Dans un parcours <b>suffixe</b>, quel nœud est toujours affiché en dernier ?', opts: ['La feuille la plus à droite', 'La racine', 'La feuille la plus profonde'], ok: 1, expl: 'En suffixe, le nœud est traité après ses deux sous-arbres : la racine attend donc que tout le reste soit traité.' },
+      { type: 'mcq', q: 'Dans un parcours en <b>profondeur</b>, la pile d\'appels contient au maximum…', opts: ['n appels (la taille)', 'h appels (la hauteur)', '2 appels'], ok: 1, expl: 'Les appels imbriqués suivent une branche : au plus un appel par niveau, soit h. Sur un peigne, h = n.' },
+      { type: 'open', q: 'Deux arbres différents peuvent-ils avoir le même parcours préfixe ? Donnez un exemple ou expliquez pourquoi c\'est impossible.', modele: 'Oui. L\'arbre réduit à une racine A avec un seul fils gauche B, et l\'arbre A avec un seul fils droit B, ont tous deux pour parcours préfixe « A B » (et suffixe « B A »). Seul le parcours infixe les distingue (« B A » contre « A B »). C\'est pourquoi un parcours seul ne suffit pas à reconstruire un arbre ; il en faut deux, dont l\'infixe.' },
+    ] },
+
+    { id: 'ex3', titre: 'Arbres d\'expression', groupes: [
+      { type: 'fig', tree: E1, cap: 'Arbre d\'expression E1', ops: true },
+      { type: 'qs', consigne: 'Pour l\'arbre <b>E1</b>, écrivez les expressions demandées. Utilisez les symboles + - * / et des parenthèses ; les espaces n\'ont pas d\'importance.', items: [
+        { lab: 'L\'expression infixe, avec toutes ses parenthèses', small: 'une paire de parenthèses par opérateur', a: '((7-2)*(3+(4/2)))', t: 'expr', alt: ['(7-2)*(3+(4/2))', '(7-2)*(3+4/2)'] },
+        { lab: 'Le parcours suffixe (notation polonaise inverse)', a: '7 2 - 3 4 2 / + *', t: 'expr' },
+        { lab: 'Le parcours préfixe (notation polonaise)', a: '* - 7 2 + 3 / 4 2', t: 'expr' },
+        { lab: 'La valeur de l\'expression', a: evalExpr(E1), t: 'int' },
+      ] },
+      { type: 'qs', consigne: 'On évalue la notation polonaise inverse <b>5 1 2 + 4 × + 3 −</b> avec une pile (on lit de gauche à droite : un nombre est empilé, un opérateur dépile deux nombres et empile le résultat).', items: [
+        { lab: 'Contenu de la pile juste après avoir lu le « + » de gauche', small: 'du fond vers le sommet, séparé par des espaces', a: '5 3', t: 'seq' },
+        { lab: 'Contenu de la pile juste après avoir lu le « × »', a: '5 12', t: 'seq' },
+        { lab: 'Résultat final', a: 14, t: 'int' },
+        { lab: 'La racine de l\'arbre d\'expression correspondant', small: 'un opérateur', a: '-', t: 'expr' },
+      ] },
+      { type: 'fig', tree: E2, cap: 'Arbre d\'expression E2', ops: true },
+      { type: 'qs', consigne: 'L\'arbre <b>E2</b> ci-dessus :', items: [
+        { lab: 'Son expression infixe parenthésée', a: '(5+((1+2)*4))', t: 'expr', alt: ['5+((1+2)*4)', '5+(1+2)*4'] },
+        { lab: 'Sa valeur', a: evalExpr(E2), t: 'int' },
+        { lab: 'Sa notation polonaise inverse', a: '5 1 2 + 4 * +', t: 'expr' },
+      ] },
+      { type: 'mcq', q: 'Pourquoi la notation polonaise inverse n\'a-t-elle jamais besoin de parenthèses ?', opts: ['Parce qu\'on lit toujours de droite à gauche', 'Parce que chaque opérateur porte sur les deux valeurs qui le précèdent immédiatement sur la pile : l\'ordre des opérations est imposé par la position', 'Parce qu\'elle ne fonctionne qu\'avec des additions'], ok: 1, expl: 'Le parcours suffixe place chaque opérateur juste après ses deux opérandes ; la structure de l\'arbre est entièrement contenue dans l\'ordre des symboles.' },
+    ] },
+
+    { id: 'ex4', titre: 'Arbres binaires de recherche', groupes: [
+      { type: 'rappel', texte: 'Dans un ABR, pour <b>tout</b> nœud : les clés du sous-arbre gauche sont strictement plus petites, celles du sous-arbre droit plus grandes ou égales. On insère en descendant (plus petit → gauche, sinon → droite) jusqu\'à un sous-arbre vide.' },
+      { type: 'qs', consigne: 'On part d\'un arbre vide et on insère, dans cet ordre : <b>' + ABR_SEQ.join(', ') + '</b>. Dessinez l\'arbre obtenu au brouillon, puis répondez.', items: [
+        { lab: 'La racine', a: ABR.v, t: 'int' },
+        { lab: 'La taille', a: size(ABR), t: 'int' },
+        { lab: 'La hauteur (niveaux)', a: height(ABR), t: 'int' },
+        { lab: 'Le nombre de feuilles', a: leaves(ABR), t: 'int' },
+        { lab: 'La liste des feuilles', a: seq(ino(ABR).filter(function(v){ var n = find(ABR, v).node; return !n.l && !n.r; })), t: 'set' },
+        { lab: 'Le père de 32', a: find(ABR, 32).parent.v, t: 'int' },
+        { lab: 'Le fils droit de 65', a: find(ABR, 65).node.r.v, t: 'int' },
+        { lab: 'Le parcours infixe', small: 'que remarque-t-on ?', a: seq(ino(ABR)), t: 'seq' },
+        { lab: 'Le parcours préfixe', a: seq(pre(ABR)), t: 'seq' },
+        { lab: 'Nombre de comparaisons pour rechercher 32', small: 'on compte une comparaison par nœud rencontré', a: depthOf(ABR, 32) + 1, t: 'int' },
+        { lab: 'Nombre de comparaisons pour rechercher 60 (absent)', a: 3, t: 'int' },
+        { lab: 'Si l\'on insère 60, il devient le fils… de quel nœud ?', small: 'répondre par la clé du père', a: 50, t: 'int' },
+        { lab: '… et de quel côté ?', small: 'gauche ou droit', a: ['droit', 'droite', 'd'], t: 'txt' },
+        { lab: 'Le minimum de l\'arbre', a: ino(ABR)[0], t: 'int' },
+        { lab: 'Le maximum de l\'arbre', a: ino(ABR)[ino(ABR).length - 1], t: 'int' },
+      ] },
+      { type: 'mcqfig', q: 'Parmi ces trois arbres, lequel est un arbre binaire de recherche ?', trees: [
+        build([20, [10, [5, null, null], [25, null, null]], [30, null, null]]),
+        build([20, [10, [5, null, null], [15, null, null]], [30, [22, null, null], null]]),
+        build([20, [10, [5, null, null], [15, null, null]], [30, [18, null, null], null]]) ], ok: 1,
+        expl: 'Premier arbre : 25 est dans le sous-arbre gauche de 20 alors que 25 > 20. Troisième : 18 est dans le sous-arbre droit de 20 alors que 18 < 20 (comparer chaque nœud à son seul père ne suffit pas). Le deuxième respecte la règle pour tous les nœuds : son infixe 5 10 15 20 22 30 est trié.' },
+      { type: 'mcq', q: 'On insère les clés 1, 2, 3, 4, 5, 6, 7 <b>dans cet ordre</b> dans un ABR vide. Quelle est la hauteur obtenue (en niveaux) ?', opts: ['3', '4', '7'], ok: 2, expl: 'Chaque clé est plus grande que toutes les précédentes : elle part à droite du dernier nœud. L\'arbre est un peigne de hauteur 7 = n. La hauteur 3 serait obtenue avec l\'ordre 4, 2, 6, 1, 3, 5, 7.' },
+      { type: 'mcq', q: 'Lequel de ces parcours d\'un ABR donne les clés dans l\'ordre croissant ?', opts: ['Préfixe', 'Infixe', 'Suffixe', 'Largeur'], ok: 1, expl: 'Infixe : gauche (plus petites), nœud, droite (plus grandes). C\'est la propriété fondamentale de l\'ABR.' },
+      { type: 'qs', repli: 'Pour s\'entraîner à la maison', consigne: 'On insère dans un ABR vide : <b>' + HOME_SEQ.join(', ') + '</b>.', items: [
+        { lab: 'La hauteur (niveaux)', a: height(ABR2), t: 'int' },
+        { lab: 'Le parcours infixe', a: seq(ino(ABR2)), t: 'seq' },
+        { lab: 'Le parcours en largeur', a: seq(bfs(ABR2)), t: 'seq' },
+        { lab: 'Le père de 4', a: find(ABR2, 4).parent.v, t: 'int' },
+        { lab: 'Nombre de comparaisons pour rechercher 7', a: depthOf(ABR2, 7) + 1, t: 'int' },
+      ] },
+    ] },
+
+    { id: 'ex5', titre: 'Python : lire et compléter du code', groupes: [
+      { type: 'rappel', texte: 'Un nœud est un objet <code>Noeud</code> avec les attributs <code>valeur</code>, <code>gauche</code> et <code>droit</code> ; l\'arbre vide est <code>None</code>. Écrivez les réponses exactement comme du code Python (par exemple <code>a.droit</code>), sans guillemets.' },
+      { type: 'code', consigne: 'Complétez la fonction <b>hauteur</b> (en nombre de niveaux).', lines: [
+        '<span class="kw">def</span> <span class="fn">hauteur</span>(a):',
+        '    <span class="kw">if</span> a <span class="kw">is None</span>:',
+        '        <span class="kw">return</span> {{0}}',
+        '    <span class="kw">return</span> <span class="nb">1</span> + <span class="fn">max</span>(<span class="fn">hauteur</span>(a.gauche), {{1}})' ],
+        blanks: [ { a: '0', t: 'py' }, { a: 'hauteur(a.droit)', t: 'py' } ] },
+      { type: 'code', consigne: 'Complétez la fonction <b>nb_feuilles</b>.', lines: [
+        '<span class="kw">def</span> <span class="fn">nb_feuilles</span>(a):',
+        '    <span class="kw">if</span> a <span class="kw">is None</span>:',
+        '        <span class="kw">return</span> <span class="nb">0</span>',
+        '    <span class="kw">if</span> a.gauche <span class="kw">is None and</span> {{0}} <span class="kw">is None</span>:',
+        '        <span class="kw">return</span> {{1}}',
+        '    <span class="kw">return</span> <span class="fn">nb_feuilles</span>(a.gauche) + <span class="fn">nb_feuilles</span>({{2}})' ],
+        blanks: [ { a: 'a.droit', t: 'py' }, { a: '1', t: 'py' }, { a: 'a.droit', t: 'py' } ] },
+      { type: 'code', consigne: 'Complétez la <b>recherche</b> dans un ABR.', lines: [
+        '<span class="kw">def</span> <span class="fn">recherche</span>(a, x):',
+        '    <span class="kw">if</span> a <span class="kw">is None</span>:',
+        '        <span class="kw">return</span> {{0}}',
+        '    <span class="kw">if</span> x == a.valeur:',
+        '        <span class="kw">return</span> <span class="kw">True</span>',
+        '    <span class="kw">if</span> x &lt; a.valeur:',
+        '        <span class="kw">return</span> <span class="fn">recherche</span>({{1}}, x)',
+        '    <span class="kw">return</span> <span class="fn">recherche</span>({{2}}, x)' ],
+        blanks: [ { a: 'False', t: 'py' }, { a: 'a.gauche', t: 'py' }, { a: 'a.droit', t: 'py' } ] },
+      { type: 'code', consigne: 'Complétez le parcours en <b>largeur</b>.', lines: [
+        '<span class="kw">def</span> <span class="fn">largeur</span>(a):',
+        '    file = [a]',
+        '    <span class="kw">while</span> <span class="fn">len</span>(file) &gt; <span class="nb">0</span>:',
+        '        n = file.pop({{0}})        <span class="cm"># on défile le premier entré</span>',
+        '        <span class="fn">print</span>(n.valeur)',
+        '        <span class="kw">if</span> n.gauche <span class="kw">is not None</span>:',
+        '            file.append({{1}})',
+        '        <span class="kw">if</span> n.droit <span class="kw">is not None</span>:',
+        '            file.append(n.droit)' ],
+        blanks: [ { a: '0', t: 'py' }, { a: 'n.gauche', t: 'py' } ] },
+      { type: 'code', consigne: 'Voici une fonction <b>mystere</b>. Lisez-la, puis répondez aux questions qui suivent.', lines: [
+        '<span class="kw">def</span> <span class="fn">mystere</span>(a):',
+        '    <span class="kw">if</span> a <span class="kw">is None</span>:',
+        '        <span class="kw">return</span> <span class="nb">0</span>',
+        '    <span class="kw">if</span> a.gauche <span class="kw">is None and</span> a.droit <span class="kw">is None</span>:',
+        '        <span class="kw">return</span> <span class="nb">1</span>',
+        '    <span class="kw">return</span> <span class="fn">mystere</span>(a.gauche) + <span class="fn">mystere</span>(a.droit)' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Que renvoie <code>mystere(T1)</code> ? (l\'arbre T1 de l\'exercice 1)', a: leaves(T1), t: 'int' },
+        { lab: 'Que renvoie <code>mystere(T2)</code> ?', a: leaves(T2), t: 'int' },
+        { lab: 'Que calcule <code>mystere</code> ?', small: 'un mot', a: ['nb_feuilles', 'nombre de feuilles', 'feuilles', 'le nombre de feuilles', 'les feuilles'], t: 'txt' },
+        { lab: 'Que renvoie <code>taille(T2)</code> ?', a: size(T2), t: 'int' },
+        { lab: 'Que renvoie <code>hauteur(T2)</code> (niveaux) ?', a: height(T2), t: 'int' },
+      ] },
+      { type: 'mcq', q: 'Que renvoie la fonction <b>g</b> suivante ?<pre class="code" style="margin:.5rem 0 0"><span class="kw">def</span> <span class="fn">g</span>(a):\n    <span class="kw">if</span> a <span class="kw">is None</span>:\n        <span class="kw">return</span> <span class="kw">None</span>\n    <span class="kw">while</span> a.gauche <span class="kw">is not None</span>:\n        a = a.gauche\n    <span class="kw">return</span> a.valeur</pre>', opts: ['La hauteur de l\'arbre', 'La valeur de la feuille la plus profonde', 'Le minimum, si l\'arbre est un ABR', 'La racine'], ok: 2, expl: 'On descend à gauche tant que c\'est possible : dans un ABR, le nœud le plus à gauche porte la plus petite clé. Sur un arbre quelconque, ce n\'est pas forcément le minimum.' },
+      { type: 'open', q: 'Écrivez une fonction <code>somme(a)</code> qui renvoie la somme des valeurs (numériques) d\'un arbre binaire.', modele: '<pre class="code" style="margin:0">def somme(a):\n    if a is None:\n        return 0\n    return a.valeur + somme(a.gauche) + somme(a.droit)</pre>Cas de base : l\'arbre vide vaut 0. Cas général : la valeur de la racine plus les sommes des deux sous-arbres.' },
+      { type: 'open', q: 'Écrivez une fonction <code>maximum(a)</code> qui renvoie la plus grande clé d\'un ABR non vide, sans parcourir tout l\'arbre.', modele: '<pre class="code" style="margin:0">def maximum(a):\n    while a.droit is not None:\n        a = a.droit\n    return a.valeur</pre>On descend à droite tant que possible : le nœud le plus à droite porte la plus grande clé. Coût O(h), et non O(n).' },
+    ] },
+
+    { id: 'ex6', titre: 'Hauteur et complexité', groupes: [
+      { type: 'rappel', texte: 'Pour un arbre binaire de taille n et de hauteur h (niveaux) : <b>h ≤ n ≤ 2<sup>h</sup> − 1</b>, donc ⌈log<sub>2</sub>(n + 1)⌉ ≤ h ≤ n. Une recherche dans un ABR coûte au plus h comparaisons.' },
+      { type: 'qs', consigne: 'Complétez.', items: [
+        { lab: 'Nombre maximal de nœuds d\'un arbre binaire de hauteur 5', a: 31, t: 'int' },
+        { lab: 'Nombre minimal de nœuds d\'un arbre binaire de hauteur 5', a: 5, t: 'int' },
+        { lab: 'Hauteur minimale d\'un arbre binaire de 100 nœuds', a: 7, t: 'int' },
+        { lab: 'Hauteur maximale d\'un arbre binaire de 100 nœuds', a: 100, t: 'int' },
+        { lab: 'Hauteur minimale d\'un ABR contenant 1 000 000 de clés', a: 20, t: 'int' },
+        { lab: 'Nombre maximal de comparaisons pour une recherche dans cet ABR, s\'il est de hauteur minimale', a: 20, t: 'int' },
+        { lab: 'Nombre maximal de comparaisons pour la même recherche dans un tableau non trié', a: 1000000, t: 'int' },
+        { lab: 'Nombre de nœuds d\'un arbre parfait de hauteur 10', a: 1023, t: 'int' },
+      ] },
+      { type: 'mcq', q: 'Un ABR est construit en insérant un million de clés <b>tirées au hasard</b>. Sa hauteur est le plus probablement…', opts: ['Environ 20 à 45 niveaux', 'Environ 1 000 niveaux', 'Un million de niveaux'], ok: 0, expl: 'Avec des insertions dans un ordre aléatoire, la hauteur reste de l\'ordre de quelques fois log₂ n (≈ 2 log₂ n en moyenne, soit une quarantaine). Le cas extrême, un million de niveaux, ne se produit qu\'avec des clés insérées déjà triées.' },
+      { type: 'open', q: 'Expliquez pourquoi rechercher une clé coûte O(h) comparaisons dans un ABR, alors que la fonction <code>est_present</code> du cours (sur un arbre binaire quelconque) coûte O(n).', modele: 'Dans un arbre quelconque, rien n\'indique où se trouve la clé : il faut explorer les deux sous-arbres, donc potentiellement tous les nœuds (O(n)). Dans un ABR, la comparaison avec la clé du nœud élimine un sous-arbre entier : on ne suit qu\'une seule branche, de longueur au plus h. Si l\'arbre est équilibré, h ≈ log₂ n, ce qui est incomparablement plus petit que n.' },
+      { type: 'open', q: 'On dispose d\'un tableau trié et d\'un ABR équilibré contenant les mêmes n clés. Comparez les coûts d\'une recherche et d\'une insertion dans les deux structures.', modele: 'Recherche : O(log n) dans les deux cas (dichotomie dans le tableau, descente dans l\'ABR). Insertion : O(n) dans le tableau trié, car il faut décaler tous les éléments situés après la position d\'insertion ; O(log n) dans l\'ABR, où l\'on accroche simplement une feuille au bout d\'une branche. L\'ABR combine les deux avantages ; en contrepartie, il faut veiller à ce qu\'il reste équilibré.' },
+    ] },
+  ];
+
+  /* ================= normalisation et vérification ================= */
+  function strip(s){ return String(s == null ? '' : s).replace(/ /g, ' ').replace(/[−–—]/g, '-').replace(/[×✕]/g, '*').replace(/[÷]/g, '/').trim(); }
+  function noAccent(s){ return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s; }
+  function normSeq(s){ return strip(s).toUpperCase().replace(/[→,;>\-]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function normSet(s){ return normSeq(s).split(' ').filter(Boolean).sort().join(' '); }
+  function normExpr(s){ return strip(s).replace(/\s+/g, '').toLowerCase(); }
+  function normPy(s){ return strip(s).replace(/\s+/g, '').replace(/"/g, "'"); }
+  function normTxt(s){ return noAccent(strip(s).toLowerCase()).replace(/\s+/g, ' ').replace(/[.!]$/, ''); }
+  function isRight(type, given, answer, alt){
+    var g = strip(given); if (!g) return false;
+    var answers = [].concat(answer).concat(alt || []);
+    switch (type){
+      case 'int': { var v = Number(g.replace(/\s/g, '').replace(',', '.')); return answers.some(function(a){ return v === Number(a); }); }
+      case 'txt': return answers.some(function(a){ return normTxt(g) === normTxt(a); });
+      case 'seq': return answers.some(function(a){ return normSeq(g) === normSeq(String(a)); });
+      case 'set': return answers.some(function(a){ return normSet(g) === normSet(String(a)); });
+      case 'expr': return answers.some(function(a){ return normExpr(g) === normExpr(String(a)); });
+      case 'py': return answers.some(function(a){ return normPy(g) === normPy(String(a)); });
+    }
+    return false;
+  }
+  function showAns(a){ return [].concat(a)[0]; }
+
+  /* ================= état ================= */
+  var fields = [], mcqs = [];
+  var saved = {}; try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+  var saveTimer = null;
+  function persist(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      var o = {};
+      fields.forEach(function(f){ if (f.input.value) o[f.id] = f.input.value; });
+      mcqs.forEach(function(m){ var c = m.box.querySelector('input:checked'); if (c) o[m.id] = c.value; });
+      document.querySelectorAll('textarea[data-id]').forEach(function(t){ if (t.value) o[t.dataset.id] = t.value; });
+      try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) {}
+    }, 300);
+  }
+
+  /* ================= construction ================= */
+  function el(tag, cls, html){ var d = document.createElement(tag); if (cls) d.className = cls; if (html != null) d.innerHTML = html; return d; }
+  function makeField(id, item, exo, inline){
+    var wrap = el(inline ? 'span' : 'div', 'fld');
+    var inp = el('input', 'f'); inp.type = 'text'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.setAttribute('aria-label', 'réponse');
+    if (item.t === 'int') inp.inputMode = 'numeric';
+    if (inline) inp.style.width = Math.max(9, String(showAns(item.a)).length + 3) + 'ch';
+    var mark = el('span', 'mark');
+    wrap.appendChild(inp); wrap.appendChild(mark);
+    var f = { id: id, type: item.t, answer: item.a, alt: item.alt, input: inp, mark: mark, exo: exo, state: null };
+    fields.push(f);
+    if (saved[id]) inp.value = saved[id];
+    function check(final){
+      var v = inp.value;
+      if (!strip(v)) { setState(f, null); return; }
+      setState(f, isRight(f.type, v, f.answer, f.alt) ? 'ok' : (final ? 'ko' : (f.state === 'ko' ? 'ko' : null)));
+    }
+    inp.addEventListener('input', function(){ check(false); persist(); });
+    inp.addEventListener('change', function(){ check(true); refresh(); });
+    inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') { check(true); refresh(); } });
+    f.check = function(){ check(true); };
+    return wrap;
+  }
+  function setState(f, st){
+    f.state = st;
+    f.input.classList.toggle('ok', st === 'ok'); f.input.classList.toggle('ko', st === 'ko');
+    f.mark.className = 'mark' + (st ? ' ' + st : ''); f.mark.textContent = st === 'ok' ? '✓' : st === 'ko' ? '✗' : '';
+    refresh();
+  }
+  function makeMcq(id, g, exo){
+    var box = el('div', 'mcq' + (g.type === 'mcqfig' ? ' figs' : ''));
+    box.appendChild(el('div', 'qt', g.q));
+    var opts = el('div', 'opts');
+    var options = g.type === 'mcqfig' ? g.trees.map(function(t, i){ return svgTree(t, { dx: 36, dy: 46, r: 14 }) + '<span>Arbre ' + (i + 1) + '</span>'; }) : g.opts;
+    options.forEach(function(o, i){
+      var lab = el('label', i === g.ok ? 'right' : ''); var r = el('input'); r.type = 'radio'; r.name = id; r.value = i;
+      lab.appendChild(r); var span = el('span', null, o); lab.appendChild(span); opts.appendChild(lab);
+      r.addEventListener('change', function(){ mark(); persist(); refresh(); });
+    });
+    box.appendChild(opts);
+    if (g.expl) box.appendChild(el('div', 'expl', '→ ' + g.expl));
+    var m = { id: id, box: box, ok: g.ok, exo: exo, state: null };
+    function mark(){
+      var c = box.querySelector('input:checked');
+      box.querySelectorAll('label').forEach(function(l){ l.classList.toggle('checked', l.querySelector('input').checked); });
+      m.state = c ? (+c.value === g.ok ? 'ok' : 'ko') : null;
+      box.classList.toggle('ok', m.state === 'ok'); box.classList.toggle('ko', m.state === 'ko');
+    }
+    m.check = mark;
+    if (saved[id] != null) { var r0 = box.querySelector('input[value="' + saved[id] + '"]'); if (r0) r0.checked = true; }
+    mark();
+    mcqs.push(m);
+    return box;
+  }
+  function makeOpen(id, g){
+    var box = el('div', 'open'); box.appendChild(el('div', 'qt', g.q));
+    var ta = el('textarea'); ta.dataset.id = id; if (saved[id]) ta.value = saved[id]; ta.addEventListener('input', persist); box.appendChild(ta);
+    var b = el('button', 'rev', 'Voir une réponse modèle'); b.type = 'button';
+    var mod = el('div', 'modele', g.modele);
+    b.addEventListener('click', function(){ mod.classList.toggle('show'); b.textContent = mod.classList.contains('show') ? 'Masquer la réponse modèle' : 'Voir une réponse modèle'; });
+    box.appendChild(b); box.appendChild(mod); return box;
+  }
+
+  var root = document.getElementById('exos');
+  TD.forEach(function(ex, xi){
+    var sec = el('section', 'exo'); sec.id = ex.id;
+    sec.appendChild(el('h2', null, '<span class="pn">' + (xi + 1) + '</span> ' + ex.titre + ' <span class="cnt"></span>'));
+    ex.groupes.forEach(function(g, gi){
+      var host = sec;
+      if (g.repli) { var d = el('details', 'repli'); d.appendChild(el('summary', null, g.repli)); sec.appendChild(d); host = d; }
+      if (g.type === 'fig') { host.appendChild(el('div', 'fig', svgTree(g.tree, { ops: g.ops, w: 520 }) + (g.cap ? '<div class="cap">' + g.cap + '</div>' : ''))); return; }
+      if (g.type === 'rappel') { host.appendChild(el('div', 'rappel', g.texte)); return; }
+      if (g.consigne) host.appendChild(el('div', 'consigne', g.consigne));
+      if (g.type === 'qs') {
+        var qs = el('div', 'qs');
+        g.items.forEach(function(it, ii){
+          var id = ex.id + '_' + gi + '_' + ii;
+          var row = el('div', 'q');
+          row.appendChild(el('div', 'lab', it.lab + (it.small ? '<small>' + it.small + '</small>' : '')));
+          row.appendChild(makeField(id, it, sec));
+          row.appendChild(el('div', 'sol', '→ ' + showAns(it.a)));
+          qs.appendChild(row);
+        });
+        host.appendChild(qs);
+      } else if (g.type === 'mcq' || g.type === 'mcqfig') {
+        host.appendChild(makeMcq(ex.id + '_' + gi, g, sec));
+      } else if (g.type === 'open') {
+        host.appendChild(makeOpen(ex.id + '_' + gi, g));
+      } else if (g.type === 'code') {
+        var pre = el('pre', 'code');
+        g.lines.forEach(function(line, li){
+          var parts = line.split(/\{\{(\d+)\}\}/);
+          for (var k = 0; k < parts.length; k++) {
+            if (k % 2 === 0) pre.appendChild(el('span', null, parts[k]));
+            else {
+              var b = g.blanks[+parts[k]], id2 = ex.id + '_' + gi + '_' + parts[k];
+              pre.appendChild(makeField(id2, b, sec, true));
+              pre.appendChild(el('span', 'csol', ' ← ' + showAns(b.a)));
+            }
+          }
+          if (li < g.lines.length - 1) pre.appendChild(document.createTextNode('\n'));
+        });
+        host.appendChild(pre);
+      }
+    });
+    var foot = el('div', 'exfoot');
+    var b1 = el('button', null, 'Vérifier cet exercice'); b1.type = 'button';
+    b1.addEventListener('click', function(){ fields.filter(function(f){ return f.exo === sec; }).forEach(function(f){ f.check(); }); refresh(); });
+    var b2 = el('button', null, 'Voir les réponses'); b2.type = 'button';
+    b2.addEventListener('click', function(){ sec.classList.toggle('solved'); b2.textContent = sec.classList.contains('solved') ? 'Masquer les réponses' : 'Voir les réponses'; });
+    foot.appendChild(b1); foot.appendChild(b2); sec.appendChild(foot);
+    root.appendChild(sec);
+  });
+
+  /* ================= score ================= */
+  function refresh(){
+    var all = fields.concat(mcqs), ok = all.filter(function(f){ return f.state === 'ok'; }).length;
+    document.getElementById('sOk').textContent = ok; document.getElementById('sTot').textContent = all.length;
+    document.getElementById('sBar').style.width = (all.length ? 100 * ok / all.length : 0) + '%';
+    document.querySelectorAll('.exo').forEach(function(sec){
+      var mine = all.filter(function(f){ return f.exo === sec; }), k = mine.filter(function(f){ return f.state === 'ok'; }).length;
+      var c = sec.querySelector('.cnt'); c.textContent = k + ' / ' + mine.length; c.classList.toggle('full', k === mine.length && mine.length > 0);
+    });
+  }
+  document.getElementById('btnCheck').addEventListener('click', function(){ fields.forEach(function(f){ f.check(); }); mcqs.forEach(function(m){ m.check(); }); refresh(); });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if (!confirm('Effacer toutes vos réponses ?')) return;
+    fields.forEach(function(f){ f.input.value = ''; setState(f, null); });
+    mcqs.forEach(function(m){ m.box.querySelectorAll('input').forEach(function(r){ r.checked = false; }); m.check(); });
+    document.querySelectorAll('textarea[data-id]').forEach(function(t){ t.value = ''; });
+    document.querySelectorAll('.exo.solved').forEach(function(s){ s.classList.remove('solved'); });
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    refresh();
+  });
+  fields.forEach(function(f){ if (f.input.value) f.check(); });
+  refresh();
+})();
+</script>
+</body>
+</html>
