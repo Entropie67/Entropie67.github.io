@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Labyrinthes et parcours</title>
+<link rel="icon" type="image/png" href="../../logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="anim.css">
+<script defer src="anim.js"></script>
+<style>
+  /* ── Onglets d'algorithmes ── */
+  .tabs {
+    position: fixed; top: calc(var(--topbar-h, 70px) + 26px); left: 50%; transform: translateX(-50%); z-index: 5;
+    display: flex; gap: 4px; padding: 5px; border-radius: 14px; max-width: calc(100vw - 32px); overflow-x: auto; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit;
+    font-weight: 700; font-size: 13.5px; padding: 0 16px; height: 36px; border-radius: 10px; cursor: pointer;
+    transition: .2s; white-space: nowrap; position: relative;
+  }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,.06); }
+  .tab.on { color: #fff; background: var(--grad-main); box-shadow: 0 6px 18px rgba(108,158,255,.35); }
+  .tab.duo.on { background: var(--grad-warm); color: #1a1020; box-shadow: 0 6px 18px rgba(255,79,163,.35); }
+  .tab .cx { font-size: 10px; opacity: .75; margin-left: 6px; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+  /* ── Zone principale ── */
+  #stage {
+    position: fixed; left: 16px; right: 16px; top: calc(var(--topbar-h, 70px) + 82px); bottom: calc(var(--toolbar-h, 62px) + 30px); z-index: 2;
+    display: grid; grid-template-columns: 1fr 380px; gap: 14px;
+  }
+  #stage.duo { grid-template-columns: 1fr; }
+  #vizPanel { position: relative; overflow: hidden; min-height: 0; }
+  #stage.duo #vizPanel, #stage.duo #side { display: none; }
+  canvas.maze { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+  .hint { position: absolute; bottom: 9px; left: 12px; right: 12px; z-index: 2; text-align: center; font-size: 12px; color: var(--muted); pointer-events: none; font-variant-numeric: tabular-nums; }
+  .hint b { color: var(--text); }
+
+  #duo { display: none; grid-template-columns: 1fr 1fr; gap: 14px; min-height: 0; }
+  #stage.duo #duo { display: grid; }
+  .lane { position: relative; overflow: hidden; min-height: 0; }
+  .lhead { position: absolute; top: 8px; left: 10px; right: 10px; z-index: 2; display: flex; align-items: center; gap: 10px; }
+  .lhead .cx { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); font-weight: 600; }
+  .lane .rank {
+    margin-left: auto; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 999px;
+    background: var(--grad-win); color: #06201c; opacity: 0; transform: scale(.6); transition: .35s cubic-bezier(.2,1.6,.4,1);
+  }
+  .lane .rank.show { opacity: 1; transform: scale(1); }
+  .lane .rank.bad { background: rgba(255,92,122,.2); color: #ffb4c2; box-shadow: inset 0 0 0 1px rgba(255,92,122,.5); }
+  .lstats { position: absolute; bottom: 9px; left: 12px; right: 12px; z-index: 2; font-size: 12px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; pointer-events: none; }
+  .lstats b { color: var(--text); }
+  .ok { color: var(--teal); font-weight: 700; } .no { color: #ffb4c2; font-weight: 700; }
+
+  /* ── Panneau latéral ── */
+  #side { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; padding-right: 2px; }
+  .card { padding: 14px 16px; flex: 0 0 auto; }
+  .card h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .card h4 .r { margin-left: auto; font-weight: 600; text-transform: none; letter-spacing: 0; }
+  .statgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { padding: 9px 12px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--border); }
+  .stat .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+  .stat .v { font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .stat .v small { font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 4px; }
+  .stat.violet .v { color: var(--violet); } .stat.amber .v { color: var(--amber); } .stat.teal .v { color: var(--teal); } .stat.blue .v { color: var(--blue); }
+
+  #frList { display: flex; flex-wrap: wrap; gap: 4px; min-height: 22px; }
+  #frList .cell { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 2px 7px; border-radius: 6px; background: rgba(255,197,61,.08); border: 1px solid rgba(255,197,61,.25); color: #ffe2a0; white-space: nowrap; }
+  #frList .cell.next { background: var(--amber); color: #201400; border-color: transparent; font-weight: 700; }
+  #frList .cell i { font-style: normal; opacity: .65; margin-left: 4px; }
+  #frList .more, #frList .empty { font-size: 11.5px; color: var(--muted); padding: 2px 4px; }
+  #frList .walker { font-size: 13px; line-height: 1.55; color: #d8dbe6; }
+  #frList .walker .arrow { display: inline-block; font-size: 16px; color: var(--teal); }
+  #frList .dim { color: var(--muted); font-size: 12px; }
+
+  #explain { font-size: 13.5px; line-height: 1.5; color: #d8dbe6; min-height: 40px; }
+  #explain b { color: #fff; } #explain code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 5px; }
+
+  #code { overflow-x: auto; margin: 0; padding: 0; list-style: none; font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.55; counter-reset: ln; font-variant-ligatures: none; }
+  #code li { display: flex; gap: 10px; padding: 1px 8px; border-radius: 6px; white-space: pre; transition: background .15s; }
+  #code li::before { counter-increment: ln; content: counter(ln); color: rgba(255,255,255,.22); min-width: 18px; text-align: right; }
+  #code li.hl { background: rgba(108,158,255,.18); box-shadow: inset 3px 0 0 var(--blue); }
+  #code li.hl::before { color: var(--blue); }
+  #code li.diff:not(.hl) { background: rgba(255,197,61,.1); box-shadow: inset 3px 0 0 rgba(255,197,61,.7); }
+  .kw { color: #c792ea; } .fn { color: #82aaff; } .cm { color: rgba(255,255,255,.35); font-style: italic; } .nb { color: #f78c6c; }
+  #desc { font-size: 12.5px; color: #c9cddb; line-height: 1.5; margin-top: 10px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 11.5px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 13px; height: 13px; border-radius: 3px; display: inline-block; }
+  .legend i.dot { border-radius: 50%; }
+
+  /* ── Réglages ── */
+  select.btn { padding-right: 32px; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 18px, calc(100% - 11px) 18px; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; }
+  select.btn.sm { background-position: calc(100% - 16px) 14px, calc(100% - 11px) 14px; padding-right: 28px; }
+  select.btn option { background: #181b24; color: var(--text); }
+  .slider { display: inline-flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,.04); }
+  .slider .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .slider .val { min-width: 30px; text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; font-size: 14px; }
+  #vSize { min-width: 62px; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 110px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.15); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--grad-main); border: 2px solid #fff; box-shadow: 0 2px 10px rgba(108,158,255,.6); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--grad-main); border: 2px solid #fff; cursor: pointer; }
+  .toggle.on { color: var(--violet); border-color: rgba(181,123,255,.5); }
+  #bNums { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+  @media (max-width: 1000px) {
+    #stage { grid-template-columns: 1fr; }
+    #side { display: none; }
+    #duo { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; gap: 8px; }
+    .tab { padding: 0 10px; font-size: 12px; height: 32px; }
+    .tab .cx { display: none; }
+    #vizPanel .hint { display: none; }
+    input[type=range] { width: 80px; }
+  }
+  @media (max-width: 600px) {
+    .titleblock h1 { font-size: 15px; }
+    .back { padding: 8px 6px; }
+    .toolbar .sep, .slider .lbl { display: none; }
+    .slider { padding: 0 8px; gap: 6px; }
+    #vSize { min-width: 0; font-size: 12px; }
+    input[type=range] { width: 64px; }
+    .toolbar .btn.icon { width: 36px; }
+    .toolbar { left: 10px; right: 10px; transform: none; max-width: none; }
+    .lstats { font-size: 11px; } .lstats .w { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+
+<div class="topbar glass">
+  <a class="back" href="../index.html">← NSI</a>
+  <div class="titleblock">
+    <h1 id="tTitle">Labyrinthes et parcours</h1>
+    <p id="tHint"></p>
+  </div>
+  <div class="spacer"></div>
+  <div class="chipset">
+    <button id="bLang" class="btn sm">EN</button>
+    <button id="bInfo" class="btn sm">Info</button>
+  </div>
+</div>
+
+<div class="tabs glass" id="tabs"></div>
+<div id="msg" class="toast glass" style="top: calc(var(--topbar-h, 70px) + 80px);"></div>
+
+<div id="stage">
+  <div id="vizPanel" class="glass"><canvas id="viz" class="maze"></canvas><div class="hint" id="vizHint"></div></div>
+  <div id="duo">
+    <div class="lane glass"><div class="lhead"><select class="btn sm"></select><span class="cx"></span><span class="rank"></span></div><canvas class="maze"></canvas><div class="lstats"></div></div>
+    <div class="lane glass"><div class="lhead"><select class="btn sm"></select><span class="cx"></span><span class="rank"></span></div><canvas class="maze"></canvas><div class="lstats"></div></div>
+  </div>
+  <div id="side">
+    <div class="card glass">
+      <h4 id="hStats">Compteurs</h4>
+      <div class="statgrid">
+        <div class="stat violet"><div class="k" id="kExp">explorées</div><div class="v" id="vExp">0</div></div>
+        <div class="stat amber"><div class="k" id="kMem">mémoire max</div><div class="v" id="vMem">0</div></div>
+        <div class="stat teal"><div class="k" id="kPath">chemin</div><div class="v" id="vPath">—</div></div>
+        <div class="stat blue"><div class="k" id="kBest">plus court</div><div class="v" id="vBest">—</div></div>
+      </div>
+    </div>
+    <div class="card glass">
+      <h4><span id="hFr">Pile</span><span class="r" id="hFrR"></span></h4>
+      <div id="frList"></div>
+    </div>
+    <div class="card glass">
+      <h4 id="hExplain">Étape</h4>
+      <div id="explain"></div>
+    </div>
+    <div class="card glass">
+      <h4 id="hCode">Python</h4>
+      <ol id="code"></ol>
+      <div id="desc"></div>
+    </div>
+    <div class="card glass">
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar glass">
+  <select id="preset" class="btn"></select>
+  <button id="bNew" class="btn primary">Nouveau</button>
+  <div class="slider"><span class="lbl" id="lblSize">taille</span><input type="range" id="rSize" min="3" max="50" value="12"><span class="val" id="vSize"></span></div>
+  <div class="sep"></div>
+  <div class="slider"><span class="lbl" id="lblSpeed">vitesse</span><input type="range" id="rSpeed" min="0" max="100" value="45"><span class="val" id="vSpeed">45</span></div>
+  <button id="bReset" class="btn icon" title="Revenir au début">⏮</button>
+  <button id="bPlay" class="btn teal">▶ Lancer</button>
+  <button id="bStep" class="btn icon" title="Une étape">⏭</button>
+  <div class="sep"></div>
+  <button id="bNums" class="btn icon toggle" title="Distances">123</button>
+</div>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="modal glass">
+    <button id="close" class="close" aria-label="Fermer">×</button>
+    <div id="infoContent"></div>
+  </div>
+</div>
+
+<!-- ============ Labyrinthes et algorithmes (logique pure) ============ -->
+<script id="logic">
+// Grille de R lignes × C colonnes (R et C impairs). La case (l, c) porte le numéro i = l * C + c.
+// wall[i] vaut 1 pour un mur. Le bord est toujours un mur : les voisins d'une case libre
+// sont donc toujours dans la grille.
+function rnd(n) { return Math.floor(Math.random() * n); }
+
+function grille(R, C, plein) {
+  const M = { R, C, wall: new Uint8Array(R * C).fill(plein ? 1 : 0), start: C + 1, goal: (R - 2) * C + C - 2 };
+  if (!plein) bord(M);
+  return M;
+}
+function bord(M) {
+  const { R, C, wall } = M;
+  for (let c = 0; c < C; c++) { wall[c] = 1; wall[(R - 1) * C + c] = 1; }
+  for (let l = 0; l < R; l++) { wall[l * C] = 1; wall[l * C + C - 1] = 1; }
+}
+function estBord(M, i) { const l = (i / M.C) | 0, c = i % M.C; return l === 0 || c === 0 || l === M.R - 1 || c === M.C - 1; }
+
+// Voisins libres de c, dans l'ordre haut, gauche, bas, droite
+function voisins(M, c) {
+  const out = [];
+  for (const d of [-M.C, -1, M.C, 1]) if (!M.wall[c + d]) out.push(c + d);
+  return out;
+}
+function manhattan(M, a, b) { return Math.abs(((a / M.C) | 0) - ((b / M.C) | 0)) + Math.abs(a % M.C - b % M.C); }
+
+// Distance (en pas) de chaque case au départ, -1 si inaccessible : sert de référence « plus court ».
+function distances(M) {
+  const d = new Int32Array(M.R * M.C).fill(-1), file = [M.start];
+  d[M.start] = 0;
+  for (let k = 0; k < file.length; k++) {
+    const c = file[k];
+    for (const v of voisins(M, c)) if (d[v] < 0) { d[v] = d[c] + 1; file.push(v); }
+  }
+  return d;
+}
+
+// ── Générateurs de labyrinthes ──
+const SAUTS = [[-2, 0], [2, 0], [0, -2], [0, 2]];
+// Exploration aléatoire en profondeur : longs couloirs sinueux, un seul chemin entre deux cases.
+function genCouloirs(R, C) {
+  const M = grille(R, C, true), w = M.wall, pile = [[1, 1]];
+  w[C + 1] = 0;
+  while (pile.length) {
+    const [l, c] = pile[pile.length - 1], libres = [];
+    for (const [dl, dc] of SAUTS) {
+      const l2 = l + dl, c2 = c + dc;
+      if (l2 > 0 && l2 < R - 1 && c2 > 0 && c2 < C - 1 && w[l2 * C + c2]) libres.push([l2, c2]);
+    }
+    if (!libres.length) { pile.pop(); continue; }
+    const [l2, c2] = libres[rnd(libres.length)];
+    w[((l + l2) / 2) * C + (c + c2) / 2] = 0; w[l2 * C + c2] = 0;
+    pile.push([l2, c2]);
+  }
+  return M;
+}
+// Prim aléatoire : beaucoup d'embranchements, impasses courtes.
+function genRamifie(R, C) {
+  const M = grille(R, C, true), w = M.wall, front = [];
+  const ajoute = (l, c) => {
+    for (const [dl, dc] of SAUTS) {
+      const l2 = l + dl, c2 = c + dc;
+      if (l2 > 0 && l2 < R - 1 && c2 > 0 && c2 < C - 1 && w[l2 * C + c2]) front.push([l2, c2, l, c]);
+    }
+  };
+  w[C + 1] = 0; ajoute(1, 1);
+  while (front.length) {
+    const k = rnd(front.length), [l, c, lp, cp] = front[k];
+    front[k] = front[front.length - 1]; front.pop();
+    if (!w[l * C + c]) continue;
+    w[l * C + c] = 0; w[((l + lp) / 2) * C + (c + cp) / 2] = 0;
+    ajoute(l, c);
+  }
+  return M;
+}
+// Labyrinthe parfait dont on abat 10 % des cloisons : il y a maintenant plusieurs chemins.
+function genBoucles(R, C) {
+  const M = genCouloirs(R, C), w = M.wall, cloisons = [];
+  for (let l = 1; l < R - 1; l++) for (let c = 1; c < C - 1; c++)
+    if (w[l * C + c] && (l % 2) !== (c % 2)) cloisons.push(l * C + c);
+  for (let k = Math.max(1, Math.round(cloisons.length * 0.1)); k > 0 && cloisons.length; k--) {
+    const j = rnd(cloisons.length);
+    w[cloisons[j]] = 0; cloisons[j] = cloisons[cloisons.length - 1]; cloisons.pop();
+  }
+  return M;
+}
+// Salle semée d'obstacles au hasard (on recommence tant que l'arrivée est inaccessible).
+function genObstacles(R, C) {
+  for (let essai = 0; ; essai++) {
+    const M = grille(R, C, false), w = M.wall, dens = essai < 30 ? 0.3 : 0.15;
+    for (let i = 0; i < R * C; i++) if (!w[i] && Math.random() < dens) w[i] = 1;
+    for (const p of [M.start, M.goal]) for (const d of [0, -C, -1, C, 1]) if (!estBord(M, p + d)) w[p + d] = 0;
+    if (distances(M)[M.goal] >= 0 || essai > 60) return M;
+  }
+}
+// Un mur en U ouvert vers le départ, entre le départ et l'arrivée : le glouton fonce dedans.
+function genPiege(R, C) {
+  const M = grille(R, C, false), w = M.wall, mid = R >> 1;
+  const x1 = Math.round(C * 0.62), x0 = Math.round(C * 0.34);
+  const y0 = Math.max(2, Math.round(R * 0.2)), y1 = Math.min(R - 3, Math.round(R * 0.8));
+  for (let l = y0; l <= y1; l++) w[l * C + x1] = 1;
+  for (let c = x0; c <= x1; c++) { w[y0 * C + c] = 1; w[y1 * C + c] = 1; }
+  M.start = mid * C + Math.max(1, Math.round(C * 0.12));
+  M.goal = mid * C + Math.min(C - 2, Math.round(C * 0.88));
+  return M;
+}
+function genVide(R, C) { return grille(R, C, false); }
+
+// ── File de priorité (tas binaire) ; avant(x, y) : x doit sortir avant y ──
+class Tas {
+  constructor(avant) { this.a = []; this.avant = avant; }
+  get size() { return this.a.length; }
+  push(x) {
+    const a = this.a; a.push(x);
+    for (let i = a.length - 1; i > 0;) {
+      const p = (i - 1) >> 1;
+      if (!this.avant(a[i], a[p])) break;
+      [a[i], a[p]] = [a[p], a[i]]; i = p;
+    }
+  }
+  pop() {
+    const a = this.a, top = a[0], last = a.pop();
+    if (a.length) {
+      a[0] = last;
+      for (let i = 0; ;) {
+        const g = 2 * i + 1, d = g + 1; let m = i;
+        if (g < a.length && this.avant(a[g], a[m])) m = g;
+        if (d < a.length && this.avant(a[d], a[m])) m = d;
+        if (m === i) break;
+        [a[i], a[m]] = [a[m], a[i]]; i = m;
+      }
+    }
+    return top;
+  }
+  tries(k) { return this.a.slice().sort((x, y) => this.avant(x, y) ? -1 : this.avant(y, x) ? 1 : 0).slice(0, k); }
+}
+
+// ── Les algorithmes : générateurs qui produisent des étapes ──
+//  {t:'init', fr, line}        fr : la structure des cases à visiter (pile, file, tas)
+//  {t:'line', line}            simple mise en évidence d'une ligne de code
+//  {t:'pop', c, line}          on retire la case c de la structure : elle est explorée
+//  {t:'test', c, ok, line}     c est-elle l'arrivée ?
+//  {t:'look', v, seen, line}   on examine le voisin v (seen : on l'ignore)
+//  {t:'push', v, p, g?, line}  v entre dans la structure, parent[v] = p
+//  {t:'try', v, nd, tour, ok}  main droite : on regarde dans la direction nd
+//  {t:'move', c, d, line}      main droite : on avance en c, direction d
+//  {t:'found' | 'fail' | 'loop', line}
+
+// Profondeur, largeur et glouton : exactement le même code, seule la structure S change.
+function* parcours(M, S) {
+  const vu = new Uint8Array(M.R * M.C);
+  S.ajoute(M.start); vu[M.start] = 1;
+  yield { t: 'init', fr: S, line: 2 };
+  yield { t: 'line', line: 3 };
+  for (;;) {
+    yield { t: 'line', line: 4 };
+    if (!S.size()) break;
+    const c = S.retire();
+    yield { t: 'pop', c, h: S.h && S.h(c), line: 5 };
+    const ok = c === M.goal;
+    yield { t: 'test', c, ok, line: 6 };
+    if (ok) { yield { t: 'found', line: 7 }; return; }
+    for (const v of voisins(M, c)) {
+      yield { t: 'look', v, seen: !!vu[v], line: 9 };
+      if (!vu[v]) { vu[v] = 1; S.ajoute(v); yield { t: 'push', v, p: c, h: S.h && S.h(v), line: 11 }; }
+    }
+  }
+  yield { t: 'fail', line: 12 };
+}
+function pile() {
+  const a = [];
+  return { kind: 'pile', size: () => a.length, ajoute: v => a.push(v), retire: () => a.pop(),
+    list: k => a.slice(-k).reverse().map(v => ({ v })) };
+}
+function file() {
+  const a = []; let tete = 0;
+  return { kind: 'file', size: () => a.length - tete, ajoute: v => a.push(v), retire: () => a[tete++],
+    list: k => a.slice(tete, tete + k).map(v => ({ v })) };
+}
+function tasGlouton(M) {
+  let n = 0;
+  const h = v => manhattan(M, v, M.goal), T = new Tas((x, y) => x.h !== y.h ? x.h < y.h : x.n > y.n);
+  return { kind: 'tas', h, size: () => T.size, ajoute: v => T.push({ v, h: h(v), n: n++ }), retire: () => T.pop().v,
+    list: k => T.tries(k).map(e => ({ v: e.v, p: 'h=' + e.h })) };
+}
+const profondeur = M => parcours(M, pile());
+const largeur = M => parcours(M, file());
+const glouton = M => parcours(M, tasGlouton(M));
+
+// A* : priorité f = g + h ; à égalité, la case la plus proche de l'arrivée (puis la plus récente).
+function* aEtoile(M) {
+  const g = new Int32Array(M.R * M.C).fill(-1), h = v => manhattan(M, v, M.goal);
+  let n = 0;
+  const T = new Tas((x, y) => x.f !== y.f ? x.f < y.f : x.h !== y.h ? x.h < y.h : x.n > y.n);
+  g[M.start] = 0; T.push({ v: M.start, f: h(M.start), h: h(M.start), g: 0, n: n++ });
+  yield { t: 'init', fr: { kind: 'tas', size: () => T.size, list: k => T.tries(k).map(e => ({ v: e.v, p: 'f=' + e.f })) }, line: 2 };
+  yield { t: 'line', line: 3 };
+  yield { t: 'line', line: 4 };
+  for (;;) {
+    yield { t: 'line', line: 5 };
+    if (!T.size) break;
+    const e = T.pop(), c = e.v;
+    yield { t: 'pop', c, f: e.f, h: e.h, g: e.g, line: 6 };
+    const ok = c === M.goal;
+    yield { t: 'test', c, ok, line: 7 };
+    if (ok) { yield { t: 'found', line: 8 }; return; }
+    for (const v of voisins(M, c)) {
+      const ng = g[c] + 1, old = g[v], mieux = old < 0 || ng < old;
+      yield { t: 'look', v, seen: !mieux, ng, old, line: 10 };
+      if (mieux) {
+        g[v] = ng; const hv = h(v);
+        T.push({ v, f: ng + hv, h: hv, g: ng, n: n++ });
+        yield { t: 'push', v, p: c, g: ng, h: hv, f: ng + hv, line: 13 };
+      }
+    }
+  }
+  yield { t: 'fail', line: 14 };
+}
+
+// Main droite : on garde la main sur le mur. Aucune mémoire… sauf, ici, pour détecter qu'on tourne en rond.
+const DIRS = [[0, 1], [1, 0], [0, -1], [-1, 0]];      // 0 est, 1 sud, 2 ouest, 3 nord
+function* mainDroite(M) {
+  let c = M.start, d = 0;
+  const pas = k => DIRS[k][0] * M.C + DIRS[k][1];
+  const etats = new Uint8Array(M.R * M.C * 4);         // couples (case, direction) déjà rencontrés
+  etats[c * 4 + d] = 1;
+  yield { t: 'init', fr: { kind: 'mur', size: () => 1, dir: () => d }, line: 2 };
+  yield { t: 'line', line: 3 };
+  for (;;) {
+    const ok = c === M.goal;
+    yield { t: 'test', c, ok, line: 4 };
+    if (ok) break;
+    let bouge = false;
+    for (const tour of [1, 0, 3, 2]) {
+      const nd = (d + tour) % 4, v = c + pas(nd), libre = !M.wall[v];
+      yield { t: 'try', v, nd, tour, ok: libre, line: 8 };
+      if (libre) { c = v; d = nd; bouge = true; yield { t: 'move', c, d, line: 9 }; break; }
+    }
+    if (!bouge) { yield { t: 'fail', line: 4 }; return; }
+    if (etats[c * 4 + d]) { yield { t: 'loop', c, line: 4 }; return; }
+    etats[c * 4 + d] = 1;
+  }
+  yield { t: 'found', line: 12 };
+}
+
+const ALGOS = {
+  profondeur: { gen: profondeur, fr: 'pile' },
+  largeur:    { gen: largeur,    fr: 'file' },
+  glouton:    { gen: glouton,    fr: 'tas' },
+  aetoile:    { gen: aEtoile,    fr: 'tas' },
+  main:       { gen: mainDroite, fr: 'mur' },
+};
+const PRESETS = { couloirs: genCouloirs, ramifie: genRamifie, boucles: genBoucles, obstacles: genObstacles, piege: genPiege, vide: genVide };
+if (typeof module !== 'undefined') module.exports = { ALGOS, PRESETS, voisins, distances, manhattan, Tas };
+</script>
+
+<script>
+// ─────────────────────── Textes ───────────────────────
+const T = {
+  fr: {
+    lang: 'EN', title: 'Labyrinthes et parcours', info: 'Info', close: 'Fermer',
+    hint: 'Un labyrinthe est un graphe : chaque case libre est un sommet. Choisissez un parcours, lancez-le ou avancez ligne par ligne, puis comparez deux algorithmes sur le même labyrinthe.',
+    names: { profondeur: 'Profondeur', largeur: 'Largeur', glouton: 'Glouton', aetoile: 'A*', main: 'Main droite', comparer: 'Comparer' },
+    tags: { pile: 'pile', file: 'file', tas: 'tas', mur: 'mur' },
+    presets: { couloirs: 'Parfait · longs couloirs', ramifie: 'Parfait · très ramifié', boucles: 'Avec boucles', obstacles: 'Salle avec obstacles', piege: 'Piège en U', vide: 'Salle vide' },
+    newMaze: 'Nouveau', size: 'taille', speed: 'vitesse', play: '▶ Lancer', pause: '⏸ Pause', replay: '↺ Rejouer',
+    reset: 'Revenir au début', step: 'Une ligne (Maj : une case entière)', stepDuo: 'Une case de plus pour chacun',
+    nums: 'Afficher la distance de chaque case au départ (dans l’arbre de parcours)',
+    stats: 'Compteurs', explored: 'explorées', memory: 'mémoire max', path: 'chemin', best: 'plus court',
+    frTitle: { pile: 'Pile', file: 'File', tas: 'File de priorité (tas)', mur: 'Mémoire' },
+    frOrder: { pile: 'sommet en premier', file: 'tête en premier', tas: 'priorité croissante' },
+    frEmpty: 'vide', frBefore: 'Le départ D y sera placé au lancement.',
+    walker: (pos, arrow, dir) => `Position <b>${pos}</b> · regard <span class="arrow">${arrow}</span> <b>${dir}</b><br><span class="dim">Ni pile ni file : on retient seulement où l’on est et où l’on regarde.</span>`,
+    hExplain: 'Étape', codeTitle: 'Python',
+    editHint: 'Glissez <b>D</b> ou <b>A</b> pour les déplacer · cliquez-glissez pour ajouter ou enlever des murs',
+    hoverWall: p => `${p} · mur`, hoverFree: p => `${p} · case libre`,
+    hoverExp: (p, n, d) => `${p} · explorée en n° <b>${n}</b> · à <b>${d}</b> pas du départ par ce parcours`,
+    hoverFr: (p, d) => `${p} · en attente · à <b>${d}</b> pas du départ par ce parcours`,
+    D: 'D', A: 'A',
+    dirs: ['est', 'sud', 'ouest', 'nord'],
+    vers: ['vers l’est', 'vers le sud', 'vers l’ouest', 'vers le nord'],
+    tours: { 1: 'à droite', 0: 'tout droit', 3: 'à gauche', 2: 'le demi-tour' },
+    ex: {
+      ready: 'Appuyez sur ▶ pour lancer, ou sur ⏭ pour avancer ligne par ligne.',
+      init: {
+        pile: 'On place le départ D dans la pile, avec <code>parent[D] = None</code>.',
+        file: 'On place le départ D dans la file, avec <code>parent[D] = None</code>.',
+        tas: h => `On place le départ D dans le tas, avec la priorité h(D) = ${h}.`,
+        aetoile: h => `g(D) = 0 : on place D dans le tas avec la priorité f = g + h = 0 + ${h}.`,
+        mur: 'On part de D, tourné vers l’est.' },
+      cont: {
+        pile: n => `La pile contient ${n} case${n > 1 ? 's' : ''} : on continue.`,
+        file: n => `La file contient ${n} case${n > 1 ? 's' : ''} : on continue.`,
+        tas: n => `Le tas contient ${n} case${n > 1 ? 's' : ''} : on continue.` },
+      pop: {
+        pile: c => `On dépile ${c} : la dernière case ajoutée.`,
+        file: c => `On défile ${c} : la plus ancienne case de la file.`,
+        tas: (c, e) => `On sort ${c} du tas : la plus proche de l’arrivée (h = ${e.h}).`,
+        aetoile: (c, e) => `On sort ${c} du tas : plus petite priorité f = g + h = ${e.g} + ${e.h} = ${e.f}.` },
+      notGoal: c => `${c} n’est pas l’arrivée : on examine ses voisins libres.`,
+      goal: c => `${c} est l’arrivée !`,
+      walking: 'Pas encore arrivé : on cherche par où continuer.',
+      seen: v => `Voisin ${v} : déjà vu, on l’ignore.`,
+      fresh: v => `Voisin ${v} : jamais vu.`,
+      aNew: (v, g) => `Voisin ${v} : jamais atteint, g = ${g}.`,
+      aBetter: (v, g, o) => `Voisin ${v} : on a trouvé plus court (g = ${g} < ${o}).`,
+      aWorse: (v, g, o) => `Voisin ${v} : déjà atteint avec g = ${o} ≤ ${g}, on l’ignore.`,
+      push: {
+        pile: (v, p) => `<code>parent[${v}] = ${p}</code>, puis on empile ${v}.`,
+        file: (v, p) => `<code>parent[${v}] = ${p}</code>, puis on enfile ${v}.`,
+        tas: (v, p, e) => `<code>parent[${v}] = ${p}</code>, puis on ajoute ${v} au tas avec h = ${e.h}.`,
+        aetoile: (v, p, e) => `<code>parent[${v}] = ${p}</code>, puis on ajoute ${v} au tas avec f = ${e.g} + ${e.h} = ${e.f}.` },
+      tryOk: (tour, dir) => `On essaie ${tour} (${dir}) : c’est libre, on y va.`,
+      tryWall: (tour, dir) => `On essaie ${tour} (${dir}) : mur.`,
+      move: (c, vers) => `On avance en ${c}, tourné ${vers}.`,
+      found: n => `Arrivée atteinte ! On remonte les parents depuis A : chemin de ${n} pas.`,
+      foundMur: n => `Arrivée atteinte après ${n} pas.`,
+      fail: { pile: 'La pile est vide : l’arrivée est inaccessible.', file: 'La file est vide : l’arrivée est inaccessible.', tas: 'Le tas est vide : l’arrivée est inaccessible.', mur: 'Aucune case libre autour : on est enfermé.' },
+      loop: c => `On repasse en ${c} dans la même direction : la main droite tourne en rond et ne trouvera jamais l’arrivée.`,
+    },
+    doneOk: (n, e, best) => `Chemin de ${n} pas, ${e} cases explorées — ${n === best ? 'c’est le plus court possible.' : `le plus court fait ${best} pas.`}`,
+    doneFail: 'Aucun chemin : l’arrivée est inaccessible.',
+    doneLoop: 'La main droite tourne en rond : le mur qu’elle longe (s’il y en a un !) ne mène pas à l’arrivée.',
+    shortest: 'le plus court', looped: 'tourne en rond', noPath: 'aucun chemin',
+    duoPart: (name, R, best) => `${name} : ${R.ok ? `chemin ${R.path.length - 1}${R.path.length - 1 === best ? ' ✓' : ` (+${R.path.length - 1 - best})`}` : R.looped ? 'tourne en rond' : 'aucun chemin'}, ${R.nExp} explorées`,
+    rank: ['1er', '2e'], tie: 'ex aequo', steps: n => `${n} étapes`,
+    legend: { wall: 'mur', floor: 'libre', fr: 'à visiter', exp: 'explorée (bleu → violet : ordre)', cur: 'case courante', path: 'chemin', start: 'départ', goal: 'arrivée' },
+    desc: {
+      profondeur: 'On fonce droit devant : la case examinée est toujours la dernière ajoutée (une pile). On s’enfonce dans un couloir jusqu’au bout, puis on revient au dernier embranchement. On trouve un chemin, mais pas forcément le plus court. Coût : O(n) pour n cases.',
+      largeur: 'On avance par vagues : la case examinée est toujours la plus ancienne (une file). On visite toutes les cases à 1 pas, puis à 2 pas, puis à 3… Le premier chemin trouvé est donc le plus court. Seule différence avec la profondeur : pop(0) au lieu de pop() (en vrai, on prendrait collections.deque, plus rapide). Coût : O(n).',
+      glouton: 'On va toujours vers la case qui semble la plus proche de l’arrivée, d’après l’heuristique h = distance de Manhattan (|Δligne| + |Δcolonne|), qui ignore les murs. Les cases attendent dans un tas (module heapq). Très rapide en terrain dégagé, mais il se fait piéger par les impasses, et son chemin n’est pas toujours le plus court.',
+      aetoile: 'On trie les cases selon f = g + h : g est la distance déjà parcourue depuis le départ, h l’estimation de ce qu’il reste. Comme h ne surestime jamais la vraie distance, le chemin trouvé est le plus court, en explorant souvent bien moins que le parcours en largeur. À égalité de f, on prend la case de plus petit h.',
+      main: 'On garde la main droite sur le mur : à chaque pas, on essaie à droite, puis tout droit, puis à gauche, puis demi-tour. Aucune mémoire, et ça marche toujours dans un labyrinthe parfait. Mais avec des boucles, si l’arrivée est au bord d’un îlot qui n’est pas relié au mur suivi, on tourne en rond.',
+    },
+    code: {
+      profondeur: [
+        'def profondeur(lab, depart, arrivee):',
+        '    pile = [depart]',
+        '    parent = {depart: None}',
+        '    while len(pile) > 0:',
+        '        c = pile.pop()          # la dernière ajoutée',
+        '        if c == arrivee:',
+        '            return chemin(parent, c)',
+        '        for v in voisins(lab, c):',
+        '            if v not in parent:',
+        '                parent[v] = c',
+        '                pile.append(v)',
+        '    return None'],
+      largeur: [
+        'def largeur(lab, depart, arrivee):',
+        '    file = [depart]',
+        '    parent = {depart: None}',
+        '    while len(file) > 0:',
+        '        c = file.pop(0)         # la première ajoutée',
+        '        if c == arrivee:',
+        '            return chemin(parent, c)',
+        '        for v in voisins(lab, c):',
+        '            if v not in parent:',
+        '                parent[v] = c',
+        '                file.append(v)',
+        '    return None'],
+      glouton: [
+        'def glouton(lab, depart, arrivee):',
+        '    tas = [(h(depart), depart)]',
+        '    parent = {depart: None}',
+        '    while len(tas) > 0:',
+        '        _, c = heappop(tas)     # plus petit h',
+        '        if c == arrivee:',
+        '            return chemin(parent, c)',
+        '        for v in voisins(lab, c):',
+        '            if v not in parent:',
+        '                parent[v] = c',
+        '                heappush(tas, (h(v), v))',
+        '    return None'],
+      aetoile: [
+        'def a_etoile(lab, depart, arrivee):',
+        '    tas = [(h(depart), depart)]',
+        '    parent = {depart: None}',
+        '    g = {depart: 0}',
+        '    while len(tas) > 0:',
+        '        _, c = heappop(tas)     # plus petit g + h',
+        '        if c == arrivee:',
+        '            return chemin(parent, c)',
+        '        for v in voisins(lab, c):',
+        '            if v not in g or g[c] + 1 < g[v]:',
+        '                g[v] = g[c] + 1',
+        '                parent[v] = c',
+        '                heappush(tas, (g[v] + h(v), v))',
+        '    return None'],
+      main: [
+        'def main_droite(lab, depart, arrivee):',
+        '    c, d = depart, 0    # 0 est, 1 sud, 2 ouest, 3 nord',
+        '    trajet = [c]',
+        '    while c != arrivee:',
+        '        for tour in (1, 0, 3, 2):   # droite en premier',
+        '            nd = (d + tour) % 4',
+        '            v = avancer(c, nd)',
+        '            if not est_mur(lab, v):',
+        '                c, d = v, nd',
+        '                trajet.append(c)',
+        '                break',
+        '    return trajet'],
+    },
+    infoHTML: `
+<h2>Sortir d’un labyrinthe : parcours de graphes</h2>
+<p>Un labyrinthe est un <b>graphe</b> : chaque case libre est un sommet, et deux cases libres voisines (en haut, en bas, à gauche, à droite) sont reliées par une arête. Chercher la sortie, c’est <b>parcourir ce graphe</b> depuis le départ D jusqu’à l’arrivée A. La fonction <code>voisins(lab, c)</code> renvoie les cases libres voisines de c, dans l’ordre haut, gauche, bas, droite.</p>
+<h3>Pile ou file : le même code !</h3>
+<p>Les parcours en profondeur et en largeur ont exactement le même programme : seule change la structure qui range les cases en attente. Avec une <b>pile</b>, on reprend toujours la dernière case ajoutée : on fonce au bout d’un couloir avant de revenir en arrière. Avec une <b>file</b>, on reprend la plus ancienne : on progresse par « vagues » à égale distance du départ, si bien que le premier chemin trouvé est <b>le plus court</b>. Le dictionnaire <code>parent</code> retient d’où l’on vient ; une fois à l’arrivée, on le remonte :</p>
+<pre>def chemin(parent, c):
+    ch = []
+    while c is not None:
+        ch.append(c)
+        c = parent[c]
+    return ch[::-1]</pre>
+<h3>Glouton et A* : une boussole</h3>
+<p>Ces deux algorithmes utilisent une <b>heuristique</b> h(v) : la distance de Manhattan |Δligne| + |Δcolonne| entre v et l’arrivée, comme s’il n’y avait pas de murs. Les cases attendent dans une <b>file de priorité</b> (un tas, module <code>heapq</code>). Le <b>glouton</b> prend toujours la case qui semble la plus proche de l’arrivée : très rapide en terrain dégagé, mais il se laisse piéger (essayez le « Piège en U ») et son chemin n’est pas forcément le plus court. <b>A*</b> trie selon g + h, où g est la distance déjà parcourue : il garde la garantie du plus court chemin, tout en explorant beaucoup moins que la largeur quand le terrain est ouvert.</p>
+<h3>La main droite</h3>
+<p>La méthode du promeneur : garder la main droite contre le mur et avancer. Pas besoin de mémoire (juste la position et la direction), et elle sort toujours d’un labyrinthe <b>parfait</b> (sans boucle). Mais si l’arrivée borde un îlot qui n’est pas relié au mur suivi, elle tourne en rond : l’animation s’arrête dès qu’on repasse au même endroit dans la même direction.</p>
+<h3>Et Dijkstra ?</h3>
+<p>Ici, chaque pas coûte 1 : Dijkstra se comporte alors exactement comme le parcours en largeur. A* est un Dijkstra « guidé » par l’heuristique.</p>
+<h3>Ce qu’il faut observer</h3>
+<p><b>Explorées</b> : le nombre de cases sorties de la structure (le travail effectué). <b>Mémoire max</b> : la taille maximale de la pile, de la file ou du tas. <b>Chemin</b> : sa longueur en pas, à comparer au <b>plus court</b> possible. Dans le pire des cas, tous ces parcours sont en O(n) pour n cases (O(n log n) avec un tas).</p>
+<h3>À essayer</h3>
+<p>Comparez profondeur et largeur sur un labyrinthe parfait (un seul chemin possible : même résultat, mais pas le même travail), puis avec boucles. Comparez largeur et A* dans une salle vide, glouton et A* sur le piège en U. Dessinez des murs pour enfermer l’arrivée. Activez <span class="kbd">123</span> : en largeur, chaque case affiche sa vraie distance au départ ; en profondeur, ce nombre est souvent bien plus grand.</p>
+<h3>Raccourcis</h3>
+<p><span class="kbd">Espace</span> lancer / pause · <span class="kbd">→</span> une ligne · <span class="kbd">Maj</span>+<span class="kbd">→</span> une case entière · <span class="kbd">N</span> nouveau labyrinthe · <span class="kbd">1</span>–<span class="kbd">6</span> changer d’onglet</p>`
+  },
+  en: {
+    lang: 'FR', title: 'Mazes and graph search', info: 'Info', close: 'Close',
+    hint: 'A maze is a graph: each free cell is a vertex. Pick a search, run it or step through it line by line, then compare two algorithms on the same maze.',
+    names: { profondeur: 'Depth-first', largeur: 'Breadth-first', glouton: 'Greedy', aetoile: 'A*', main: 'Right hand', comparer: 'Compare' },
+    tags: { pile: 'stack', file: 'queue', tas: 'heap', mur: 'wall' },
+    presets: { couloirs: 'Perfect · long corridors', ramifie: 'Perfect · branching', boucles: 'With loops', obstacles: 'Room with obstacles', piege: 'U-shaped trap', vide: 'Empty room' },
+    newMaze: 'New', size: 'size', speed: 'speed', play: '▶ Run', pause: '⏸ Pause', replay: '↺ Replay',
+    reset: 'Back to start', step: 'One line (Shift: a whole cell)', stepDuo: 'One more cell for each',
+    nums: 'Show each cell’s distance from the start (in the search tree)',
+    stats: 'Counters', explored: 'explored', memory: 'max memory', path: 'path', best: 'shortest',
+    frTitle: { pile: 'Stack', file: 'Queue', tas: 'Priority queue (heap)', mur: 'Memory' },
+    frOrder: { pile: 'top first', file: 'front first', tas: 'by priority' },
+    frEmpty: 'empty', frBefore: 'The start S will be put here when the search begins.',
+    walker: (pos, arrow, dir) => `Position <b>${pos}</b> · facing <span class="arrow">${arrow}</span> <b>${dir}</b><br><span class="dim">No stack, no queue: we only remember where we are and which way we face.</span>`,
+    hExplain: 'Step', codeTitle: 'Python',
+    editHint: 'Drag <b>S</b> or <b>G</b> to move them · click and drag to add or remove walls',
+    hoverWall: p => `${p} · wall`, hoverFree: p => `${p} · free cell`,
+    hoverExp: (p, n, d) => `${p} · explored #<b>${n}</b> · <b>${d}</b> steps from the start along this search`,
+    hoverFr: (p, d) => `${p} · waiting · <b>${d}</b> steps from the start along this search`,
+    D: 'S', A: 'G',
+    dirs: ['east', 'south', 'west', 'north'],
+    vers: ['facing east', 'facing south', 'facing west', 'facing north'],
+    tours: { 1: 'right', 0: 'straight ahead', 3: 'left', 2: 'turning back' },
+    ex: {
+      ready: 'Press ▶ to run, or ⏭ to step line by line.',
+      init: {
+        pile: 'Put the start S on the stack, with <code>parent[S] = None</code>.',
+        file: 'Put the start S in the queue, with <code>parent[S] = None</code>.',
+        tas: h => `Put the start S in the heap, with priority h(S) = ${h}.`,
+        aetoile: h => `g(S) = 0: put S in the heap with priority f = g + h = 0 + ${h}.`,
+        mur: 'Start from S, facing east.' },
+      cont: {
+        pile: n => `The stack holds ${n} cell${n > 1 ? 's' : ''}: keep going.`,
+        file: n => `The queue holds ${n} cell${n > 1 ? 's' : ''}: keep going.`,
+        tas: n => `The heap holds ${n} cell${n > 1 ? 's' : ''}: keep going.` },
+      pop: {
+        pile: c => `Pop ${c}: the most recently added cell.`,
+        file: c => `Dequeue ${c}: the oldest cell in the queue.`,
+        tas: (c, e) => `Take ${c} from the heap: the closest to the goal (h = ${e.h}).`,
+        aetoile: (c, e) => `Take ${c} from the heap: smallest priority f = g + h = ${e.g} + ${e.h} = ${e.f}.` },
+      notGoal: c => `${c} is not the goal: look at its free neighbours.`,
+      goal: c => `${c} is the goal!`,
+      walking: 'Not there yet: look for a way forward.',
+      seen: v => `Neighbour ${v}: already seen, skip it.`,
+      fresh: v => `Neighbour ${v}: never seen.`,
+      aNew: (v, g) => `Neighbour ${v}: never reached, g = ${g}.`,
+      aBetter: (v, g, o) => `Neighbour ${v}: found a shorter way (g = ${g} < ${o}).`,
+      aWorse: (v, g, o) => `Neighbour ${v}: already reached with g = ${o} ≤ ${g}, skip it.`,
+      push: {
+        pile: (v, p) => `<code>parent[${v}] = ${p}</code>, then push ${v}.`,
+        file: (v, p) => `<code>parent[${v}] = ${p}</code>, then enqueue ${v}.`,
+        tas: (v, p, e) => `<code>parent[${v}] = ${p}</code>, then add ${v} to the heap with h = ${e.h}.`,
+        aetoile: (v, p, e) => `<code>parent[${v}] = ${p}</code>, then add ${v} to the heap with f = ${e.g} + ${e.h} = ${e.f}.` },
+      tryOk: (tour, dir) => `Try ${tour} (${dir}): free, go.`,
+      tryWall: (tour, dir) => `Try ${tour} (${dir}): wall.`,
+      move: (c, vers) => `Step to ${c}, ${vers}.`,
+      found: n => `Goal reached! Walk the parents back from G: a path of ${n} steps.`,
+      foundMur: n => `Goal reached after ${n} steps.`,
+      fail: { pile: 'The stack is empty: the goal cannot be reached.', file: 'The queue is empty: the goal cannot be reached.', tas: 'The heap is empty: the goal cannot be reached.', mur: 'No free cell around: we are walled in.' },
+      loop: c => `Back at ${c} facing the same way: the right hand is going round in circles and will never find the goal.`,
+    },
+    doneOk: (n, e, best) => `Path of ${n} steps, ${e} cells explored — ${n === best ? 'the shortest possible.' : `the shortest is ${best} steps.`}`,
+    doneFail: 'No path: the goal cannot be reached.',
+    doneLoop: 'The right hand goes round in circles: the wall it follows (if any!) does not lead to the goal.',
+    shortest: 'shortest', looped: 'going in circles', noPath: 'no path',
+    duoPart: (name, R, best) => `${name}: ${R.ok ? `path ${R.path.length - 1}${R.path.length - 1 === best ? ' ✓' : ` (+${R.path.length - 1 - best})`}` : R.looped ? 'going in circles' : 'no path'}, ${R.nExp} explored`,
+    rank: ['1st', '2nd'], tie: 'tied', steps: n => `${n} steps`,
+    legend: { wall: 'wall', floor: 'free', fr: 'waiting', exp: 'explored (blue → violet: order)', cur: 'current cell', path: 'path', start: 'start', goal: 'goal' },
+    desc: {
+      profondeur: 'Charge ahead: the cell examined is always the most recently added one (a stack). Go down a corridor to its end, then back to the last fork. Finds a path, but not necessarily the shortest. Cost: O(n) for n cells.',
+      largeur: 'Advance in waves: the cell examined is always the oldest one (a queue). Visit every cell 1 step away, then 2, then 3… so the first path found is the shortest. The only difference with depth-first: pop(0) instead of pop() (in practice you would use collections.deque, which is faster). Cost: O(n).',
+      glouton: 'Always head for the cell that looks closest to the goal, according to the heuristic h = Manhattan distance (|Δrow| + |Δcol|), which ignores walls. Cells wait in a heap (heapq module). Very fast in open ground, but dead ends trap it and its path is not always the shortest.',
+      aetoile: 'Sort cells by f = g + h: g is the distance already travelled from the start, h the estimate of what remains. Since h never overestimates the real distance, the path found is the shortest, often after exploring far fewer cells than breadth-first. When f is tied, take the cell with the smaller h.',
+      main: 'Keep your right hand on the wall: at each step try right, then straight ahead, then left, then turn back. No memory at all, and it always works in a perfect maze. But with loops, if the goal sits next to an island that is not connected to the wall being followed, you go round in circles.',
+    },
+    code: {
+      profondeur: [
+        'def depth_first(maze, start, goal):',
+        '    stack = [start]',
+        '    parent = {start: None}',
+        '    while len(stack) > 0:',
+        '        c = stack.pop()         # the latest added',
+        '        if c == goal:',
+        '            return path(parent, c)',
+        '        for v in neighbours(maze, c):',
+        '            if v not in parent:',
+        '                parent[v] = c',
+        '                stack.append(v)',
+        '    return None'],
+      largeur: [
+        'def breadth_first(maze, start, goal):',
+        '    queue = [start]',
+        '    parent = {start: None}',
+        '    while len(queue) > 0:',
+        '        c = queue.pop(0)        # the oldest added',
+        '        if c == goal:',
+        '            return path(parent, c)',
+        '        for v in neighbours(maze, c):',
+        '            if v not in parent:',
+        '                parent[v] = c',
+        '                queue.append(v)',
+        '    return None'],
+      glouton: [
+        'def greedy(maze, start, goal):',
+        '    heap = [(h(start), start)]',
+        '    parent = {start: None}',
+        '    while len(heap) > 0:',
+        '        _, c = heappop(heap)    # smallest h',
+        '        if c == goal:',
+        '            return path(parent, c)',
+        '        for v in neighbours(maze, c):',
+        '            if v not in parent:',
+        '                parent[v] = c',
+        '                heappush(heap, (h(v), v))',
+        '    return None'],
+      aetoile: [
+        'def a_star(maze, start, goal):',
+        '    heap = [(h(start), start)]',
+        '    parent = {start: None}',
+        '    g = {start: 0}',
+        '    while len(heap) > 0:',
+        '        _, c = heappop(heap)    # smallest g + h',
+        '        if c == goal:',
+        '            return path(parent, c)',
+        '        for v in neighbours(maze, c):',
+        '            if v not in g or g[c] + 1 < g[v]:',
+        '                g[v] = g[c] + 1',
+        '                parent[v] = c',
+        '                heappush(heap, (g[v] + h(v), v))',
+        '    return None'],
+      main: [
+        'def right_hand(maze, start, goal):',
+        '    c, d = start, 0     # 0 east, 1 south, 2 west, 3 north',
+        '    trail = [c]',
+        '    while c != goal:',
+        '        for turn in (1, 0, 3, 2):   # right first',
+        '            nd = (d + turn) % 4',
+        '            v = step(c, nd)',
+        '            if not is_wall(maze, v):',
+        '                c, d = v, nd',
+        '                trail.append(c)',
+        '                break',
+        '    return trail'],
+    },
+    infoHTML: `
+<h2>Getting out of a maze: graph search</h2>
+<p>A maze is a <b>graph</b>: each free cell is a vertex, and two neighbouring free cells (up, down, left, right) are joined by an edge. Finding the way out means <b>searching this graph</b> from the start S to the goal G. The function <code>neighbours(maze, c)</code> returns the free cells next to c, in the order up, left, down, right.</p>
+<h3>Stack or queue: the same code!</h3>
+<p>Depth-first and breadth-first search have exactly the same program: only the structure holding the waiting cells changes. With a <b>stack</b>, you always resume from the most recently added cell: you rush to the end of a corridor before backtracking. With a <b>queue</b>, you resume from the oldest one: you progress in “waves” at equal distance from the start, so the first path found is <b>the shortest</b>. The <code>parent</code> dictionary remembers where each cell was reached from; at the goal, you walk it back:</p>
+<pre>def path(parent, c):
+    p = []
+    while c is not None:
+        p.append(c)
+        c = parent[c]
+    return p[::-1]</pre>
+<h3>Greedy and A*: a compass</h3>
+<p>Both use a <b>heuristic</b> h(v): the Manhattan distance |Δrow| + |Δcol| from v to the goal, as if there were no walls. Waiting cells go into a <b>priority queue</b> (a heap, <code>heapq</code> module). <b>Greedy</b> always takes the cell that looks closest to the goal: very fast in open ground, but it falls into traps (try the “U-shaped trap”) and its path is not always the shortest. <b>A*</b> sorts by g + h, where g is the distance already travelled: it keeps the shortest-path guarantee while exploring far less than breadth-first in open ground.</p>
+<h3>The right hand</h3>
+<p>The walker’s method: keep your right hand against the wall and walk. No memory needed (just position and direction), and it always gets out of a <b>perfect</b> maze (no loops). But if the goal sits next to an island not connected to the wall being followed, it goes round in circles: the animation stops as soon as you are back at the same place facing the same way.</p>
+<h3>What about Dijkstra?</h3>
+<p>Here every step costs 1, so Dijkstra behaves exactly like breadth-first search. A* is Dijkstra “guided” by the heuristic.</p>
+<h3>What to look at</h3>
+<p><b>Explored</b>: the number of cells taken out of the structure (the work done). <b>Max memory</b>: the largest size reached by the stack, queue or heap. <b>Path</b>: its length in steps, compared with the <b>shortest</b> possible. In the worst case all these searches are O(n) for n cells (O(n log n) with a heap).</p>
+<h3>Things to try</h3>
+<p>Compare depth-first and breadth-first on a perfect maze (only one path: same result, not the same work), then with loops. Compare breadth-first and A* in an empty room, greedy and A* on the U-shaped trap. Draw walls to lock the goal in. Turn on <span class="kbd">123</span>: with breadth-first each cell shows its true distance from the start; with depth-first the number is often much larger.</p>
+<h3>Shortcuts</h3>
+<p><span class="kbd">Space</span> run / pause · <span class="kbd">→</span> one line · <span class="kbd">Shift</span>+<span class="kbd">→</span> a whole cell · <span class="kbd">N</span> new maze · <span class="kbd">1</span>–<span class="kbd">6</span> switch tab</p>`
+  }
+};
+
+// ─────────────────────── Couleurs ───────────────────────
+const PIX = { wall: [66, 75, 118, 255], floor: [12, 14, 24, 205], fr: [255, 197, 61, 240] };
+// cases explorées : du bleu (tôt) au violet (tard)
+const LUT = Array.from({ length: 256 }, (_, i) => { const t = i / 255; return [Math.round(58 + 124 * t), Math.round(110 - 22 * t), Math.round(236 + 19 * t)]; });
+const COL = { cur: '#ffffff', branch: 'rgba(255,120,190,0.8)', trail: 'rgba(46,230,197,0.55)', path: '#2ee6c5', start: '#6c9eff', goal: '#ff4fa3',
+  look: { fresh: '#ffc53d', seen: 'rgba(255,255,255,0.45)', wall: '#ff5c7a', free: '#2ee6c5' } };
+
+// ─────────────────────── Une exécution d'algorithme ───────────────────────
+let instant = false;                       // recalcul instantané (après une modification du labyrinthe)
+class Runner {
+  constructor(algo) { this.algo = algo; this.cv = document.createElement('canvas'); this.pctx = this.cv.getContext('2d'); }
+  reset(M) {
+    this.M = M; const n = M.R * M.C;
+    if (this.cv.width !== M.C || this.cv.height !== M.R) { this.cv.width = M.C; this.cv.height = M.R; }
+    this.img = this.pctx.createImageData(M.C, M.R); this.img.data.set(M.base);
+    this.order = new Int32Array(n).fill(-1); this.depth = new Int32Array(n).fill(-1); this.parent = new Int32Array(n).fill(-1);
+    this.frCnt = new Uint16Array(n);
+    this.gen = ALGOS[this.algo].gen(M);
+    this.nExp = 0; this.frMax = 0; this.ops = 0; this.ver = 0;
+    this.cur = -1; this.look = -1; this.lookKind = 'fresh'; this.dir = 0; this.trail = null; this.fr = null;
+    this.done = false; this.ok = false; this.looped = false; this.path = null; this.pathT0 = 0;
+    this.line = 0; this.ev = null; this.say = null; this.dirty = true;
+  }
+  step() {
+    if (this.done) return false;
+    const r = this.gen.next();
+    if (r.done) { this.done = true; return false; }
+    this.apply(r.value); this.ver++;
+    return true;
+  }
+  // jusqu'à la prochaine case explorée (pop ou pas en avant) : en comparaison, chacun avance d'une case par tic
+  stepOp() { while (this.step()) if (this.ev.t === 'pop' || this.ev.t === 'move') return true; return false; }
+  runToEnd() { while (this.step()); }
+  apply(e) {
+    const M = this.M;
+    this.ev = e; if (e.line) this.line = e.line;
+    if (e.t !== 'line' || this.isWhile(e.line)) this.say = e;
+    switch (e.t) {
+      case 'init':
+        this.fr = e.fr;
+        if (e.fr.kind === 'mur') { this.cur = M.start; this.dir = 0; this.trail = [M.start]; this.depth[M.start] = 0; this.visit(M.start); }
+        else { this.frCnt[M.start]++; this.depth[M.start] = 0; this.paint(M.start); }
+        break;
+      case 'pop':
+        this.frCnt[e.c]--; this.cur = e.c; this.look = -1; this.ops++;
+        if (this.order[e.c] < 0) this.visit(e.c); else this.paint(e.c);
+        break;
+      case 'look': this.look = e.v; this.lookKind = e.seen ? 'seen' : 'fresh'; break;
+      case 'push':
+        this.frCnt[e.v]++; this.parent[e.v] = e.p; this.depth[e.v] = e.g != null ? e.g : this.depth[e.p] + 1;
+        this.paint(e.v);
+        break;
+      case 'try': this.look = e.v; this.lookKind = e.ok ? 'free' : 'wall'; break;
+      case 'move':
+        this.cur = e.c; this.dir = e.d; this.look = -1; this.ops++; this.trail.push(e.c);
+        if (this.order[e.c] < 0) { this.depth[e.c] = this.trail.length - 1; this.visit(e.c); }
+        break;
+      case 'found': this.finish(true); break;
+      case 'fail': this.finish(false); break;
+      case 'loop': this.looped = true; this.finish(false); break;
+    }
+    if (this.fr) { const s = this.fr.size(); if (s > this.frMax) this.frMax = s; }
+  }
+  isWhile(line) { return ALGOS[this.algo].fr !== 'mur' && line === (this.algo === 'aetoile' ? 5 : 4); }
+  visit(i) { this.order[i] = this.nExp++; this.paint(i); }
+  paint(i) {
+    const d = this.img.data, o = i * 4;
+    if (this.order[i] >= 0) {
+      const c = LUT[Math.min(255, Math.round(this.order[i] * 255 / Math.max(1, this.M.free - 1)))];
+      d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = 235;
+    } else if (this.frCnt[i] > 0) d.set(PIX.fr, o);
+    else for (let k = 0; k < 4; k++) d[o + k] = this.M.base[o + k];
+    this.dirty = true;
+  }
+  finish(ok) {
+    this.done = true; this.ok = ok; this.look = -1;
+    if (ok) {
+      if (this.trail) this.path = this.trail.slice();
+      else { const p = []; for (let c = this.M.goal; c >= 0; c = this.parent[c]) p.push(c); this.path = p.reverse(); }
+      this.pathT0 = instant ? 0 : performance.now();
+    }
+  }
+}
+
+// ─────────────────────── Rendu ───────────────────────
+function rrect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+function drawMaze(R, cv, pads, hoverCell) {
+  const ctx = cv.getContext('2d'), dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  const WD = Math.round(W * dpr), HD = Math.round(H * dpr);
+  if (cv.width !== WD || cv.height !== HD) { cv.width = WD; cv.height = HD; }
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, WD, HD);
+  const m = R.M, n = m.R * m.C, t = T[lang];
+  // taille des cases calculée en pixels physiques pour des bords nets
+  const aw = (W - pads.l - pads.r) * dpr, ah = (H - pads.t - pads.b) * dpr;
+  let sD = Math.min(aw / m.C, ah / m.R); if (sD >= 3) sD = Math.floor(sD);
+  const oxD = Math.round(pads.l * dpr + (aw - sD * m.C) / 2), oyD = Math.round(pads.t * dpr + (ah - sD * m.R) / 2);
+  if (R.dirty) { R.pctx.putImageData(R.img, 0, 0); R.dirty = false; }
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(R.cv, oxD, oyD, sD * m.C, sD * m.R);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const s = sD / dpr, ox = oxD / dpr, oy = oyD / dpr;
+  cv._L = { s, ox, oy };
+  const X = i => ox + (i % m.C + 0.5) * s, Y = i => oy + (((i / m.C) | 0) + 0.5) * s;
+  const cellRect = (i, inset) => [ox + (i % m.C) * s + inset, oy + ((i / m.C) | 0) * s + inset, s - 2 * inset, s - 2 * inset];
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  const poly = (arr, k, col, lw, glow) => {
+    if (k < 2) return;
+    ctx.beginPath(); ctx.moveTo(X(arr[0]), Y(arr[0]));
+    for (let j = 1; j < k; j++) ctx.lineTo(X(arr[j]), Y(arr[j]));
+    ctx.strokeStyle = col; ctx.lineWidth = lw;
+    if (glow) { ctx.shadowColor = col; ctx.shadowBlur = glow; }
+    ctx.stroke(); ctx.shadowBlur = 0;
+  };
+
+  // branche courante (du départ à la case courante) ou trace de la main droite
+  if (!R.done && R.cur >= 0) {
+    if (R.trail) poly(R.trail, R.trail.length, COL.trail, Math.max(1.5, s * 0.2), 0);
+    else { const br = []; for (let c = R.cur; c >= 0; c = R.parent[c]) br.push(c); poly(br, br.length, COL.branch, Math.max(1.5, s * 0.16), 0); }
+  }
+  // chemin final, dévoilé progressivement
+  if (R.done && R.ok && R.path) {
+    const len = R.path.length, per = Math.min(25, Math.max(2, 1400 / len));
+    const k = R.pathT0 ? Math.min(len, 1 + Math.floor((performance.now() - R.pathT0) / per)) : len;
+    poly(R.path, k, COL.path, Math.max(2, s * 0.34), 12);
+  }
+  // distances au départ
+  if (showNums && s >= 15) {
+    ctx.font = `700 ${Math.round(Math.min(12, s * 0.42))}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (let i = 0; i < n; i++) {
+      const d = R.depth[i]; if (d < 0) continue;
+      ctx.fillStyle = R.order[i] < 0 ? 'rgba(40,24,0,0.9)' : 'rgba(255,255,255,0.88)';
+      ctx.fillText(d, X(i), Y(i) + 0.5);
+    }
+  }
+  // voisin examiné
+  if (!R.done && R.look >= 0) {
+    const [x, y, w] = cellRect(R.look, Math.max(0.5, s * 0.06));
+    ctx.strokeStyle = COL.look[R.lookKind]; ctx.lineWidth = Math.max(1.5, s * 0.12);
+    rrect(ctx, x, y, w, w, s * 0.18); ctx.stroke();
+  }
+  // case courante
+  if (!R.done && R.cur >= 0) {
+    const [x, y, w] = cellRect(R.cur, s * 0.12);
+    ctx.shadowColor = '#c9d4ff'; ctx.shadowBlur = 16; ctx.fillStyle = COL.cur;
+    rrect(ctx, x, y, w, w, s * 0.2); ctx.fill(); ctx.shadowBlur = 0;
+    if (R.trail && s >= 6) {              // flèche de la main droite
+      const cx = X(R.cur), cy = Y(R.cur), a = [0, Math.PI / 2, Math.PI, -Math.PI / 2][R.dir], r = s * 0.28;
+      ctx.fillStyle = '#0b3a33'; ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+      ctx.lineTo(cx + Math.cos(a + 2.4) * r, cy + Math.sin(a + 2.4) * r);
+      ctx.lineTo(cx + Math.cos(a - 2.4) * r, cy + Math.sin(a - 2.4) * r);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+  // case survolée
+  if (hoverCell >= 0 && hoverCell < n) {
+    const [x, y, w] = cellRect(hoverCell, 0.5);
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, w);
+  }
+  // départ et arrivée
+  const mark = (i, col, txt) => {
+    const r = Math.max(3, s * 0.42);
+    ctx.beginPath(); ctx.arc(X(i), Y(i), r, 0, Math.PI * 2);
+    ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 14; ctx.fill(); ctx.shadowBlur = 0;
+    if (s >= 13) {
+      ctx.fillStyle = '#fff'; ctx.font = `800 ${Math.round(r * 1.05)}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(txt, X(i), Y(i) + 0.5);
+    }
+  };
+  mark(m.start, COL.start, t.D); mark(m.goal, COL.goal, t.A);
+}
+
+// ─────────────────────── Application ───────────────────────
+const $ = id => document.getElementById(id);
+const KEYS = ['profondeur', 'largeur', 'glouton', 'aetoile', 'main', 'comparer'];
+const ALGO_KEYS = KEYS.slice(0, 5);
+const PADS_MAIN = { l: 14, r: 14, t: 14, b: 32 }, PADS_LANE = { l: 10, r: 10, t: 50, b: 32 };
+let lang = 'fr', tab = 'profondeur', preset = 'couloirs', size = 12, speed = 45, playing = false, showNums = false;
+let M = null, single = null, duoAlgos = ['profondeur', 'largeur'], hover = null;
+const lanes = [...document.querySelectorAll('.lane')].map((el, k) => ({
+  el, k, cv: el.querySelector('canvas'), sel: el.querySelector('select'), tag: el.querySelector('.lhead .cx'),
+  rank: el.querySelector('.rank'), stats: el.querySelector('.lstats'), R: null,
+}));
+
+const fmt = i => `(${(i / M.C) | 0}, ${i % M.C})`;
+const fmtB = i => `<b>${fmt(i)}</b>`;
+function delayMs() { return 600 * Math.pow(10, -speed / 22) * (tab === 'comparer' ? 6 : 1); }
+function runners() { return tab === 'comparer' ? lanes.map(L => L.R) : [single]; }
+
+function prepareMaze(m) {
+  const n = m.R * m.C, b = new Uint8ClampedArray(n * 4); let free = 0;
+  for (let i = 0; i < n; i++) { b.set(m.wall[i] ? PIX.wall : PIX.floor, i * 4); if (!m.wall[i]) free++; }
+  m.base = b; m.free = free; m.best = distances(m)[m.goal];
+}
+function dims() {
+  const cv = tab === 'comparer' ? lanes[0].cv : $('viz'), p = tab === 'comparer' ? PADS_LANE : PADS_MAIN;
+  const aw = cv.clientWidth - p.l - p.r, ah = cv.clientHeight - p.t - p.b;
+  const ratio = aw > 50 && ah > 50 ? ah / aw : 0.6;
+  const C = 2 * size + 1, R = 2 * Math.max(3, Math.min(Math.round(size * 2.2), Math.round(size * ratio))) + 1;
+  return [R, C];
+}
+function newMaze() {
+  const [R, C] = dims();
+  M = PRESETS[preset](R, C); prepareMaze(M);
+  rebuild();
+}
+function rebuild() {
+  playing = false; schedule(); hideMsg();
+  if (tab === 'comparer') lanes.forEach(L => { if (!L.R || L.R.algo !== duoAlgos[L.k]) L.R = new Runner(duoAlgos[L.k]); L.R.reset(M); });
+  else { if (!single || single.algo !== tab) single = new Runner(tab); single.reset(M); }
+  updateRanks(); setUI();
+}
+
+// Modification du labyrinthe : si tout était fini, on recalcule aussitôt ; sinon on revient au début.
+function mazeEdited() {
+  prepareMaze(M);
+  const live = !playing && runners().every(R => R.done);
+  playing = false; schedule(); hideMsg();
+  runners().forEach(R => R.reset(M));
+  if (live) { instant = true; runners().forEach(R => R.runToEnd()); instant = false; }
+  updateRanks(); setUI();
+}
+
+function buildTabs() {
+  const t = T[lang];
+  $('tabs').innerHTML = KEYS.map(k => `<button class="tab${k === 'comparer' ? ' duo' : ''}${k === tab ? ' on' : ''}" data-k="${k}">${k === 'comparer' ? '⚔ ' : ''}${t.names[k]}${ALGOS[k] ? `<span class="cx">${t.tags[ALGOS[k].fr]}</span>` : ''}</button>`).join('');
+  $('tabs').querySelectorAll('.tab').forEach(b => b.onclick = () => selectTab(b.dataset.k));
+}
+function selectTab(k) {
+  if (!KEYS.includes(k)) return;
+  tab = k;
+  $('stage').classList.toggle('duo', k === 'comparer');
+  setHash(); buildTabs(); rebuild();
+}
+function setHash() { history.replaceState(null, '', '#' + (tab === 'comparer' ? ['comparer', ...duoAlgos].join('-') : tab)); }
+
+// ─────────────────────── Déroulement ───────────────────────
+function tickOnce() {
+  if (tab === 'comparer') {
+    let any = false;
+    lanes.forEach(L => { if (!L.R.done) L.R.stepOp(); if (!L.R.done) any = true; });
+    updateRanks();
+    if (!any) finished();
+    return any;
+  }
+  single.step();
+  if (single.done) finished();
+}
+function finished() {
+  playing = false; schedule();
+  const t = T[lang];
+  if (tab === 'comparer') showMsg(lanes.map(L => t.duoPart(t.names[L.R.algo], L.R, M.best)).join('   ·   '), 'win');
+  else if (single.ok) showMsg(t.doneOk(single.path.length - 1, single.nExp, M.best), 'win');
+  else showMsg(single.looped ? t.doneLoop : t.doneFail, 'bad');
+  setUI();
+}
+function updateRanks() {
+  if (tab !== 'comparer') return;
+  const t = T[lang];
+  lanes.forEach(L => {
+    const R = L.R;
+    if (!R || !R.done) { L.rank.classList.remove('show', 'bad'); return; }
+    if (!R.ok) { L.rank.textContent = '✗'; L.rank.classList.add('show', 'bad'); return; }
+    const others = lanes.filter(o => o !== L && o.R.done && o.R.ok);
+    const before = others.filter(o => o.R.ops < R.ops).length, tie = others.some(o => o.R.ops === R.ops);
+    L.rank.textContent = `${t.rank[before]}${tie ? ' ' + t.tie : ''} · ${t.steps(R.ops)}`;
+    L.rank.classList.remove('bad'); L.rank.classList.add('show');
+  });
+}
+
+let timer = null;
+function schedule() {
+  clearTimeout(timer);
+  if (!playing) return;
+  const d = delayMs(), wait = Math.max(d, 16), k = Math.max(1, Math.round(wait / d));   // plusieurs étapes par tic si très rapide
+  timer = setTimeout(() => { for (let i = 0; i < k && playing; i++) tickOnce(); schedule(); }, wait);
+}
+
+// ─────────────────────── Panneau latéral ───────────────────────
+let sideVer = -1;
+function updateSide(force) {
+  const R = single;
+  if (!R || (!force && R.ver === sideVer)) return;
+  sideVer = R.ver;
+  const t = T[lang], kind = ALGOS[R.algo].fr;
+  $('vExp').innerHTML = `${R.nExp}<small>/ ${M.free}</small>`;
+  $('vMem').textContent = kind === 'mur' ? (R.fr ? 1 : 0) : R.frMax;
+  $('vPath').innerHTML = R.path ? `${R.path.length - 1}${R.path.length - 1 === M.best ? '<small>✓</small>' : ''}` : '—';
+  $('vBest').textContent = M.best >= 0 ? M.best : '∞';
+  // structure des cases en attente
+  $('hFr').textContent = t.frTitle[kind];
+  if (kind === 'mur') {
+    $('hFrR').textContent = '';
+    const c = R.cur >= 0 ? R.cur : M.start;
+    $('frList').innerHTML = `<div class="walker">${t.walker(fmt(c), '→↓←↑'[R.dir], t.dirs[R.dir])}</div>`;
+  } else if (!R.fr) {
+    $('hFrR').textContent = '';
+    $('frList').innerHTML = `<span class="empty">${t.frBefore}</span>`;
+  } else {
+    const nfr = R.fr.size(), items = R.fr.list(40);
+    $('hFrR').textContent = nfr ? `${nfr} · ${t.frOrder[kind]}` : '';
+    $('frList').innerHTML = nfr
+      ? items.map((it, j) => `<span class="cell${j === 0 ? ' next' : ''}">${fmt(it.v)}${it.p ? `<i>${it.p}</i>` : ''}</span>`).join('') + (nfr > items.length ? `<span class="more">+${nfr - items.length}</span>` : '')
+      : `<span class="empty">${t.frEmpty}</span>`;
+  }
+  $('explain').innerHTML = explain(R);
+  const lines = $('code').children;
+  for (let i = 0; i < lines.length; i++) lines[i].classList.toggle('hl', i + 1 === R.line);
+}
+
+function explain(R) {
+  const t = T[lang], x = t.ex, e = R.say, kind = ALGOS[R.algo].fr, key = R.algo === 'aetoile' ? 'aetoile' : kind;
+  if (!e) return x.ready;
+  switch (e.t) {
+    case 'init': return kind === 'tas' ? x.init[key](manhattan(M, M.start, M.goal)) : x.init[key];
+    case 'line': return x.cont[kind](R.fr.size());
+    case 'pop': return x.pop[key](fmtB(e.c), e);
+    case 'test': return kind === 'mur' ? (e.ok ? x.goal(fmtB(e.c)) : x.walking) : (e.ok ? x.goal(fmtB(e.c)) : x.notGoal(fmtB(e.c)));
+    case 'look':
+      if (R.algo === 'aetoile') return e.old < 0 ? x.aNew(fmtB(e.v), e.ng) : e.seen ? x.aWorse(fmtB(e.v), e.ng, e.old) : x.aBetter(fmtB(e.v), e.ng, e.old);
+      return e.seen ? x.seen(fmtB(e.v)) : x.fresh(fmtB(e.v));
+    case 'push': return x.push[key](fmt(e.v), fmt(e.p), e);
+    case 'try': return (e.ok ? x.tryOk : x.tryWall)(t.tours[e.tour], t.dirs[e.nd]);
+    case 'move': return x.move(fmtB(e.c), t.vers[e.d]);
+    case 'found': return kind === 'mur' ? x.foundMur(R.path.length - 1) : x.found(R.path.length - 1);
+    case 'fail': return x.fail[kind];
+    case 'loop': return x.loop(fmtB(e.c));
+  }
+  return '';
+}
+
+function laneStats(R) {
+  const t = T[lang];
+  let s = `${t.explored} <b>${R.nExp}</b> · ${t.memory} <b>${ALGOS[R.algo].fr === 'mur' ? 1 : R.frMax}</b> · ${t.path} <b>${R.path ? R.path.length - 1 : '—'}</b>`;
+  if (R.done) {
+    if (!R.ok) s += ` <span class="no">${R.looped ? t.looped : t.noPath}</span>`;
+    else if (R.path.length - 1 === M.best) s += ` <span class="ok">✓<span class="w"> ${t.shortest}</span></span>`;
+    else s += ` <span class="no">+${R.path.length - 1 - M.best}</span>`;
+  }
+  return s;
+}
+
+function hintFor(R, i) {
+  const t = T[lang];
+  if (i < 0 || !M) return t.editHint;
+  const p = `<b>${fmt(i)}</b>`;
+  if (M.wall[i]) return t.hoverWall(p);
+  if (R.order[i] >= 0) return t.hoverExp(p, R.order[i] + 1, R.depth[i]);
+  if (R.depth[i] >= 0) return t.hoverFr(p, R.depth[i]);
+  return t.hoverFree(p);
+}
+
+function highlight(src) {
+  const k = src.indexOf('#'), code = k >= 0 ? src.slice(0, k) : src, cm = k >= 0 ? src.slice(k) : '';
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return esc(code)
+    .replace(/\b(def|for|in|if|else|while|and|or|return|not|None|break|is)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(len|pop|append|voisins|neighbours|heappop|heappush|chemin|path|h|avancer|step|est_mur|is_wall)(?=\()/g, '<span class="fn">$1</span>')
+    .replace(/\b(\d+)\b/g, '<span class="nb">$1</span>')
+    + (cm ? `<span class="cm">${esc(cm)}</span>` : '');
+}
+
+let lastHint = '';
+function frame() {
+  requestAnimationFrame(frame);
+  if (!M) return;
+  if (tab === 'comparer') lanes.forEach(L => {
+    drawMaze(L.R, L.cv, PADS_LANE, hover && hover.cv === L.cv ? hover.i : -1);
+    const s = laneStats(L.R); if (L.stats._s !== s) { L.stats.innerHTML = s; L.stats._s = s; }
+  });
+  else {
+    drawMaze(single, $('viz'), PADS_MAIN, hover && hover.cv === $('viz') ? hover.i : -1);
+    updateSide(false);
+    const h = hintFor(single, hover && hover.cv === $('viz') ? hover.i : -1);
+    if (h !== lastHint) { $('vizHint').innerHTML = h; lastHint = h; }
+  }
+}
+
+function setUI() {
+  const t = T[lang];
+  document.title = t.title; $('tTitle').textContent = t.title; $('tHint').textContent = t.hint;
+  $('bLang').textContent = t.lang; $('bInfo').textContent = t.info; $('close').setAttribute('aria-label', t.close);
+  $('bNew').textContent = t.newMaze; $('lblSize').textContent = t.size; $('lblSpeed').textContent = t.speed;
+  $('vSpeed').textContent = speed; $('vSize').textContent = M ? `${M.C}×${M.R}` : '';
+  $('preset').innerHTML = Object.keys(PRESETS).map(k => `<option value="${k}"${k === preset ? ' selected' : ''}>${t.presets[k]}</option>`).join('');
+  const rs = M ? runners() : [], fin = rs.length && rs.every(R => R && R.done);
+  $('bPlay').textContent = playing ? t.pause : fin ? t.replay : t.play;
+  $('bPlay').className = 'btn ' + (playing ? '' : 'teal');
+  $('bStep').disabled = playing || fin;
+  $('bStep').title = tab === 'comparer' ? t.stepDuo : t.step; $('bReset').title = t.reset;
+  $('bNums').title = t.nums; $('bNums').classList.toggle('on', showNums);
+  $('hStats').textContent = t.stats; $('kExp').textContent = t.explored; $('kMem').textContent = t.memory;
+  $('kPath').textContent = t.path; $('kBest').textContent = t.best;
+  $('hExplain').textContent = t.hExplain; $('hCode').textContent = t.codeTitle;
+  $('infoContent').innerHTML = t.infoHTML;
+  const sw = c => `background:rgb(${c[0]},${c[1]},${c[2]})`;
+  $('legend').innerHTML = [
+    [`style="${sw(PIX.wall)}"`, t.legend.wall], [`style="${sw(PIX.floor)};box-shadow:inset 0 0 0 1px var(--border)"`, t.legend.floor],
+    [`style="${sw(PIX.fr)}"`, t.legend.fr], [`style="background:linear-gradient(90deg,rgb(${LUT[0]}),rgb(${LUT[255]}))"`, t.legend.exp],
+    [`style="background:${COL.cur}"`, t.legend.cur], [`style="background:${COL.path}"`, t.legend.path],
+    [`class="dot" style="background:${COL.start}"`, t.legend.start], [`class="dot" style="background:${COL.goal}"`, t.legend.goal],
+  ].map(([a, l]) => `<span><i ${a}></i>${l}</span>`).join('');
+  lanes.forEach(L => {
+    L.sel.innerHTML = ALGO_KEYS.map(k => `<option value="${k}"${k === duoAlgos[L.k] ? ' selected' : ''}>${t.names[k]}</option>`).join('');
+    L.tag.textContent = t.tags[ALGOS[duoAlgos[L.k]].fr];
+  });
+  if (tab !== 'comparer' && single) {
+    // profondeur et largeur ne diffèrent que par la ligne 5 : pop() ou pop(0) — c'est tout l'intérêt !
+    const diff = tab === 'profondeur' || tab === 'largeur' ? 4 : -1;
+    $('code').innerHTML = t.code[tab].map((l, i) => `<li${i === diff ? ' class="diff"' : ''}><span>${highlight(l) || ' '}</span></li>`).join('');
+    $('desc').textContent = t.desc[tab];
+    updateSide(true);
+  }
+  lanes.forEach(L => L.stats._s = null);
+  lastHint = '';
+}
+
+// ─────────────────────── Édition à la souris ───────────────────────
+function cellAt(cv, ev) {
+  const L = cv._L; if (!L || !M) return -1;
+  const r = cv.getBoundingClientRect();
+  const c = Math.floor((ev.clientX - r.left - L.ox) / L.s), l = Math.floor((ev.clientY - r.top - L.oy) / L.s);
+  return l < 1 || l > M.R - 2 || c < 1 || c > M.C - 2 ? -1 : l * M.C + c;
+}
+function paintCell(i, wall) {
+  if (i === M.start || i === M.goal || M.wall[i] === (wall ? 1 : 0)) return false;
+  M.wall[i] = wall ? 1 : 0; return true;
+}
+function segment(a, b) {                   // cases entre a et b (Bresenham), pour les glissés rapides
+  const C = M.C, x1 = b % C, y1 = (b / C) | 0, out = [];
+  let x0 = a % C, y0 = (a / C) | 0;
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  for (let err = dx + dy; ;) {
+    out.push(y0 * C + x0);
+    if (x0 === x1 && y0 === y1) return out;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+}
+function attachEdit(cv) {
+  let drag = null, last = -1;
+  cv.addEventListener('pointerdown', ev => {
+    const i = cellAt(cv, ev); if (i < 0) return;
+    ev.preventDefault(); cv.setPointerCapture(ev.pointerId);
+    drag = i === M.start ? 'start' : i === M.goal ? 'goal' : M.wall[i] ? 'erase' : 'draw';
+    last = i;
+    if (drag === 'draw' || drag === 'erase') { paintCell(i, drag === 'draw'); mazeEdited(); }
+  });
+  cv.addEventListener('pointermove', ev => {
+    const i = cellAt(cv, ev); hover = { cv, i };
+    if (!drag || i < 0 || i === last) return;
+    if (drag === 'start' || drag === 'goal') {
+      if (!M.wall[i] && i !== (drag === 'start' ? M.goal : M.start)) { M[drag] = i; mazeEdited(); }
+    } else {
+      let changed = false;
+      for (const j of segment(last, i)) changed = paintCell(j, drag === 'draw') || changed;
+      if (changed) mazeEdited();
+    }
+    last = i;
+  });
+  const end = () => { drag = null; last = -1; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('pointerleave', () => { if (!drag) hover = null; });
+}
+attachEdit($('viz')); lanes.forEach(L => attachEdit(L.cv));
+
+// ─────────────────────── Contrôles ───────────────────────
+$('preset').onchange = e => { preset = e.target.value; newMaze(); };
+$('bNew').onclick = newMaze;
+$('rSize').oninput = e => { size = +e.target.value; newMaze(); };
+$('rSpeed').oninput = e => { speed = +e.target.value; setUI(); schedule(); };
+$('bReset').onclick = rebuild;
+$('bPlay').onclick = () => {
+  if (runners().every(R => R.done)) rebuild();
+  playing = !playing; hideMsg(); setUI(); schedule();
+};
+$('bStep').onclick = ev => {
+  playing = false; schedule(); hideMsg();
+  if (tab !== 'comparer' && ev.shiftKey) { single.stepOp(); if (single.done) finished(); }
+  else tickOnce();
+  setUI();
+};
+$('bNums').onclick = () => { showNums = !showNums; setUI(); };
+lanes.forEach(L => L.sel.onchange = () => { duoAlgos[L.k] = L.sel.value; setHash(); rebuild(); });
+$('bLang').onclick = () => { lang = lang === 'fr' ? 'en' : 'fr'; document.documentElement.lang = lang; buildTabs(); updateRanks(); setUI(); };
+$('bInfo').onclick = () => { $('overlay').classList.add('open'); $('close').focus(); };
+$('close').onclick = () => $('overlay').classList.remove('open');
+$('overlay').onclick = ev => { if (ev.target.id === 'overlay') $('overlay').classList.remove('open'); };
+window.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') { $('overlay').classList.remove('open'); return; }
+  if ($('overlay').classList.contains('open') || ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT') return;
+  if (ev.key === ' ' || ev.code === 'Space') { ev.preventDefault(); $('bPlay').click(); }
+  else if (ev.key === 'ArrowRight') { ev.preventDefault(); if (!$('bStep').disabled) $('bStep').onclick({ shiftKey: ev.shiftKey }); }
+  else if (ev.key.toLowerCase() === 'n') newMaze();
+  else if (ev.key >= '1' && ev.key <= '6') selectTab(KEYS[+ev.key - 1]);
+});
+
+let msgTimer = null;
+function showMsg(text, kind) {
+  const m = $('msg'); m.textContent = text; m.className = 'toast glass show' + (kind ? ' ' + kind : '');
+  clearTimeout(msgTimer); msgTimer = setTimeout(hideMsg, 9000);
+}
+function hideMsg() { $('msg').classList.remove('show'); }
+
+// ─────────────────────── Démarrage ───────────────────────
+function readHash() {
+  const [k, a, b] = location.hash.slice(1).split('-');
+  if (k === 'comparer') { if (ALGOS[a]) duoAlgos[0] = a; if (ALGOS[b]) duoAlgos[1] = b; }
+  return KEYS.includes(k) ? k : null;
+}
+tab = readHash() || tab;
+$('stage').classList.toggle('duo', tab === 'comparer');
+buildTabs();
+newMaze();
+requestAnimationFrame(frame);
+window.addEventListener('hashchange', () => { const k = readHash(); if (k) selectTab(k); });
+</script>
+</body>
+</html>
