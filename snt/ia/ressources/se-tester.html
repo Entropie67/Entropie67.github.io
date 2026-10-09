@@ -157,6 +157,13 @@
   .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
   .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
   @media (max-width:900px){.homelink span{display:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
@@ -171,17 +178,17 @@
 
   <!-- 0 · OUVERTURE -->
   <div class="pane dark intro on" id="s0">
-    <a class="back" href="token.html">◂ Séance précédente · Le prochain mot</a>
-    <div class="tag">SNT · Enseignement IA · Faire un point</div>
-    <h1 class="big">Se <em>tester</em></h1>
-    <p class="line">Tout ce qu’on a vu depuis la rentrée : des questions de cours, les <strong style="color:#fff">idées reçues</strong> à démonter, et des questions à <strong style="color:#fff">plusieurs bonnes réponses</strong>. Pas de piège&nbsp;— et à chaque fois, <strong style="color:#fff">on explique pourquoi</strong>.</p>
+    <a class="back" href="token.html" data-i18n="s0.back">◂ Séance précédente · Le prochain mot</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA · Faire un point</div>
+    <h1 class="big" data-i18n="s0.title">Se <em>tester</em></h1>
+    <p class="line" data-i18n="s0.line">Tout ce qu’on a vu depuis la rentrée : des questions de cours, les <strong style="color:#fff">idées reçues</strong> à démonter, et des questions à <strong style="color:#fff">plusieurs bonnes réponses</strong>. Pas de piège&nbsp;— et à chaque fois, <strong style="color:#fff">on explique pourquoi</strong>.</p>
     <div class="chapters">
-      <div class="chapter"><b>1</b> · Où en est l'IA</div>
-      <div class="chapter"><b>2</b> · La famille des IA</div>
-      <div class="chapter"><b>3</b> · Le prochain mot</div>
-      <div class="chapter"><b>+</b> · Idées reçues</div>
+      <div class="chapter" data-i18n="s0.ch1"><b>1</b> · Où en est l'IA</div>
+      <div class="chapter" data-i18n="s0.ch2"><b>2</b> · La famille des IA</div>
+      <div class="chapter" data-i18n="s0.ch3"><b>3</b> · Le prochain mot</div>
+      <div class="chapter" data-i18n="s0.ch4"><b>+</b> · Idées reçues</div>
     </div>
-    <div class="go"><button class="gobtn" id="start">Commencer ▶<small id="startn"></small></button></div>
+    <div class="go"><button class="gobtn" id="start"><span data-i18n="s0.start">Commencer ▶</span><small id="startn"></small></button></div>
     <div class="series" id="series"></div>
   </div>
 
@@ -201,31 +208,37 @@
     </div>
 
     <div class="qfoot">
-      <button class="qvalid" id="qvalid" disabled>Valider ma sélection</button>
+      <button class="qvalid" id="qvalid" disabled data-i18n="s1.valid">Valider ma sélection</button>
       <button class="qnext" id="qnext">Question suivante ▶</button>
     </div>
   </div>
 
   <!-- 2 · BILAN -->
   <div class="pane dark bil" id="s2">
-    <div class="tag">Bilan</div>
+    <div class="tag" data-i18n="s2.tag">Bilan</div>
     <div class="bscore" id="bscore">—</div>
     <p class="bmsg" id="bmsg"></p>
     <div class="bcats" id="bcats"></div>
-    <div class="bagain"><button class="gobtn" id="again">Choisir une autre série ↺</button></div>
+    <div class="bagain"><button class="gobtn" id="again" data-i18n="s2.again">Choisir une autre série ↺</button></div>
   </div>
 
 </div>
 
 <div class="hud">
-  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span>Parcours</span></a>
-  <button class="btn" id="prev">◀ Retour</button>
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div>
     <div class="dot" data-i="1"></div>
     <div class="dot" data-i="2"></div>
   </div>
-  <button class="btn" id="next">Suite ▶</button>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
@@ -239,7 +252,7 @@
     panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
     dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
     const h=document.getElementById('hint');
-    if(h) h.textContent = (scene===1) ? 'répondez en cliquant' : '↔ flèches · espace · clic';
+    if(h) h.textContent = (scene===1) ? M().hintQ : M().hint;
   }
   function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
   document.getElementById('next').onclick = ()=>go(scene+1);
@@ -256,7 +269,7 @@
     go(scene+1);
   });
 
-  /* ================= les 20 questions ================= */
+  /* ================= les questions (français, la source) ================= */
   const C1='Où en est l’IA', C2='La famille des IA', C3='Le prochain mot', C4='Idées reçues';
   const Q = [
     {c:C1, q:`Un « benchmark », c’est quoi ?`,
@@ -424,14 +437,222 @@
       why:`Un modèle seul <b>génère du texte</b>, un token après l’autre, à partir de ce qu’il a dans sa fenêtre de contexte. Aller sur le web, garder une mémoire d’une session à l’autre, citer une source : ce sont des <b>outils branchés autour</b> du modèle — pas le modèle lui-même.`}
   ];
 
+  /* ================= version anglaise — mêmes questions, même ordre ================= */
+  const Q_EN = [
+    {q:`What is a “benchmark”?`,
+      a:[`A standardised test used to compare AIs with one another`,
+         `A particularly powerful AI model`,
+         `The company that builds a model`,
+         `A German weight bench`],
+      why:`Same questionnaire, same marking for everyone: that's what lets us <b>compare</b> models and track their progress.`},
+
+    {q:`What is a “frontier model”?`,
+      a:[`A model that works without an Internet connection`,
+         `The most advanced models of the moment, the ones pushing the limit`,
+         `A model reserved for military research`,
+         `A model whose servers straddle two countries`],
+      why:`Nothing to do with a border on a map: it's the frontier of what is <b>possible</b>. A small, hotly contested club that <b>changes from month to month</b>. It's not an official label.`},
+
+    {q:`In 2023, a research paper was titled “GPT-4 CAN'T REASON”. Today, what we should mostly take from it is that…`,
+      a:[`those researchers were incompetent`,
+         `observable behaviours have changed so much that we need to rethink our words`,
+         `AI reasons exactly like a human`],
+      why:`Understanding, reasoning, being intelligent, being conscious are <b>four different things</b>. What has shifted is our categories.`},
+
+    {q:`What is the link between “AI” and “machine learning”?`,
+      a:[`They are two words for the same set`,
+         `Machine learning is a subset of AI`,
+         `AI is a subset of machine learning`,
+         `They are two separate sets with nothing in common`],
+      why:`Russian dolls: machine learning sits <b>inside</b> AI. But AI also contains something else: symbolic AI (rules written by hand, like Deep Blue), which learns nothing. All machine learning is AI, but not all AI is machine learning.`},
+
+    {q:`Deep Blue, which beat Kasparov at chess in 1997, belongs to…`,
+      a:[`symbolic AI: rules written by humans`,
+         `deep learning`,
+         `generative AI`,
+         `a very dark shade of blue`],
+      why:`It computes millions of moves using rules written by hand. It's AI <b>without any learning</b>.`},
+
+    {q:`Deep learning is…`,
+      a:[`a competitor of machine learning`,
+         `a subset of machine learning`,
+         `the same thing as generative AI`,
+         `learning that happens deep down: at the bottom of a cellar or a well`],
+      why:`Russian dolls: <b>AI ⊃ machine learning ⊃ deep learning</b>. They are neither synonyms nor rivals. And “deep” has nothing to do with a cellar: it refers to the <b>many layers</b> of the neural network.`},
+
+    {q:`We show the machine 10,000 photos labelled “cat” or “dog”. What type of learning is it?`,
+      a:[`Unsupervised`, `Supervised`, `Reinforcement`],
+      why:`The data is <b>labelled</b>: each example comes with the right answer. It's “learning with the answer key”.`},
+
+    {q:`We hand over raw, unlabelled data and ask for groups to be formed. That's…`,
+      a:[`unsupervised learning`, `supervised learning`, `reinforcement learning`],
+      why:`No instructions, no right answer provided: the machine looks for <b>groupings</b> on its own.`},
+
+    {q:`A robot learns to walk: it gains points when it moves forward and loses some when it falls. That's…`,
+      a:[`supervised learning`, `unsupervised learning`, `reinforcement learning`],
+      why:`An agent acts, receives a <b>reward</b>, tries again. That's also how AlphaGo learned Go.`},
+
+    {q:`A spam filter that answers “spam” or “not spam” is a model that is…`,
+      a:[`generative`, `discriminative`, `symbolic`],
+      why:`It learns the <b>boundary</b> between two categories. It can separate — not produce new content.`},
+
+    {q:`What characterises generative AI?`,
+      a:[`It sorts data into categories`,
+         `It produces new content`,
+         `It only works with rules`],
+      why:`Text, images, code… Almost all of today's generative AI is deep learning — but not <b>by definition</b>.`},
+
+    {q:`What essential thing happened in 2017?`,
+      a:[`ChatGPT was released`,
+         `“Transformers” were invented`,
+         `AlphaGo won at the game of Go`,
+         `The film <i>Transformers 5</i> was released`],
+      why:`(The film did come out in 2017, but it didn't change much in computer science.) A neural-network architecture, quiet but decisive: it's the <b>“T” in ChatGPT</b> (Generative Pre-trained <b>Transformer</b>).`},
+
+    {q:`A “token” is…`,
+      a:[`a letter`,
+         `a piece of a word: the unit the model reads and produces`,
+         `a full sentence`,
+         `the coin you put in a shopping trolley`],
+      why:`Not the trolley kind. Sometimes a whole word, sometimes a fragment. On average <b>3 to 4 characters</b> — and it depends on the model.`},
+
+    {q:`“The cat eats a mouse.” — roughly how many tokens?`,
+      a:[`About 6`, `About 25`, `Exactly 1`, `As many as the cat has legs: 4`],
+      why:`Each common word fits in one token, and punctuation counts. A rare word, on the other hand, would break into several pieces.`},
+
+    {q:`Fundamentally, what does a large language model do?`,
+      a:[`It looks up the answer in a database`,
+         `It predicts the next token, over and over`,
+         `It applies grammar rules written by linguists`,
+         `It quietly asks a human in an office in Dublin`],
+      why:`Writing a sentence, a paragraph, an essay: it's <b>repeating hundreds of times</b> “what is the next token?”.`},
+
+    {q:`Why doesn't ChatGPT answer exactly the same way twice?`,
+      a:[`Because it learns from every conversation`,
+         `Because the token is drawn at random, following the probabilities`,
+         `Because it checks the Internet every time`,
+         `Because it's in a bad mood some days`],
+      why:`(No, it has no moods.) It's the <b>temperature</b> setting: always picking number 1 gives repetitive text, a draw following the probabilities gives variety.`},
+
+    {q:`I put a sentence of context before “the cat eats”. What happens?`,
+      a:[`Nothing: the model has already learned its answers`,
+         `The probabilities of the next word are reshuffled`,
+         `The model is retrained`],
+      why:`That's the whole idea of the dinosaur challenge: with the right context, an absurd word can become <b>the most likely</b>.`},
+
+    {q:`“By default, when I ask it a question, an LLM goes and looks for the answer on the Internet.” True or false?`,
+      a:[`True, always`,
+         `False: on its own, an LLM only predicts from what it has learned`,
+         `True, but only for current events`],
+      why:`An LLM <b>on its own</b> searches for nothing: it predicts the next token from what it has learned. An app like ChatGPT or Qwen can <b>plug</b> it into a search engine — but that's a layer added on top, not the LLM itself.`}
+  ];
+
+  const VF_EN = [
+    {q:`Even the people who built it can't explain precisely why it gives a particular answer.`, why:`We know <b>how it was trained</b>. But nobody can read what its billions of parameters encode, or trace why one answer came out rather than another. Researchers in “interpretability” are opening the box bit by bit, a little like neuroscientists in front of a brain. Knowing the training recipe is not knowing what was learned.<br><b>Remember:</b> Understanding the principle: yes. Understanding everything: nobody, for now.`},
+    {q:`When I ask a question, the AI goes and looks for the answer on the Internet.`, why:`The model answers <b>offline</b>, with what it learned during training, frozen at a given date. Unplug the Internet: it answers the same. Some chatbots can <b>also</b> run a web search, but that's a tool plugged in on top, not the basic operation. It generates the most likely continuation of the text. No request is sent anywhere.<br><b>Remember:</b> Test: ask it for tomorrow's weather with no search tool. It can't.`},
+    {q:`It has a gigantic database of questions and answers.`, why:`There is <b>no question → answer table</b>. There are billions of numbers, the parameters, set during training, and a sentence built token by token. Proof: ask a question nobody has ever asked (“a poem in rhyming couplets about my cat who goes skiing”): it still answers. Nothing is stored as is. Everything is rebuilt every time.`},
+    {q:`Someone programmed it to give that answer.`, why:`Nobody wrote “if asked X, answer Y”. That's a <b>classic program</b>, like in computer-science class. An AI isn't programmed, it's <b>trained</b>: it's shown examples and sets its parameters on its own. That's why even its creators are sometimes surprised by what it can do. Programmed = rules written by a human. Trained = parameters adjusted on examples.`},
+    {q:`It learns from our conversations: it gets smarter every day.`, why:`Once training is over, the parameters are <b>frozen</b>. What you tell it today doesn't make it smarter tomorrow. When it “remembers” you, it's an external memory pasted back into its context, not learning. Your conversations may be used for the <b>next</b> training, months later: that will be a different model. Learning = changing the parameters. Chatting = adding context. Two different things.`},
+    {q:`What we call ChatGPT is an AI model.`, why:`The language model is only <b>one part</b>. Around it, people plug in: web search, a calculator, a Python interpreter, a memory, image reading, safety rules, and sometimes several different models depending on the task. What you use is a <b>system</b>. That's why “the AI searches the Internet” is true for some systems and false for the model. The engine predicts tokens. The rest is plumbing around the engine.`},
+    {q:`It isn't creative: it only copies or recombines.`, why:`It is creative <b>by construction</b>. It copies nothing: it builds every sentence token by token, with an adjustable dose of chance, the temperature. Same question twice, two different answers. A sentence it produces very probably exists nowhere else. Nuance: creative doesn't mean <b>original</b> or interesting. It often produces bland text, in the flavour of its data. At every token, a weighted draw. It cannot help inventing.<br><b>Remember:</b> And the hidden side of this creativity is the next card.`},
+    {q:`A hallucination can look exactly like a good answer.`, why:`A hallucination isn't raving. It's a fluent, well-written answer, with a name, a date, a quote or a book reference… <b>that doesn't exist</b>. It comes out of exactly the same machine as the brand-new poem: the mechanism that invents a line of verse also invents a source. You can't have the creativity without the risk of hallucination. It produces plausible text. Plausible and true are not the same thing.<br><b>Remember:</b> A more powerful AI hallucinates less. And more convincingly.`},
+    {q:`When it answers confidently, it means it knows.`, why:`Tone has <b>nothing to do</b> with accuracy. It learned to write like the texts it was trained on, which are written confidently, including when they're wrong. It has no internal red light that turns on when it makes things up. Style is predicted like everything else. A confident tone is just a probable tone.`},
+    {q:`If I ask it for its sources, it tells me where its answer comes from.`, why:`It can't find which training text produced its answer: nothing is stored as is. If you insist, it <b>makes up a plausible source</b>: a title, an author, a URL… that may not exist. Only a system with web search plugged in can cite a real page. And you still have to go and read it. Asking a model for a source is asking it to predict what a source would look like.`},
+    {q:`It's hopeless at maths.`, why:`<b>That was true two years ago — not any more.</b> <b>True in 2023</b>: ChatGPT got 17 × 24 wrong and miscounted the “r”s in strawberry. <b>False in 2026</b>: gold medal at the International Mathematical Olympiad, open problems solved (Lesson 1). Models now write a draft before answering, and pull out a calculator when needed. Lesson: “what AI can't do” is a target that moves every six months. Predicting “68” after “17 × 4 =” requires actually computing (Lesson 3). And they have learned to think in writing.<br><b>Remember:</b> Beware of dated claims. Check the date before checking the fact.`},
+    {q:`What I tell it stays between it and me.`, why:`Your conversations are <b>stored on the company's servers</b>, sometimes reread by humans for checks, sometimes used to train the next model depending on your settings. Writing to a chatbot is writing to a company. Don't confide anything you wouldn't put in an email to a stranger: full name, address, health, other people's secrets. The model runs on a server, not on your phone. Everything you type goes there.`},
+    {q:`Asking the AI a question costs nothing.`, why:`Each answer runs <b>graphics cards</b> in a data centre, cooled with water. A text question: a few times a Google search. An image, a video: much more. Training a large model costs hundreds of millions of euros and the electricity of a small town for months. <b>Free for you</b> doesn't mean free, full stop. Billions of multiplications per token, on machines that heat up.`}
+  ];
+
+  const MULTI_EN = [
+    {q:`Which of these are language <u>models</u> — LLMs?`,
+      a:[`Chrome`,`GPT-5`,`Qwen`,`Excel`,`Wikipedia`,`Mistral`,`Llama`,`Google Maps`],
+      why:`Chrome, Excel, Wikipedia and Google Maps are <b>software</b>: a browser, a spreadsheet, an encyclopedia written by humans, a map. The other four are <b>models</b> trained to predict the next token — GPT-5 (OpenAI, USA), Llama (Meta, USA), Mistral (France) and Qwen (Alibaba, China). And careful: a piece of software can perfectly well <i>use</i> a model without being one.`},
+
+    {q:`Which of these are benchmarks — tests — and not models?`,
+      a:[`HLE (Humanity's Last Exam)`,`GPT-5`,`GPQA Diamond`,`Gemini`,`MMLU`,`Transformer`],
+      why:`HLE, GPQA and MMLU are <b>exams</b> used to compare models with each other. GPT-5 and Gemini are <b>models</b>. And “transformer” is neither: it's a neural-network <b>architecture</b> — the “T” in GPT.`},
+
+    {q:`Which of these situations are supervised learning?`,
+      a:[`10,000 photos labelled “cat” or “dog”`,
+         `Grouping customers by similarity, with no instructions at all`,
+         `Thousands of emails marked “spam” / “not spam”`,
+         `A program that gains points when it moves forward in a game`,
+         `X-rays annotated by doctors: “healthy” or “ill”`],
+      why:`Supervised means <b>learning with the answer key</b>: each example comes with its right answer. Without labels, it's <b>unsupervised</b>; with a reward, <b>reinforcement</b>.`},
+
+    {q:`What is true about tokens?`,
+      a:[`A token can be a whole word or just a fragment of one`,
+         `A token always corresponds to one letter`,
+         `The space before a word is part of the token`,
+         `The same sentence gives the same number of tokens in every language`,
+         `The way text is split depends on the model`],
+      why:`On average <b>3 to 4 characters</b> per token — so neither a letter nor a word. And the splitting varies a lot from one language to another: “猫吃老鼠。” doesn't split at all like English.`},
+
+    {q:`What can an AI assistant do <u>without</u> any extra tool?`,
+      a:[`Produce plausible text on just about any subject`,
+         `Read a web page in real time`,
+         `Rephrase, summarise, translate what it's given`,
+         `Find the exact source of a sentence it has just written`,
+         `Remember yesterday's conversation on its own`],
+      why:`A model on its own <b>generates text</b>, one token after another, from what's in its context window. Going on the web, keeping a memory from one session to the next, citing a source: these are <b>tools plugged in around</b> the model — not the model itself.`}
+  ];
+  Q.forEach(function(q,i){ q.en = Q_EN[i]; });
+  VF.forEach(function(q,i){ q.en = VF_EN[i]; });
+  MULTI.forEach(function(q,i){ q.en = MULTI_EN[i]; });
+
+  /* ================= langue : textes fixes (data-i18n) et textes du moteur ================= */
+  const I18N = { en: {
+    's0.back':`◂ Previous lesson · The next word`,
+    's0.tag':`SNT · AI Course · Taking stock`,
+    's0.title':`Test <em>yourself</em>`,
+    's0.line':`Everything we've covered since the start of the year: course questions, <strong style="color:#fff">misconceptions</strong> to debunk, and questions with <strong style="color:#fff">several right answers</strong>. No tricks — and every time, <strong style="color:#fff">we explain why</strong>.`,
+    's0.ch1':`<b>1</b> · Where AI stands`, 's0.ch2':`<b>2</b> · The AI family`, 's0.ch3':`<b>3</b> · The next word`, 's0.ch4':`<b>+</b> · Misconceptions`,
+    's0.start':`Start ▶`,
+    's1.valid':`Validate my selection`,
+    's2.tag':`Results`, 's2.again':`Choose another series ↺`,
+    'hud.menu':`Course`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`
+  }};
+  const MSG = {
+    fr:{ title:`Se tester`, n:function(n){ return n+' questions'; }, only:'ou seulement :',
+         series:{qcm:'Questions de cours', vf:'Vrai ou faux', multi:'Plusieurs réponses'},
+         cat:{}, count:function(i,n){ return 'Question '+i+' / '+n; }, score:'score',
+         tf:'Vrai ou faux ?', T:['V','VRAI'], F:['F','FAUX'],
+         multi:'Plusieurs bonnes réponses — cochez-les toutes, puis validez.',
+         next:'Question suivante ▶', last:'Voir le bilan ▶',
+         ok:'✅ <b>Exact.</b> ', ko:'❌ <b>Raté.</b> ', miss:'<i>(en pointillés : ce qu’il fallait cocher aussi)</i> ',
+         b1:'<b>Excellent.</b> Vous savez expliquer ce qu’est un token, situer une IA dans sa famille, lire un score de benchmark — et démonter une idée reçue sans vous faire avoir.',
+         b2:'<b>Bien.</b> L’essentiel est là. Reprenez les chapitres où vous avez perdu des points — c’est indiqué ci-dessous.',
+         b3:'Pas d’inquiétude : ce sont des notions neuves. Reprenez les chapitres en rouge, puis refaites le test.',
+         rev:'↺ revoir ce chapitre', hint:'↔ flèches · espace · clic', hintQ:'répondez en cliquant' },
+    en:{ title:`Test yourself`, n:function(n){ return n+' questions'; }, only:'or just:',
+         series:{qcm:'Course questions', vf:'True or false', multi:'Several answers'},
+         cat:{}, count:function(i,n){ return 'Question '+i+' / '+n; }, score:'score',
+         tf:'True or false?', T:['T','TRUE'], F:['F','FALSE'],
+         multi:'Several right answers — tick them all, then validate.',
+         next:'Next question ▶', last:'See my results ▶',
+         ok:'✅ <b>Correct.</b> ', ko:'❌ <b>Wrong.</b> ', miss:'<i>(dotted: what you should also have ticked)</i> ',
+         b1:'<b>Excellent.</b> You can explain what a token is, place an AI in its family, read a benchmark score — and debunk a misconception without being fooled.',
+         b2:'<b>Good.</b> The essentials are there. Go back over the lessons where you lost points — they are shown below.',
+         b3:'Don’t worry: these are new ideas. Go back over the lessons in red, then take the test again.',
+         rev:'↺ review this lesson', hint:'↔ arrows · space · click', hintQ:'answer by clicking' }
+  };
+  MSG.en.cat[C1]='Where AI stands'; MSG.en.cat[C2]='The AI family'; MSG.en.cat[C3]='The next word'; MSG.en.cat[C4]='Misconceptions';
+  const LANGS = ['fr','en'];
+  let curLang = 'fr';
+  const M   = function(){ return MSG[curLang] || MSG.fr; };
+  const CAT = function(c){ return M().cat[c] || c; };
+  const L   = function(q){ return (curLang !== 'fr' && q.en) ? q.en : q; };
+  const frCache = {};
+  document.querySelectorAll('[data-i18n]').forEach(function(e){ frCache[e.dataset.i18n] = e.innerHTML; });
+
   /* ================= moteur du quiz ================= */
   Q.forEach(function(q){ q.t = 'qcm'; });
   const ALL = Q.concat(VF, MULTI);
   const SERIES = [
-    {k:'all',   lbl:'Tout',                pick:function(){ return ALL; }},
-    {k:'qcm',   lbl:'Questions de cours',  pick:function(){ return ALL.filter(function(q){return q.t==='qcm';}); }},
-    {k:'vf',    lbl:'Vrai ou faux',        pick:function(){ return ALL.filter(function(q){return q.t==='vf';}); }},
-    {k:'multi', lbl:'Plusieurs réponses',  pick:function(){ return ALL.filter(function(q){return q.t==='multi';}); }}
+    {k:'all',   pick:function(){ return ALL; }},
+    {k:'qcm',   pick:function(){ return ALL.filter(function(q){return q.t==='qcm';}); }},
+    {k:'vf',    pick:function(){ return ALL.filter(function(q){return q.t==='vf';}); }},
+    {k:'multi', pick:function(){ return ALL.filter(function(q){return q.t==='multi';}); }}
   ];
 
   const el = id=>document.getElementById(id);
@@ -439,54 +660,57 @@
   const LINKS = {}; LINKS[C1]='intro.html'; LINKS[C2]='zoologie.html';
   LINKS[C3]='token.html'; LINKS[C4]='token.html';
 
-  let LIST=[], idx=0, score=0, answered=false, sel=[], per={};
+  let LIST=[], idx=0, score=0, answered=false, sel=[], per={}, lastGood=false, lastChosen=-1;
 
   /* ---- ecran d'accueil : le choix de la serie ---- */
-  el('startn').textContent = ALL.length + ' questions';
-  el('series').innerHTML = '<span class="slbl">ou seulement :</span>' +
-    SERIES.filter(function(x){ return x.k !== 'all'; }).map(function(x){
-      return '<button class="serie" data-k="'+x.k+'">'+x.lbl+' <b>'+x.pick().length+'</b></button>';
-    }).join('');
-  el('series').querySelectorAll('.serie').forEach(function(b){
-    b.onclick = function(){ startSerie(b.dataset.k); };
-  });
+  function drawStart(){
+    el('startn').textContent = M().n(ALL.length);
+    el('series').innerHTML = '<span class="slbl">'+M().only+'</span>' +
+      SERIES.filter(function(x){ return x.k !== 'all'; }).map(function(x){
+        return '<button class="serie" data-k="'+x.k+'">'+M().series[x.k]+' <b>'+x.pick().length+'</b></button>';
+      }).join('');
+    el('series').querySelectorAll('.serie').forEach(function(b){
+      b.onclick = function(){ startSerie(b.dataset.k); };
+    });
+  }
   el('start').onclick = function(){ startSerie('all'); };
 
   function startSerie(k){
     LIST = SERIES.filter(function(x){ return x.k === k; })[0].pick();
     idx=0; score=0; per={};
     LIST.forEach(function(q){ per[q.c] = per[q.c] || {ok:0,tot:0}; per[q.c].tot++; });
-    el('qscore').innerHTML = 'score : <b>0</b>';
+    drawScore();
     drawQ(); go(1);
   }
+  function drawScore(){ el('qscore').innerHTML = M().score+' : <b>'+score+'</b>'; }
 
   /* ---- affichage d'une question ---- */
   function drawQ(){
     const q = LIST[idx];
     if(!q) return;
+    const t = L(q);
     answered = false; sel = [];
-    el('qcount').textContent = 'Question ' + (idx+1) + ' / ' + LIST.length;
-    el('qcat').textContent = q.c;
+    el('qcount').textContent = M().count(idx+1, LIST.length);
+    el('qcat').textContent = CAT(q.c);
     el('qbar').style.width = (idx / LIST.length * 100) + '%';
     el('qwhy').classList.remove('show');
     el('qnext').classList.remove('show');
-    el('qnext').textContent = (idx === LIST.length-1) ? 'Voir le bilan ▶' : 'Question suivante ▶';
+    el('qnext').textContent = (idx === LIST.length-1) ? M().last : M().next;
     el('qvalid').style.display = (q.t === 'multi') ? '' : 'none';
     el('qvalid').disabled = true;
 
     if(q.t === 'vf'){
-      el('qtext').innerHTML = 'Vrai ou faux ?<span class="qclaim">« ' + q.q + ' »</span>';
+      el('qtext').innerHTML = M().tf+'<span class="qclaim">« ' + t.q + ' »</span>';
       el('qchoices').classList.remove('two');
       el('qchoices').innerHTML =
-        '<button class="qc" data-i="0"><span class="ltr">V</span><span>VRAI</span></button>' +
-        '<button class="qc" data-i="1"><span class="ltr">F</span><span>FAUX</span></button>';
+        '<button class="qc" data-i="0"><span class="ltr">'+M().T[0]+'</span><span>'+M().T[1]+'</span></button>' +
+        '<button class="qc" data-i="1"><span class="ltr">'+M().F[0]+'</span><span>'+M().F[1]+'</span></button>';
     } else {
-      el('qtext').innerHTML = q.q + (q.t === 'multi'
-        ? '<span class="qclaim">Plusieurs bonnes réponses — cochez-les toutes, puis validez.</span>' : '');
-      el('qchoices').classList.toggle('two', q.t === 'multi' && q.a.length >= 5);
-      el('qchoices').innerHTML = q.a.map(function(t,i){
+      el('qtext').innerHTML = t.q + (q.t === 'multi' ? '<span class="qclaim">'+M().multi+'</span>' : '');
+      el('qchoices').classList.toggle('two', q.t === 'multi' && t.a.length >= 5);
+      el('qchoices').innerHTML = t.a.map(function(txt,i){
         const mark = (q.t === 'multi') ? '<span class="box"></span>' : '<span class="ltr">'+LTR[i]+'</span>';
-        return '<button class="qc" data-i="'+i+'">'+mark+'<span>'+t+'</span></button>';
+        return '<button class="qc" data-i="'+i+'">'+mark+'<span>'+txt+'</span></button>';
       }).join('');
     }
 
@@ -513,10 +737,14 @@
     finish(q, good, -1);
   };
 
-  /* ---- correction ---- */
+  /* ---- correction : on compte, puis on peint ---- */
   function finish(q, good, chosen){
-    answered = true;
+    answered = true; lastGood = good; lastChosen = chosen;
     if(good){ score++; per[q.c].ok++; }
+    drawScore();
+    paint(q, good, chosen);
+  }
+  function paint(q, good, chosen){
     el('qchoices').querySelectorAll('.qc').forEach(function(x){
       const i = +x.dataset.i;
       x.classList.add('done');
@@ -532,11 +760,9 @@
       }
     });
     el('qvalid').disabled = true;
-    el('qscore').innerHTML = 'score : <b>'+score+'</b>';
-    let head = good ? '✅ <b>Exact.</b> ' : '❌ <b>Raté.</b> ';
-    if(q.t === 'multi' && el('qchoices').querySelector('.miss'))
-      head += '<i>(en pointillés : ce qu’il fallait cocher aussi)</i> ';
-    el('qwhy').innerHTML = head + q.why;
+    let head = good ? M().ok : M().ko;
+    if(q.t === 'multi' && el('qchoices').querySelector('.miss')) head += M().miss;
+    el('qwhy').innerHTML = head + L(q).why;
     el('qwhy').classList.add('show');
     el('qnext').classList.add('show');
   }
@@ -550,22 +776,48 @@
   function drawBilan(){
     el('bscore').innerHTML = score + '<small> / ' + LIST.length + '</small>';
     const r = score / LIST.length;
-    let msg;
-    if(r >= .85)     msg = '<b>Excellent.</b> Vous savez expliquer ce qu’est un token, situer une IA dans sa famille, lire un score de benchmark — et démonter une idée reçue sans vous faire avoir.';
-    else if(r >= .6) msg = '<b>Bien.</b> L’essentiel est là. Reprenez les chapitres où vous avez perdu des points — c’est indiqué ci-dessous.';
-    else             msg = 'Pas d’inquiétude : ce sont des notions neuves. Reprenez les chapitres en rouge, puis refaites le test.';
-    el('bmsg').innerHTML = msg;
-
+    el('bmsg').innerHTML = r >= .85 ? M().b1 : (r >= .6 ? M().b2 : M().b3);
     el('bcats').innerHTML = Object.keys(per).map(function(c){
       const p = per[c], ratio = p.ok / p.tot;
       const cls = ratio >= .75 ? 'hi' : (ratio >= .5 ? 'mid' : 'lo');
-      const rev = ratio >= .75 ? '' : '<a href="'+LINKS[c]+'">↺ revoir ce chapitre</a>';
-      return '<div class="bcat"><div class="n">'+c+'</div>'+
+      const rev = ratio >= .75 ? '' : '<a href="'+LINKS[c]+'">'+M().rev+'</a>';
+      return '<div class="bcat"><div class="n">'+CAT(c)+'</div>'+
              '<div class="s '+cls+'">'+p.ok+' / '+p.tot+'</div>'+rev+'</div>';
     }).join('');
   }
 
   el('again').onclick = function(){ go(0); };
+
+  /* ---- changer de langue sans perdre sa réponse ---- */
+  function applyLang(lang){
+    curLang = LANGS.indexOf(lang) >= 0 ? lang : 'fr';
+    document.documentElement.setAttribute('lang', curLang);
+    document.querySelectorAll('[data-i18n]').forEach(function(e){
+      const k = e.dataset.i18n;
+      e.innerHTML = (curLang !== 'fr' && I18N[curLang] && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+    });
+    document.querySelectorAll('#langsw button').forEach(function(b){ b.classList.toggle('on', b.dataset.lang === curLang); });
+    document.title = M().title;
+    try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+    drawStart();
+    if(LIST.length){
+      const was = answered, keep = sel.slice();
+      drawScore(); drawQ();
+      sel = keep;
+      if(was){ answered = true; paint(LIST[idx], lastGood, lastChosen); }
+      else {
+        el('qchoices').querySelectorAll('.qc').forEach(function(b){ if(sel.indexOf(+b.dataset.i) >= 0) b.classList.add('sel'); });
+        el('qvalid').disabled = (sel.length === 0);
+      }
+    }
+    if(scene === 2) drawBilan();
+    render();
+  }
+  document.querySelectorAll('#langsw button').forEach(function(b){ b.onclick = function(){ applyLang(b.dataset.lang); }; });
+
+  let savedLang = 'fr';
+  try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+  applyLang(savedLang);
   startSerie('all');
   go(0);
 </script>
