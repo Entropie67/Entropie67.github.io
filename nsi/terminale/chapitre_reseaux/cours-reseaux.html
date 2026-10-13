@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réseaux et routage — Terminale NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --warn:#ffc53d; --bad:#ff5c7a; --vio:#b57bff; --pink:#ff4fa3; --teal:#2ee6c5; }
+
+  .chapnav{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.92);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .chapnav-in{max-width:var(--max-w);margin:0 auto;display:flex;gap:.4rem;overflow-x:auto;
+    padding:.55rem 1.5rem;scrollbar-width:none}
+  .chapnav-in::-webkit-scrollbar{display:none}
+  .chapnav a{flex:none;text-decoration:none;color:var(--text-muted);font-size:.82rem;font-weight:500;
+    padding:.35rem .7rem;border-radius:100px;border:1px solid transparent;white-space:nowrap;transition:.18s}
+  .chapnav a:hover{color:var(--text);background:var(--bg-card)}
+  .chapnav a.on{color:var(--nsi);background:var(--nsi-dim);border-color:rgba(108,158,255,.3)}
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);
+    text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+
+  .part{scroll-margin-top:110px;margin-bottom:3.2rem}
+  .part > h2{display:flex;align-items:baseline;gap:.7rem;font-size:1.45rem;
+    padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.3rem}
+  .part > h2 .pn{font-family:var(--mono);font-size:.85rem;color:var(--nsi);
+    background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .part h3{font-size:1.02rem;color:var(--nsi);margin:1.6rem 0 .5rem}
+  .part p{margin-bottom:.85rem;color:#c9cdda}
+  .part ul,.part ol{margin:0 0 .9rem 1.2rem;color:#c9cdda}
+  .part li{margin-bottom:.35rem}
+  .part b,.part strong{color:var(--text);font-weight:600}
+  code,.m{font-family:var(--mono);font-size:.92em}
+  .m{color:var(--nsi);background:rgba(108,158,255,.09);padding:.08em .35em;border-radius:4px;white-space:nowrap}
+  .m.v{color:var(--vio);background:rgba(181,123,255,.11)}
+  .m.o{color:var(--warn);background:rgba(255,197,61,.11)}
+  .m.g{color:var(--ok);background:rgba(52,211,153,.11)}
+  sub,sup{font-size:.72em}
+
+  .box{border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 8px 8px 0;
+    background:var(--bg-card);padding:1rem 1.2rem;margin:1.1rem 0}
+  .box .lbl{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--nsi);display:block;margin-bottom:.5rem}
+  .box.meth{border-left-color:var(--vio)} .box.meth .lbl{color:var(--vio)}
+  .box.warn{border-left-color:var(--warn)} .box.warn .lbl{color:var(--warn)}
+  .box.key{border-left-color:var(--ok);background:rgba(52,211,153,.06)} .box.key .lbl{color:var(--ok)}
+  .box.def{border-left-color:var(--pink)} .box.def .lbl{color:var(--pink)}
+  .box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+
+  .tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}
+  .tbl th,.tbl td{border:1px solid var(--border);padding:.45rem .6rem;text-align:center}
+  .tbl th{background:var(--bg-card);color:var(--nsi);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+  .tbl td{color:#c9cdda}
+  .tbl td.mono{font-family:var(--mono)}
+  .tbl td.l{text-align:left}
+  .tbl td.new{color:var(--warn);font-weight:600;background:rgba(255,197,61,.07)}
+  .tbl td.pick{color:#06281c;font-weight:700;background:rgba(52,211,153,.75)}
+  .tbl td.fx{color:rgba(255,255,255,.2)}
+  .tbl td.up{color:var(--pink);font-weight:600}
+  .tbl tr.hl td{background:rgba(108,158,255,.07)}
+  .tbl tr:nth-child(even) td{background:rgba(255,255,255,.017)}
+  .tbl tr:nth-child(even) td.pick{background:rgba(52,211,153,.75)}
+  .tbl tr:nth-child(even) td.new{background:rgba(255,197,61,.07)}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1rem 0}
+  .scrollx .tbl{margin:0;min-width:520px}
+  .osi td:first-child{font-family:var(--mono);font-weight:700;color:var(--nsi)}
+  .osi td.grp{color:var(--vio);font-weight:600;background:rgba(181,123,255,.06)!important}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.6;background:#0c0e15;
+    border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;
+    overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+  pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+
+  .fig{margin:1.2rem 0;text-align:center}
+  .fig svg{max-width:100%;height:auto}
+  .fig .cap{font-size:.8rem;color:var(--text-muted);margin-top:.4rem}
+  .fig.card{border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:.8rem .6rem .6rem}
+
+  /* schémas de réseau */
+  svg .lk{stroke:rgba(255,255,255,.26);stroke-linecap:round;fill:none}
+  svg .lk.w1{stroke-width:1.5} svg .lk.w2{stroke-width:2.5} svg .lk.w3{stroke-width:3.5} svg .lk.w4{stroke-width:5}
+  svg .lk.rip{stroke:var(--warn)} svg .lk.ospf{stroke:var(--teal)}
+  svg .rt circle{fill:#1a1f2e;stroke:var(--nsi);stroke-width:2}
+  svg .rt text{fill:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;text-anchor:middle;dominant-baseline:central}
+  svg .rt.src circle{stroke:var(--pink);stroke-width:3} svg .rt.dst circle{stroke:var(--ok);stroke-width:3}
+  svg .tg rect{fill:#12151f;stroke:rgba(255,255,255,.18);stroke-width:1}
+  svg .tg text{fill:#c9cdda;font-family:'JetBrains Mono',monospace;font-size:10px;text-anchor:middle;dominant-baseline:central}
+  svg .tg.rip rect{stroke:var(--warn)} svg .tg.rip text{fill:#ffe08a}
+  svg .tg.ospf rect{stroke:var(--teal)} svg .tg.ospf text{fill:#7df5df}
+  svg .note{fill:var(--text-muted);font-family:'Inter',sans-serif;font-size:11px;text-anchor:middle}
+  svg .note.l{text-anchor:start} svg .note.r{text-anchor:end}
+  svg .addr{fill:var(--nsi);font-family:'JetBrains Mono',monospace;font-size:10px;text-anchor:middle}
+  svg .addr.l{text-anchor:start} svg .addr.r{text-anchor:end}
+  svg .box-lan{fill:rgba(108,158,255,.06);stroke:rgba(108,158,255,.4);stroke-dasharray:5 4}
+  svg .box-net{fill:rgba(181,123,255,.06);stroke:rgba(181,123,255,.4);stroke-dasharray:5 4}
+  svg .dev{fill:#1a1f2e;stroke:rgba(255,255,255,.35);stroke-width:1.5}
+  svg .dev.sw{stroke:var(--vio)}
+  svg .devt{fill:#e2e4e9;font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;text-anchor:middle;dominant-baseline:central}
+  svg .cloud{fill:rgba(255,255,255,.04);stroke:rgba(255,255,255,.3);stroke-width:1.5}
+
+  /* bits */
+  .bitcalc{margin:1rem 0}
+  .bitgrid{display:grid;grid-template-columns:auto repeat(4,auto) auto;gap:.35rem .5rem;align-items:center;
+    font-family:var(--mono);font-size:.8rem;min-width:max-content}
+  .bitgrid .bl{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--text-muted);text-align:right;padding-right:.3rem;white-space:nowrap}
+  .bitgrid .bl b{color:var(--text)}
+  .oct{display:flex;gap:1px;padding:2px;border-radius:5px;border:1px solid transparent}
+  .oct.mix{border-color:rgba(181,123,255,.55)}
+  .oct span{display:inline-block;width:1.15em;text-align:center;padding:.12em 0;border-radius:3px}
+  .oct span.n{background:rgba(108,158,255,.13);color:rgba(207,224,255,.45)}
+  .oct span.h{background:rgba(46,230,197,.10);color:rgba(125,245,223,.45)}
+  .oct span.n.one{color:#cfe0ff;background:rgba(108,158,255,.32)}
+  .oct span.h.one{color:#7df5df;background:rgba(46,230,197,.28)}
+  .bitgrid .dec{color:var(--text);font-weight:600;white-space:nowrap;padding-left:.3rem}
+  .bitgrid .sep{grid-column:1/-1;border-top:1px dashed var(--border);height:0}
+  .bitlegend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);margin-top:.5rem}
+  .bitlegend i{display:inline-block;width:.9em;height:.9em;border-radius:3px;vertical-align:-.1em;margin-right:.35em}
+
+  /* encapsulation */
+  .encap{display:grid;gap:.45rem;margin:1.2rem 0;font-size:.8rem}
+  .encap .row{display:grid;grid-template-columns:8.5rem 1fr 4.6rem;gap:.6rem;align-items:center}
+  .encap .ly{color:var(--text-muted);text-align:right;font-size:.78rem} .encap .ly b{color:var(--nsi);font-family:var(--mono)}
+  .encap .pdu{color:var(--ok);font-weight:600;font-size:.78rem}
+  .encap .blocks{display:flex;justify-content:flex-end;gap:2px;flex-wrap:nowrap;min-width:0}
+  .encap .blocks span{padding:.35rem .45rem;border-radius:5px;white-space:nowrap;font-family:var(--mono);font-size:.72rem;color:#0b0d14;font-weight:600}
+  .b-data{background:#c3e88d} .b-tcp{background:#ffc53d} .b-ip{background:#6c9eff} .b-eth{background:#b57bff} .b-fcs{background:#b57bff;opacity:.75}
+  .b-bits{background:transparent!important;color:var(--text-muted)!important;letter-spacing:.12em;font-weight:400!important;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+  .frame{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#0b0d14;margin:1.3rem 0;position:relative}
+  .frame iframe{display:block;width:100%;height:560px;border:0}
+  .frame .fbar{display:flex;align-items:center;gap:.8rem;padding:.5rem .9rem;border-top:1px solid var(--border);
+    background:var(--bg-card);font-size:.8rem;color:var(--text-muted)}
+  .frame .fbar a{margin-left:auto;color:var(--nsi);text-decoration:none;font-weight:600;white-space:nowrap}
+  .frame .fbar a:hover{text-decoration:underline}
+
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);
+    border-left:3px solid var(--ok);border-radius:0 10px 10px 0;background:rgba(52,211,153,.06);
+    padding:1.1rem 1.3rem;margin:2.5rem 0 1rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--ok);color:#06281c;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+  .cta.anim{border-left-color:var(--vio);background:rgba(181,123,255,.07);margin:1rem 0} .cta.anim a{background:var(--vio);color:#1b0f2e}
+  .ctas{margin:0 0 2rem}
+
+  .recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem;margin:1rem 0}
+  .recap div{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.7rem .85rem;font-size:.86rem;color:#c9cdda}
+  .recap div b{display:block;color:var(--ok);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem}
+
+  @media (max-width:640px){
+    .chapnav-in{padding:.5rem 1rem}
+    .part > h2{font-size:1.2rem}
+    pre.code{font-size:.76rem}
+    .frame iframe{height:600px}
+    .encap .row{grid-template-columns:1fr;gap:.2rem}
+    .encap .ly{text-align:left}
+    .encap .blocks{justify-content:flex-start;flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="chapnav">
+  <div class="chapnav-in" id="chapnav">
+    <a href="#p1">1 · Rappels</a>
+    <a href="#p2">2 · Modèle OSI</a>
+    <a href="#p3">3 · Adresses IP</a>
+    <a href="#p4">4 · Masques et CIDR</a>
+    <a href="#p5">5 · Sous-réseaux</a>
+    <a href="#p6">6 · Tables de routage</a>
+    <a href="#p7">7 · RIP</a>
+    <a href="#p8">8 · OSPF</a>
+    <a href="#p9">9 · RIP ou OSPF ?</a>
+    <a href="#p10">10 · À retenir</a>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>Réseaux et routage <span class="badge badge-nsi">Terminale</span></h1>
+    <p class="subtitle">Comment un paquet trouve-t-il son chemin à travers Internet ? Le modèle en couches OSI, les adresses IP
+      et leurs masques, les tables de routage, puis les deux protocoles qui les remplissent automatiquement : RIP et OSPF.</p>
+  </div>
+
+  <div class="box">
+    <span class="lbl">Ce que dit le programme</span>
+    <p>« Identifier, suivant le protocole de routage utilisé, la route empruntée par un paquet. » En exercice, les tables de routage
+      sont données ; on se réfère au <b>nombre de sauts</b> pour le protocole RIP et au <b>coût des routes</b> pour le protocole OSPF,
+      en faisant le lien avec les algorithmes de plus court chemin dans un graphe. Les parties 1 à 5 rappellent et approfondissent
+      ce qu'il faut savoir des adresses pour lire une table de routage.</p>
+  </div>
+
+  <div class="ctas">
+    <div class="cta anim">
+      <div class="t">
+        <b>Animation 1 : adresses IP et modèle OSI</b>
+        <span>Les 32 bits d'une adresse et de son masque, le découpage en sous-réseaux, l'encapsulation couche par couche.</span>
+      </div>
+      <a href="../../animation/adresses-ip.html" target="_blank" rel="noopener">Ouvrir en plein écran →</a>
+    </div>
+    <div class="cta anim">
+      <div class="t">
+        <b>Animation 2 : routage RIP et OSPF</b>
+        <span>Les tables RIP se remplissent tour après tour, OSPF calcule avec Dijkstra, et les deux routes s'affrontent.</span>
+      </div>
+      <a href="../../animation/routage.html" target="_blank" rel="noopener">Ouvrir en plein écran →</a>
+    </div>
+  </div>
+
+  <!-- ══════════════════ 1 ══════════════════ -->
+  <section class="part" id="p1">
+    <h2><span class="pn">1</span> Rappels : du réseau local à Internet</h2>
+    <p>Un <b>réseau</b> est un ensemble de machines (les <b>hôtes</b> : ordinateurs, téléphones, serveurs, imprimantes…) reliées
+      pour échanger des données. Un <b>réseau local</b> (LAN) couvre une maison, une salle, un lycée ; <b>Internet</b> est un
+      <b>réseau de réseaux</b> : des dizaines de milliers de réseaux interconnectés par des <b>routeurs</b>.</p>
+
+    <div class="fig card">
+      <svg viewBox="0 0 640 210">
+        <rect class="box-lan" x="8" y="18" width="200" height="176" rx="12"/>
+        <rect class="box-lan" x="432" y="18" width="200" height="176" rx="12"/>
+        <text class="note l" x="18" y="36">Réseau local 1</text><text class="addr l" x="18" y="50">192.168.1.0/24</text>
+        <text class="note r" x="622" y="36">Réseau local 2</text><text class="addr r" x="622" y="50">10.0.0.0/24</text>
+        <line class="lk w2" x1="56" y1="78" x2="140" y2="118"/><line class="lk w2" x1="56" y1="118" x2="140" y2="118"/><line class="lk w2" x1="56" y1="158" x2="140" y2="118"/>
+        <line class="lk w3" x1="140" y1="118" x2="250" y2="118"/><line class="lk w3" x1="250" y1="118" x2="290" y2="118"/>
+        <line class="lk w3" x1="350" y1="118" x2="390" y2="118"/><line class="lk w3" x1="390" y1="118" x2="500" y2="118"/>
+        <line class="lk w2" x1="500" y1="118" x2="586" y2="78"/><line class="lk w2" x1="500" y1="118" x2="586" y2="158"/>
+        <rect class="dev" x="30" y="66" width="52" height="24" rx="5"/><text class="devt" x="56" y="78">PC</text>
+        <rect class="dev" x="30" y="106" width="52" height="24" rx="5"/><text class="devt" x="56" y="118">PC</text>
+        <rect class="dev" x="30" y="146" width="52" height="24" rx="5"/><text class="devt" x="56" y="158">imprim.</text>
+        <rect class="dev sw" x="112" y="106" width="58" height="24" rx="5"/><text class="devt" x="141" y="118">switch</text>
+        <g class="rt"><circle cx="250" cy="118" r="19"/><text x="250" y="118" font-size="11">R</text></g>
+        <ellipse class="cloud" cx="320" cy="118" rx="38" ry="26"/><text class="devt" x="320" y="118">Internet</text>
+        <g class="rt"><circle cx="390" cy="118" r="19"/><text x="390" y="118" font-size="11">R</text></g>
+        <rect class="dev sw" x="470" y="106" width="58" height="24" rx="5"/><text class="devt" x="499" y="118">switch</text>
+        <rect class="dev" x="558" y="66" width="60" height="24" rx="5"/><text class="devt" x="588" y="78">serveur</text>
+        <rect class="dev" x="558" y="146" width="60" height="24" rx="5"/><text class="devt" x="588" y="158">PC</text>
+        <text class="note" x="141" y="150">même réseau :</text><text class="note" x="141" y="164">adresses MAC</text>
+        <text class="note" x="320" y="172">routeurs : relient des réseaux</text><text class="note" x="320" y="186">différents (adresses IP)</text>
+      </svg>
+      <div class="cap">Le commutateur relie les machines d'un même réseau local ; le routeur relie ce réseau aux autres.</div>
+    </div>
+
+    <ul>
+      <li>La <b>carte réseau</b> de chaque machine possède une <b>adresse MAC</b> (48 bits, gravée en usine, par exemple <code>a4:5e:60:d1:22:9b</code>) : elle identifie la machine sur son réseau local.</li>
+      <li>Le <b>commutateur</b> (<i>switch</i>) relie les machines d'un même réseau local : il transmet chaque trame au bon port d'après l'adresse MAC de destination.</li>
+      <li>Le <b>routeur</b> possède plusieurs interfaces, chacune dans un réseau différent : il fait passer les paquets d'un réseau à l'autre d'après l'<b>adresse IP</b> de destination. Une « box » Internet est à la fois routeur, commutateur et point d'accès Wi-Fi.</li>
+      <li>Les données ne circulent pas d'un bloc : elles sont découpées en <b>paquets</b> qui voyagent indépendamment et peuvent emprunter des chemins différents (<b>commutation de paquets</b>). Le destinataire les remet dans l'ordre.</li>
+      <li>Toutes ces machines se comprennent parce qu'elles respectent les mêmes <b>protocoles</b> : des règles précises fixant le format des messages et leur enchaînement.</li>
+    </ul>
+  </section>
+
+  <!-- ══════════════════ 2 ══════════════════ -->
+  <section class="part" id="p2">
+    <h2><span class="pn">2</span> Le modèle en couches OSI</h2>
+    <p>Envoyer une page web à l'autre bout du monde mélange des problèmes très différents : transporter des bits sur un câble ou par radio,
+      trouver un chemin entre les réseaux, ne rien perdre en route, comprendre la requête du navigateur… On sépare ces problèmes en
+      <b>couches</b> : chaque couche rend un service à la couche du dessus en utilisant celle du dessous, sans se soucier de leur fonctionnement interne.
+      Résultat : on peut passer du câble au Wi-Fi sans rien changer au navigateur, ou inventer un nouveau protocole applicatif sans toucher aux routeurs.</p>
+
+    <div class="box def">
+      <span class="lbl">Le modèle OSI</span>
+      <p>Le modèle <b>OSI</b> (<i>Open Systems Interconnection</i>, normalisé par l'ISO en 1984) est un modèle de référence qui découpe la communication en
+        <b>7 couches</b>. Chaque couche dialogue avec la couche de <b>même niveau</b> de la machine distante grâce à un protocole, et ajoute pour cela ses
+        propres informations aux données.</p>
+    </div>
+
+    <div class="scrollx"><table class="tbl osi">
+      <tr><th>N°</th><th>Couche</th><th>Rôle</th><th>Unité de données</th><th>Exemples</th><th>Matériel</th><th>TCP/IP</th></tr>
+      <tr><td>7</td><td class="l"><b>Application</b></td><td class="l">Services réseau offerts aux programmes</td><td>données</td><td class="l">HTTP, HTTPS, DNS, SMTP, IMAP, SSH</td><td></td><td class="grp" rowspan="3">Application</td></tr>
+      <tr><td>6</td><td class="l"><b>Présentation</b></td><td class="l">Codage des données, compression, chiffrement</td><td>données</td><td class="l">UTF-8, JPEG, TLS</td><td></td></tr>
+      <tr><td>5</td><td class="l"><b>Session</b></td><td class="l">Ouverture, maintien et fermeture du dialogue</td><td>données</td><td class="l">(géré par les applications)</td><td></td></tr>
+      <tr><td>4</td><td class="l"><b>Transport</b></td><td class="l">Communication de bout en bout entre deux programmes (ports), fiabilité</td><td>segment</td><td class="l">TCP, UDP</td><td></td><td class="grp">Transport</td></tr>
+      <tr><td>3</td><td class="l"><b>Réseau</b></td><td class="l">Adressage logique et acheminement à travers les réseaux (<b>routage</b>)</td><td>paquet</td><td class="l">IP, ICMP (ping), RIP, OSPF</td><td>routeur</td><td class="grp">Internet</td></tr>
+      <tr><td>2</td><td class="l"><b>Liaison</b> de données</td><td class="l">Transmission entre machines voisines d'un même réseau, adresses MAC, détection d'erreurs</td><td>trame</td><td class="l">Ethernet, Wi-Fi, ARP</td><td>commutateur</td><td class="grp" rowspan="2">Accès réseau</td></tr>
+      <tr><td>1</td><td class="l"><b>Physique</b></td><td class="l">Transmission des bits sur le support</td><td>bit</td><td class="l">câble cuivre, fibre optique, ondes radio</td><td>câbles, répéteur, concentrateur</td></tr>
+    </table></div>
+
+    <div class="box meth">
+      <span class="lbl">Pour retenir l'ordre des couches</span>
+      <p>De la couche 1 à la couche 7 : « <b>P</b>our <b>L</b>e <b>R</b>éseau, <b>T</b>out <b>S</b>e <b>P</b>asse <b>A</b>utomatiquement » — Physique, Liaison, Réseau, Transport, Session, Présentation, Application.</p>
+    </div>
+
+    <h3>Le modèle TCP/IP, celui d'Internet</h3>
+    <p>Internet n'applique pas le modèle OSI à la lettre mais le modèle <b>TCP/IP</b>, plus ancien (1974) et plus simple, en <b>4 couches</b> (dernière colonne du tableau) :
+      les couches 5, 6 et 7 sont regroupées en une couche <b>Application</b> (c'est l'application qui gère le codage et le dialogue), les couches 1 et 2 en une couche
+      <b>Accès réseau</b>. Le modèle OSI reste le vocabulaire commun : on dit d'un routeur qu'il travaille « en couche 3 », d'un commutateur « en couche 2 ».</p>
+
+    <h3>Transport : TCP ou UDP</h3>
+    <ul>
+      <li>Les <b>ports</b> désignent le programme destinataire sur une machine : 80 pour HTTP, 443 pour HTTPS, 53 pour DNS, 22 pour SSH, 25 pour SMTP.</li>
+      <li><b>TCP</b> établit une connexion, numérote les segments, attend des <b>accusés de réception</b> et réémet ce qui est perdu : tout arrive, dans l'ordre. C'est le protocole du web et du courrier.</li>
+      <li><b>UDP</b> envoie sans connexion ni accusé de réception : plus rapide, mais sans garantie. On le préfère quand un retard est pire qu'une perte : visioconférence, jeux en ligne, requêtes DNS.</li>
+    </ul>
+
+    <h3>Encapsulation et décapsulation</h3>
+    <p>À l'émission, les données <b>descendent</b> les couches et chacune ajoute son <b>en-tête</b> (et parfois une fin de trame) : c'est l'<b>encapsulation</b>,
+      comme une lettre glissée dans des enveloppes successives. À la réception, elles <b>remontent</b> et chaque couche retire l'en-tête de son homologue : c'est la <b>décapsulation</b>.</p>
+
+    <div class="encap">
+      <div class="row"><div class="ly"><b>7</b> Application</div><div class="blocks"><span class="b-data">GET /index.html</span></div><div class="pdu">données</div></div>
+      <div class="row"><div class="ly"><b>4</b> Transport</div><div class="blocks"><span class="b-tcp">TCP · ports 52814 → 80</span><span class="b-data">GET /index.html</span></div><div class="pdu">segment</div></div>
+      <div class="row"><div class="ly"><b>3</b> Réseau</div><div class="blocks"><span class="b-ip">IP · 192.168.1.37 → 203.0.113.10</span><span class="b-tcp">TCP</span><span class="b-data">données</span></div><div class="pdu">paquet</div></div>
+      <div class="row"><div class="ly"><b>2</b> Liaison</div><div class="blocks"><span class="b-eth">Ethernet · MAC</span><span class="b-ip">IP</span><span class="b-tcp">TCP</span><span class="b-data">données</span><span class="b-fcs">FCS</span></div><div class="pdu">trame</div></div>
+      <div class="row"><div class="ly"><b>1</b> Physique</div><div class="blocks"><span class="b-bits">0110100101110010011010010110001101101111010001…</span></div><div class="pdu">bits</div></div>
+    </div>
+
+    <div class="box key">
+      <span class="lbl">Ce qui change à chaque routeur, et ce qui ne change pas</span>
+      <p>Un routeur ne remonte que jusqu'à la <b>couche 3</b> : il retire la trame, lit l'adresse IP de destination, choisit la sortie, puis fabrique une
+        <b>nouvelle trame</b> pour le réseau suivant. Les <b>adresses MAC changent donc à chaque saut</b> (elles ne valent que sur un réseau local),
+        tandis que les <b>adresses IP source et destination restent les mêmes de bout en bout</b>. Seul le champ <b>TTL</b> (durée de vie) de l'en-tête IP
+        est diminué de 1 à chaque routeur ; à 0, le paquet est détruit, ce qui évite qu'un paquet tourne indéfiniment en cas de boucle.</p>
+    </div>
+
+    <h3>À manipuler : suivre une requête couche par couche</h3>
+    <div class="frame">
+      <iframe src="../../animation/adresses-ip.html?embed=1&mode=osi" title="Encapsulation dans le modèle OSI" loading="lazy"></iframe>
+      <div class="fbar"><span>Avancez pas à pas : regardez les en-têtes s'empiler, puis les adresses MAC changer au passage du routeur.</span><a href="../../animation/adresses-ip.html?mode=osi" target="_blank" rel="noopener">Plein écran ↗</a></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 3 ══════════════════ -->
+  <section class="part" id="p3">
+    <h2><span class="pn">3</span> Les adresses IP</h2>
+
+    <div class="box def">
+      <span class="lbl">Adresse IPv4</span>
+      <p>Une adresse <b>IPv4</b> est un nombre de <b>32 bits</b>, que l'on écrit en <b>notation décimale pointée</b> : quatre <b>octets</b> écrits en décimal
+        (chacun entre 0 et 255) séparés par des points. Toute interface réseau d'une machine connectée possède une adresse IP.</p>
+    </div>
+
+    <p>Pour passer d'une écriture à l'autre, on convertit chaque octet séparément avec les poids 128, 64, 32, 16, 8, 4, 2, 1 :</p>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Octet</th><th>128</th><th>64</th><th>32</th><th>16</th><th>8</th><th>4</th><th>2</th><th>1</th><th>Calcul</th></tr>
+      <tr><td class="mono"><b>192</b></td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td class="l">128 + 64</td></tr>
+      <tr><td class="mono"><b>168</b></td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td class="l">128 + 32 + 8</td></tr>
+      <tr><td class="mono"><b>1</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td class="l">1</td></tr>
+      <tr><td class="mono"><b>37</b></td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td class="l">32 + 4 + 1</td></tr>
+    </table></div>
+    <p>Ainsi <span class="m">192.168.1.37</span> s'écrit <span class="m">11000000.10101000.00000001.00100101</span> en binaire. On écrit toujours les <b>8 bits</b> de chaque octet.</p>
+
+    <h3>Partie réseau, partie machine</h3>
+    <p>Une adresse IP se lit en deux morceaux, comme un numéro de téléphone (indicatif de la région, puis numéro de l'abonné) :</p>
+    <ul>
+      <li>les bits de gauche forment la <b>partie réseau</b> : elle est commune à toutes les machines du même réseau local ;</li>
+      <li>les bits de droite forment la <b>partie hôte</b> (ou partie machine) : elle distingue les machines à l'intérieur de ce réseau.</li>
+    </ul>
+    <p>Où passe la frontière ? C'est le rôle du <b>masque</b>, objet de la partie suivante.</p>
+
+    <h3>Des adresses particulières</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Adresses</th><th>Usage</th></tr>
+      <tr><td class="mono">10.0.0.0/8<br>172.16.0.0/12<br>192.168.0.0/16</td><td class="l"><b>Adresses privées</b> : réservées aux réseaux locaux, jamais routées sur Internet. Des milliers de foyers utilisent les mêmes 192.168.1.x ; la box les traduit en sa propre adresse publique (<b>NAT</b>).</td></tr>
+      <tr><td class="mono">127.0.0.1</td><td class="l"><b>Boucle locale</b> (<i>localhost</i>) : la machine elle-même.</td></tr>
+      <tr><td class="mono">169.254.x.x</td><td class="l">Adresse que se donne une machine qui n'a pas obtenu d'adresse du serveur DHCP : signe d'un problème de configuration.</td></tr>
+      <tr><td class="mono">0.0.0.0/0</td><td class="l">« Toutes les destinations » : sert à écrire la <b>route par défaut</b> dans une table de routage.</td></tr>
+      <tr><td class="l">adresse du réseau<br>adresse de diffusion</td><td class="l">La première et la dernière adresse de chaque réseau (partie hôte toute à 0, toute à 1) ne sont jamais attribuées à une machine (partie 4).</td></tr>
+    </table></div>
+    <p>Une machine reçoit son adresse soit à la main, soit automatiquement grâce au protocole <b>DHCP</b> (c'est ce que fait la box). On l'affiche avec
+      <code>ipconfig</code> sous Windows, <code>ip a</code> sous Linux.</p>
+
+    <div class="box">
+      <span class="lbl">Et IPv6 ?</span>
+      <p>32 bits ne donnent que 2<sup>32</sup> ≈ 4,3 milliards d'adresses : le stock d'adresses IPv4 libres est épuisé depuis les années 2010. <b>IPv6</b> code
+        les adresses sur <b>128 bits</b> (2<sup>128</sup> ≈ 3,4 × 10<sup>38</sup> adresses), écrites en 8 groupes de 4 chiffres hexadécimaux, par exemple
+        <code>2001:db8:85a3::8a2e:370:7334</code> (« :: » remplace une suite de groupes nuls). Les principes de ce chapitre (préfixe réseau, routage) restent les mêmes.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 4 ══════════════════ -->
+  <section class="part" id="p4">
+    <h2><span class="pn">4</span> Masque de sous-réseau et notation CIDR</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Le <b>masque de sous-réseau</b> est un nombre de 32 bits formé de <b>n bits à 1</b> (ils repèrent la partie réseau) suivis de <b>32 − n bits à 0</b>
+        (la partie hôte). On l'écrit en décimal pointé, ou plus simplement par sa longueur n après une barre oblique : c'est la <b>notation CIDR</b>.</p>
+      <p style="text-align:center"><span class="m">192.168.1.37/24</span> &nbsp;signifie&nbsp; adresse <span class="m">192.168.1.37</span>, masque <span class="m">255.255.255.0</span> (24 bits à 1).</p>
+    </div>
+
+    <p>Les 1 du masque étant toujours <b>regroupés à gauche</b>, un octet de masque ne peut prendre que neuf valeurs :</p>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Bits à 1 dans l'octet</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+      <tr><th>Octet en binaire</th><td class="mono">00000000</td><td class="mono">10000000</td><td class="mono">11000000</td><td class="mono">11100000</td><td class="mono">11110000</td><td class="mono">11111000</td><td class="mono">11111100</td><td class="mono">11111110</td><td class="mono">11111111</td></tr>
+      <tr><th>Valeur</th><td><b>0</b></td><td><b>128</b></td><td><b>192</b></td><td><b>224</b></td><td><b>240</b></td><td><b>248</b></td><td><b>252</b></td><td><b>254</b></td><td><b>255</b></td></tr>
+    </table></div>
+    <p>Par exemple <span class="m">/26</span> = 8 + 8 + 8 + 2 bits à 1, soit <span class="m">255.255.255.192</span> ; <span class="m">/20</span> = 8 + 8 + 4, soit <span class="m">255.255.240.0</span>.
+      Un masque comme <code>255.255.0.255</code> est <b>invalide</b> : ses 1 ne sont pas contigus.</p>
+
+    <h3>Adresse du réseau : un ET logique</h3>
+    <p>L'<b>adresse du réseau</b> s'obtient en effectuant un <b>ET logique bit à bit</b> entre l'adresse IP et le masque (1 ET 1 = 1, tous les autres cas donnent 0) :
+      les bits de la partie réseau sont conservés, ceux de la partie hôte sont mis à 0. L'<b>adresse de diffusion</b> (<i>broadcast</i>, pour s'adresser à toutes les
+      machines du réseau à la fois) s'obtient au contraire en mettant tous les bits de la partie hôte à 1.</p>
+
+    <div class="bitcalc scrollx" data-ip="192.168.5.77" data-n="26"></div>
+    <div class="bitlegend"><span><i style="background:rgba(108,158,255,.45)"></i>partie réseau (26 bits)</span><span><i style="background:rgba(46,230,197,.4)"></i>partie hôte (6 bits)</span><span><i style="border:1px solid rgba(181,123,255,.8)"></i>octet « mixte »</span></div>
+
+    <p style="margin-top:1rem">Pour <span class="m">192.168.5.77/26</span> : réseau <span class="m g">192.168.5.64/26</span>, diffusion <span class="m g">192.168.5.127</span>.
+      Les machines peuvent recevoir les adresses de <b>192.168.5.65</b> à <b>192.168.5.126</b>.</p>
+
+    <div class="box key">
+      <span class="lbl">Pour un réseau /n</span>
+      <ul>
+        <li>Nombre d'adresses : <span class="m">2<sup>32 − n</sup></span>.</li>
+        <li>Nombre de machines adressables : <span class="m">2<sup>32 − n</sup> − 2</span> (on retire l'adresse du réseau et l'adresse de diffusion).</li>
+        <li>Première machine = adresse du réseau + 1 ; dernière machine = adresse de diffusion − 1. Le routeur du réseau (la <b>passerelle</b>) prend souvent la première ou la dernière.</li>
+      </ul>
+    </div>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>CIDR</th><th>Masque</th><th>Adresses</th><th>Machines</th><th>Exemple d'usage</th></tr>
+      <tr><td class="mono">/8</td><td class="mono">255.0.0.0</td><td>16 777 216</td><td>16 777 214</td><td class="l">très grand réseau (10.0.0.0/8)</td></tr>
+      <tr><td class="mono">/16</td><td class="mono">255.255.0.0</td><td>65 536</td><td>65 534</td><td class="l">grande entreprise, campus</td></tr>
+      <tr><td class="mono">/20</td><td class="mono">255.255.240.0</td><td>4 096</td><td>4 094</td><td class="l"></td></tr>
+      <tr><td class="mono">/24</td><td class="mono">255.255.255.0</td><td>256</td><td><b>254</b></td><td class="l">réseau domestique, salle informatique</td></tr>
+      <tr><td class="mono">/25</td><td class="mono">255.255.255.128</td><td>128</td><td>126</td><td class="l"></td></tr>
+      <tr><td class="mono">/26</td><td class="mono">255.255.255.192</td><td>64</td><td>62</td><td class="l"></td></tr>
+      <tr><td class="mono">/28</td><td class="mono">255.255.255.240</td><td>16</td><td>14</td><td class="l">petit service</td></tr>
+      <tr><td class="mono">/30</td><td class="mono">255.255.255.252</td><td>4</td><td>2</td><td class="l">liaison entre deux routeurs</td></tr>
+    </table></div>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — trouver le réseau sans tout écrire en binaire</span>
+      <ol>
+        <li>Si <b>n est un multiple de 8</b> : on garde les n/8 premiers octets de l'adresse et on complète par des 0 (réseau) ou des 255 (diffusion).
+          <br><span class="m">10.12.200.5/16</span> → réseau <span class="m g">10.12.0.0</span>, diffusion <span class="m g">10.12.255.255</span>.</li>
+        <li>Sinon, on repère l'<b>octet mixte</b> et la valeur <i>m</i> du masque dans cet octet. Les réseaux avancent de <b>b = 256 − m</b> en b dans cet octet :
+          on prend le plus grand multiple de b inférieur ou égal à l'octet de l'adresse ; la diffusion est ce multiple + b − 1. Les octets précédents sont recopiés,
+          les suivants valent 0 (réseau) ou 255 (diffusion).</li>
+      </ol>
+      <p><span class="m">172.16.45.200/20</span> : masque 255.255.<b>240</b>.0, donc b = 256 − 240 = 16. Les réseaux commencent à 0, 16, 32, 48… ; 45 est entre 32 et 47.
+        Réseau <span class="m g">172.16.32.0/20</span>, diffusion <span class="m g">172.16.47.255</span>, machines de 172.16.32.1 à 172.16.47.254, soit 2<sup>12</sup> − 2 = 4 094.</p>
+    </div>
+
+    <h3>Deux machines sont-elles sur le même réseau ?</h3>
+    <p>Deux machines sont sur le même réseau si elles ont la <b>même adresse réseau</b> (le même résultat pour IP ET masque). Elles communiquent alors
+      <b>directement</b>, par le commutateur. Sinon, la machine émettrice confie le paquet à sa <b>passerelle par défaut</b>, le routeur de son réseau.</p>
+    <ul>
+      <li><span class="m">192.168.1.37/24</span> et <span class="m">192.168.1.200/24</span> : même réseau 192.168.1.0 → communication directe.</li>
+      <li>Les mêmes en <span class="m">/25</span> : 37 &lt; 128 donne le réseau 192.168.1.0/25 ; 200 ≥ 128 donne 192.168.1.128/25 → réseaux différents, il faut un routeur.</li>
+    </ul>
+    <p>Le masque est donc indispensable : sans lui, on ne sait pas si deux adresses « proches » sont voisines.</p>
+
+    <h3>À manipuler : les 32 bits en direct</h3>
+    <div class="frame">
+      <iframe src="../../animation/adresses-ip.html?embed=1&mode=ip" title="Adresse IP et masque" loading="lazy"></iframe>
+      <div class="fbar"><span>Faites glisser la frontière /n, cliquez sur un bit, comparez deux adresses.</span><a href="../../animation/adresses-ip.html?mode=ip" target="_blank" rel="noopener">Plein écran ↗</a></div>
+    </div>
+
+    <h3>En Python</h3>
+    <p>Une adresse IPv4 n'est qu'un entier de 32 bits : les opérateurs bit à bit de Python (<code>&amp;</code> pour le ET, <code>&lt;&lt;</code> et <code>&gt;&gt;</code> pour les décalages) font tout le travail.</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">ip_vers_entier</span>(ip):
+    a, b, c, d = [<span class="fn">int</span>(x) <span class="kw">for</span> x <span class="kw">in</span> ip.split(<span class="st">'.'</span>)]
+    <span class="kw">return</span> a * <span class="nb">256</span>**<span class="nb">3</span> + b * <span class="nb">256</span>**<span class="nb">2</span> + c * <span class="nb">256</span> + d
+
+<span class="kw">def</span> <span class="fn">entier_vers_ip</span>(x):
+    <span class="kw">return</span> <span class="st">'.'</span>.join(<span class="fn">str</span>((x &gt;&gt; k) &amp; <span class="nb">255</span>) <span class="kw">for</span> k <span class="kw">in</span> (<span class="nb">24</span>, <span class="nb">16</span>, <span class="nb">8</span>, <span class="nb">0</span>))
+
+<span class="kw">def</span> <span class="fn">masque</span>(n):                       <span class="cm"># n bits à 1 suivis de 32 - n bits à 0</span>
+    <span class="kw">return</span> (<span class="nb">2</span>**n - <span class="nb">1</span>) &lt;&lt; (<span class="nb">32</span> - n)
+
+<span class="kw">def</span> <span class="fn">adresse_reseau</span>(ip, n):
+    <span class="kw">return</span> <span class="fn">entier_vers_ip</span>(<span class="fn">ip_vers_entier</span>(ip) &amp; <span class="fn">masque</span>(n))
+
+<span class="kw">def</span> <span class="fn">meme_reseau</span>(ip1, ip2, n):
+    <span class="kw">return</span> <span class="fn">adresse_reseau</span>(ip1, n) == <span class="fn">adresse_reseau</span>(ip2, n)
+
+<span class="fn">adresse_reseau</span>(<span class="st">'172.16.45.200'</span>, <span class="nb">20</span>)     <span class="cm"># '172.16.32.0'</span></pre>
+    <p>La bibliothèque standard le fait aussi : <code>ipaddress.ip_interface('192.168.5.77/26').network</code> renvoie <code>192.168.5.64/26</code>.</p>
+
+    <div class="box warn">
+      <span class="lbl">Les « classes » A, B, C : de l'histoire ancienne</span>
+      <p>Jusqu'en 1993, la taille d'un réseau se déduisait du premier octet : classe A (1 à 126, masque /8), B (128 à 191, /16), C (192 à 223, /24).
+        Ce système gaspillait énormément d'adresses ; il a été remplacé par la notation CIDR, où le masque peut avoir n'importe quelle longueur.
+        On ne devine donc jamais le masque d'après l'adresse : il est toujours donné.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 5 ══════════════════ -->
+  <section class="part" id="p5">
+    <h2><span class="pn">5</span> Découper un réseau en sous-réseaux</h2>
+    <p>Un administrateur qui dispose de <span class="m">192.168.10.0/24</span> (254 machines) veut séparer quatre services (administration, salles de cours,
+      Wi-Fi des élèves, serveurs) pour des raisons de sécurité et de performance. Il <b>emprunte des bits à la partie hôte</b> pour allonger la partie réseau :
+      k bits empruntés donnent <b>2<sup>k</sup> sous-réseaux</b>. Pour 4 sous-réseaux, il faut 2 bits : le préfixe passe de /24 à <b>/26</b>.</p>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Sous-réseau</th><th>Bits empruntés</th><th>Adresse</th><th>Machines</th><th>Diffusion</th></tr>
+      <tr><td>1</td><td class="mono">00</td><td class="mono">192.168.10.0/26</td><td class="mono">.1 à .62</td><td class="mono">192.168.10.63</td></tr>
+      <tr><td>2</td><td class="mono">01</td><td class="mono">192.168.10.64/26</td><td class="mono">.65 à .126</td><td class="mono">192.168.10.127</td></tr>
+      <tr><td>3</td><td class="mono">10</td><td class="mono">192.168.10.128/26</td><td class="mono">.129 à .190</td><td class="mono">192.168.10.191</td></tr>
+      <tr><td>4</td><td class="mono">11</td><td class="mono">192.168.10.192/26</td><td class="mono">.193 à .254</td><td class="mono">192.168.10.255</td></tr>
+    </table></div>
+    <p>Chaque sous-réseau peut accueillir 2<sup>6</sup> − 2 = 62 machines : découper « coûte » des adresses, puisque chaque sous-réseau perd son adresse de réseau et sa diffusion.</p>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — choisir le masque d'après le nombre de machines</span>
+      <p>On cherche le plus petit nombre <i>h</i> de bits d'hôte tel que <b>2<sup>h</sup> − 2 ≥ nombre de machines</b>, puis n = 32 − h.
+        50 machines : 2<sup>6</sup> − 2 = 62 suffit, d'où h = 6 et un réseau <b>/26</b>. 300 machines : 2<sup>8</sup> − 2 = 254 ne suffit pas, 2<sup>9</sup> − 2 = 510 oui, d'où <b>/23</b>.
+        Une liaison entre deux routeurs : 2 machines, h = 2, <b>/30</b>.</p>
+    </div>
+    <p>L'opération inverse, l'<b>agrégation</b>, est tout aussi utile : les quatre réseaux 192.168.0.0/24 à 192.168.3.0/24 ont les mêmes 22 premiers bits,
+      un routeur éloigné peut donc les désigner par une seule ligne <span class="m">192.168.0.0/22</span>. C'est ce qui permet aux tables de routage d'Internet
+      de rester d'une taille raisonnable.</p>
+
+    <div class="frame">
+      <iframe src="../../animation/adresses-ip.html?embed=1&mode=decoupage" title="Découpage en sous-réseaux" loading="lazy"></iframe>
+      <div class="fbar"><span>Choisissez un réseau et un nombre de sous-réseaux : les bits empruntés apparaissent en violet.</span><a href="../../animation/adresses-ip.html?mode=decoupage" target="_blank" rel="noopener">Plein écran ↗</a></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 6 ══════════════════ -->
+  <section class="part" id="p6">
+    <h2><span class="pn">6</span> Le routage et les tables de routage</h2>
+    <p>Quand un paquet arrive sur un routeur, celui-ci lit l'<b>adresse IP de destination</b> et consulte sa <b>table de routage</b> pour décider
+      à qui le transmettre. Aucun routeur ne connaît le chemin complet : chacun choisit seulement le <b>prochain saut</b>, et le paquet avance de proche en proche.</p>
+
+    <div class="fig card">
+      <svg viewBox="0 0 640 250">
+        <rect class="box-lan" x="6" y="30" width="150" height="120" rx="12"/>
+        <text class="note l" x="16" y="48">LAN 1</text><text class="addr l" x="16" y="62">192.168.1.0/24</text>
+        <rect class="dev" x="40" y="92" width="82" height="26" rx="5"/><text class="devt" x="81" y="105">PC</text>
+        <text class="addr" x="81" y="136">192.168.1.37</text>
+        <rect class="box-lan" x="484" y="30" width="150" height="120" rx="12"/>
+        <text class="note r" x="624" y="48">LAN 2</text><text class="addr r" x="624" y="62">192.168.2.0/24</text>
+        <rect class="dev" x="518" y="92" width="82" height="26" rx="5"/><text class="devt" x="559" y="105">serveur</text>
+        <text class="addr" x="559" y="136">192.168.2.10</text>
+        <line class="lk w3" x1="122" y1="105" x2="210" y2="105"/>
+        <line class="lk w3" x1="210" y1="105" x2="430" y2="105"/>
+        <line class="lk w3" x1="430" y1="105" x2="518" y2="105"/>
+        <line class="lk w3" x1="210" y1="105" x2="210" y2="200"/>
+        <g class="rt"><circle cx="210" cy="105" r="22"/><text x="210" y="105">RA</text></g>
+        <g class="rt"><circle cx="430" cy="105" r="22"/><text x="430" y="105">RB</text></g>
+        <ellipse class="cloud" cx="210" cy="218" rx="54" ry="22"/><text class="devt" x="210" y="218">Internet (FAI)</text>
+        <text class="addr r" x="184" y="94">eth0</text><text class="addr r" x="184" y="84">.1.1</text>
+        <text class="addr l" x="236" y="94">eth1</text><text class="addr l" x="236" y="84">10.0.0.1</text>
+        <text class="addr r" x="404" y="94">10.0.0.2</text>
+        <text class="addr l" x="456" y="94">.2.1</text>
+        <text class="addr l" x="218" y="150">eth2 172.16.0.1</text>
+        <text class="addr l" x="270" y="196">172.16.0.2</text>
+        <text class="note" x="320" y="124">10.0.0.0/30</text>
+        <text class="note l" x="218" y="166">172.16.0.0/30</text>
+      </svg>
+      <div class="cap">Le routeur RA a trois interfaces : vers le LAN 1, vers le routeur RB, vers le fournisseur d'accès.</div>
+    </div>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th colspan="4">Table de routage de RA</th></tr>
+      <tr><th>Réseau destination</th><th>Passerelle (prochain saut)</th><th>Interface</th><th>Commentaire</th></tr>
+      <tr><td class="mono">192.168.1.0/24</td><td>—</td><td class="mono">eth0</td><td class="l">directement connecté</td></tr>
+      <tr><td class="mono">10.0.0.0/30</td><td>—</td><td class="mono">eth1</td><td class="l">directement connecté</td></tr>
+      <tr><td class="mono">172.16.0.0/30</td><td>—</td><td class="mono">eth2</td><td class="l">directement connecté</td></tr>
+      <tr><td class="mono">192.168.2.0/24</td><td class="mono">10.0.0.2</td><td class="mono">eth1</td><td class="l">le LAN 2 est derrière RB</td></tr>
+      <tr><td class="mono">0.0.0.0/0</td><td class="mono">172.16.0.2</td><td class="mono">eth2</td><td class="l"><b>route par défaut</b> : tout le reste</td></tr>
+    </table></div>
+
+    <ul>
+      <li>Un paquet pour <span class="m">192.168.2.10</span> correspond à la ligne 192.168.2.0/24 : RA l'envoie à <b>10.0.0.2</b> (RB) par eth1.</li>
+      <li>Un paquet pour <span class="m">142.250.75.238</span> ne correspond qu'à la route par défaut (0.0.0.0/0 contient toutes les adresses) : il part vers le fournisseur d'accès.</li>
+      <li>Si plusieurs lignes conviennent, le routeur choisit la <b>plus précise</b>, celle dont le préfixe est le plus long : 192.168.2.0/24 l'emporte sur 192.168.0.0/16, qui l'emporte sur 0.0.0.0/0.</li>
+      <li>Une simple machine a aussi une table de routage, très courte : son réseau local, et une route par défaut vers sa <b>passerelle</b> (ici 192.168.1.1). Les commandes
+        <code>ip route</code> (Linux) ou <code>route print</code> (Windows) l'affichent ; <code>traceroute</code> (<code>tracert</code> sous Windows) liste les routeurs traversés jusqu'à une destination.</li>
+    </ul>
+
+    <h3>Qui remplit les tables ?</h3>
+    <p>Sur un petit réseau, l'administrateur peut écrire les routes à la main : c'est le <b>routage statique</b>. Mais sur un grand réseau, les liens tombent
+      en panne, de nouveaux réseaux apparaissent : les routeurs doivent <b>se communiquer</b> ce qu'ils savent et mettre leurs tables à jour tout seuls.
+      C'est le <b>routage dynamique</b>, assuré par des <b>protocoles de routage</b>. Le programme en étudie deux, qui reposent sur deux idées opposées :</p>
+    <ul>
+      <li><b>RIP</b>, à <b>vecteur de distance</b> : chaque routeur ne connaît que ce que lui racontent ses voisins ;</li>
+      <li><b>OSPF</b>, à <b>état de liens</b> : chaque routeur connaît la carte complète du réseau et calcule lui-même les meilleurs chemins.</li>
+    </ul>
+    <p>(Entre les grands opérateurs d'Internet, un troisième protocole, BGP, est utilisé ; il est hors programme.)</p>
+
+    <div class="box warn">
+      <span class="lbl">La simplification des exercices</span>
+      <p>Dans une vraie table, les destinations sont des <b>réseaux</b> et les passerelles des <b>adresses IP</b>. Pour étudier RIP et OSPF, on simplifie, comme
+        dans les sujets de bac : le réseau est un <b>graphe</b> dont les sommets sont les routeurs, chaque routeur représente le réseau qui lui est attaché,
+        et une ligne de table s'écrit <b>destination · passerelle (le routeur voisin à qui transmettre) · distance</b>.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 7 ══════════════════ -->
+  <section class="part" id="p7">
+    <h2><span class="pn">7</span> Le protocole RIP</h2>
+
+    <div class="box def">
+      <span class="lbl">RIP — Routing Information Protocol</span>
+      <p>RIP (1988) est un protocole à <b>vecteur de distance</b>. Sa <b>métrique</b> est le <b>nombre de sauts</b> : le nombre de liens (de routeurs) à franchir
+        pour atteindre la destination, sans tenir compte des débits. Chaque routeur choisit, pour chaque destination, la route qui fait le moins de sauts.
+        Une distance de <b>16</b> signifie « injoignable » : une route RIP ne peut donc pas dépasser 15 sauts.</p>
+    </div>
+
+    <h3>Le principe : le bouche-à-oreille</h3>
+    <ol>
+      <li>Au départ, chaque routeur ne connaît que ses <b>voisins directs</b> (les réseaux auxquels il est connecté), à la distance 1.</li>
+      <li>Toutes les <b>30 secondes</b>, chaque routeur envoie à ses voisins son <b>vecteur de distances</b> : la liste des destinations qu'il connaît, avec leur distance.</li>
+      <li>Quand un routeur reçoit du voisin V l'annonce « je suis à distance d de D », il sait qu'en passant par V il serait à distance <b>d + 1</b> de D. Il applique alors la règle ci-dessous.</li>
+      <li>Les informations se propagent ainsi d'un saut à chaque échange, jusqu'à ce que plus aucune table ne change : le réseau a <b>convergé</b>.</li>
+    </ol>
+    <div class="box meth">
+      <span class="lbl">La règle de mise à jour (algorithme de Bellman-Ford)</span>
+      <p>À la réception de l'annonce (D, d) venant du voisin V, on calcule <b>d + 1</b> :</p>
+      <ul>
+        <li>si D est <b>inconnue</b>, on ajoute la route : D, passerelle V, distance d + 1 ;</li>
+        <li>si <b>d + 1 est plus petit</b> que la distance actuelle, on remplace la route par celle qui passe par V ;</li>
+        <li>si la route actuelle <b>passe déjà par V</b>, on prend la nouvelle valeur même si elle est moins bonne : V est le mieux placé pour savoir que son chemin a changé ;</li>
+        <li>sinon, on ne change rien (en cas d'égalité, on garde la route déjà connue).</li>
+      </ul>
+    </div>
+<pre class="code"><span class="kw">def</span> <span class="fn">recevoir</span>(table, voisin, vecteur):
+    <span class="cm"># table : {destination: (passerelle, distance)} ; vecteur : {destination: distance}</span>
+    <span class="kw">for</span> dest, d <span class="kw">in</span> vecteur.items():
+        nouvelle = <span class="fn">min</span>(d + <span class="nb">1</span>, <span class="nb">16</span>)
+        <span class="kw">if</span> dest <span class="kw">not in</span> table <span class="kw">or</span> nouvelle &lt; table[dest][<span class="nb">1</span>]:
+            table[dest] = (voisin, nouvelle)
+        <span class="kw">elif</span> table[dest][<span class="nb">0</span>] == voisin:
+            table[dest] = (voisin, nouvelle)</pre>
+
+    <h3>Le réseau du chapitre</h3>
+    <p>Sept routeurs, reliés par des liens de débits différents. Ce même réseau sert pour RIP, pour OSPF et dans l'animation.</p>
+    <div class="fig card">
+      <svg viewBox="0 0 640 290">
+        <line class="lk w4" x1="74" y1="150" x2="208" y2="68"/>
+        <line class="lk w1 rip" x1="74" y1="150" x2="208" y2="232"/>
+        <line class="lk w2" x1="208" y1="68" x2="208" y2="232"/>
+        <line class="lk w4" x1="208" y1="68" x2="348" y2="68"/>
+        <line class="lk w1 rip" x1="208" y1="232" x2="376" y2="232"/>
+        <line class="lk w3" x1="348" y1="68" x2="376" y2="232"/>
+        <line class="lk w4" x1="348" y1="68" x2="488" y2="68"/>
+        <line class="lk w1 rip" x1="376" y1="232" x2="566" y2="150"/>
+        <line class="lk w4" x1="488" y1="68" x2="566" y2="150"/>
+        <g class="tg"><rect x="113" y="101" width="56" height="16" rx="5"/><text x="141" y="109">100 Mb/s</text></g>
+        <g class="tg rip"><rect x="116" y="183" width="50" height="16" rx="5"/><text x="141" y="191">10 Mb/s</text></g>
+        <g class="tg"><rect x="183" y="142" width="50" height="16" rx="5"/><text x="208" y="150">20 Mb/s</text></g>
+        <g class="tg"><rect x="250" y="60" width="56" height="16" rx="5"/><text x="278" y="68">100 Mb/s</text></g>
+        <g class="tg rip"><rect x="267" y="224" width="50" height="16" rx="5"/><text x="292" y="232">10 Mb/s</text></g>
+        <g class="tg"><rect x="337" y="142" width="50" height="16" rx="5"/><text x="362" y="150">50 Mb/s</text></g>
+        <g class="tg"><rect x="390" y="60" width="56" height="16" rx="5"/><text x="418" y="68">100 Mb/s</text></g>
+        <g class="tg rip"><rect x="446" y="183" width="50" height="16" rx="5"/><text x="471" y="191">10 Mb/s</text></g>
+        <g class="tg"><rect x="499" y="101" width="56" height="16" rx="5"/><text x="527" y="109">100 Mb/s</text></g>
+        <g class="rt src"><circle cx="74" cy="150" r="20"/><text x="74" y="150">R1</text></g>
+        <g class="rt"><circle cx="208" cy="68" r="20"/><text x="208" y="68">R2</text></g>
+        <g class="rt"><circle cx="208" cy="232" r="20"/><text x="208" y="232">R3</text></g>
+        <g class="rt"><circle cx="348" cy="68" r="20"/><text x="348" y="68">R4</text></g>
+        <g class="rt"><circle cx="376" cy="232" r="20"/><text x="376" y="232">R5</text></g>
+        <g class="rt"><circle cx="488" cy="68" r="20"/><text x="488" y="68">R6</text></g>
+        <g class="rt dst"><circle cx="566" cy="150" r="20"/><text x="566" y="150">R7</text></g>
+        <text class="note" x="74" y="186">LAN du lycée</text>
+        <text class="note" x="566" y="186">serveur web</text>
+        <text class="note" x="320" y="276">en jaune : la route choisie par RIP de R1 vers R7 (3 sauts)</text>
+      </svg>
+    </div>
+
+    <h3>La table de R1, échange après échange</h3>
+    <p>Chaque case indique « passerelle · distance ». En jaune, ce qui vient d'être appris.</p>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Destination</th><th>t = 0 s</th><th>t = 30 s (1er échange)</th><th>t = 60 s (2e échange)</th><th>t = 90 s</th></tr>
+      <tr><td><b>R2</b></td><td class="mono">R2 · 1</td><td class="mono">R2 · 1</td><td class="mono">R2 · 1</td><td class="mono">R2 · 1</td></tr>
+      <tr><td><b>R3</b></td><td class="mono">R3 · 1</td><td class="mono">R3 · 1</td><td class="mono">R3 · 1</td><td class="mono">R3 · 1</td></tr>
+      <tr><td><b>R4</b></td><td class="fx">—</td><td class="mono new">R2 · 2</td><td class="mono">R2 · 2</td><td class="mono">R2 · 2</td></tr>
+      <tr><td><b>R5</b></td><td class="fx">—</td><td class="mono new">R3 · 2</td><td class="mono">R3 · 2</td><td class="mono">R3 · 2</td></tr>
+      <tr><td><b>R6</b></td><td class="fx">—</td><td class="fx">—</td><td class="mono new">R2 · 3</td><td class="mono">R2 · 3</td></tr>
+      <tr><td><b>R7</b></td><td class="fx">—</td><td class="fx">—</td><td class="mono new">R3 · 3</td><td class="mono">R3 · 3</td></tr>
+    </table></div>
+    <ul>
+      <li><b>À t = 30 s</b>, R2 annonce qu'il connaît R1, R3 et R4 à distance 1 : R1 apprend R4 à 1 + 1 = 2 via R2 ; R3 via R2 donnerait 2, moins bien que la route directe, ignoré.
+        R3 annonce R1, R2 et R5 : R1 apprend R5 à 2 via R3.</li>
+      <li><b>À t = 60 s</b>, R2 annonce désormais R6 (qu'il a appris de R4) à distance 2 : R1 l'inscrit à 3 via R2. R3 annonce R7 (appris de R5) à 2 : R1 l'inscrit à 3 via R3.</li>
+      <li><b>À t = 90 s</b>, plus aucune table ne change nulle part : le réseau a convergé en deux échanges. Il en faut autant que la plus grande distance moins un.</li>
+    </ul>
+
+    <div class="box key">
+      <span class="lbl">La route d'un paquet de R1 vers R7</span>
+      <p>R1 consulte sa table : R7 → passerelle <b>R3</b>. R3 consulte la sienne : R7 → passerelle R5. R5 est voisin de R7. Le paquet suit
+        <span class="m o">R1 → R3 → R5 → R7</span> : <b>3 sauts</b>, le minimum possible. Mais ces trois liens sont les plus lents du réseau (10 Mb/s) : RIP ne regarde pas les débits.</p>
+    </div>
+
+    <h3>Quand un lien tombe en panne</h3>
+    <p>Un routeur qui n'entend plus un voisin pendant 180 s considère le lien comme coupé : les routes qui passaient par ce voisin passent à 16, et l'information
+      se propage aux échanges suivants. Il faut donc souvent <b>plusieurs minutes</b> pour que le réseau converge à nouveau. Pire, deux routeurs peuvent se
+      tromper mutuellement :</p>
+    <div class="box warn">
+      <span class="lbl">Le comptage à l'infini</span>
+      <p>Trois routeurs en ligne A — B — C. A atteint C via B à distance 2. Le lien B — C est coupé : B note C à 16. Mais avant que B ne l'annonce, A envoie son vecteur
+        « C à distance 2 » ; B, qui n'a plus mieux, croit qu'il peut passer par A et note C à 3 via A. A, dont la route vers C passe par B, apprend que B est à 3 et passe à 4 ;
+        B passe à 5… Les deux routeurs se renvoient le paquet et font monter la distance d'une unité à chaque échange, jusqu'à 16. C'est pour cela que l'infini vaut 16 et non un million.</p>
+      <p>Parade : l'<b>horizon partagé</b> (<i>split horizon</i>) — un routeur n'annonce jamais à un voisin les routes qu'il a apprises de ce même voisin.</p>
+    </div>
+
+    <h3>À manipuler : RIP tour après tour</h3>
+    <div class="frame">
+      <iframe src="../../animation/routage.html?embed=1&mode=rip" title="Protocole RIP" loading="lazy"></iframe>
+      <div class="fbar"><span>Avancez échange par échange, survolez une ligne de table pour voir la route du paquet, puis coupez un lien.</span><a href="../../animation/routage.html?mode=rip" target="_blank" rel="noopener">Plein écran ↗</a></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 8 ══════════════════ -->
+  <section class="part" id="p8">
+    <h2><span class="pn">8</span> Le protocole OSPF</h2>
+
+    <div class="box def">
+      <span class="lbl">OSPF — Open Shortest Path First</span>
+      <p>OSPF (1989, version actuelle 1998) est un protocole à <b>état de liens</b>. Chaque routeur construit la <b>carte complète</b> du réseau — un graphe pondéré —
+        puis calcule lui-même les plus courts chemins vers toutes les destinations avec l'<b>algorithme de Dijkstra</b> (le « Shortest Path First » du nom).
+        Sa métrique est le <b>coût</b> d'une route : la somme des coûts des liens traversés, chaque coût dépendant du débit du lien.</p>
+    </div>
+
+    <h3>Le coût d'un lien</h3>
+    <p>Par défaut, le coût d'un lien est <span class="m">coût = 10<sup>8</sup> / débit</span>, le débit étant exprimé en bit/s : plus un lien est rapide, moins il coûte.</p>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Débit</th><th>1 Mb/s</th><th>10 Mb/s</th><th>20 Mb/s</th><th>50 Mb/s</th><th>100 Mb/s</th><th>1 Gb/s</th></tr>
+      <tr><th>En bit/s</th><td>10<sup>6</sup></td><td>10<sup>7</sup></td><td>2 × 10<sup>7</sup></td><td>5 × 10<sup>7</sup></td><td>10<sup>8</sup></td><td>10<sup>9</sup></td></tr>
+      <tr><th>Coût</th><td><b>100</b></td><td><b>10</b></td><td><b>5</b></td><td><b>2</b></td><td><b>1</b></td><td><b>0,1</b></td></tr>
+    </table></div>
+    <div class="box warn">
+      <span class="lbl">Attention à la formule de l'énoncé</span>
+      <p>La valeur 10<sup>8</sup> bit/s (le débit de référence) date de l'époque où 100 Mb/s était rapide. Avec les liens à 1 ou 10 Gb/s, les administrateurs
+        l'augmentent, et certains sujets utilisent 10<sup>9</sup>. Lisez toujours la formule donnée et faites attention aux unités (1 Mb/s = 10<sup>6</sup> bit/s).</p>
+    </div>
+
+    <h3>Le fonctionnement en quatre étapes</h3>
+    <ol>
+      <li><b>Découvrir ses voisins</b> : chaque routeur envoie un message <b>Hello</b> toutes les 10 s sur chacun de ses liens. Un voisin muet pendant 40 s est déclaré hors service.</li>
+      <li><b>Diffuser l'état de ses liens</b> : chaque routeur résume ses liens dans un <b>LSA</b> (<i>Link State Advertisement</i>) — « je suis R4, je suis relié à R2 (coût 1),
+        R5 (coût 2) et R6 (coût 1) » — et l'envoie par <b>inondation</b> : chaque routeur qui le reçoit le retransmet sur ses autres liens.</li>
+      <li><b>Construire la carte</b> : à la fin de l'inondation, tous les routeurs possèdent la même <b>base de données topologique</b>, c'est-à-dire le même graphe.</li>
+      <li><b>Calculer</b> : chaque routeur applique Dijkstra depuis lui-même et en déduit sa table de routage. Pour chaque destination, la passerelle est le
+        <b>premier routeur</b> du plus court chemin.</li>
+    </ol>
+    <p>En cas de panne ou de changement, seul un nouveau LSA est diffusé et chacun recalcule : OSPF <b>converge en quelques secondes</b>, sans comptage à l'infini.</p>
+
+    <h3>Le réseau du chapitre, avec les coûts</h3>
+    <div class="fig card">
+      <svg viewBox="0 0 640 290">
+        <line class="lk w4 ospf" x1="74" y1="150" x2="208" y2="68"/>
+        <line class="lk w1" x1="74" y1="150" x2="208" y2="232"/>
+        <line class="lk w2" x1="208" y1="68" x2="208" y2="232"/>
+        <line class="lk w4 ospf" x1="208" y1="68" x2="348" y2="68"/>
+        <line class="lk w1" x1="208" y1="232" x2="376" y2="232"/>
+        <line class="lk w3" x1="348" y1="68" x2="376" y2="232"/>
+        <line class="lk w4 ospf" x1="348" y1="68" x2="488" y2="68"/>
+        <line class="lk w1" x1="376" y1="232" x2="566" y2="150"/>
+        <line class="lk w4 ospf" x1="488" y1="68" x2="566" y2="150"/>
+        <g class="tg ospf"><rect x="119" y="101" width="44" height="16" rx="5"/><text x="141" y="109">coût 1</text></g>
+        <g class="tg"><rect x="116" y="183" width="50" height="16" rx="5"/><text x="141" y="191">coût 10</text></g>
+        <g class="tg"><rect x="186" y="142" width="44" height="16" rx="5"/><text x="208" y="150">coût 5</text></g>
+        <g class="tg ospf"><rect x="256" y="60" width="44" height="16" rx="5"/><text x="278" y="68">coût 1</text></g>
+        <g class="tg"><rect x="267" y="224" width="50" height="16" rx="5"/><text x="292" y="232">coût 10</text></g>
+        <g class="tg"><rect x="340" y="142" width="44" height="16" rx="5"/><text x="362" y="150">coût 2</text></g>
+        <g class="tg ospf"><rect x="396" y="60" width="44" height="16" rx="5"/><text x="418" y="68">coût 1</text></g>
+        <g class="tg"><rect x="446" y="183" width="50" height="16" rx="5"/><text x="471" y="191">coût 10</text></g>
+        <g class="tg ospf"><rect x="505" y="101" width="44" height="16" rx="5"/><text x="527" y="109">coût 1</text></g>
+        <g class="rt src"><circle cx="74" cy="150" r="20"/><text x="74" y="150">R1</text></g>
+        <g class="rt"><circle cx="208" cy="68" r="20"/><text x="208" y="68">R2</text></g>
+        <g class="rt"><circle cx="208" cy="232" r="20"/><text x="208" y="232">R3</text></g>
+        <g class="rt"><circle cx="348" cy="68" r="20"/><text x="348" y="68">R4</text></g>
+        <g class="rt"><circle cx="376" cy="232" r="20"/><text x="376" y="232">R5</text></g>
+        <g class="rt"><circle cx="488" cy="68" r="20"/><text x="488" y="68">R6</text></g>
+        <g class="rt dst"><circle cx="566" cy="150" r="20"/><text x="566" y="150">R7</text></g>
+        <text class="note" x="74" y="186">LAN du lycée</text>
+        <text class="note" x="566" y="186">serveur web</text>
+        <text class="note" x="320" y="276">en vert : la route choisie par OSPF de R1 vers R7 (4 sauts, coût 4)</text>
+      </svg>
+    </div>
+
+    <h3>Dijkstra depuis R1</h3>
+    <p>On remplit le tableau comme en cours d'algorithmique : à chaque ligne, on fixe le routeur non fixé de plus petite distance (en vert), puis on met à jour
+      ses voisins (en rose quand la distance diminue). Entre parenthèses, le prédécesseur.</p>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Étape</th><th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>R5</th><th>R6</th><th>R7</th><th>Fixé</th></tr>
+      <tr><td>départ</td><td class="pick">0</td><td>∞</td><td>∞</td><td>∞</td><td>∞</td><td>∞</td><td>∞</td><td>R1 (0)</td></tr>
+      <tr><td>1</td><td class="fx">—</td><td class="pick">1 (R1)</td><td class="up">10 (R1)</td><td>∞</td><td>∞</td><td>∞</td><td>∞</td><td>R2 (1)</td></tr>
+      <tr><td>2</td><td class="fx">—</td><td class="fx">—</td><td class="up">6 (R2)</td><td class="pick">2 (R2)</td><td>∞</td><td>∞</td><td>∞</td><td>R4 (2)</td></tr>
+      <tr><td>3</td><td class="fx">—</td><td class="fx">—</td><td>6 (R2)</td><td class="fx">—</td><td class="up">4 (R4)</td><td class="pick">3 (R4)</td><td>∞</td><td>R6 (3)</td></tr>
+      <tr><td>4</td><td class="fx">—</td><td class="fx">—</td><td>6 (R2)</td><td class="fx">—</td><td class="pick">4 (R4)</td><td class="fx">—</td><td class="up">4 (R6)</td><td>R5 (4)</td></tr>
+      <tr><td>5</td><td class="fx">—</td><td class="fx">—</td><td>6 (R2)</td><td class="fx">—</td><td class="fx">—</td><td class="fx">—</td><td class="pick">4 (R6)</td><td>R7 (4)</td></tr>
+      <tr><td>6</td><td class="fx">—</td><td class="fx">—</td><td class="pick">6 (R2)</td><td class="fx">—</td><td class="fx">—</td><td class="fx">—</td><td class="fx">—</td><td>R3 (6)</td></tr>
+    </table></div>
+    <p>À l'étape 2, passer par R2 pour aller en R3 (1 + 5 = 6) est moins cher que le lien direct à 10 Mb/s (coût 10). À l'étape 4, R5 et R7 sont à égalité (4) : l'ordre
+      dans lequel on les fixe ne change rien au résultat. Pour la passerelle, on remonte les prédécesseurs jusqu'au voisin de R1 :
+      R7 ← R6 ← R4 ← R2 ← R1, donc la passerelle vers R7 est <b>R2</b>.</p>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th colspan="7">Table de routage OSPF de R1</th></tr>
+      <tr><th>Destination</th><td><b>R2</b></td><td><b>R3</b></td><td><b>R4</b></td><td><b>R5</b></td><td><b>R6</b></td><td><b>R7</b></td></tr>
+      <tr><th>Passerelle</th><td class="mono">R2</td><td class="mono">R2</td><td class="mono">R2</td><td class="mono">R2</td><td class="mono">R2</td><td class="mono">R2</td></tr>
+      <tr><th>Coût</th><td>1</td><td>6</td><td>2</td><td>4</td><td>3</td><td>4</td></tr>
+    </table></div>
+
+<pre class="code"><span class="kw">def</span> <span class="fn">passerelle</span>(pred, source, dest):
+    <span class="st">"""Premier routeur du plus court chemin de source à dest (pred : prédécesseurs donnés par Dijkstra)."""</span>
+    r = dest
+    <span class="kw">while</span> pred[r] != source:
+        r = pred[r]
+    <span class="kw">return</span> r</pre>
+
+    <div class="box key">
+      <span class="lbl">La route d'un paquet de R1 vers R7</span>
+      <p>Avec OSPF, le paquet suit <span class="m g">R1 → R2 → R4 → R6 → R7</span> : <b>4 sauts</b> mais un coût total de <b>4</b>, uniquement sur des liens à 100 Mb/s.
+        La route RIP (R1 → R3 → R5 → R7) ne fait que 3 sauts mais coûte 30 : elle emprunte trois liens dix fois plus lents.</p>
+    </div>
+
+    <div class="box">
+      <span class="lbl">Pour les grands réseaux : les aires</span>
+      <p>Inonder des milliers de routeurs et calculer Dijkstra sur un graphe géant serait trop lourd. Un réseau OSPF est donc découpé en <b>aires</b> (zones) reliées
+        par une aire centrale, l'aire 0 : le détail d'une aire reste à l'intérieur, et seules des informations résumées en sortent.</p>
+    </div>
+
+    <h3>À manipuler : inondation, Dijkstra, table</h3>
+    <div class="frame">
+      <iframe src="../../animation/routage.html?embed=1&mode=ospf" title="Protocole OSPF" loading="lazy"></iframe>
+      <div class="fbar"><span>Changez le débit d'un lien ou coupez-le : la nouvelle route est calculée aussitôt. Cliquez un autre routeur pour changer de source.</span><a href="../../animation/routage.html?mode=ospf" target="_blank" rel="noopener">Plein écran ↗</a></div>
+    </div>
+    <p>Pour revoir l'algorithme lui-même sur d'autres graphes : <a href="../../animation/dijkstra.html" target="_blank" rel="noopener" style="color:var(--nsi)">l'animation de Dijkstra</a>.</p>
+  </section>
+
+  <!-- ══════════════════ 9 ══════════════════ -->
+  <section class="part" id="p9">
+    <h2><span class="pn">9</span> RIP ou OSPF ?</h2>
+    <div class="scrollx"><table class="tbl">
+      <tr><th></th><th>RIP</th><th>OSPF</th></tr>
+      <tr><td class="l"><b>Famille</b></td><td class="l">vecteur de distance</td><td class="l">état de liens</td></tr>
+      <tr><td class="l"><b>Ce que sait un routeur</b></td><td class="l">ses voisins et ce qu'ils annoncent</td><td class="l">la carte complète du réseau (un graphe)</td></tr>
+      <tr><td class="l"><b>Métrique</b></td><td class="l">nombre de sauts</td><td class="l">somme des coûts, coût = 10<sup>8</sup> / débit</td></tr>
+      <tr><td class="l"><b>Algorithme</b></td><td class="l">Bellman-Ford, réparti entre les routeurs</td><td class="l">Dijkstra, exécuté par chaque routeur</td></tr>
+      <tr><td class="l"><b>Messages</b></td><td class="l">la table entière aux voisins, toutes les 30 s</td><td class="l">Hello toutes les 10 s ; LSA seulement en cas de changement</td></tr>
+      <tr><td class="l"><b>Taille du réseau</b></td><td class="l">15 sauts au plus</td><td class="l">sans limite (découpage en aires)</td></tr>
+      <tr><td class="l"><b>Convergence</b></td><td class="l">lente (minutes), comptage à l'infini possible</td><td class="l">rapide (secondes)</td></tr>
+      <tr><td class="l"><b>Ressources</b></td><td class="l">très faibles, configuration simple</td><td class="l">plus de mémoire et de calcul</td></tr>
+      <tr><td class="l"><b>Usage</b></td><td class="l">petits réseaux</td><td class="l">réseaux d'entreprises et d'opérateurs</td></tr>
+    </table></div>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — identifier la route d'un paquet (type bac)</span>
+      <ul>
+        <li><b>Les tables sont données</b> : partir du routeur source, lire la passerelle indiquée pour la destination, aller à ce routeur, lire sa table, et recommencer
+          jusqu'à la destination. Aucun routeur ne connaît la route entière.</li>
+        <li><b>RIP, sans les tables</b> : chercher le chemin qui traverse le <b>moins de liens</b> (c'est un parcours en largeur du graphe). En cas d'égalité, plusieurs réponses sont possibles.</li>
+        <li><b>OSPF, sans les tables</b> : calculer d'abord le coût de chaque lien avec la formule de l'énoncé, puis chercher le chemin de <b>coût total minimal</b>
+          (à vue sur un petit réseau, avec Dijkstra sinon).</li>
+        <li>Une panne ? On retire le lien du graphe et on recommence.</li>
+      </ul>
+    </div>
+
+    <h3>À manipuler : les deux routes face à face</h3>
+    <div class="frame">
+      <iframe src="../../animation/routage.html?embed=1&mode=comparer" title="Comparer RIP et OSPF" loading="lazy"></iframe>
+      <div class="fbar"><span>Choisissez un départ et une arrivée : deux paquets partent ensemble, l'un suit RIP, l'autre OSPF.</span><a href="../../animation/routage.html?mode=comparer" target="_blank" rel="noopener">Plein écran ↗</a></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 10 ══════════════════ -->
+  <section class="part" id="p10">
+    <h2><span class="pn">10</span> Ce qu'il faut retenir</h2>
+    <div class="recap">
+      <div><b>Modèle OSI</b>7 couches : Physique, Liaison, Réseau, Transport, Session, Présentation, Application. TCP/IP en a 4. Le routeur travaille en couche 3, le commutateur en couche 2.</div>
+      <div><b>Encapsulation</b>Chaque couche ajoute son en-tête : données → segment (TCP) → paquet (IP) → trame (Ethernet) → bits. Les MAC changent à chaque saut, les IP non.</div>
+      <div><b>Adresse IPv4</b>32 bits, 4 octets en décimal pointé. Partie réseau à gauche, partie hôte à droite. IPv6 : 128 bits.</div>
+      <div><b>Masque /n</b>n bits à 1 puis 32 − n bits à 0. /24 = 255.255.255.0, /26 = 255.255.255.192, /20 = 255.255.240.0.</div>
+      <div><b>Calculs</b>Réseau = IP ET masque ; diffusion = partie hôte à 1 ; 2<sup>32 − n</sup> − 2 machines. Même réseau ⇔ même adresse réseau.</div>
+      <div><b>Table de routage</b>Destination, passerelle (prochain saut), interface, métrique. Route la plus précise ; route par défaut 0.0.0.0/0.</div>
+      <div><b>RIP</b>Vecteur de distance, nombre de sauts, échange des tables toutes les 30 s, Bellman-Ford, 16 = infini, convergence lente.</div>
+      <div><b>OSPF</b>État de liens, coût = 10<sup>8</sup> / débit, LSA inondés, carte complète, Dijkstra sur chaque routeur, convergence rapide.</div>
+    </div>
+    <div class="box key">
+      <span class="lbl">Savoir-faire attendus</span>
+      <p>Convertir une adresse en binaire ; passer d'un masque décimal à la notation CIDR ; calculer adresse réseau, diffusion, plage et nombre de machines ;
+        décider si deux machines sont sur le même réseau ; lire une table de routage ; compléter une table RIP après un échange ; calculer des coûts OSPF ;
+        donner la route d'un paquet selon RIP et selon OSPF.</p>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div class="t">
+      <b>Le TD autocorrigé</b>
+      <span>Binaire, masques, adresses réseau, sous-réseaux, modèle OSI, tables RIP, coûts OSPF : chaque réponse est corrigée immédiatement.</span>
+    </div>
+    <a href="exercices-reseaux.html">Faire le TD →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  var links = [].slice.call(document.querySelectorAll('#chapnav a'));
+  var parts = links.map(function(l){ return document.querySelector(l.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 140, k = 0;
+    parts.forEach(function(p, i){ if (p && p.offsetTop <= y) k = i; });
+    links.forEach(function(l, i){ l.classList.toggle('on', i === k); });
+    var on = links[k]; if (on && on.scrollIntoView && on.parentNode.scrollWidth > on.parentNode.clientWidth) {
+      var par = on.parentNode; par.scrollLeft = on.offsetLeft - par.clientWidth / 2 + on.clientWidth / 2;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* calcul bit à bit affiché : IP, masque, réseau, diffusion */
+  function toN(ip){ return ip.split('.').reduce(function(a, x){ return a * 256 + (+x); }, 0); }
+  function maskN(n){ return n === 0 ? 0 : (0xFFFFFFFF << (32 - n)) >>> 0; }
+  function octs(x){ return [24, 16, 8, 0].map(function(k){ return (x >>> k) & 255; }); }
+  document.querySelectorAll('.bitcalc').forEach(function(el){
+    var ip = toN(el.dataset.ip), n = +el.dataset.n, m = maskN(n);
+    var rows = [
+      ['<b>Adresse IP</b>', ip],
+      ['<b>Masque</b> /' + n, m],
+      ['IP <b>ET</b> masque = <b>réseau</b>', (ip & m) >>> 0],
+      ['<b>Diffusion</b> (hôte à 1)', ((ip & m) | (~m >>> 0)) >>> 0]
+    ];
+    var h = '<div class="bitgrid">';
+    rows.forEach(function(r, ri){
+      if (ri === 2) h += '<div class="sep"></div>';
+      h += '<div class="bl">' + r[0] + '</div>';
+      octs(r[1]).forEach(function(o, oi){
+        var mix = n > oi * 8 && n < oi * 8 + 8;
+        h += '<div class="oct' + (mix ? ' mix' : '') + '">';
+        for (var b = 7; b >= 0; b--) {
+          var pos = oi * 8 + (7 - b), one = (o >> b) & 1;
+          h += '<span class="' + (pos < n ? 'n' : 'h') + (one ? ' one' : '') + '">' + one + '</span>';
+        }
+        h += '</div>';
+      });
+      h += '<div class="dec">' + octs(r[1]).join('.') + '</div>';
+    });
+    el.innerHTML = h + '</div>';
+  });
+})();
+</script>
+</body>
+</html>

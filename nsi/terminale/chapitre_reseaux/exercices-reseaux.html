@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TD Réseaux et routage — exercices autocorrigés — Terminale NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --ok-dim:rgba(52,211,153,.13); --bad:#ff5c7a; --bad-dim:rgba(255,92,122,.12);
+         --warn:#ffc53d; --vio:#b57bff; --teal:#2ee6c5; }
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+  .scorebar{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .scorebar-in{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;gap:.7rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+  .scoretxt{font-family:var(--mono);font-size:.88rem;color:var(--text);flex:none} .scoretxt b{color:var(--ok)}
+  .gauge{flex:1 1 90px;height:6px;border-radius:100px;background:var(--bg-card);overflow:hidden;min-width:70px}
+  .gauge i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+  .scorebar button{font-family:inherit;font-size:.8rem;background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.4rem .75rem;cursor:pointer;flex:none}
+  .scorebar button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .scorebar button.primary{background:var(--nsi-dim);color:var(--nsi);border-color:rgba(108,158,255,.35)}
+
+  .exo{scroll-margin-top:118px;margin-bottom:2.8rem}
+  .exo > h2{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;font-size:1.3rem;padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem}
+  .exo > h2 .pn{font-family:var(--mono);font-size:.8rem;color:var(--nsi);background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .exo > h2 .cnt{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--text-muted);font-weight:400;flex:none}
+  .exo > h2 .cnt.full{color:var(--ok)}
+  .consigne{color:#c9cdda;font-size:.93rem;margin:1.1rem 0 .7rem;line-height:1.55}
+  .consigne b{color:var(--text)}
+  .rappel{border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.88rem;color:#c9cdda}
+  .rappel b{color:var(--text)}
+  code,.m{font-family:var(--mono);font-size:.92em}
+  .m{color:var(--nsi);background:rgba(108,158,255,.09);padding:.08em .35em;border-radius:4px;white-space:nowrap}
+
+  .fig{margin:.8rem 0 1rem;text-align:center;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:.6rem}
+  .fig svg{max-width:100%;height:auto}
+  .fig .cap{font-size:.8rem;color:var(--text-muted);margin-top:.3rem}
+  svg .lk{stroke:rgba(255,255,255,.28);stroke-linecap:round}
+  svg .rt circle{fill:#1a1f2e;stroke:var(--nsi);stroke-width:2}
+  svg .rt text{fill:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;text-anchor:middle;dominant-baseline:central}
+  svg .tg rect{fill:#12151f;stroke:rgba(255,255,255,.2);stroke-width:1}
+  svg .tg text{fill:#c9cdda;font-family:'JetBrains Mono',monospace;font-size:10.5px;text-anchor:middle;dominant-baseline:central}
+
+  .htbl{overflow-x:auto;margin:.8rem 0 1rem}
+  .tbl{border-collapse:collapse;font-size:.86rem;margin:0 auto}
+  .tbl th,.tbl td{border:1px solid var(--border);padding:.38rem .65rem;text-align:center;color:#c9cdda}
+  .tbl th{background:var(--bg-card);color:var(--nsi);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em}
+  .tbl td.mono{font-family:var(--mono)}
+  .tbls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.7rem;align-items:start}
+  .tbls .tbl{width:100%}
+
+  .qs{display:grid;gap:.55rem}
+  .q{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:.6rem;align-items:center;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .q:last-child{border-bottom:none}
+  .q .lab{font-size:.9rem;color:#c9cdda} .q .lab small{display:block;font-size:.74rem;color:var(--text-muted);margin-top:.1rem}
+  .q .lab b{color:var(--text)}
+  .fld{position:relative;display:flex;align-items:center;gap:.35rem}
+  input.f{font-family:var(--mono);font-size:.9rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.38rem .55rem;width:100%;min-width:0;transition:.15s}
+  input.f:focus{outline:none;border-color:var(--nsi)}
+  input.f.ok{border-color:var(--ok);background:var(--ok-dim)} input.f.ko{border-color:var(--bad);background:var(--bad-dim)}
+  .fld .mark{font-size:.95rem;width:1em;flex:none;text-align:center} .fld .mark.ok{color:var(--ok)} .fld .mark.ko{color:var(--bad)}
+  .sol{display:none;font-family:var(--mono);font-size:.76rem;color:var(--ok);margin-top:.2rem;word-break:break-all;grid-column:2}
+  .exo.solved .sol{display:block}
+
+  .mcq{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.8rem 1rem;margin:.6rem 0}
+  .mcq .qt{font-size:.92rem;color:var(--text);margin-bottom:.55rem}
+  .mcq label{display:flex;align-items:center;gap:.6rem;padding:.35rem .5rem;border-radius:7px;cursor:pointer;font-size:.88rem;color:#c9cdda;border:1px solid transparent}
+  .mcq label:hover{background:rgba(255,255,255,.04)}
+  .mcq input{accent-color:var(--nsi)}
+  .mcq.ok label.checked{border-color:var(--ok);background:var(--ok-dim)} .mcq.ko label.checked{border-color:var(--bad);background:var(--bad-dim)}
+  .exo.solved .mcq label.right{border-color:var(--ok)}
+  .mcq .expl{display:none;font-size:.84rem;color:#c9cdda;margin-top:.5rem;border-top:1px dashed var(--border);padding-top:.5rem}
+  .exo.solved .mcq .expl{display:block}
+
+  .open{border:1px solid var(--border);border-left:3px solid var(--vio);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.95rem 1.1rem;margin:1.1rem 0}
+  .open .qt{font-size:.92rem;color:var(--text);margin-bottom:.6rem}
+  .open textarea{width:100%;font-family:inherit;font-size:.88rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.5rem .65rem;min-height:4.2rem;resize:vertical}
+  .open textarea:focus{outline:none;border-color:var(--vio)}
+  .open .rev{margin-top:.55rem;font-family:inherit;font-size:.78rem;background:transparent;color:var(--vio);border:1px solid rgba(181,123,255,.35);border-radius:7px;padding:.35rem .7rem;cursor:pointer}
+  .open .rev:hover{background:rgba(181,123,255,.12)}
+  .open .modele{display:none;margin-top:.6rem;font-size:.87rem;color:#c9cdda;line-height:1.55;border-top:1px dashed var(--border);padding-top:.6rem}
+  .open .modele.show{display:block}
+  details.repli{border:1px solid var(--border);border-radius:8px;background:var(--bg-card);padding:.2rem .9rem;margin:1.2rem 0}
+  details.repli > summary{cursor:pointer;padding:.6rem 0;font-size:.9rem;color:var(--nsi);font-weight:600;list-style:none}
+  details.repli > summary::-webkit-details-marker{display:none}
+  details.repli > summary::before{content:"▸ "} details.repli[open] > summary::before{content:"▾ "}
+  .exfoot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .exfoot button{font-family:inherit;font-size:.78rem;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:7px;padding:.38rem .7rem;cursor:pointer}
+  .exfoot button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 10px 10px 0;background:var(--nsi-dim);padding:1.1rem 1.3rem;margin:1rem 0 2rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--nsi);color:#07182f;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+  .cta.anim{border-left-color:var(--vio);background:rgba(181,123,255,.07)} .cta.anim a{background:var(--vio);color:#1b0f2e}
+  .ctarow{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0 1rem}
+  @media (max-width:640px){
+    .scorebar-in{padding:.55rem 1rem;gap:.5rem} .scoretxt{font-size:.8rem}
+    .exo > h2{font-size:1.1rem}
+    .q{grid-template-columns:1fr} .sol{grid-column:1}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="scorebar">
+  <div class="scorebar-in">
+    <span class="scoretxt"><b id="sOk">0</b>/<span id="sTot">0</span></span>
+    <span class="gauge"><i id="sBar"></i></span>
+    <button type="button" id="btnCheck" class="primary">Tout vérifier</button>
+    <button type="button" id="btnReset">Effacer</button>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>TD Réseaux et routage <span class="badge badge-nsi">Terminale</span></h1>
+    <p class="subtitle">Binaire, masques et notation CIDR, adresses réseau, sous-réseaux, modèle OSI, tables de routage, RIP et OSPF.
+      Tapez votre réponse : elle est corrigée immédiatement. Vos réponses sont conservées dans ce navigateur.</p>
+  </div>
+
+  <div class="cta">
+    <div class="t"><b>Besoin d'un rappel ?</b><span>Toutes les définitions et les méthodes utilisées ici sont dans le cours.</span></div>
+    <a href="cours-reseaux.html">Voir le cours →</a>
+  </div>
+  <div class="ctarow">
+    <div class="cta anim">
+      <div class="t"><b>Vérifier un calcul d'adresse</b><span>Les 32 bits, le masque, le découpage en sous-réseaux.</span></div>
+      <a href="../../animation/adresses-ip.html" target="_blank" rel="noopener">Ouvrir ↗</a>
+    </div>
+    <div class="cta anim">
+      <div class="t"><b>Vérifier une route</b><span>RIP tour par tour, OSPF avec Dijkstra.</span></div>
+      <a href="../../animation/routage.html" target="_blank" rel="noopener">Ouvrir ↗</a>
+    </div>
+  </div>
+
+  <div id="exos"></div>
+
+  <div class="cta">
+    <div class="t"><b>Le cours du chapitre</b><span>Modèle OSI, adresses IP, masques, tables de routage, RIP, OSPF.</span></div>
+    <a href="cours-reseaux.html">Voir le cours →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  'use strict';
+  var STORE = 'nsi-td-reseaux-v1';
+
+  /* ================= adresses IPv4 (entiers non signés sur 32 bits) ================= */
+  function ipN(s){ return s.split('.').reduce(function(a, x){ return a * 256 + (+x); }, 0); }
+  function nIp(x){ return [24, 16, 8, 0].map(function(k){ return (x >>> k) & 255; }).join('.'); }
+  function maskN(n){ return n === 0 ? 0 : (0xFFFFFFFF << (32 - n)) >>> 0; }
+  function cidr(s){ var p = s.split('/'); return { ip: ipN(p[0]), n: +p[1] }; }
+  function net(s){ var c = cidr(s); return (c.ip & maskN(c.n)) >>> 0; }
+  function bcast(s){ var c = cidr(s); return (net(s) | (~maskN(c.n) >>> 0)) >>> 0; }
+  function hosts(n){ return Math.pow(2, 32 - n) - 2; }
+  function sameNet(a, b, n){ return ((ipN(a) & maskN(n)) >>> 0) === ((ipN(b) & maskN(n)) >>> 0); }
+  function bin8(v){ return ('00000000' + v.toString(2)).slice(-8); }
+  function ipBin(s){ return s.split('.').map(function(o){ return bin8(+o); }).join('.'); }
+  function prefixFor(m){ var h = 2; while (Math.pow(2, h) - 2 < m) h++; return 32 - h; }
+
+  /* ================= graphes : plus courts chemins (sauts ou coûts) ================= */
+  function graph(edges, cut){
+    var g = {};
+    edges.forEach(function(e){
+      if (cut && ((cut[0] === e[0] && cut[1] === e[1]) || (cut[0] === e[1] && cut[1] === e[0]))) return;
+      var c = 100 / e[2];                              /* 10^8 / débit, débit en Mb/s */
+      (g[e[0]] = g[e[0]] || []).push([e[1], c]); (g[e[1]] = g[e[1]] || []).push([e[0], c]);
+    });
+    return g;
+  }
+  /* Dijkstra ; hops = true : chaque lien compte 1 (RIP). Renvoie distances, passerelle (premier saut) et prédécesseurs. */
+  function shortest(g, s, hops){
+    var V = Object.keys(g), dist = {}, first = {}, pred = {}, done = {};
+    V.forEach(function(v){ dist[v] = Infinity; });
+    dist[s] = 0;
+    for (var k = 0; k < V.length; k++){
+      var u = null;
+      V.forEach(function(v){ if (!done[v] && (u === null || dist[v] < dist[u])) u = v; });
+      if (u === null || dist[u] === Infinity) break;
+      done[u] = true;
+      g[u].forEach(function(p){
+        var nd = dist[u] + (hops ? 1 : p[1]);
+        if (nd < dist[p[0]] - 1e-9){ dist[p[0]] = nd; pred[p[0]] = u; first[p[0]] = u === s ? p[0] : first[u]; }
+      });
+    }
+    return { dist: dist, first: first, pred: pred };
+  }
+  function pathTo(r, s, d){ var p = [d]; while (d !== s){ d = r.pred[d]; p.unshift(d); } return p; }
+  function round2(x){ return Math.round(x * 100) / 100; }
+
+  /* le réseau du TD : [routeur, routeur, débit en Mb/s] */
+  var NET = [['A', 'B', 10], ['A', 'C', 100], ['B', 'E', 10], ['C', 'D', 100], ['D', 'E', 20], ['D', 'F', 50], ['E', 'G', 10], ['F', 'G', 100]];
+  var POS = { A: [50, 140], B: [200, 45], C: [200, 235], E: [380, 45], D: [380, 235], F: [540, 235], G: [610, 120] };
+  var G0 = graph(NET);
+  var RIP_A = shortest(G0, 'A', true), OSPF_A = shortest(G0, 'A', false);
+  var RIP_cutBE = shortest(graph(NET, ['B', 'E']), 'A', true);
+  var OSPF_cutDF = shortest(graph(NET, ['D', 'F']), 'A', false);
+  var DEST = ['B', 'C', 'D', 'E', 'F', 'G'];
+  function ripRoute(s, d){ var p = [s]; while (s !== d){ s = shortest(G0, s, true).first[d]; p.push(s); } return p; }
+
+  function svgNet(){
+    var s = '<svg viewBox="0 0 660 280" style="max-width:640px">';
+    NET.forEach(function(e){
+      var a = POS[e[0]], b = POS[e[1]], w = e[2] >= 100 ? 5 : e[2] >= 50 ? 3.5 : e[2] >= 20 ? 2.5 : 1.5;
+      s += '<line class="lk" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke-width="' + w + '"/>';
+    });
+    NET.forEach(function(e){
+      var a = POS[e[0]], b = POS[e[1]], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, t = e[2] + ' Mb/s', w = t.length * 6.6 + 10;
+      s += '<g class="tg"><rect x="' + (mx - w / 2) + '" y="' + (my - 9) + '" width="' + w + '" height="18" rx="5"/><text x="' + mx + '" y="' + my + '">' + t + '</text></g>';
+    });
+    Object.keys(POS).forEach(function(k){ var p = POS[k]; s += '<g class="rt"><circle cx="' + p[0] + '" cy="' + p[1] + '" r="21"/><text x="' + p[0] + '" y="' + p[1] + '">' + k + '</text></g>'; });
+    return s + '</svg>';
+  }
+  function table(head, rows){
+    return '<table class="tbl"><tr>' + head.map(function(h){ return '<th>' + h + '</th>'; }).join('') + '</tr>' +
+      rows.map(function(r){ return '<tr>' + r.map(function(c){ return '<td class="mono">' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>';
+  }
+
+  var DIRECT = ['direct', 'directe', 'directement', 'directement connecte', 'aucune', 'aucun', '-', '—', 'none'];
+  var OUI = ['oui', 'o', 'yes'], NON = ['non', 'n', 'no'];
+  function yn(b){ return b ? OUI : NON; }
+  function layer(name){
+    var L = { reseau: ['reseau', 'couche reseau', '3', 'couche 3', 'internet'], transport: ['transport', 'couche transport', '4', 'couche 4'],
+      application: ['application', 'couche application', '7', 'couche 7'], liaison: ['liaison', 'liaison de donnees', 'couche liaison', 'couche liaison de donnees', '2', 'couche 2'] };
+    return L[name];
+  }
+
+  /* ================= énoncé ================= */
+  var ADR = ['192.168.1.37/24', '192.168.5.77/26', '172.16.45.200/20', '192.168.0.130/25'];
+  var HOME = ['10.45.67.89/12', '192.168.100.200/27', '172.20.130.4/18'];
+  function addrItems(s, full){
+    var c = cidr(s), it = [
+      { lab: 'Adresse du réseau', a: nIp(net(s)), t: 'ip' },
+      { lab: 'Adresse de diffusion', a: nIp(bcast(s)), t: 'ip' } ];
+    if (full) it.push(
+      { lab: 'Première machine', a: nIp(net(s) + 1), t: 'ip' },
+      { lab: 'Dernière machine', a: nIp(bcast(s) - 1), t: 'ip' });
+    it.push({ lab: 'Nombre de machines adressables', a: hosts(c.n), t: 'int' });
+    return it;
+  }
+  var PAIRS = [['192.168.1.37', '192.168.1.200', 24], ['192.168.1.37', '192.168.1.200', 25], ['10.0.5.1', '10.0.200.3', 16],
+    ['172.16.45.200', '172.16.40.1', 20], ['172.16.45.200', '172.16.50.1', 20], ['192.168.5.77', '192.168.5.130', 26], ['192.168.5.77', '192.168.5.100', 26]];
+
+  var ROUTES = [
+    ['192.168.1.0/24', '—', 'eth0'], ['10.0.0.0/30', '—', 'eth1'], ['10.0.0.4/30', '—', 'eth2'], ['172.16.0.0/30', '—', 'eth3'],
+    ['192.168.2.0/24', '10.0.0.2', 'eth1'], ['192.168.0.0/16', '10.0.0.6', 'eth2'], ['0.0.0.0/0', '172.16.0.1', 'eth3'] ];
+  function lookup(ip){
+    var best = null;
+    ROUTES.forEach(function(r){ var c = cidr(r[0]); if (((ipN(ip) & maskN(c.n)) >>> 0) === c.ip && (!best || c.n > best.n)) best = { n: c.n, gw: r[1], itf: r[2] }; });
+    return best;
+  }
+  function gwAns(ip){ var b = lookup(ip); return b.gw === '—' ? DIRECT : b.gw; }
+
+  /* tables RIP de l'exercice 10 (destination → passerelle) */
+  var T10 = { R1: { X: 'R2', Y: 'R3' }, R2: { X: 'R4', Y: 'R1' }, R3: { X: 'R5', Y: 'R5' }, R4: { X: 'R6', Y: 'R5' }, R5: { X: 'R4', Y: 'direct' }, R6: { X: 'direct', Y: 'R4' } };
+  var HOME10 = { X: 'R6', Y: 'R5' };
+  function follow(s, d){ var p = [s]; while (s !== HOME10[d]){ s = T10[s][d]; p.push(s); if (p.length > 10) break; } return p.join(' '); }
+
+  var TD = [
+    { id: 'ex1', titre: 'Binaire et adresses IPv4', groupes: [
+      { type: 'rappel', texte: 'Poids des bits d\'un octet : <b>128 64 32 16 8 4 2 1</b>. Une adresse IPv4 = 4 octets = 32 bits ; chaque octet s\'écrit sur 8 bits.' },
+      { type: 'qs', consigne: 'Écrivez chaque octet en binaire, <b>sur 8 bits</b>.', items: [192, 168, 37, 255, 10, 130].map(function(v){ return { lab: '<b>' + v + '</b>', a: bin8(v), t: 'bin' }; }) },
+      { type: 'qs', consigne: 'Écrivez chaque octet en décimal.', items: ['10101100', '00010000', '11100000', '01111111', '11000000'].map(function(b){ return { lab: '<code>' + b + '</code>', a: parseInt(b, 2), t: 'int' }; }) },
+      { type: 'qs', consigne: 'Adresses complètes.', items: [
+        { lab: '<b>172.16.5.10</b> en binaire', small: 'les 4 octets sur 8 bits, séparés par des points', a: ipBin('172.16.5.10'), t: 'bin' },
+        { lab: '<code>11000000.10101000.00001010.11111110</code> en décimal pointé', a: '192.168.10.254', t: 'ip' },
+        { lab: '<code>00001010.00000000.00000000.00000001</code> en décimal pointé', a: '10.0.0.1', t: 'ip' },
+        { lab: 'Nombre de bits d\'une adresse IPv4', a: 32, t: 'int' },
+        { lab: 'Nombre de bits d\'une adresse IPv6', a: 128, t: 'int' },
+        { lab: 'Nombre d\'adresses IPv4 différentes', small: 'sous la forme 2^k', a: '2^32', alt: ['2**32', '4294967296'], t: 'expr' },
+      ] },
+      { type: 'mcq', q: 'Laquelle de ces adresses <b>n\'est pas</b> une adresse IPv4 valide ?', opts: ['10.0.0.255', '192.168.1.256', '172.31.0.1', '8.8.4.4'], ok: 1, expl: 'Un octet va de 0 à 255 : 256 demanderait 9 bits.' },
+      { type: 'mcq', q: 'L\'adresse 192.168.1.37 est…', opts: ['une adresse publique, joignable depuis tout Internet', 'une adresse privée : valable seulement à l\'intérieur d\'un réseau local, la box la traduit (NAT)', 'l\'adresse de boucle locale'], ok: 1, expl: '192.168.0.0/16, 10.0.0.0/8 et 172.16.0.0/12 sont les plages privées. La boucle locale est 127.0.0.1.' },
+    ] },
+
+    { id: 'ex2', titre: 'Masques et notation CIDR', groupes: [
+      { type: 'rappel', texte: 'Un masque /n = n bits à 1 puis 32 − n bits à 0. Valeurs possibles d\'un octet de masque : 0, 128, 192, 224, 240, 248, 252, 254, 255 (0 à 8 bits à 1). Un réseau /n contient 2<sup>32 − n</sup> adresses, dont 2<sup>32 − n</sup> − 2 machines.' },
+      { type: 'qs', consigne: 'Donnez le masque en décimal pointé.', items: [24, 16, 8, 26, 20, 27, 30, 22].map(function(n){ return { lab: '<b>/' + n + '</b>', a: nIp(maskN(n)), t: 'ip' }; }) },
+      { type: 'qs', consigne: 'Donnez la longueur n du préfixe (notation CIDR).', items: [25, 21, 28, 12, 32].map(function(n){ return { lab: '<b>' + nIp(maskN(n)) + '</b>', a: n, t: 'int' }; }) },
+      { type: 'qs', consigne: 'Nombre de machines adressables dans un réseau…', items: [24, 26, 28, 30, 20, 16, 25].map(function(n){ return { lab: '<b>/' + n + '</b>', a: hosts(n), t: 'int' }; }) },
+      { type: 'mcq', q: '<code>255.255.0.255</code> est-il un masque valide ?', opts: ['Oui, c\'est un /24', 'Non : les bits à 1 d\'un masque doivent être contigus, tous à gauche', 'Oui, c\'est un /16'], ok: 1, expl: 'En binaire : 11111111.11111111.00000000.11111111. Un masque ne peut pas avoir de 1 après un 0.' },
+      { type: 'open', q: 'Pourquoi un réseau /n ne peut-il accueillir que 2<sup>32 − n</sup> − 2 machines, et non 2<sup>32 − n</sup> ?', modele: 'Parmi les 2<sup>32 − n</sup> adresses du réseau, deux sont réservées : celle dont la partie hôte est entièrement à 0 désigne le réseau lui-même (c\'est elle qui figure dans les tables de routage), et celle dont la partie hôte est entièrement à 1 est l\'adresse de diffusion, qui s\'adresse à toutes les machines du réseau à la fois. Aucune des deux ne peut être attribuée à une machine.' },
+    ] },
+
+    { id: 'ex3', titre: 'Adresse réseau, diffusion, plage', groupes: [
+      { type: 'rappel', texte: 'Réseau = IP <b>ET</b> masque (partie hôte à 0) ; diffusion = partie hôte à 1. Si n n\'est pas multiple de 8 : dans l\'octet mixte de masque m, les réseaux avancent de <b>b = 256 − m</b> ; on prend le plus grand multiple de b inférieur ou égal à l\'octet de l\'adresse. Exemple : /20 → m = 240, b = 16.' },
+      { type: 'qs', consigne: 'Pour <b>' + ADR[0] + '</b> :', items: addrItems(ADR[0], true) },
+      { type: 'qs', consigne: 'Pour <b>10.12.200.5/16</b> :', items: addrItems('10.12.200.5/16', false) },
+      { type: 'qs', consigne: 'Pour <b>' + ADR[1] + '</b> :', items: addrItems(ADR[1], true) },
+      { type: 'qs', consigne: 'Pour <b>' + ADR[2] + '</b> :', items: [{ lab: 'Masque en décimal pointé', a: nIp(maskN(20)), t: 'ip' }].concat(addrItems(ADR[2], true)) },
+      { type: 'qs', consigne: 'Pour <b>' + ADR[3] + '</b> :', items: addrItems(ADR[3], false) },
+      { type: 'mcq', q: 'Un élève configure son PC avec l\'adresse <b>192.168.1.255/24</b>. Que se passe-t-il ?', opts: ['Rien de particulier', 'C\'est impossible : c\'est l\'adresse de diffusion du réseau 192.168.1.0/24', 'C\'est impossible : c\'est l\'adresse du réseau'], ok: 1, expl: 'Avec /24, la partie hôte est le dernier octet ; 255 = 11111111, partie hôte entièrement à 1 : c\'est la diffusion.' },
+      { type: 'qs', repli: 'Pour s\'entraîner à la maison', consigne: 'Donnez l\'adresse du réseau et celle de diffusion.', items: HOME.reduce(function(acc, s){
+          return acc.concat([{ lab: '<b>' + s + '</b> : réseau', a: nIp(net(s)), t: 'ip' }, { lab: '<b>' + s + '</b> : diffusion', a: nIp(bcast(s)), t: 'ip' }]); }, []) },
+    ] },
+
+    { id: 'ex4', titre: 'Même réseau ?', groupes: [
+      { type: 'rappel', texte: 'Deux machines sont sur le même réseau si elles ont la même adresse réseau (même résultat de IP ET masque). Elles communiquent alors directement ; sinon, le paquet passe par la <b>passerelle</b> (le routeur).' },
+      { type: 'qs', consigne: 'Les deux machines sont-elles sur le même réseau ? Répondez <b>oui</b> ou <b>non</b>.', items: PAIRS.map(function(p){ return { lab: '<b>' + p[0] + '</b> et <b>' + p[1] + '</b>, masque /' + p[2], a: yn(sameNet(p[0], p[1], p[2])), t: 'txt' }; }) },
+      { type: 'mcq', q: 'Le PC <b>192.168.1.37/24</b>, de passerelle 192.168.1.1, envoie un paquet à <b>192.168.2.5</b>. À qui remet-il la trame ?', opts: ['Directement à 192.168.2.5, par le commutateur', 'À la passerelle 192.168.1.1, car 192.168.2.5 est sur un autre réseau', 'À toutes les machines du réseau (diffusion)'], ok: 1, expl: '192.168.2.5 ET 255.255.255.0 = 192.168.2.0 ≠ 192.168.1.0 : la destination est hors du réseau local, le PC passe par sa passerelle.' },
+      { type: 'mcq', q: 'Une machine est configurée en <b>192.168.1.10/24</b> avec la passerelle <b>192.168.2.1</b>. Que se passe-t-il ?', opts: ['Tout fonctionne', 'Elle joint les machines de son réseau local, mais ne peut pas en sortir : sa passerelle doit appartenir à son propre réseau', 'Elle ne joint plus rien du tout'], ok: 1, expl: 'Pour atteindre la passerelle, la machine doit pouvoir lui envoyer une trame directement : la passerelle doit donc être dans le même réseau qu\'elle.' },
+    ] },
+
+    { id: 'ex5', titre: 'Découper en sous-réseaux', groupes: [
+      { type: 'rappel', texte: 'Emprunter k bits à la partie hôte donne <b>2<sup>k</sup> sous-réseaux</b> et allonge le préfixe de k. Pour accueillir m machines, il faut h bits d\'hôte avec <b>2<sup>h</sup> − 2 ≥ m</b>, d\'où un préfixe /(32 − h).' },
+      { type: 'qs', consigne: 'On découpe <b>192.168.10.0/24</b> en 4 sous-réseaux de même taille.', items: [
+        { lab: 'Nombre de bits empruntés', a: 2, t: 'int' },
+        { lab: 'Nouveau préfixe /n', a: 26, t: 'int' },
+        { lab: 'Nouveau masque', a: nIp(maskN(26)), t: 'ip' },
+        { lab: 'Nombre de machines par sous-réseau', a: hosts(26), t: 'int' },
+        { lab: 'Adresse du 2<sup>e</sup> sous-réseau', a: '192.168.10.64', t: 'ip' },
+        { lab: 'Première machine du 2<sup>e</sup> sous-réseau', a: '192.168.10.65', t: 'ip' },
+        { lab: 'Adresse du 3<sup>e</sup> sous-réseau', a: '192.168.10.128', t: 'ip' },
+        { lab: 'Diffusion du 3<sup>e</sup> sous-réseau', a: '192.168.10.191', t: 'ip' },
+      ] },
+      { type: 'qs', consigne: 'Quel préfixe /n choisir, au plus juste, pour un réseau de…', items: [50, 14, 15, 300, 1000, 2].map(function(m){ return { lab: '<b>' + m + '</b> machine' + (m > 1 ? 's' : '') + (m === 2 ? ' (liaison entre deux routeurs)' : ''), a: prefixFor(m), t: 'int' }; }) },
+      { type: 'qs', consigne: 'On découpe <b>10.0.0.0/16</b> en 8 sous-réseaux de même taille.', items: [
+        { lab: 'Nouveau préfixe /n', a: 19, t: 'int' },
+        { lab: 'Adresse du 2<sup>e</sup> sous-réseau', a: '10.0.32.0', t: 'ip' },
+        { lab: 'Diffusion du 2<sup>e</sup> sous-réseau', a: nIp(bcast('10.0.32.0/19')), t: 'ip' },
+        { lab: 'Nombre de machines par sous-réseau', a: hosts(19), t: 'int' },
+      ] },
+      { type: 'qs', consigne: 'Agrégation : un routeur atteint <b>192.168.0.0/24</b>, <b>192.168.1.0/24</b>, <b>192.168.2.0/24</b> et <b>192.168.3.0/24</b> par le même voisin.', items: [
+        { lab: 'Par quelle ligne unique peut-on remplacer ces quatre routes ?', small: 'en notation CIDR', a: '192.168.0.0/22', t: 'expr' },
+      ] },
+    ] },
+
+    { id: 'ex6', titre: 'Le modèle OSI', groupes: [
+      { type: 'rappel', texte: 'De 1 à 7 : <b>P</b>hysique, <b>L</b>iaison, <b>R</b>éseau, <b>T</b>ransport, <b>S</b>ession, <b>P</b>résentation, <b>A</b>pplication — « Pour Le Réseau, Tout Se Passe Automatiquement ».' },
+      { type: 'qs', consigne: 'Numéro de la couche OSI.', items: [['Réseau', 3], ['Transport', 4], ['Liaison de données', 2], ['Application', 7], ['Physique', 1], ['Session', 5], ['Présentation', 6]].map(function(c){ return { lab: '<b>' + c[0] + '</b>', a: c[1], t: 'int' }; }) },
+      { type: 'qs', consigne: 'À quelle couche OSI (son nom) appartient ou travaille…', items: [
+        { lab: 'le protocole <b>IP</b>', a: layer('reseau'), t: 'txt' },
+        { lab: 'le protocole <b>TCP</b>', a: layer('transport'), t: 'txt' },
+        { lab: 'le protocole <b>HTTP</b>', a: layer('application'), t: 'txt' },
+        { lab: '<b>Ethernet</b>', a: layer('liaison'), t: 'txt' },
+        { lab: 'un <b>routeur</b>', a: layer('reseau'), t: 'txt' },
+        { lab: 'un <b>commutateur</b> (switch)', a: layer('liaison'), t: 'txt' },
+        { lab: 'le protocole <b>OSPF</b>', a: layer('reseau'), t: 'txt' },
+      ] },
+      { type: 'qs', consigne: 'Nom de l\'unité de données manipulée par la couche…', items: [
+        { lab: '2 (Liaison)', a: 'trame', alt: ['une trame', 'trames'], t: 'txt' },
+        { lab: '3 (Réseau)', a: 'paquet', alt: ['un paquet', 'paquets', 'datagramme'], t: 'txt' },
+        { lab: '4 (Transport, avec TCP)', a: 'segment', alt: ['un segment', 'segments'], t: 'txt' },
+        { lab: '1 (Physique)', a: 'bit', alt: ['bits', 'des bits'], t: 'txt' },
+      ] },
+      { type: 'mcq', q: 'Un paquet traverse trois routeurs. Qu\'est-ce qui change en chemin ?', opts: ['Les adresses IP source et destination', 'Les adresses MAC (une nouvelle trame sur chaque réseau) et le TTL', 'Les numéros de port', 'Rien du tout'], ok: 1, expl: 'Chaque routeur retire la trame, lit l\'IP, puis refait une trame avec les MAC du réseau suivant ; il décrémente aussi le TTL. Les adresses IP, elles, restent les mêmes de bout en bout (hors NAT).' },
+      { type: 'mcq', q: 'Dans quel ordre l\'émetteur ajoute-t-il les en-têtes ?', opts: ['Ethernet, puis IP, puis TCP', 'TCP, puis IP, puis Ethernet', 'IP, puis TCP, puis Ethernet'], ok: 1, expl: 'Les données descendent les couches : la couche 4 (TCP) ajoute son en-tête la première, la couche 2 (Ethernet) en dernier, à l\'extérieur.' },
+      { type: 'mcq', q: 'Le modèle TCP/IP regroupe les couches OSI 5, 6 et 7 en une seule couche :', opts: ['Transport', 'Application', 'Internet', 'Accès réseau'], ok: 1 },
+      { type: 'mcq', q: 'Un jeu en ligne envoie la position des joueurs avec UDP plutôt qu\'avec TCP, car…', opts: ['UDP est plus sûr', 'une position arrivée en retard ne sert plus à rien : mieux vaut perdre un paquet que d\'attendre qu\'il soit réémis', 'UDP chiffre les données'], ok: 1, expl: 'TCP garantit que tout arrive, dans l\'ordre, quitte à attendre ; UDP privilégie la rapidité.' },
+      { type: 'mcq', q: 'À quoi sert le champ <b>TTL</b> de l\'en-tête IP ?', opts: ['À chiffrer le paquet', 'À détruire un paquet qui a traversé trop de routeurs, par exemple pris dans une boucle', 'À indiquer le port de destination'], ok: 1, expl: 'Chaque routeur le diminue de 1 ; à 0, le paquet est détruit.' },
+      { type: 'open', q: 'Quel est l\'intérêt de découper la communication en couches ? Donnez un exemple.', modele: 'Chaque couche résout un problème précis et ne dépend que du service rendu par la couche du dessous, pas de son fonctionnement. On peut donc changer une couche sans toucher aux autres : un navigateur fonctionne de la même façon en Wi-Fi, en Ethernet ou en 4G (seules les couches 1 et 2 changent) ; un routeur achemine aussi bien du web que du courrier ou de la vidéo, car il ne regarde que la couche 3.' },
+    ] },
+
+    { id: 'ex7', titre: 'Lire une table de routage', groupes: [
+      { type: 'rappel', texte: 'Le routeur cherche les lignes dont le réseau contient l\'adresse de destination et choisit <b>la plus précise</b> (le préfixe le plus long). La route par défaut 0.0.0.0/0 contient toutes les adresses. « — » : réseau directement connecté.' },
+      { type: 'html', html: '<div class="htbl">' + table(['Réseau destination', 'Passerelle', 'Interface'], ROUTES) + '</div>' },
+      { type: 'qs', consigne: 'Pour chaque destination, donnez la <b>passerelle</b> utilisée (écrire « direct » si le réseau est directement connecté).', items: ['192.168.2.10', '192.168.7.3', '192.168.1.50', '8.8.8.8', '192.168.200.1', '192.169.0.1'].map(function(ip){ return { lab: 'Paquet pour <b>' + ip + '</b>', a: gwAns(ip), t: 'txt' }; }) },
+      { type: 'qs', consigne: 'Et l\'<b>interface</b> de sortie :', items: ['192.168.2.10', '192.168.1.50', '192.169.0.1'].map(function(ip){ return { lab: 'Paquet pour <b>' + ip + '</b>', a: lookup(ip).itf, t: 'txt' }; }) },
+      { type: 'mcq', q: 'Pour 192.168.2.10, trois lignes conviennent. Pourquoi est-ce 192.168.2.0/24 qui est choisie ?', opts: ['Elle apparaît avant les autres', 'Son préfixe est le plus long : c\'est la route la plus précise', 'Sa passerelle a la plus petite adresse'], ok: 1, expl: '192.168.2.0/24 (24 bits) l\'emporte sur 192.168.0.0/16 (16 bits), qui l\'emporte sur 0.0.0.0/0.' },
+    ] },
+
+    { id: 'ex8', titre: 'Le protocole RIP', groupes: [
+      { type: 'fig', html: svgNet(), cap: 'Le réseau des exercices 8 et 9. Pour RIP, on ignore les débits.' },
+      { type: 'rappel', texte: 'RIP compte les <b>sauts</b> : un voisin direct est à distance 1. Une ligne de table : destination, passerelle (voisin à qui transmettre), distance. Règle : une annonce (D, d) du voisin V donne d + 1 via V ; on l\'adopte si D est inconnue, si c\'est strictement mieux, ou si la route actuelle passe déjà par V.' },
+      { type: 'qs', consigne: 'Table de routage de <b>A</b> une fois le réseau convergé.', items: DEST.reduce(function(acc, d){
+          return acc.concat([{ lab: 'Vers <b>' + d + '</b> : passerelle', a: RIP_A.first[d], t: 'txt' }, { lab: 'Vers <b>' + d + '</b> : distance', a: RIP_A.dist[d], t: 'int' }]); }, []) },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Route d\'un paquet de A vers G', small: 'routeurs séparés par des espaces, de A à G', a: ripRoute('A', 'G').join(' '), t: 'seq' },
+        { lab: 'Au départ, chaque routeur ne connaît que ses voisins. Combien d\'échanges (de 30 s) faut-il pour que A connaisse toutes les destinations ?', a: Math.max.apply(null, DEST.map(function(d){ return RIP_A.dist[d]; })) - 1, t: 'int' },
+      ] },
+      { type: 'html', html: '<div class="consigne">Mise à jour d\'une table. À un instant donné, la table de A et le vecteur que lui envoie C sont :</div><div class="tbls">' +
+          table(['Dest.', 'Passerelle', 'Dist.'], [['B', 'B', 1], ['C', 'C', 1], ['E', 'B', 2]]) +
+          table(['Vecteur de C', 'Dist.'], [['A', 1], ['B', 2], ['D', 1], ['E', 2], ['F', 2], ['G', 3]]) + '</div>' },
+      { type: 'qs', consigne: 'Table de A <b>après</b> traitement du vecteur de C :', items: [
+        { lab: 'Vers <b>D</b> : passerelle', a: 'C', t: 'txt' }, { lab: 'Vers <b>D</b> : distance', a: 2, t: 'int' },
+        { lab: 'Vers <b>E</b> : passerelle', a: 'B', t: 'txt' }, { lab: 'Vers <b>E</b> : distance', a: 2, t: 'int' },
+        { lab: 'Vers <b>F</b> : passerelle', a: 'C', t: 'txt' }, { lab: 'Vers <b>F</b> : distance', a: 3, t: 'int' },
+        { lab: 'Vers <b>G</b> : passerelle', a: 'C', t: 'txt' }, { lab: 'Vers <b>G</b> : distance', a: 4, t: 'int' },
+      ] },
+      { type: 'html', html: '<div class="consigne">A reçoit ensuite le vecteur de B :</div><div class="tbls">' + table(['Vecteur de B', 'Dist.'], [['A', 1], ['C', 2], ['D', 2], ['E', 1], ['F', 3], ['G', 2]]) + '</div>' },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Vers <b>G</b> : nouvelle passerelle', a: 'B', t: 'txt' }, { lab: 'Vers <b>G</b> : nouvelle distance', a: 3, t: 'int' },
+        { lab: 'Une autre ligne de la table de A change-t-elle ?', small: 'oui ou non', a: NON, t: 'txt' },
+      ] },
+      { type: 'qs', consigne: 'Le lien <b>B – E</b> tombe en panne. Une fois le réseau à nouveau convergé, dans la table de A :', items: [
+        { lab: 'Vers <b>E</b> : passerelle', a: RIP_cutBE.first.E, t: 'txt' }, { lab: 'Vers <b>E</b> : distance', a: RIP_cutBE.dist.E, t: 'int' },
+        { lab: 'Vers <b>G</b> : passerelle', a: RIP_cutBE.first.G, t: 'txt' }, { lab: 'Vers <b>G</b> : distance', a: RIP_cutBE.dist.G, t: 'int' },
+      ] },
+      { type: 'mcq', q: 'Dans RIP, une distance de 16 signifie…', opts: ['que la destination est à 16 sauts', 'que la destination est injoignable', 'que la route a 16 secondes'], ok: 1, expl: 'RIP limite les routes à 15 sauts ; 16 joue le rôle de l\'infini.' },
+      { type: 'mcq', q: 'Pourquoi RIP est-il réservé aux petits réseaux ?', opts: ['Il ne fonctionne qu\'en Wi-Fi', 'Une route ne peut pas dépasser 15 sauts, et la convergence est lente', 'Il ne gère que les adresses privées'], ok: 1 },
+      { type: 'open', q: 'Trois routeurs sont en ligne : A — B — C. Expliquez ce qui se passe avec RIP quand le lien B — C tombe en panne (comptage à l\'infini), et comment l\'éviter.', modele: 'Avant la panne, A atteint C via B à distance 2. B détecte la panne et note C à 16. Mais A continue d\'annoncer « C à distance 2 » : B, qui n\'a pas mieux, adopte C à 3 via A. A, dont la route passe par B, apprend que B est à 3 et passe à 4 ; B passe alors à 5, etc. Les deux routeurs se renvoient les paquets pour C (boucle) et la distance monte d\'un cran à chaque échange jusqu\'à 16. L\'horizon partagé l\'évite : A n\'annonce pas à B la route vers C qu\'il a apprise de B.' },
+    ] },
+
+    { id: 'ex9', titre: 'Le protocole OSPF', groupes: [
+      { type: 'rappel', texte: 'Coût d\'un lien = <b>10<sup>8</sup> / débit</b> (débit en bit/s ; 1 Mb/s = 10<sup>6</sup> bit/s). Coût d\'une route = somme des coûts de ses liens. OSPF choisit la route de coût minimal (Dijkstra). Écrivez les nombres décimaux avec une virgule ou un point.' },
+      { type: 'qs', consigne: 'Coût OSPF d\'un lien de débit…', items: [[100, '100 Mb/s'], [10, '10 Mb/s'], [20, '20 Mb/s'], [50, '50 Mb/s'], [25, '25 Mb/s'], [1, '1 Mb/s'], [1000, '1 Gb/s'], [10000, '10 Gb/s']].map(function(c){ return { lab: '<b>' + c[1] + '</b>', a: round2(100 / c[0]), t: 'int' }; }) },
+      { type: 'qs', consigne: 'Certains sujets utilisent la formule <b>10<sup>9</sup> / débit</b>. Avec celle-ci, quel est le coût d\'un lien de…', items: [
+        { lab: '<b>1 Gb/s</b>', a: 1, t: 'int' }, { lab: '<b>100 Mb/s</b>', a: 10, t: 'int' } ] },
+      { type: 'fig', html: svgNet(), cap: 'Le réseau de l\'exercice 8, avec ses débits.' },
+      { type: 'qs', consigne: 'Avec la formule 10<sup>8</sup> / débit, sur le réseau ci-dessus :', items: [
+        { lab: 'Route OSPF d\'un paquet de A vers G', small: 'routeurs séparés par des espaces', a: pathTo(OSPF_A, 'A', 'G').join(' '), t: 'seq' },
+        { lab: 'Coût de cette route', a: OSPF_A.dist.G, t: 'int' },
+        { lab: 'Nombre de sauts de cette route', a: pathTo(OSPF_A, 'A', 'G').length - 1, t: 'int' },
+        { lab: 'Coût de la route RIP A → B → E → G', a: 30, t: 'int' },
+        { lab: 'Ordre dans lequel Dijkstra fixe les routeurs depuis A', small: 'A en premier', a: Object.keys(OSPF_A.dist).sort(function(x, y){ return OSPF_A.dist[x] - OSPF_A.dist[y]; }).join(' '), t: 'seq' },
+      ] },
+      { type: 'qs', consigne: 'Table de routage OSPF de <b>A</b> :', items: DEST.reduce(function(acc, d){
+          return acc.concat([{ lab: 'Vers <b>' + d + '</b> : passerelle', a: OSPF_A.first[d], t: 'txt' }, { lab: 'Vers <b>' + d + '</b> : coût', a: OSPF_A.dist[d], t: 'int' }]); }, []) },
+      { type: 'qs', consigne: 'Le lien <b>D – F</b> tombe en panne.', items: [
+        { lab: 'Nouvelle route OSPF de A vers G', a: pathTo(OSPF_cutDF, 'A', 'G').join(' '), t: 'seq' },
+        { lab: 'Son coût', a: OSPF_cutDF.dist.G, t: 'int' },
+      ] },
+      { type: 'mcq', q: 'Que contient un LSA diffusé par un routeur OSPF ?', opts: ['Sa table de routage complète', 'La liste de ses liens avec leurs voisins et leurs coûts', 'Le chemin de chaque paquet'], ok: 1, expl: 'Avec les LSA de tous les routeurs, chacun reconstitue le graphe complet du réseau.' },
+      { type: 'mcq', q: 'Après une panne, quel protocole retrouve le plus vite une route correcte ?', opts: ['RIP', 'OSPF', 'Les deux en même temps'], ok: 1, expl: 'Un seul LSA suffit à prévenir tout le monde, puis chaque routeur recalcule. RIP doit attendre que l\'information se propage d\'un saut à chaque échange de 30 s.' },
+      { type: 'open', q: 'Pourquoi la route OSPF de A vers G fait-elle plus de sauts que la route RIP ? Laquelle est préférable pour télécharger un gros fichier ?', modele: 'RIP ne compte que les sauts : A → B → E → G (3 sauts) lui paraît la meilleure, alors qu\'elle n\'emprunte que des liens à 10 Mb/s (coût 30). OSPF tient compte des débits à travers les coûts : A → C → D → F → G fait 4 sauts mais sur des liens à 50 et 100 Mb/s (coût 5). Pour un gros fichier, c\'est le débit qui compte : la route OSPF est nettement préférable.' },
+    ] },
+
+    { id: 'ex10', titre: 'Suivre une route avec des tables données', groupes: [
+      { type: 'rappel', texte: 'Méthode : partir du routeur source, lire la passerelle vers la destination, aller à ce routeur, lire sa table, et recommencer. X est le réseau attaché à R6, Y celui attaché à R5.' },
+      { type: 'html', html: '<div class="htbl tbls">' + Object.keys(T10).map(function(r){ return table([r, 'Passerelle'], [['X', T10[r].X], ['Y', T10[r].Y]]); }).join('') + '</div>' },
+      { type: 'qs', consigne: 'Donnez la suite des routeurs traversés (séparés par des espaces).', items: [['R1', 'X'], ['R3', 'X'], ['R6', 'Y'], ['R2', 'Y']].map(function(c){ return { lab: 'De <b>' + c[0] + '</b> vers le réseau <b>' + c[1] + '</b>', a: follow(c[0], c[1]), t: 'seq' }; }) },
+      { type: 'mcq', q: 'À la suite d\'une erreur, la table de R4 indique <b>X → R2</b>. Que devient un paquet envoyé de R1 vers X ?', opts: ['Il arrive quand même, par un autre chemin', 'Il tourne entre R2 et R4 jusqu\'à ce que son TTL atteigne 0, puis il est détruit', 'R4 le renvoie à R1, qui le redirige vers R3'], ok: 1, expl: 'R1 → R2 → R4 → R2 → R4… : c\'est une boucle de routage. Le TTL, diminué à chaque routeur, finit par atteindre 0.' },
+    ] },
+  ];
+
+  /* ================= normalisation et vérification ================= */
+  function strip(s){ return String(s == null ? '' : s).replace(/ /g, ' ').replace(/[−–—]/g, '-').replace(/[×✕]/g, '*').replace(/[÷]/g, '/').trim(); }
+  function noAccent(s){ return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s; }
+  function normSeq(s){ return strip(s).toUpperCase().replace(/[→,;>\-]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function normExpr(s){ return strip(s).replace(/\s+/g, '').toLowerCase(); }
+  function normTxt(s){ return noAccent(strip(s).toLowerCase()).replace(/[«»"']/g, '').replace(/\s+/g, ' ').replace(/[.!]$/, ''); }
+  function normIp(s){
+    var g = strip(s).replace(/\s+/g, '').replace(/\/\d+$/, ''); if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(g)) return null;
+    return g.split('.').map(Number).join('.');
+  }
+  function normBin(s){
+    var g = strip(s).replace(/\s+/g, '').split('.');
+    if (g.some(function(x){ return !/^[01]{1,8}$/.test(x); })) return null;
+    return g.map(function(x){ return ('00000000' + x).slice(-8); }).join('.');
+  }
+  function isRight(type, given, answer, alt){
+    var g = strip(given); if (!g) return false;
+    var answers = [].concat(answer).concat(alt || []);
+    switch (type){
+      case 'int': { var v = Number(g.replace(/\s/g, '').replace(/^\//, '').replace(',', '.')); return answers.some(function(a){ return Math.abs(v - Number(a)) < 1e-9; }); }
+      case 'txt': return answers.some(function(a){ return normTxt(g) === normTxt(String(a)); });
+      case 'seq': return answers.some(function(a){ return normSeq(g) === normSeq(String(a)); });
+      case 'expr': return answers.some(function(a){ return normExpr(g) === normExpr(String(a)); });
+      case 'ip': { var x = normIp(g); return x !== null && answers.some(function(a){ return x === normIp(String(a)); }); }
+      case 'bin': { var y = normBin(g); return y !== null && answers.some(function(a){ return y === normBin(String(a)); }); }
+    }
+    return false;
+  }
+  function showAns(a){ return [].concat(a)[0]; }
+
+  /* ================= état ================= */
+  var fields = [], mcqs = [];
+  var saved = {}; try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+  var saveTimer = null;
+  function persist(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      var o = {};
+      fields.forEach(function(f){ if (f.input.value) o[f.id] = f.input.value; });
+      mcqs.forEach(function(m){ var c = m.box.querySelector('input:checked'); if (c) o[m.id] = c.value; });
+      document.querySelectorAll('textarea[data-id]').forEach(function(t){ if (t.value) o[t.dataset.id] = t.value; });
+      try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) {}
+    }, 300);
+  }
+
+  /* ================= construction ================= */
+  function el(tag, cls, html){ var d = document.createElement(tag); if (cls) d.className = cls; if (html != null) d.innerHTML = html; return d; }
+  function makeField(id, item, exo){
+    var wrap = el('div', 'fld');
+    var inp = el('input', 'f'); inp.type = 'text'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.setAttribute('aria-label', 'réponse');
+    if (item.t === 'int') inp.inputMode = 'decimal';
+    var mark = el('span', 'mark');
+    wrap.appendChild(inp); wrap.appendChild(mark);
+    var f = { id: id, type: item.t, answer: item.a, alt: item.alt, input: inp, mark: mark, exo: exo, state: null };
+    fields.push(f);
+    if (saved[id]) inp.value = saved[id];
+    function check(final){
+      var v = inp.value;
+      if (!strip(v)) { setState(f, null); return; }
+      setState(f, isRight(f.type, v, f.answer, f.alt) ? 'ok' : (final ? 'ko' : (f.state === 'ko' ? 'ko' : null)));
+    }
+    inp.addEventListener('input', function(){ check(false); persist(); });
+    inp.addEventListener('change', function(){ check(true); refresh(); });
+    inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') { check(true); refresh(); } });
+    f.check = function(){ check(true); };
+    return wrap;
+  }
+  function setState(f, st){
+    f.state = st;
+    f.input.classList.toggle('ok', st === 'ok'); f.input.classList.toggle('ko', st === 'ko');
+    f.mark.className = 'mark' + (st ? ' ' + st : ''); f.mark.textContent = st === 'ok' ? '✓' : st === 'ko' ? '✗' : '';
+    refresh();
+  }
+  function makeMcq(id, g, exo){
+    var box = el('div', 'mcq');
+    box.appendChild(el('div', 'qt', g.q));
+    var opts = el('div', 'opts');
+    g.opts.forEach(function(o, i){
+      var lab = el('label', i === g.ok ? 'right' : ''); var r = el('input'); r.type = 'radio'; r.name = id; r.value = i;
+      lab.appendChild(r); lab.appendChild(el('span', null, o)); opts.appendChild(lab);
+      r.addEventListener('change', function(){ mark(); persist(); refresh(); });
+    });
+    box.appendChild(opts);
+    if (g.expl) box.appendChild(el('div', 'expl', '→ ' + g.expl));
+    var m = { id: id, box: box, ok: g.ok, exo: exo, state: null };
+    function mark(){
+      var c = box.querySelector('input:checked');
+      box.querySelectorAll('label').forEach(function(l){ l.classList.toggle('checked', l.querySelector('input').checked); });
+      m.state = c ? (+c.value === g.ok ? 'ok' : 'ko') : null;
+      box.classList.toggle('ok', m.state === 'ok'); box.classList.toggle('ko', m.state === 'ko');
+    }
+    m.check = mark;
+    if (saved[id] != null) { var r0 = box.querySelector('input[value="' + saved[id] + '"]'); if (r0) r0.checked = true; }
+    mark();
+    mcqs.push(m);
+    return box;
+  }
+  function makeOpen(id, g){
+    var box = el('div', 'open'); box.appendChild(el('div', 'qt', g.q));
+    var ta = el('textarea'); ta.dataset.id = id; if (saved[id]) ta.value = saved[id]; ta.addEventListener('input', persist); box.appendChild(ta);
+    var b = el('button', 'rev', 'Voir une réponse modèle'); b.type = 'button';
+    var mod = el('div', 'modele', g.modele);
+    b.addEventListener('click', function(){ mod.classList.toggle('show'); b.textContent = mod.classList.contains('show') ? 'Masquer la réponse modèle' : 'Voir une réponse modèle'; });
+    box.appendChild(b); box.appendChild(mod); return box;
+  }
+
+  var root = document.getElementById('exos');
+  TD.forEach(function(ex, xi){
+    var sec = el('section', 'exo'); sec.id = ex.id;
+    sec.appendChild(el('h2', null, '<span class="pn">' + (xi + 1) + '</span> ' + ex.titre + ' <span class="cnt"></span>'));
+    ex.groupes.forEach(function(g, gi){
+      var host = sec;
+      if (g.repli) { var d = el('details', 'repli'); d.appendChild(el('summary', null, g.repli)); sec.appendChild(d); host = d; }
+      if (g.type === 'fig') { host.appendChild(el('div', 'fig', g.html + (g.cap ? '<div class="cap">' + g.cap + '</div>' : ''))); return; }
+      if (g.type === 'rappel') { host.appendChild(el('div', 'rappel', g.texte)); return; }
+      if (g.type === 'html') { host.appendChild(el('div', null, g.html)); return; }
+      if (g.consigne) host.appendChild(el('div', 'consigne', g.consigne));
+      if (g.type === 'qs') {
+        var qs = el('div', 'qs');
+        g.items.forEach(function(it, ii){
+          var id = ex.id + '_' + gi + '_' + ii;
+          var row = el('div', 'q');
+          row.appendChild(el('div', 'lab', it.lab + (it.small ? '<small>' + it.small + '</small>' : '')));
+          row.appendChild(makeField(id, it, sec));
+          row.appendChild(el('div', 'sol', '→ ' + showAns(it.a)));
+          qs.appendChild(row);
+        });
+        host.appendChild(qs);
+      } else if (g.type === 'mcq') {
+        host.appendChild(makeMcq(ex.id + '_' + gi, g, sec));
+      } else if (g.type === 'open') {
+        host.appendChild(makeOpen(ex.id + '_' + gi, g));
+      }
+    });
+    var foot = el('div', 'exfoot');
+    var b1 = el('button', null, 'Vérifier cet exercice'); b1.type = 'button';
+    b1.addEventListener('click', function(){ fields.filter(function(f){ return f.exo === sec; }).forEach(function(f){ f.check(); }); refresh(); });
+    var b2 = el('button', null, 'Voir les réponses'); b2.type = 'button';
+    b2.addEventListener('click', function(){ sec.classList.toggle('solved'); b2.textContent = sec.classList.contains('solved') ? 'Masquer les réponses' : 'Voir les réponses'; });
+    foot.appendChild(b1); foot.appendChild(b2); sec.appendChild(foot);
+    root.appendChild(sec);
+  });
+
+  /* ================= score ================= */
+  function refresh(){
+    var all = fields.concat(mcqs), ok = all.filter(function(f){ return f.state === 'ok'; }).length;
+    document.getElementById('sOk').textContent = ok; document.getElementById('sTot').textContent = all.length;
+    document.getElementById('sBar').style.width = (all.length ? 100 * ok / all.length : 0) + '%';
+    document.querySelectorAll('.exo').forEach(function(sec){
+      var mine = all.filter(function(f){ return f.exo === sec; }), k = mine.filter(function(f){ return f.state === 'ok'; }).length;
+      var c = sec.querySelector('.cnt'); c.textContent = k + ' / ' + mine.length; c.classList.toggle('full', k === mine.length && mine.length > 0);
+    });
+  }
+  document.getElementById('btnCheck').addEventListener('click', function(){ fields.forEach(function(f){ f.check(); }); mcqs.forEach(function(m){ m.check(); }); refresh(); });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if (!confirm('Effacer toutes vos réponses ?')) return;
+    fields.forEach(function(f){ f.input.value = ''; setState(f, null); });
+    mcqs.forEach(function(m){ m.box.querySelectorAll('input').forEach(function(r){ r.checked = false; }); m.check(); });
+    document.querySelectorAll('textarea[data-id]').forEach(function(t){ t.value = ''; });
+    document.querySelectorAll('.exo.solved').forEach(function(s){ s.classList.remove('solved'); });
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    refresh();
+  });
+  fields.forEach(function(f){ if (f.input.value) f.check(); });
+  refresh();
+
+  /* accès aux réponses pour les tests (console) */
+  window.__tdReseaux = { TD: TD, isRight: isRight };
+})();
+</script>
+</body>
+</html>
