@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Routage : RIP et OSPF</title>
+<link rel="icon" type="image/png" href="../../logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="anim.css">
+<script defer src="anim.js"></script>
+<style>
+  .tabs { position: fixed; top: calc(var(--topbar-h, 70px) + 26px); left: 50%; transform: translateX(-50%); z-index: 5;
+    display: flex; gap: 4px; padding: 5px; border-radius: 14px; }
+  .tab { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: 13.5px;
+    padding: 0 18px; height: 36px; border-radius: 10px; cursor: pointer; transition: .2s; white-space: nowrap; }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,.06); }
+  .tab.on { color: #fff; background: var(--grad-main); box-shadow: 0 6px 18px rgba(108,158,255,.35); }
+
+  #stage { position: fixed; left: 16px; right: 16px; top: calc(var(--topbar-h, 70px) + 82px); bottom: calc(var(--toolbar-h, 62px) + 30px); z-index: 2;
+    display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 14px; }
+  body.embed #stage { top: 62px; left: 8px; right: 8px; bottom: calc(var(--toolbar-h, 62px) + 16px); gap: 10px; }
+  body.embed .tabs { top: 10px; }
+  body.embed .topbar, body.embed .orbs { display: none; }
+  body.embed .toolbar { bottom: 8px; }
+  /* centrée par left: 50 %, la barre n'aurait que la moitié de la largeur : on lui laisse sa largeur naturelle */
+  .toolbar { width: max-content; }
+
+  /* ── Panneau du réseau ── */
+  #graphPanel { position: relative; overflow: hidden; min-height: 0; container-type: inline-size; }
+  #graph { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #canvasTop { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 3; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px; pointer-events: none; }
+  #canvasTop > * { pointer-events: auto; }
+  #modeBar { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 12px; }
+  .seg { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: 12px;
+    padding: 0 11px; height: 30px; border-radius: 9px; cursor: pointer; transition: .2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .seg:hover { color: var(--text); background: rgba(255,255,255,.06); }
+  .seg.on { color: #fff; background: rgba(255,255,255,.12); }
+  .seg.on.sel, .seg.on.start { color: #cfe0ff; box-shadow: inset 0 0 0 1px rgba(108,158,255,.6); }
+  .seg.on.target { color: #ffd0e6; box-shadow: inset 0 0 0 1px rgba(255,79,163,.6); }
+  .seg.on.cut { color: #ffb4c2; box-shadow: inset 0 0 0 1px rgba(255,92,122,.6); }
+  .seg.on.rate { color: #ffe8a8; box-shadow: inset 0 0 0 1px rgba(255,197,61,.6); }
+  .seg i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+  .seg .sh { display: none; }
+  #chips { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; pointer-events: none; }
+  .mini { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; color: var(--muted);
+    border: 1px solid var(--border); background: var(--glass-strong); white-space: nowrap; }
+  .mini b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .mini i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .mini.ok { color: var(--teal); border-color: rgba(46,230,197,.45); }
+  .mini.warn { color: #ffb4c2; border-color: rgba(255,92,122,.45); }
+  #canvasBottom { position: absolute; left: 10px; right: 10px; bottom: 8px; z-index: 3; display: flex; align-items: flex-end; gap: 8px; pointer-events: none; }
+  #graphHint { flex: 1; font-size: 12px; color: var(--muted); text-align: center; line-height: 1.35; }
+  #bRestore { pointer-events: auto; display: none; }
+  #bRestore.show { display: inline-flex; }
+
+  /* ── Colonne latérale ── */
+  #side { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; padding-right: 2px; }
+  .card { padding: 14px 16px; flex: 0 0 auto; }
+  .card h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .card h4 .r { margin-left: auto; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--muted); white-space: nowrap; }
+  .tw { overflow: auto; border-radius: 10px; }
+  #tableWrap { overflow: auto; max-height: 300px; border-radius: 10px; }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; font-variant-numeric: tabular-nums; font-size: 13.5px; }
+  th, td { padding: 7px 6px; text-align: center; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { position: sticky; top: 0; background: rgba(20,23,34,.96); font-weight: 800; font-size: 12.5px; z-index: 1; }
+
+  /* tables de routage */
+  .rt th, .rt td { text-align: left; padding: 6px 10px; }
+  .rt th { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; }
+  .rt th:last-child, .rt td:last-child { text-align: right; }
+  .rt tbody tr[data-d] { cursor: pointer; }
+  .rt tbody tr[data-d]:hover td { background: rgba(46,230,197,.08); }
+  .rt tbody tr.pin td { background: rgba(46,230,197,.16); }
+  .rt tbody tr.chg td { animation: flash 1.9s ease-out; }
+  .rt tbody tr.chg td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
+  .rt td.dst { font-weight: 800; }
+  .rt td.gw { color: #d9b8ff; font-weight: 700; }
+  .rt td.dd { font-weight: 800; }
+  .rt td.inf { color: rgba(255,255,255,.38); font-weight: 600; }
+  .rt td.none { color: rgba(255,255,255,.35); text-align: center !important; font-size: 12.5px; white-space: normal; }
+  @keyframes flash { 0%, 25% { background: rgba(255,197,61,.38); } 100% { background: transparent; } }
+  .note { margin-top: 7px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .trace { margin-top: 8px; font-size: 12.5px; line-height: 1.45; color: var(--muted); min-height: 18px; }
+  .trace .ok { color: var(--teal); font-weight: 700; } .trace .bad { color: #ffb4c2; font-weight: 800; } .trace b { color: #fff; }
+
+  /* journal RIP */
+  #ripLog { max-height: 230px; overflow: auto; }
+  .ll { font-size: 12.5px; line-height: 1.45; padding: 4px 8px 4px 10px; border-radius: 8px; color: #d8dbe6; border-left: 3px solid transparent; margin-bottom: 3px; }
+  .ll.add, .ll.better { border-left-color: var(--teal); }
+  .ll.gw { border-left-color: var(--amber); }
+  .ll.ev { border-left-color: var(--red); background: rgba(255,92,122,.08); }
+  .ll.evup { border-left-color: var(--teal); background: rgba(46,230,197,.07); }
+  .ll.head, .ll.sum { color: var(--muted); }
+  .ll[data-l]:hover { background: rgba(108,158,255,.10); }
+  .ll b { color: #fff; } .ll .ok { color: var(--teal); font-weight: 700; } .ll .warn { color: var(--amber); font-weight: 700; }
+  .ll .was { color: var(--muted); font-size: 11.5px; }
+
+  /* base de données topologique OSPF */
+  .dbinfo { font-size: 12.5px; color: #d8dbe6; line-height: 1.5; }
+  .dbinfo .muted { color: var(--muted); } .dbinfo .ok { color: var(--teal); font-weight: 700; }
+  .links { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .lk { font-size: 12px; padding: 3px 8px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,.04); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .lk b { color: var(--teal); }
+  .lk.own { border-color: rgba(108,158,255,.5); }
+  .lk.new { border-color: rgba(46,230,197,.6); background: rgba(46,230,197,.14); animation: popin2 .35s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes popin2 { from { transform: scale(.5); opacity: 0; } }
+
+  /* tableau de Dijkstra (comme dijkstra.html) */
+  #tbl th.v { color: var(--text); } #tbl th.v.start { color: var(--blue); }
+  #tbl th.step, #tbl td.step { color: var(--muted); font-size: 11px; font-weight: 700; text-align: left; padding-left: 8px; }
+  #tbl th.pick, #tbl td.pick { border-left: 1px solid var(--border); font-weight: 800; }
+  #tbl td .d { font-weight: 700; }
+  #tbl td .p { font-size: 10.5px; color: var(--muted); margin-left: 2px; vertical-align: sub; }
+  #tbl td.init .d { color: var(--text); }
+  #tbl td.keep .d { color: rgba(255,255,255,.45); } #tbl td.keep .p { color: rgba(255,255,255,.3); }
+  #tbl td.update .d { color: var(--pink); } #tbl td.update .p { color: #ff9ccb; }
+  #tbl td.fixedcol { color: rgba(255,255,255,.18); background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(255,255,255,.035) 6px 8px); }
+  #tbl td.chosen .d { color: #06201c; background: var(--grad-win); border-radius: 999px; padding: 2px 9px; box-shadow: 0 4px 14px rgba(46,230,197,.4); }
+  #tbl td.chosen .p { color: var(--teal); }
+  #tbl td.hot { background: rgba(255,197,61,.12); }
+  #tbl td.empty::after { content: '·'; color: rgba(255,255,255,.15); }
+  #tbl td.pick { color: var(--teal); }
+  #tbl tr.cur td { background: rgba(108,158,255,.05); }
+  #tbl.dense th, #tbl.dense td { padding: 6px 3px; font-size: 12px; }
+  #tbl.dense td .p { font-size: 9.5px; }
+  #tbl.dense td.chosen .d { padding: 2px 6px; }
+
+  /* comparaison */
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 13px; }
+  .kv .k { color: var(--muted); }
+  .kv .v { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kv .v small { color: var(--muted); font-weight: 500; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .cmpcard.rip { border-color: rgba(255,197,61,.35); } .cmpcard.ospf { border-color: rgba(46,230,197,.35); }
+  .cmpcard.rip .route { color: #ffe08a; } .cmpcard.ospf .route { color: #7df5df; }
+  .rank.first { color: var(--teal); }
+
+  #explain { font-size: 13.5px; line-height: 1.5; color: #d8dbe6; min-height: 40px; }
+  #explain b { color: #fff; } #explain .ok { color: var(--teal); font-weight: 700; } #explain .no { color: #ffb4c2; font-weight: 700; }
+  #explain .u { color: var(--amber); font-weight: 800; } #explain .v { color: var(--pink); font-weight: 800; }
+  #explain .muted { color: var(--muted); font-size: 12.5px; }
+  #explain p { margin: 0 0 6px; }
+
+  #code { margin: 0; padding: 0; list-style: none; font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; counter-reset: ln; font-variant-ligatures: none; overflow-x: auto; }
+  #code li { display: flex; gap: 10px; padding: 1px 8px; border-radius: 6px; white-space: pre; }
+  #code li::before { counter-increment: ln; content: counter(ln); color: rgba(255,255,255,.22); min-width: 18px; text-align: right; }
+  #code li.hl { background: rgba(108,158,255,.18); box-shadow: inset 3px 0 0 var(--blue); }
+  .kw { color: #c792ea; } .fn { color: #82aaff; } .nb { color: #f78c6c; } .st { color: #c3e88d; }
+
+  /* ── Barre d'outils ── */
+  select.btn { padding-right: 32px; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 18px, calc(100% - 11px) 18px; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; max-width: 260px; text-overflow: ellipsis; }
+  select.btn option { background: #181b24; color: var(--text); }
+  .slider { display: inline-flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,.04); }
+  .slider .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 104px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.15); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--grad-main); border: 2px solid #fff; box-shadow: 0 2px 10px rgba(108,158,255,.6); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--grad-main); border: 2px solid #fff; cursor: pointer; }
+  .sw { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,.04);
+    font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap; transition: .2s; }
+  .sw input { accent-color: var(--violet); width: 16px; height: 16px; margin: 0; cursor: pointer; }
+  .sw:hover { color: var(--text); }
+  .sw.on { color: #e9d8ff; border-color: rgba(181,123,255,.5); }
+
+  /* ── Mise en page selon la largeur ── */
+  @container (max-width: 640px) {
+    .seg .lg { display: none; } .seg .sh { display: inline; }
+  }
+  @container (max-width: 700px) {
+    #chips.cmp { display: none; }   /* les cartes latérales donnent déjà ces chiffres */
+  }
+  @container (max-width: 420px) {
+    #chips { display: none; }
+    .seg { padding: 0 8px; font-size: 11.5px; }
+  }
+  @media (max-width: 1100px) {
+    #stage { grid-template-columns: minmax(0, 1fr) minmax(320px, 0.75fr); }
+    input[type=range] { width: 88px; }
+    select.btn { max-width: 230px; }
+  }
+  @media (max-width: 900px) {
+    .sw, .slider { height: 38px; }
+    select.btn { background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px; }
+  }
+  @media (max-width: 760px) {
+    #stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr); gap: 10px; }
+    body.embed #stage { top: 58px; }
+    .seg .lg { display: none; } .seg .sh { display: inline; }
+    .tab { padding: 0 14px; font-size: 12.5px; height: 32px; }
+  }
+  @media (max-width: 600px) {
+    .titleblock { flex: 1 1 auto; }
+    .titleblock h1 { font-size: 15px; overflow: hidden; text-overflow: ellipsis; }
+    .spacer { flex: 0 0 0; }
+    .chipset { gap: 6px; } .chipset .btn.sm { padding: 0 10px; }
+    .back { padding: 8px 6px; }
+    #stage { left: 8px; right: 8px; }
+    .toolbar { left: 8px; right: 8px; transform: none; max-width: none; width: auto; gap: 6px; padding: 6px; }
+    .toolbar .sep, .slider .lbl { display: none; }
+    .slider { padding: 0 8px; gap: 6px; }
+    input[type=range] { width: 70px; }
+    select.btn { max-width: 150px; }
+    .toolbar .btn.icon { width: 36px; }
+    .sw { padding: 0 9px; font-size: 12.5px; }
+    #chips, #graphHint { display: none; }
+    #modeBar { padding: 3px; }
+    .seg { height: 26px; padding: 0 8px; font-size: 11.5px; }
+    .card { padding: 10px 12px; }
+    #side { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+
+<div class="topbar glass">
+  <a class="back" href="../index.html">← NSI</a>
+  <div class="titleblock">
+    <h1 id="tTitle">Routage : RIP et OSPF</h1>
+    <p id="tHint"></p>
+  </div>
+  <div class="spacer"></div>
+  <div class="chipset">
+    <a class="btn sm" id="bCours" href="../terminale/chapitre_reseaux/cours-reseaux.html">Cours</a>
+    <button id="bInfo" class="btn sm">Info</button>
+  </div>
+</div>
+
+<div class="tabs glass" id="tabs">
+  <button class="tab on" data-m="rip">RIP</button>
+  <button class="tab" data-m="ospf">OSPF</button>
+  <button class="tab" data-m="comparer">Comparer</button>
+</div>
+<div id="msg" class="toast glass" style="top: calc(var(--topbar-h, 70px) + 80px);"></div>
+
+<div id="stage">
+  <div id="graphPanel" class="glass">
+    <canvas id="graph" aria-label="Réseau de routeurs"></canvas>
+    <div id="canvasTop">
+      <div id="modeBar" class="glass">
+        <button class="seg sel" data-a="select" data-tabs="rip ospf" title="Sélectionner un routeur"><i style="background:var(--blue)"></i><span class="lg">Sélectionner</span><span class="sh">Choisir</span></button>
+        <button class="seg start" data-a="start" data-tabs="comparer" title="Choisir le routeur de départ"><i style="background:var(--blue)"></i><span class="lg">Départ</span><span class="sh">Départ</span></button>
+        <button class="seg target" data-a="target" data-tabs="comparer" title="Choisir le routeur d’arrivée"><i style="background:var(--pink)"></i><span class="lg">Arrivée</span><span class="sh">Arrivée</span></button>
+        <button class="seg cut" data-a="cut" data-tabs="rip ospf comparer" title="Couper / rétablir un lien"><i style="background:var(--red)"></i><span class="lg">Couper / rétablir un lien</span><span class="sh">Couper</span></button>
+        <button class="seg rate" data-a="rate" data-tabs="ospf comparer" title="Changer le débit d’un lien"><i style="background:var(--amber)"></i><span class="lg">Changer un débit</span><span class="sh">Débit</span></button>
+      </div>
+      <div id="chips"></div>
+    </div>
+    <div id="canvasBottom">
+      <div id="graphHint"></div>
+      <button id="bRestore" class="btn sm" title="Rétablir tous les liens et les débits d’origine">↺ Rétablir le réseau</button>
+    </div>
+  </div>
+
+  <div id="side">
+    <!-- RIP -->
+    <div class="card glass" id="ripTableCard" data-tabs="rip">
+      <h4><span id="hRipTable">Table de routage</span><span class="r" id="hRipTableR"></span></h4>
+      <div class="tw"><table id="ripTbl" class="rt"></table></div>
+      <div class="note" id="ripUnknown"></div>
+      <div class="trace" id="ripTrace"></div>
+    </div>
+    <div class="card glass" id="ripLogCard" data-tabs="rip">
+      <h4><span id="hRipLog">Ce que R1 a reçu à ce tour</span><span class="r" id="hRipLogR"></span></h4>
+      <div id="ripLog"></div>
+    </div>
+
+    <!-- OSPF -->
+    <div class="card glass" id="ospfRouteCard" data-tabs="ospf">
+      <h4><span id="hOspfTable">Table de routage</span><span class="r">OSPF</span></h4>
+      <div class="tw"><table id="ospfTbl" class="rt"></table></div>
+      <div class="trace" id="ospfTrace"></div>
+    </div>
+    <div class="card glass" id="dijCard" data-tabs="ospf">
+      <h4><span id="hDij">Dijkstra</span><span class="r" id="hDijR"></span></h4>
+      <div id="tableWrap"><table id="tbl"></table></div>
+    </div>
+
+    <!-- Comparer -->
+    <div class="card glass cmpcard rip" id="cmpRip" data-tabs="comparer">
+      <h4><i class="dot" style="background:var(--amber)"></i>RIP · le moins de sauts<span class="r" id="cmpRipR"></span></h4>
+      <div class="kv" id="cmpRipKv"></div>
+    </div>
+    <div class="card glass cmpcard ospf" id="cmpOspf" data-tabs="comparer">
+      <h4><i class="dot" style="background:var(--teal)"></i>OSPF · le plus petit coût<span class="r" id="cmpOspfR"></span></h4>
+      <div class="kv" id="cmpOspfKv"></div>
+    </div>
+
+    <!-- commun -->
+    <div class="card glass" id="explainCard" data-tabs="rip ospf comparer">
+      <h4 id="hExplain">Étape</h4>
+      <div id="explain"></div>
+    </div>
+    <div class="card glass" id="codeCard" data-tabs="rip ospf">
+      <h4><span id="hCode">Python</span><span class="r" id="hCodeR"></span></h4>
+      <ol id="code"></ol>
+    </div>
+    <div class="card glass" id="dbCard" data-tabs="ospf">
+      <h4><span id="hDb">Base de données topologique</span><span class="r" id="hDbR"></span></h4>
+      <div id="db" class="dbinfo"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar glass">
+  <select id="preset" class="btn" title="Réseau prédéfini"></select>
+  <label class="sw" id="swSplitWrap" data-tabs="rip" title="Un routeur n’annonce pas à un voisin les routes qui passent par ce voisin"><input type="checkbox" id="swSplit"> Horizon partagé</label>
+  <div class="sep"></div>
+  <div class="slider"><span class="lbl">vitesse</span><input type="range" id="rSpeed" min="0" max="100" value="45" aria-label="vitesse"></div>
+  <button id="bReset" class="btn icon" title="Réinitialiser">⏮</button>
+  <button id="bPlay" class="btn teal">▶ Lancer</button>
+  <button id="bStep" class="btn icon" title="Tour suivant" data-tabs="rip ospf">⏭</button>
+</div>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="modal glass">
+    <button id="close" class="close" aria-label="Fermer">×</button>
+    <div id="infoContent">
+<h2>Routage : RIP et OSPF</h2>
+<p>Un routeur transmet chaque paquet au routeur suivant, la <b>passerelle</b>, indiquée par sa <b>table de routage</b>. Plutôt que de remplir ces tables à la main (routage statique), on laisse les routeurs dialoguer entre eux grâce à un <b>protocole de routage</b> : ils découvrent le réseau et construisent leurs tables tout seuls.</p>
+<h3>RIP : vecteur de distance</h3>
+<p>RIP (<i>Routing Information Protocol</i>) est un protocole à <b>vecteur de distance</b> : c’est l’algorithme de Bellman-Ford exécuté de façon distribuée. Un routeur ne voit pas le réseau : il ne connaît que ce que lui disent ses voisins. Toutes les <b>30 s</b>, chaque routeur envoie sa table entière à ses voisins. Si un voisin annonce une destination à <i>d</i> sauts, on peut l’atteindre en <i>d</i> + 1 sauts en passant par lui : on garde la meilleure offre.</p>
+<p>La métrique est le <b>nombre de sauts</b> (de liens à traverser), sans tenir compte des débits. Elle est limitée à <b>15 sauts</b> : <b>16 signifie « infini »</b> (destination injoignable). La convergence est <b>lente</b> (plusieurs fois 30 s). Après une panne, des routeurs peuvent se renvoyer une route qui n’existe plus en augmentant la distance à chaque échange : c’est le <b>comptage à l’infini</b>, arrêté à 16. L’<b>horizon partagé</b> (<i>split horizon</i>) limite le problème : on n’annonce pas à un voisin les routes qui passent par lui. RIP est réservé aux petits réseaux.</p>
+<h3>OSPF : état de liens</h3>
+<p>OSPF (<i>Open Shortest Path First</i>) est un protocole à <b>état de liens</b>. Chaque routeur découvre ses voisins grâce à des messages <b>Hello</b> (toutes les 10 s), décrit ses liens et leurs coûts dans un <b>LSA</b> (<i>Link State Advertisement</i>) qu’il <b>inonde</b> dans tout le réseau. Chaque routeur possède ainsi la <b>carte complète</b> du réseau et calcule lui-même les plus courts chemins avec l’<b>algorithme de Dijkstra</b>.</p>
+<p>Le coût d’un lien vaut <b>10<sup>8</sup> / débit</b> (débit en bit/s) : 100 Mb/s → 1, 50 Mb/s → 2, 20 Mb/s → 5, 10 Mb/s → 10, 1 Mb/s → 100. La valeur de référence (ici 10<sup>8</sup>) peut varier selon les sujets : lisez bien l’énoncé. Un grand réseau est découpé en <b>aires</b> (zones) pour limiter l’inondation. Au moindre changement, un nouveau LSA est inondé et chacun recalcule ses routes : la <b>convergence est rapide</b>.</p>
+<h3>Simplifications de l’animation</h3>
+<p>Les destinations sont les routeurs eux-mêmes (chacun représente les réseaux qui lui sont attachés). Une panne est détectée <b>immédiatement</b> par les deux extrémités du lien (en vrai, RIP attend 180 s sans nouvelles). Les échanges RIP sont <b>synchrones</b> : au début de chaque tour, tous les routeurs envoient leur table en même temps, puis chacun traite les vecteurs reçus dans l’ordre de ses voisins (R1, R2…) ; en cas d’égalité, la route déjà en place est conservée. Les routes à 16 restent affichées (en vrai, elles sont effacées au bout de 120 s).</p>
+<h3>Commandes</h3>
+<p>Onglet <b>RIP</b> : ⏭ fait un tour d’échanges, ▶ enchaîne les tours jusqu’à la convergence. Survolez ou cliquez une ligne de la table : la route réellement suivie par un paquet s’affiche (chaque routeur traversé consulte sa propre table). Onglet <b>OSPF</b> : Hello, inondation des LSA, Dijkstra pas à pas, puis table de routage. Onglet <b>Comparer</b> : les routes choisies par RIP et par OSPF entre un départ et une arrivée ; deux paquets avancent d’autant plus lentement que les liens sont lents.</p>
+<p>Sur le réseau : <b>Sélectionner</b> un routeur, <b>Couper / rétablir</b> un lien, <b>Changer le débit</b> d’un lien (1 → 10 → 20 → 50 → 100 Mb/s). Les routeurs se déplacent à la souris.</p>
+<p><span class="kbd">Espace</span> lancer / pause · <span class="kbd">→</span> une étape · <span class="kbd">Échap</span> fermer cette fenêtre</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Logique pure ============ -->
+<script id="logic">
+// Un réseau : des routeurs (R1, R2…) et des liens {a, b, rate (débit en Mb/s), down (en panne)}.
+// Toutes les fonctions ignorent les liens en panne.
+const INF = 16;                          // RIP : 16 sauts = infini (destination injoignable)
+const RATES = [1, 10, 20, 50, 100];      // débits possibles (Mb/s)
+function cost(rate) { return 1e8 / (rate * 1e6); }   // coût OSPF = 10^8 / débit en bit/s
+function nextRate(rate) { const i = RATES.indexOf(rate); return RATES[(i + 1) % RATES.length]; }
+function idNum(id) { return parseInt(String(id).replace(/\D/g, ''), 10) || 0; }
+function byId(a, b) { return idNum(a) - idNum(b) || (a < b ? -1 : a > b ? 1 : 0); }   // R2 < R10
+function sameLink(e, a, b) { return (e.a === a && e.b === b) || (e.a === b && e.b === a); }
+function linkUp(edges, a, b) { return edges.some(e => !e.down && sameLink(e, a, b)); }
+// Voisins de u par des liens en état de marche, dans l'ordre numérique.
+function neighbors(edges, u) {
+  const out = [];
+  for (const e of edges) {
+    if (e.down) continue;
+    if (e.a === u) out.push({ v: e.b, rate: e.rate, w: cost(e.rate) });
+    else if (e.b === u) out.push({ v: e.a, rate: e.rate, w: cost(e.rate) });
+  }
+  return out.sort((p, q) => byId(p.v, q.v));
+}
+
+// Réseaux prédéfinis : coordonnées normalisées (x, y ∈ [0, 1]) et débits en Mb/s.
+const PRESETS = {
+  p1: { V: [['R1', .06, .50], ['R2', .30, .16], ['R3', .30, .84], ['R4', .55, .16], ['R5', .60, .84], ['R6', .80, .16], ['R7', .94, .50]],
+        E: [['R1', 'R2', 100], ['R1', 'R3', 10], ['R2', 'R3', 20], ['R2', 'R4', 100], ['R3', 'R5', 10], ['R4', 'R5', 50], ['R4', 'R6', 100], ['R5', 'R7', 10], ['R6', 'R7', 100]],
+        clouds: [{ at: 'R1', t: 'LAN lycée', s: '192.168.1.0/24' }, { at: 'R7', t: 'Serveur web', s: '203.0.113.10' }],
+        dep: 'R1', arr: 'R7' },
+  p2: { V: [['R1', .04, .50], ['R2', .20, .15], ['R3', .20, .85], ['R4', .38, .50], ['R5', .50, .12], ['R6', .52, .88], ['R7', .68, .50], ['R8', .80, .12], ['R9', .82, .88], ['R10', .96, .50]],
+        E: [['R1', 'R2', 100], ['R1', 'R3', 10], ['R2', 'R4', 100], ['R3', 'R4', 20], ['R2', 'R5', 10], ['R3', 'R6', 100], ['R4', 'R7', 10], ['R5', 'R7', 100], ['R5', 'R8', 50], ['R6', 'R7', 100], ['R6', 'R9', 10], ['R7', 'R10', 20], ['R8', 'R10', 100], ['R9', 'R10', 100]],
+        dep: 'R1', arr: 'R10' },
+  // anneau : centre (0.5, 0.5), rayons 0.42 et 0.40, R1 à gauche puis sens horaire
+  p3: { V: [0, 1, 2, 3, 4, 5].map(i => { const t = Math.PI * (1 + i / 3); return ['R' + (i + 1), Math.round((0.5 + 0.42 * Math.cos(t)) * 1000) / 1000, Math.round((0.5 + 0.40 * Math.sin(t)) * 1000) / 1000]; }),
+        E: [['R1', 'R2', 100], ['R2', 'R3', 100], ['R3', 'R4', 10], ['R4', 'R5', 100], ['R5', 'R6', 100], ['R6', 'R1', 100]],
+        dep: 'R1', arr: 'R4' },
+};
+
+// ───── RIP (vecteur de distance) ─────
+// tables[u][D] = {gw, d} : pour aller vers D, u transmet à la passerelle gw ; distance d (en sauts).
+function ripInit(ids, edges) {
+  const tables = {};
+  for (const u of ids) { tables[u] = {}; for (const { v } of neighbors(edges, u)) tables[u][v] = { gw: v, d: 1 }; }
+  return tables;
+}
+function cloneTables(tables) {
+  const c = {};
+  for (const u in tables) { c[u] = {}; for (const D in tables[u]) c[u][D] = { gw: tables[u][D].gw, d: tables[u][D].d }; }
+  return c;
+}
+// Vecteur que v envoie à son voisin « to » : lui-même à distance 0, puis toutes ses destinations.
+// Horizon partagé : v n'annonce pas à « to » les routes dont la passerelle est « to ».
+function ripVector(tables, v, to, split) {
+  const vec = [[v, 0]];
+  for (const D of Object.keys(tables[v] || {}).sort(byId)) {
+    if (split && tables[v][D].gw === to) continue;
+    vec.push([D, tables[v][D].d]);
+  }
+  return vec;
+}
+// Un tour (30 s) : tous les routeurs envoient en même temps leur vecteur (état au DÉBUT du tour),
+// puis chacun traite les vecteurs reçus, voisins dans l'ordre numérique.
+function ripRound(ids, edges, tables, split) {
+  const next = cloneTables(tables), log = {}, changed = {};
+  let n = 0;
+  for (const u of ids) {
+    log[u] = [];
+    if (!next[u]) next[u] = {};
+    for (const { v } of neighbors(edges, u)) {
+      for (const [D, d] of ripVector(tables, v, u, split)) {
+        if (D === u) continue;
+        const nouvelle = Math.min(d + 1, INF), cur = next[u][D];
+        let action = 'ignore';
+        if (!cur) { if (nouvelle < INF) action = 'add'; }            // destination nouvelle
+        else if (nouvelle < cur.d) action = 'better';                 // meilleure route
+        else if (cur.gw === v && nouvelle !== cur.d) action = 'gw';   // la passerelle a changé d'avis : on la croit
+        log[u].push({ from: v, dest: D, d, nouvelle, action, old: cur ? { gw: cur.gw, d: cur.d } : null });
+        if (action !== 'ignore') next[u][D] = { gw: v, d: nouvelle };
+      }
+    }
+    // entrées réellement différentes à la fin du tour
+    changed[u] = Object.keys(next[u]).filter(D => !tables[u] || !tables[u][D] || tables[u][D].gw !== next[u][D].gw || tables[u][D].d !== next[u][D].d).sort(byId);
+    n += changed[u].length;
+  }
+  return { tables: next, log, changed, n };
+}
+// Panne du lien a–b, détectée aussitôt par a et b : leurs routes passant par l'autre extrémité passent à 16.
+function ripLinkDown(tables, a, b) {
+  const lost = {};
+  for (const [x, y] of [[a, b], [b, a]]) {
+    lost[x] = [];
+    for (const D of Object.keys(tables[x] || {}).sort(byId)) {
+      if (tables[x][D].gw === y && tables[x][D].d < INF) { tables[x][D] = { gw: y, d: INF }; lost[x].push(D); }
+    }
+  }
+  return lost;
+}
+// Rétablissement : a et b se réapprennent mutuellement à 1 saut.
+function ripLinkUp(tables, a, b) {
+  tables[a] = tables[a] || {}; tables[b] = tables[b] || {};
+  tables[a][b] = { gw: b, d: 1 }; tables[b][a] = { gw: a, d: 1 };
+}
+// Enchaîne les tours depuis l'instant initial jusqu'à un tour sans aucun changement.
+function ripConverge(ids, edges, split, max = 40) {
+  let tables = ripInit(ids, edges), useful = 0;
+  for (let i = 0; i < max; i++) {
+    const r = ripRound(ids, edges, tables, split);
+    if (r.n === 0) return { tables, useful, converged: true };
+    tables = r.tables; useful++;
+  }
+  return { tables, useful, converged: false };
+}
+// Vraie distance en sauts (parcours en largeur) depuis src ; absente = injoignable.
+function hopDist(edges, src) {
+  const dist = { [src]: 0 }, file = [src];
+  while (file.length) { const u = file.shift(); for (const { v } of neighbors(edges, u)) if (!(v in dist)) { dist[v] = dist[u] + 1; file.push(v); } }
+  return dist;
+}
+// Routes « fantômes » modifiées à ce tour : distance finie mais plus grande que la vraie distance
+// (ou destination injoignable) ; signe d'une information périmée qui circule (comptage à l'infini).
+function ripPhantoms(edges, tables, changed) {
+  const out = [];
+  for (const u in changed) {
+    if (!changed[u].length) continue;
+    const real = hopDist(edges, u);
+    for (const D of changed[u]) { const e = tables[u][D]; if (e && e.d < INF && (!(D in real) || e.d > real[D])) out.push({ u, D, d: e.d }); }
+  }
+  return out;
+}
+// Route réellement suivie par un paquet : chaque routeur traversé consulte SA propre table.
+function ripTrace(tables, src, dest, edges) {
+  const path = [src], seen = new Set([src]);
+  let cur = src;
+  while (cur !== dest) {
+    const e = tables[cur] && tables[cur][dest];
+    if (!e || e.d >= INF || (edges && !linkUp(edges, cur, e.gw))) return { path, status: 'lost', at: cur };
+    path.push(e.gw);
+    if (seen.has(e.gw)) return { path, status: 'loop', at: e.gw };
+    seen.add(e.gw); cur = e.gw;
+  }
+  return { path, status: 'ok', at: dest };
+}
+
+// ───── OSPF (état de liens) ─────
+// Inondation des LSA : à chaque vague, chaque routeur retransmet à ses voisins les LSA reçus
+// à la vague précédente (seulement à ceux qui ne les ont pas encore). origins : routeurs émetteurs.
+function floodPlan(ids, edges, origins) {
+  const known = {}, fresh = {};
+  for (const r of ids) { known[r] = new Set(origins.includes(r) ? [r] : []); fresh[r] = [...known[r]]; }
+  const waves = [], snaps = [];
+  for (let guard = 0; guard <= ids.length; guard++) {
+    const wave = [], incoming = {};
+    for (const r of ids) incoming[r] = new Set();
+    for (const u of ids) {
+      if (!fresh[u].length) continue;
+      for (const { v } of neighbors(edges, u)) {
+        const lsas = fresh[u].filter(o => !known[v].has(o));
+        if (lsas.length) { wave.push({ from: u, to: v, lsas }); lsas.forEach(o => incoming[v].add(o)); }
+      }
+    }
+    if (!wave.length) break;
+    for (const r of ids) { fresh[r] = [...incoming[r]].sort(byId); fresh[r].forEach(o => known[r].add(o)); }
+    waves.push(wave);
+    const snap = {}; for (const r of ids) snap[r] = [...known[r]].sort(byId);
+    snaps.push(snap);
+  }
+  return { waves, snaps };
+}
+// Dijkstra (repris de dijkstra.html) : V liste des sommets, adj(u) -> [{v, w}] ; start, target (ou null).
+// Générateur d'étapes, sans tas : on choisit le sommet non fixé de plus petite distance, comme à la main.
+function* dijkstraSteps(V, adj, start, target) {
+  const dist = {}, pred = {}, fixed = new Set();
+  V.forEach(v => { dist[v] = Infinity; pred[v] = null; });
+  dist[start] = 0;
+  yield { t: 'init', line: 4 };
+  while (fixed.size < V.length) {
+    let u = null;
+    for (const v of V) if (!fixed.has(v) && (u === null || dist[v] < dist[u])) u = v;
+    if (u === null || dist[u] === Infinity) { yield { t: 'done', reached: false, unreachable: true, line: 13 }; return { dist, pred }; }
+    yield { t: 'select', u, d: dist[u], line: 7 };
+    fixed.add(u);
+    yield { t: 'fix', u, d: dist[u], line: 8 };
+    if (u === target) { yield { t: 'done', reached: true, line: 13 }; return { dist, pred }; }
+    if (fixed.size === V.length) break;
+    yield { t: 'newrow', u, line: 9 };
+    for (const { v, w } of adj(u)) {
+      if (fixed.has(v)) { yield { t: 'skip', u, v, w, line: 9 }; continue; }
+      const cand = dist[u] + w, old = dist[v], improved = cand < old;
+      if (improved) { dist[v] = cand; pred[v] = u; }
+      yield { t: 'relax', u, v, w, old, cand, improved, oldPred: improved ? null : pred[v], line: improved ? 11 : 10 };
+    }
+    yield { t: 'copyrest', u, line: 9 };
+  }
+  yield { t: 'done', reached: target != null && fixed.has(target), line: 13 };
+  return { dist, pred };
+}
+function pathTo(pred, start, target) {
+  const p = []; let x = target;
+  while (x != null) { p.unshift(x); if (x === start) return p; x = pred[x]; }
+  return null;
+}
+// Plus courts chemins (coûts OSPF) depuis src : Dijkstra exécuté jusqu'au bout.
+function ospfRun(ids, edges, src) {
+  const g = dijkstraSteps(ids, u => neighbors(edges, u).map(({ v, w }) => ({ v, w })), src, null);
+  let r = g.next();
+  while (!r.done) r = g.next();
+  return r.value;
+}
+// Table de routage OSPF : passerelle = premier routeur du plus court chemin.
+function ospfTable(ids, edges, src) {
+  const { dist, pred } = ospfRun(ids, edges, src);
+  return ids.filter(D => D !== src).map(D => {
+    const path = dist[D] < Infinity ? pathTo(pred, src, D) : null;
+    return { dest: D, gw: path ? path[1] : null, cost: dist[D], path };
+  });
+}
+// Nombre de sauts, coût total et goulot d'étranglement (débit le plus faible) d'une route.
+function routeStats(path, edges) {
+  let total = 0, bottleneck = Infinity;
+  const costs = [];
+  for (let i = 1; i < path.length; i++) {
+    const e = edges.find(x => !x.down && sameLink(x, path[i - 1], path[i]));
+    if (!e) return null;
+    costs.push(cost(e.rate)); total += cost(e.rate); bottleneck = Math.min(bottleneck, e.rate);
+  }
+  return { hops: path.length - 1, cost: total, costs, bottleneck };
+}
+if (typeof module !== 'undefined') module.exports = { INF, RATES, PRESETS, cost, nextRate, idNum, byId, sameLink, linkUp, neighbors, ripInit, cloneTables, ripVector, ripRound, ripLinkDown, ripLinkUp, ripConverge, hopDist, ripPhantoms, ripTrace, floodPlan, dijkstraSteps, pathTo, ospfRun, ospfTable, routeStats };
+</script>
+
+<script>
+const $ = id => document.getElementById(id);
+const q = new URLSearchParams(location.search);
+if (q.get('embed') === '1') document.body.classList.add('embed');
+
+// ─────────────────────── Textes ───────────────────────
+const frList = a => a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' et ' + a[a.length - 1];
+const fd = d => d >= INF ? '16 (∞)' : String(d);
+const pl = (n, s, p) => n > 1 ? (p || s + 's') : s;
+const T = {
+  hint: 'RIP compte les sauts et n’apprend que ce que disent ses voisins ; OSPF connaît la carte complète et calcule ses routes avec Dijkstra. Lancez les échanges, coupez des liens, comparez les routes.',
+  presets: { p1: 'Réseau du cours (7 routeurs)', p2: 'Réseau étendu (10 routeurs)', p3: 'Anneau (6 routeurs)' },
+  play: '▶ Lancer', pause: '⏸ Pause', replay: '↺ Rejouer', race: '▶ Relancer',
+  hints: {
+    select: { rip: 'Clic sur un routeur : afficher sa table de routage. Les routeurs se déplacent à la souris.', ospf: 'Clic sur un routeur : il devient la source du calcul de Dijkstra. Les routeurs se déplacent à la souris.' },
+    cut: 'Clic sur un lien : le couper (panne) ou le rétablir.',
+    rate: 'Clic sur un lien : débit suivant (1 → 10 → 20 → 50 → 100 Mb/s).',
+    start: 'Clic sur un routeur : choisir le départ.',
+    target: 'Clic sur un routeur : choisir l’arrivée.',
+  },
+  rip: {
+    ready: () => `<b>Tour 0 (t = 0 s).</b> Chaque routeur ne connaît que ses voisins directs, à 1 saut. Toutes les 30 s, il enverra sa table entière à ses voisins. <b>⏭</b> : un tour d’échanges ; <b>▶</b> : enchaîner jusqu’à la convergence.`,
+    round: (k, n, cti, split) => `<b>Tour ${k} (t = ${k * 30} s).</b> Chaque routeur a envoyé son vecteur de distances à ses voisins, puis a gardé pour chaque destination la meilleure offre (distance annoncée + 1). <span class="u">${n} ${pl(n, 'entrée')} ${n > 1 ? 'ont' : 'a'} changé</span> dans le réseau.`
+      + (cti ? ` <span class="no">Des distances augmentent : c’est le comptage à l’infini.</span> Des routeurs se renvoient une route qui n’existe plus ; elle ne disparaîtra qu’en atteignant 16.${split ? '' : ' L’horizon partagé limite ce problème.'}` : ''),
+    conv: (k, N, re) => `<b>Tour ${k} (t = ${k * 30} s).</b> Aucune table n’a changé : le réseau a <span class="ok">${re ? 'reconvergé' : 'convergé'}</span> en ${N} ${pl(N, 'tour utile', 'tours utiles')} (≈ ${N * 30} s)${re ? ' après le dernier changement' : ''}. Survolez une ligne de la table pour suivre un paquet.`,
+    down: (a, b) => `<b>Panne du lien ${a}–${b}.</b> ${a} et ${b} la détectent aussitôt : leurs routes qui passaient par l’autre extrémité passent à <b>16 (∞)</b>. Les autres routeurs ne l’apprendront qu’au fil des tours : <b>▶</b> pour voir la reconvergence.`,
+    up: (a, b) => `<b>Lien ${a}–${b} rétabli.</b> ${a} et ${b} se réapprennent mutuellement à 1 saut ; les tours suivants propagent la nouvelle.`,
+    safety: N => `Arrêt de sécurité : ${N} tours sans convergence`,
+    toastConv: (N, re) => `${re ? 'Reconvergence' : 'Convergence'} atteinte : ${N} ${pl(N, 'tour utile', 'tours utiles')} (≈ ${N} × 30 s = ${N * 30} s)`,
+    toastDown: (a, b) => `Panne du lien ${a}–${b} : ${a} et ${b} passent les routes concernées à 16 (∞)`,
+    toastUp: (a, b) => `Lien ${a}–${b} rétabli`,
+    logInit: (s, nb) => nb.length ? `Tour 0 : ${s} n’a encore rien reçu. Il connaît seulement ses voisins directs ${frList(nb)}, à distance 1 (la passerelle est le voisin lui-même).` : `${s} n’a aucun lien en état de marche : sa table est vide.`,
+    logNext: (s, nb) => nb.length ? `⏭ Au prochain tour, ${s} recevra les vecteurs de ${frList(nb)}.` : `${s} n’a plus aucun lien en état de marche : il ne recevra plus rien.`,
+    logHead: (k, s, from) => from.length ? `Tour ${k} : ${s} a reçu le vecteur de ${frList(from)}.` : `Tour ${k} : ${s} n’a reçu aucun vecteur (aucun lien en état de marche).`,
+    logRest: (m, any) => any ? `Autres annonces (${m}) : rien de mieux.` : `Aucune des ${m} annonces reçues n’apporte quelque chose de mieux.`,
+    evDownMe: (a, b, other, lost) => `⚠ Panne du lien ${a}–${b} détectée : les routes via ${other} passent à 16 (∞) : ${frList(lost)}.`,
+    evDownOther: (a, b, s) => `Panne du lien ${a}–${b} : ${s} n’est pas encore au courant, il l’apprendra par les annonces de ses voisins.`,
+    evUpMe: (a, b, other) => `Lien ${a}–${b} rétabli : ${other} redevient joignable directement, à distance 1.`,
+    evUpOther: (a, b, s) => `Lien ${a}–${b} rétabli : ${s} l’apprendra par ses voisins.`,
+  },
+  ospf: {
+    ready: () => `<b>Phase 0.</b> Au démarrage, un routeur OSPF ne connaît rien : ni ses voisins, ni le reste du réseau. <b>⏭</b> : chaque routeur envoie des messages Hello ; <b>▶</b> : tout enchaîner.`,
+    hello: () => `<b>Phase 1 · Hello.</b> Chaque routeur envoie un message <b>Hello</b> sur chacun de ses liens (toutes les 10 s en vrai) : il découvre ses voisins et le coût de chaque lien (10⁸ / débit). Il résume tout cela dans son <b>LSA</b> (<i>Link State Advertisement</i>). <b>⏭</b> : inonder les LSA.`,
+    wave: (k, W, m, N) => `<b>Phase 1 · Inondation, vague ${k}/${W}.</b> Chaque routeur retransmet à ses voisins les LSA qu’il vient de recevoir (sauf à ceux qui les ont déjà). <span class="u">${m} ${pl(m, 'routeur')} sur ${N}</span> ${m > 1 ? 'possèdent' : 'possède'} maintenant la carte complète.`,
+    floodDone: (W, N, complete) => `<b>Inondation terminée en ${W} ${pl(W, 'vague')}.</b> ${complete ? `Les ${N} routeurs possèdent la <span class="ok">même base de données topologique</span> : la carte complète du réseau.` : 'Chaque routeur connaît la carte de la partie du réseau qu’il peut atteindre.'} <b>⏭</b> : chacun lance Dijkstra sur cette carte.`,
+    table: s => `<b>Phase 3 · Table de routage de ${s}.</b> Pour chaque destination, ${s} remonte les prédécesseurs jusqu’à lui : le premier routeur du plus court chemin est la <b>passerelle</b>. Survolez une ligne pour voir le chemin. Cliquez sur un autre routeur pour refaire le calcul depuis lui.`,
+    changedEarly: () => `<b>Le réseau a changé</b> avant la fin de l’inondation : on recommence depuis la phase 0.`,
+    changing: what => `<b>${what}</b> Les routeurs concernés émettent aussitôt un nouveau LSA, inondé dans tout le réseau…`,
+    updated: s => `<b>Carte mise à jour partout.</b> Chaque routeur relance Dijkstra : la nouvelle table de ${s} est prête immédiatement, là où RIP aurait besoin de plusieurs tours de 30 s.`,
+    toastChange: 'Le changement est diffusé à tous : nouvelles routes calculées aussitôt',
+    toastTable: s => `Table de routage de ${s} calculée`,
+    phase: { ready: 'Phase 0 · <b>rien n’est connu</b>', hello: 'Phase 1 · <b>Hello</b>', dijkstra: s => `Phase 2 · <b>Dijkstra depuis ${s}</b>`, table: s => `Phase 3 · <b>table de ${s}</b>`, updating: 'Mise à jour · <b>inondation</b>' },
+  },
+  dij: {
+    init: s => `<b>Phase 2 · Dijkstra depuis ${s}.</b> ${s} connaît toute la carte : il calcule lui-même les plus courts chemins. Coût de ${s} à lui-même : 0 ; tous les autres : ∞.`,
+    select: (u, d) => `Parmi les routeurs <b>non fixés</b>, le plus petit coût est celui de <span class="u">${u}</span> (${d}) : on l’entoure.`,
+    fix: (u, d) => `<span class="u">${u}</span> est <span class="ok">fixé</span> : son coût ${d} est définitif, on barre sa colonne. On regarde maintenant ses voisins.`,
+    newrow: u => `Nouvelle ligne du tableau : on examine les voisins de <span class="u">${u}</span>.`,
+    relaxYes: (u, v, du, w, c, old) => `Voisin <span class="v">${v}</span> de <span class="u">${u}</span> : ${du} + ${w} = ${c} ${old === Infinity ? '< ∞' : '< ' + old} → <span class="ok">on écrit ${c} (${u})</span>.`,
+    relaxNo: (u, v, du, w, c, old, p) => `Voisin <span class="v">${v}</span> de <span class="u">${u}</span> : ${du} + ${w} = ${c} ≥ ${old} → <span class="no">pas mieux</span>, on recopie ${old} (${p}).`,
+    skip: (u, v) => `Voisin <b>${v}</b> de <span class="u">${u}</span> : déjà fixé, rien à faire.`,
+    copyrest: () => `Les routeurs qui ne sont pas voisins gardent leur valeur : on la recopie.`,
+    done: s => `<b>Dijkstra terminé.</b> La dernière valeur de chaque colonne est le coût minimal depuis ${s}, avec le prédécesseur entre parenthèses. <b>⏭</b> : en déduire la table de routage.`,
+    doneUnreach: s => `<b>Dijkstra terminé.</b> Les routeurs restants sont injoignables depuis ${s} (coût ∞). <b>⏭</b> : en déduire la table de routage.`,
+  },
+  cmp: {
+    lesson: `<p><b>RIP</b> minimise le nombre de sauts sans regarder les débits ; <b>OSPF</b> minimise la somme des coûts, donc préfère les liens rapides, quitte à faire plus de sauts.</p>`,
+    same: (h, c) => `<p>Ici, les deux protocoles choisissent <span class="ok">la même route</span> : ${h} ${pl(h, 'saut')}, coût ${c}.</p>`,
+    diff: (rh, rc, oh, oc) => `<p>Ici, RIP fait ${rh} ${pl(rh, 'saut')} pour un coût de <span class="u">${rc}</span> ; OSPF fait ${oh} ${pl(oh, 'saut')} pour un coût de <span class="ok">${oc}</span> : son paquet arrive ${rc >= 2 * oc ? 'bien ' : ''}avant.</p>`,
+    unreach: `<p><span class="no">L’arrivée est injoignable</span> depuis le départ : aucun paquet ne peut passer.</p>`,
+    note: `<p class="muted">La durée de passage d’un paquet sur un lien est proportionnelle à son coût (10⁸ / débit). Coupez un lien ou changez un débit : tout est recalculé.</p>`,
+    toast: (rc, oc, rh, oh) => rc === oc ? `Arrivée simultanée : même coût (${oc})` : `Le paquet OSPF arrive le premier : coût ${oc} contre ${rc}, avec ${oh} ${pl(oh, 'saut')} contre ${rh}`,
+  },
+  codeRip: [
+    'def recevoir(moi, table, voisin, vecteur):',
+    '    for dest, d in vecteur.items():',
+    '        if dest == moi:',
+    '            continue',
+    '        nouvelle = min(d + 1, 16)',
+    '        if dest not in table:',
+    '            if nouvelle < 16:',
+    '                table[dest] = (voisin, nouvelle)',
+    '        elif nouvelle < table[dest][1]:',
+    '            table[dest] = (voisin, nouvelle)',
+    '        elif table[dest][0] == voisin:',
+    '            table[dest] = (voisin, nouvelle)'],
+  codeDij: [
+    'def dijkstra(G, depart):',
+    '    dist = {s: float("inf") for s in G}',
+    '    pred = {s: None for s in G}',
+    '    dist[depart] = 0',
+    '    a_visiter = set(G)',
+    '    while a_visiter:',
+    '        u = min(a_visiter, key=lambda s: dist[s])',
+    '        a_visiter.remove(u)',
+    '        for v, poids in G[u]:',
+    '            if dist[u] + poids < dist[v]:',
+    '                dist[v] = dist[u] + poids',
+    '                pred[v] = u',
+    '    return dist, pred'],
+};
+const C = { blue: '#6c9eff', violet: '#b57bff', pink: '#ff4fa3', teal: '#2ee6c5', amber: '#ffc53d', red: '#ff5c7a' };
+const ACTS = { rip: ['select', 'cut'], ospf: ['select', 'cut', 'rate'], comparer: ['start', 'target', 'cut', 'rate'] };
+
+// ─────────────────────── État ───────────────────────
+let NET = { V: [], E: [], clouds: [], ids: [] }, presetKey = 'p1';
+let tab = 'rip', act = 'select', sel = 'R1', dep = 'R1', arr = 'R7';
+let speed = 45, split = false, playing = false, timer = null;
+let ANIM = null, animToken = 0;          // animation de pastilles en cours {kind, pellets, t0, dur}
+let RIP = null;                          // état de la simulation RIP
+let OS = null, S = null, gen = null;     // état OSPF, état visuel de Dijkstra, générateur
+let CMP = null, RACE = null;             // onglet Comparer : routes calculées, course des paquets
+let hoverDest = null, pinDest = null;    // ligne survolée / épinglée d'une table de routage
+let pulses = [];                         // routeurs qui « pulsent » {id, t0, color}
+
+const ids = () => NET.ids;
+const vert = id => NET.V.find(v => v.id === id);
+const now = () => performance.now() / 1000;
+function animDur() { return 2.0 * Math.pow(1 - speed / 100, 1.6) + 0.13; }   // trajet d'une pastille (s) : ≈ 0,9 s par défaut
+function pauseMs() {
+  if (tab === 'rip') return 250 + 800 * animDur();
+  if (OS && OS.stage === 'dijkstra') return 1400 * Math.pow(1 - speed / 100, 1.8) + 80;
+  return 200 + 400 * animDur();
+}
+
+function loadPreset(k) {
+  stopPlay(); cancelAnim();
+  presetKey = k;
+  const p = PRESETS[k];
+  NET = { V: p.V.map(([id, x, y]) => ({ id, x, y })), E: p.E.map(([a, b, rate]) => ({ a, b, rate, rate0: rate, down: false })), clouds: p.clouds || [] };
+  NET.ids = NET.V.map(v => v.id).sort(byId);
+  sel = NET.ids[0]; dep = p.dep; arr = p.arr; hoverDest = pinDest = null; pulses = [];
+  ripReset(false); ospfReset(); CMP = null; RACE = null;
+  $('preset').value = k;
+  if (tab === 'comparer') cmpCompute();
+  hideMsg();
+}
+const modified = () => NET.E.some(e => e.down || e.rate !== e.rate0);
+
+// ─────────────────────── Animation de pastilles ───────────────────────
+function startAnim(kind, pellets, dur, onDone) {
+  const tok = ++animToken;
+  ANIM = { kind, pellets, t0: now(), dur };
+  setUI();
+  setTimeout(() => { if (tok !== animToken) return; ANIM = null; onDone(); }, dur * 1000 + 30);
+}
+function cancelAnim(kind) { if (ANIM && (!kind || ANIM.kind === kind)) { animToken++; ANIM = null; } }
+const both = (edges, label, color) => edges.filter(e => !e.down).flatMap(e => [{ from: e.a, to: e.b, label: label || e.a, color }, { from: e.b, to: e.a, label: label || e.b, color }]);
+
+// ─────────────────────── Lecture (▶ / ⏭) ───────────────────────
+function stopPlay() { playing = false; clearTimeout(timer); }
+function isFinished() { return tab === 'rip' ? (RIP.converged || RIP.stopped) : tab === 'ospf' ? OS.stage === 'table' : false; }
+function stepOnce() { if (tab === 'rip') ripStep(); else if (tab === 'ospf') ospfStep(); }
+function tick() { clearTimeout(timer); if (!playing || ANIM || OS.updating) return; stepOnce(); }
+function afterStep() {
+  renderSide();
+  if (playing) {
+    if (isFinished()) playing = false;
+    else { clearTimeout(timer); timer = setTimeout(tick, pauseMs()); }
+  }
+  setUI();
+}
+
+// ─────────────────────── RIP ───────────────────────
+function ripReset(restoreLinks) {
+  if (restoreLinks) NET.E.forEach(e => e.down = false);
+  RIP = { tables: ripInit(ids(), NET.E), round: 0, useful: 0, since: 0, afterEvent: false, converged: false, stopped: false, cti: false, phantom: false,
+          log: null, changed: {}, events: [], explain: T.rip.ready() };
+}
+function ripStep() {
+  if (ANIM) return;
+  const res = ripRound(ids(), NET.E, RIP.tables, split);   // calcul immédiat, appliqué à la fin de l'animation
+  hideMsg();
+  startAnim('rip', both(NET.E, null, C.blue), animDur(), () => { ripApply(res); afterStep(); });
+}
+function ripApply(res) {
+  const t = now();
+  RIP.round++; RIP.since++;
+  RIP.tables = res.tables; RIP.log = res.log; RIP.changed = res.changed; RIP.events = [];
+  for (const u in res.changed) if (res.changed[u].length) pulses.push({ id: u, t0: t, color: C.amber });
+  // comptage à l'infini : des routes fantômes (plus longues que la réalité) changent deux tours de suite
+  const ph = ripPhantoms(NET.E, res.tables, res.changed).length > 0;
+  RIP.cti = ph && RIP.phantom; RIP.phantom = ph;
+  if (res.n > 0) {
+    RIP.useful++; RIP.converged = false;
+    RIP.explain = T.rip.round(RIP.round, res.n, RIP.cti, split);
+    if (RIP.since >= 40) { RIP.stopped = true; showMsg(T.rip.safety(40), 'bad'); }
+  } else {
+    RIP.converged = true; RIP.cti = false;
+    RIP.explain = T.rip.conv(RIP.round, RIP.useful, RIP.afterEvent);
+    showMsg(T.rip.toastConv(RIP.useful, RIP.afterEvent), 'win');
+  }
+}
+// Panne ou rétablissement du lien e (détection immédiate par ses deux extrémités)
+function ripLinkEvent(e) {
+  cancelAnim('rip');
+  const t = now();
+  if (!RIP.events.length) RIP.changed = {};
+  const mark = (x, list) => { RIP.changed[x] = [...new Set([...(RIP.changed[x] || []), ...list])].sort(byId); };
+  if (e.down) {
+    const lost = ripLinkDown(RIP.tables, e.a, e.b);
+    RIP.events.push({ kind: 'down', a: e.a, b: e.b, lost });
+    mark(e.a, lost[e.a]); mark(e.b, lost[e.b]);
+    pulses.push({ id: e.a, t0: t, color: C.red }, { id: e.b, t0: t, color: C.red });
+    RIP.explain = T.rip.down(e.a, e.b);
+  } else {
+    ripLinkUp(RIP.tables, e.a, e.b);
+    RIP.events.push({ kind: 'up', a: e.a, b: e.b });
+    mark(e.a, [e.b]); mark(e.b, [e.a]);
+    pulses.push({ id: e.a, t0: t, color: C.teal }, { id: e.b, t0: t, color: C.teal });
+    RIP.explain = T.rip.up(e.a, e.b);
+  }
+  RIP.useful = 0; RIP.since = 0; RIP.afterEvent = true; RIP.converged = false; RIP.stopped = false; RIP.cti = false; RIP.phantom = false;
+  if (playing && tab === 'rip') { clearTimeout(timer); timer = setTimeout(tick, pauseMs()); }
+}
+function ripResetAll() {
+  stopPlay(); cancelAnim('rip');
+  const restored = NET.E.filter(e => e.down);
+  ripReset(true);
+  if (restored.length) ospfTopologyEvent([...new Set(restored.flatMap(e => [e.a, e.b]))], 'Liens rétablis.');
+}
+
+// ─────────────────────── OSPF ───────────────────────
+function ospfReset() {
+  cancelAnim('ospf');
+  const I = ids();
+  OS = { stage: 'ready', wave: 0, plan: floodPlan(I, NET.E, I), known: {}, prevKnown: null, updating: false, routes: null, explain: T.ospf.ready() };
+  I.forEach(r => OS.known[r] = new Set());
+  S = null; gen = null;
+}
+function ospfStep() {
+  if (ANIM || OS.updating) return;
+  const I = ids(), N = I.length;
+  if (OS.stage === 'ready') {
+    hideMsg();
+    startAnim('ospf', both(NET.E, 'Hello', C.violet), animDur(), () => {
+      OS.stage = 'hello'; OS.prevKnown = null;
+      I.forEach(r => OS.known[r] = new Set([r]));
+      const t = now(); I.forEach(r => pulses.push({ id: r, t0: t, color: C.violet }));
+      OS.explain = T.ospf.hello();
+      afterStep();
+    });
+    return;
+  }
+  if (OS.stage === 'hello' || OS.stage === 'flood') {
+    const W = OS.plan.waves.length;
+    if (OS.wave < W) {
+      const pellets = OS.plan.waves[OS.wave].map(p => ({ from: p.from, to: p.to, label: p.lsas.length === 1 ? 'LSA ' + p.lsas[0] : p.lsas.length + ' LSA', color: C.teal }));
+      startAnim('ospf', pellets, animDur(), () => {
+        OS.prevKnown = {}; I.forEach(r => OS.prevKnown[r] = new Set(OS.known[r]));
+        const snap = OS.plan.snaps[OS.wave];
+        I.forEach(r => OS.known[r] = new Set(snap[r]));
+        const t = now(); I.filter(r => OS.known[r].size > OS.prevKnown[r].size).forEach(r => pulses.push({ id: r, t0: t, color: C.teal }));
+        OS.wave++; OS.stage = 'flood';
+        const m = I.filter(r => OS.known[r].size === N).length;
+        OS.explain = OS.wave < W ? T.ospf.wave(OS.wave, W, m, N) : T.ospf.floodDone(W, N, m === N);
+        afterStep();
+      });
+      return;
+    }
+    // inondation terminée : chaque routeur lance Dijkstra
+    OS.stage = 'dijkstra'; dijReset(); dijStep(); afterStep();
+    return;
+  }
+  if (OS.stage === 'dijkstra') {
+    if (!S.finished) dijStep();
+    else { OS.stage = 'table'; OS.explain = T.ospf.table(sel); showMsg(T.ospf.toastTable(sel), 'win'); }
+    afterStep();
+  }
+}
+// La carte est connue de tous (fin d'inondation) : Dijkstra jusqu'au bout et table de routage.
+function ospfFinal() {
+  const I = ids();
+  OS.plan = floodPlan(I, NET.E, I); OS.wave = OS.plan.waves.length; OS.prevKnown = null;
+  I.forEach(r => OS.known[r] = new Set(I));
+  OS.stage = 'table';
+  dijReset();
+  for (let guard = 0; !S.finished && guard < 10000; guard++) dijStep();
+}
+// Changement de topologie vu par OSPF : origins = routeurs qui émettent un nouveau LSA.
+function ospfTopologyEvent(origins, what) {
+  cancelAnim('ospf');
+  if (OS.stage === 'ready' || OS.stage === 'hello' || OS.stage === 'flood') {
+    if (tab === 'ospf') stopPlay();
+    ospfReset();
+    if (tab === 'ospf') OS.explain = T.ospf.changedEarly();
+    return;
+  }
+  if (tab !== 'ospf') { OS.updating = false; ospfFinal(); OS.explain = T.ospf.updated(sel); return; }
+  stopPlay();
+  const plan = floodPlan(ids(), NET.E, origins);
+  OS.updating = true; OS.explain = T.ospf.changing(what);
+  let k = 0;
+  const next = () => {
+    if (k >= plan.waves.length) {
+      OS.updating = false; ospfFinal(); OS.explain = T.ospf.updated(sel);
+      showMsg(T.ospf.toastChange, 'win'); renderSide(); setUI();
+      return;
+    }
+    const pellets = plan.waves[k].map(p => ({ from: p.from, to: p.to, label: p.lsas.length === 1 ? 'LSA ' + p.lsas[0] : p.lsas.length + ' LSA', color: C.teal }));
+    startAnim('ospf', pellets, Math.max(0.25, animDur() * 0.6), () => { k++; next(); });
+  };
+  renderSide(); setUI();
+  next();
+}
+// ── Dijkstra pas à pas (comme dijkstra.html) ──
+function dijReset() {
+  const I = ids();
+  S = { dist: {}, pred: {}, fixed: new Set(), u: null, edge: null, edgeOk: null, rows: [], line: 0, started: false, finished: false, unreachable: false };
+  I.forEach(v => { S.dist[v] = Infinity; S.pred[v] = null; });
+  gen = dijkstraSteps(I, u => neighbors(NET.E, u).map(({ v, w }) => ({ v, w })), sel, null);
+  OS.routes = null;
+}
+function dijStep() {
+  if (!gen || S.finished) return;
+  const r = gen.next();
+  if (r.done) { S.finished = true; return; }
+  const s = r.value, t = T.dij, I = ids();
+  S.line = s.line || S.line; S.edge = null; S.edgeOk = null; S.started = true;
+  const curRow = () => S.rows[S.rows.length - 1];
+  switch (s.t) {
+    case 'init': {
+      const cells = {}; I.forEach(v => cells[v] = { d: v === sel ? 0 : Infinity, p: null, kind: 'init' });
+      S.rows.push({ src: null, cells, chosen: null, chosenD: null });
+      S.dist[sel] = 0; OS.explain = t.init(sel); break;
+    }
+    case 'select': S.u = s.u; curRow().chosen = s.u; curRow().chosenD = s.d; OS.explain = t.select(s.u, s.d); break;
+    case 'fix': S.fixed.add(s.u); OS.explain = t.fix(s.u, s.d); break;
+    case 'newrow': {
+      const cells = {}; S.fixed.forEach(v => cells[v] = { kind: 'fixedcol' });
+      S.rows.push({ src: s.u, cells, chosen: null, chosenD: null });
+      OS.explain = t.newrow(s.u); break;
+    }
+    case 'skip': S.edge = [s.u, s.v]; S.edgeOk = 'skip'; OS.explain = t.skip(s.u, s.v); break;
+    case 'relax': {
+      S.edge = [s.u, s.v]; S.edgeOk = s.improved ? 'yes' : 'no';
+      if (s.improved) { S.dist[s.v] = s.cand; S.pred[s.v] = s.u; }
+      curRow().cells[s.v] = { d: S.dist[s.v], p: S.pred[s.v], kind: s.improved ? 'update' : 'keep', hot: true };
+      OS.explain = s.improved ? t.relaxYes(s.u, s.v, S.dist[s.u], s.w, s.cand, s.old) : t.relaxNo(s.u, s.v, S.dist[s.u], s.w, s.cand, s.old, s.oldPred);
+      break;
+    }
+    case 'copyrest': {
+      const row = curRow();
+      I.forEach(v => { if (!row.cells[v]) row.cells[v] = { d: S.dist[v], p: S.pred[v], kind: 'keep' }; else row.cells[v].hot = false; });
+      OS.explain = t.copyrest(); break;
+    }
+    case 'done': {
+      S.finished = true; S.u = null; S.unreachable = !!s.unreachable;
+      OS.routes = I.filter(D => D !== sel).map(D => {
+        const path = S.dist[D] < Infinity ? pathTo(S.pred, sel, D) : null;
+        return { dest: D, gw: path ? path[1] : null, cost: S.dist[D], path };
+      });
+      OS.explain = s.unreachable ? t.doneUnreach(sel) : t.done(sel);
+      break;
+    }
+  }
+}
+
+// ─────────────────────── Comparer ───────────────────────
+function cmpCompute() {
+  const I = ids();
+  const conv = ripConverge(I, NET.E, split);              // RIP jusqu'à convergence, en silence
+  const tr = ripTrace(conv.tables, dep, arr, NET.E);
+  const od = ospfRun(I, NET.E, dep);                       // OSPF : plus court chemin en coût
+  const op = od.dist[arr] < Infinity ? pathTo(od.pred, dep, arr) : null;
+  CMP = {
+    rip: { trace: tr, path: tr.status === 'ok' ? tr.path : null, stats: tr.status === 'ok' ? routeStats(tr.path, NET.E) : null, rounds: conv.useful },
+    ospf: { path: op, stats: op ? routeStats(op, NET.E) : null },
+  };
+  raceStart();
+}
+// Deux paquets partent ensemble ; la durée de passage sur un lien est proportionnelle à son coût.
+function raceStart() {
+  if (!CMP) return;
+  const cr = CMP.rip.stats ? CMP.rip.stats.cost : 0, co = CMP.ospf.stats ? CMP.ospf.stats.cost : 0;
+  const k = 7 * (animDur() / 0.9) / Math.max(cr, co, 1);   // secondes par unité de coût
+  RACE = { t0: now() + 0.35, k, reported: false, max: Math.max(cr, co) * k };
+  renderSide();
+}
+function raceReport() {
+  RACE.reported = true;
+  const r = CMP.rip.stats, o = CMP.ospf.stats;
+  if (r && o) showMsg(T.cmp.toast(r.cost, o.cost, r.hops, o.hops), 'win');
+  renderSide();
+}
+
+// ─────────────────────── Changements de topologie ───────────────────────
+function clickLink(e) {
+  if (act === 'cut') {
+    e.down = !e.down;
+    ripLinkEvent(e);
+    if (tab === 'rip') showMsg(e.down ? T.rip.toastDown(e.a, e.b) : T.rip.toastUp(e.a, e.b), e.down ? 'bad' : '');
+    ospfTopologyEvent([e.a, e.b], e.down ? `Panne du lien ${e.a}–${e.b}.` : `Lien ${e.a}–${e.b} rétabli.`);
+  } else if (act === 'rate') {
+    if (e.down) { showMsg('Ce lien est en panne : rétablissez-le d’abord', 'bad'); return; }
+    e.rate = nextRate(e.rate);                           // le débit ne change rien pour RIP (nombre de sauts)
+    ospfTopologyEvent([e.a, e.b], `Lien ${e.a}–${e.b} : ${e.rate} Mb/s, coût ${cost(e.rate)}.`);
+  }
+  if (tab === 'comparer') cmpCompute();
+  renderSide(); setUI();
+}
+function restoreNetwork() {
+  const changed = NET.E.filter(e => e.down || e.rate !== e.rate0);
+  if (!changed.length) return;
+  changed.forEach(e => { e.rate = e.rate0; if (e.down) { e.down = false; ripLinkEvent(e); } });
+  ospfTopologyEvent([...new Set(changed.flatMap(e => [e.a, e.b]))], 'Réseau d’origine rétabli.');
+  if (tab === 'comparer') cmpCompute();
+  hideMsg(); renderSide(); setUI();
+}
+function clickRouter(id) {
+  if (tab === 'comparer') {
+    if (act === 'start') { if (id === arr) arr = dep; dep = id; cmpCompute(); }
+    else if (act === 'target') { if (id === dep) dep = arr; arr = id; cmpCompute(); }
+    renderSide(); setUI(); return;
+  }
+  sel = id; hoverDest = pinDest = null;
+  if (tab === 'ospf' && !OS.updating && (OS.stage === 'dijkstra' || OS.stage === 'table')) {
+    // nouvelle source : la carte est déjà connue, on reprend à la phase 2
+    cancelAnim('ospf'); OS.stage = 'dijkstra'; dijReset(); dijStep();
+  }
+  renderSide(); setUI();
+}
+
+// ─────────────────────── Colonne latérale ───────────────────────
+function highlight(src) {
+  return src.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/("[^"]*")/g, '<span class="st">$1</span>')
+    .replace(/\b(def|for|in|if|elif|else|while|and|or|return|not|lambda|None|continue)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(min|set|float|items|remove)\b/g, '<span class="fn">$1</span>')
+    .replace(/\b(\d+)\b/g, '<span class="nb">$1</span>');
+}
+function setCodeHL(lines) { const lis = $('code').children; for (let i = 0; i < lis.length; i++) lis[i].classList.toggle('hl', lines.includes(i + 1)); }
+function showCards() {
+  document.querySelectorAll('#side .card').forEach(c => {
+    let on = c.dataset.tabs.split(' ').includes(tab);
+    if (on && tab === 'ospf') {
+      const late = OS.stage === 'dijkstra' || OS.stage === 'table';
+      if (c.id === 'ospfRouteCard') on = OS.stage === 'table' && !!OS.routes;
+      if (c.id === 'dijCard' || c.id === 'codeCard') on = late && !!S;
+    }
+    c.style.display = on ? '' : 'none';
+  });
+}
+function renderSide() {
+  showCards();
+  if (tab === 'rip') renderRip();
+  else if (tab === 'ospf') renderOspf();
+  else renderCmp();
+  renderChips();
+}
+function renderChips() {
+  let h = '';
+  if (tab === 'rip') {
+    h = `<span class="mini">Tour <b>${RIP.round}</b> · t = <b>${RIP.round * 30} s</b></span>`;
+    if (RIP.converged) h += `<span class="mini ok">✓ ${RIP.afterEvent ? 'reconvergé' : 'convergé'}</span>`;
+    else if (RIP.cti) h += `<span class="mini warn">comptage à l’infini</span>`;
+  } else if (tab === 'ospf') {
+    const P = T.ospf.phase;
+    h = `<span class="mini">${OS.updating ? P.updating : OS.stage === 'ready' ? P.ready : OS.stage === 'hello' ? P.hello : OS.stage === 'flood' ? `Phase 1 · <b>inondation ${OS.wave}/${OS.plan.waves.length}</b>` : OS.stage === 'dijkstra' ? P.dijkstra(sel) : P.table(sel)}</span>`;
+  } else if (CMP) {
+    const r = CMP.rip.stats, o = CMP.ospf.stats;
+    h = `<span class="mini"><i style="background:var(--amber)"></i>RIP${r ? ` · <b>${r.hops}</b> ${pl(r.hops, 'saut')} · coût <b>${r.cost}</b>` : ' · injoignable'}</span>`
+      + `<span class="mini"><i style="background:var(--teal)"></i>OSPF${o ? ` · <b>${o.hops}</b> ${pl(o.hops, 'saut')} · coût <b>${o.cost}</b>` : ' · injoignable'}</span>`;
+  }
+  $('chips').innerHTML = h;
+  $('chips').classList.toggle('cmp', tab === 'comparer');
+}
+
+// ── RIP ──
+function renderRip() {
+  const t = RIP.tables[sel] || {};
+  $('hRipTable').textContent = 'Table de routage de ' + sel;
+  $('hRipTableR').textContent = `tour ${RIP.round} · t = ${RIP.round * 30} s`;
+  const dests = Object.keys(t).sort(byId), chg = new Set(RIP.changed[sel] || []);
+  let h = '<thead><tr><th>Destination</th><th>Passerelle</th><th>Distance</th></tr></thead><tbody>';
+  for (const D of dests) {
+    const e = t[D], inf = e.d >= INF;
+    h += `<tr data-d="${D}" class="${chg.has(D) ? 'chg' : ''}${pinDest === D ? ' pin' : ''}"><td class="dst">${D}</td><td class="gw">${e.gw}</td><td class="${inf ? 'inf' : 'dd'}">${fd(e.d)}</td></tr>`;
+  }
+  if (!dests.length) h += `<tr><td colspan="3" class="none">Table vide : ${sel} n’a aucun lien en état de marche.</td></tr>`;
+  $('ripTbl').innerHTML = h + '</tbody>';
+  const unknown = ids().filter(D => D !== sel && !t[D]);
+  $('ripUnknown').textContent = unknown.length ? `Pas encore de route vers : ${unknown.join(', ')}.` : 'Toutes les destinations figurent dans la table.';
+  renderTrace();
+  renderRipLog();
+  $('hExplain').textContent = 'Étape';
+  $('explain').innerHTML = RIP.explain;
+}
+function logLine(x) {
+  const D = x.dest, V = x.from, n = x.nouvelle;
+  const sum = x.d >= INF ? '16 + 1 → 16 (∞)' : `${x.d} + 1 = ${fd(x.d + 1)}`;
+  if (x.action === 'add') return `<div class="ll add" data-l="6,7,8">De <b>${V}</b> : ${D} à ${fd(x.d)} → ${sum} &lt; ∞ → <span class="ok">${D} via ${V}, distance ${n}</span></div>`;
+  if (x.action === 'better') return `<div class="ll better" data-l="9,10">De <b>${V}</b> : ${D} à ${fd(x.d)} → ${sum} &lt; ${fd(x.old.d)} → <span class="ok">${D} via ${V}, distance ${n}</span> <span class="was">(avant : via ${x.old.gw})</span></div>`;
+  return `<div class="ll gw" data-l="11,12">De <b>${V}</b> : ${D} à ${fd(x.d)} → ${sum}. ${V} est la passerelle actuelle vers ${D} : il a changé d’avis, on le croit → <span class="warn">${D} via ${V}, distance ${fd(n)}</span> <span class="was">(avant : ${fd(x.old.d)})</span></div>`;
+}
+function renderRipLog() {
+  $('hRipLog').textContent = `Ce que ${sel} a reçu à ce tour`;
+  $('hRipLogR').textContent = RIP.events.length ? 'avant le tour ' + (RIP.round + 1) : RIP.log ? 'tour ' + RIP.round : '';
+  let h = '';
+  for (const ev of RIP.events) {
+    const me = ev.a === sel || ev.b === sel, other = ev.a === sel ? ev.b : ev.a;
+    if (ev.kind === 'down') h += `<div class="ll ev">${me ? T.rip.evDownMe(ev.a, ev.b, other, ev.lost[sel]) : T.rip.evDownOther(ev.a, ev.b, sel)}</div>`;
+    else h += `<div class="ll evup">${me ? T.rip.evUpMe(ev.a, ev.b, other) : T.rip.evUpOther(ev.a, ev.b, sel)}</div>`;
+  }
+  if (RIP.events.length) h += `<div class="ll head">${T.rip.logNext(sel, neighbors(NET.E, sel).map(n => n.v))}</div>`;
+  else if (!RIP.log) h += `<div class="ll head">${T.rip.logInit(sel, neighbors(NET.E, sel).map(n => n.v))}</div>`;
+  else {
+    const L = RIP.log[sel] || [], from = [...new Set(L.map(x => x.from))];
+    h += `<div class="ll head">${T.rip.logHead(RIP.round, sel, from)}</div>`;
+    const useful = L.filter(x => x.action !== 'ignore');
+    h += useful.map(logLine).join('');
+    const rest = L.length - useful.length;
+    if (rest) h += `<div class="ll sum">${T.rip.logRest(rest, useful.length > 0)}</div>`;
+  }
+  $('ripLog').innerHTML = h;
+}
+function currentTrace() {
+  const D = hoverDest || pinDest;
+  if (!D || D === sel) return null;
+  if (tab === 'rip') return ripTrace(RIP.tables, sel, D, NET.E);
+  if (tab === 'ospf' && OS.stage === 'table' && OS.routes) {
+    const r = OS.routes.find(x => x.dest === D);
+    return r && r.path ? { path: r.path, status: 'ok', at: D } : { path: [sel], status: 'lost', at: sel };
+  }
+  return null;
+}
+function renderTrace() {
+  const D = hoverDest || pinDest, tr = currentTrace();
+  if (tab === 'rip') {
+    let h = 'Survolez ou cliquez une ligne : la route suivie par un paquet s’affiche sur le réseau.';
+    if (tr) {
+      const hops = tr.path.length - 1;
+      if (tr.status === 'ok') h = `Paquet ${sel} → ${D} : <span class="ok">${tr.path.join(' → ')}</span> (${hops} ${pl(hops, 'saut')}). Chaque routeur traversé consulte sa propre table.`;
+      else if (tr.status === 'loop') h = `<span class="bad">Boucle de routage !</span> ${tr.path.join(' → ')} → … Le paquet tourne en rond jusqu’à épuisement de sa durée de vie (TTL).`;
+      else {
+        const e = RIP.tables[tr.at] && RIP.tables[tr.at][D];
+        h = `<span class="bad">Paquet perdu</span> en <b>${tr.at}</b> : ${tr.at} ${e ? 'n’a qu’une route à 16 (∞)' : 'n’a aucune route'} vers ${D}.${tr.path.length > 1 ? ' Trajet : ' + tr.path.join(' → ') + '.' : ''}`;
+      }
+    }
+    $('ripTrace').innerHTML = h;
+  } else if (tab === 'ospf') {
+    let h = 'Survolez ou cliquez une ligne : le plus court chemin s’affiche sur le réseau.';
+    if (tr && tr.status === 'ok') {
+      const st = routeStats(tr.path, NET.E);
+      h = `Chemin ${sel} → ${D} : <span class="ok">${tr.path.join(' → ')}</span> · coût ${st.costs.join(' + ')} = <b>${st.cost}</b>`;
+    } else if (tr) h = `<span class="bad">${D} est injoignable</span> depuis ${sel}.`;
+    $('ospfTrace').innerHTML = h;
+  }
+}
+function markPin() { document.querySelectorAll('.rt tr[data-d]').forEach(r => r.classList.toggle('pin', r.dataset.d === pinDest)); }
+
+// ── OSPF ──
+function renderOspf() {
+  const I = ids(), N = I.length;
+  $('hDb').textContent = 'Base de données topologique de ' + sel;
+  $('hDbR').textContent = OS.stage === 'ready' ? '' : `LSA ${OS.known[sel].size} / ${N}`;
+  // base de données topologique du routeur sélectionné
+  let db;
+  if (OS.stage === 'ready') db = `<span class="muted">${sel} ne connaît encore rien : ni ses voisins, ni le reste du réseau.</span>`;
+  else {
+    const nb = neighbors(NET.E, sel), known = OS.known[sel], prev = OS.prevKnown && OS.prevKnown[sel];
+    db = `Voisins découverts par Hello : ${nb.length ? nb.map(n => `<b>${n.v}</b> (${n.rate} Mb/s → coût ${n.w})`).join(', ') : '<span class="muted">aucun</span>'}.`;
+    const links = NET.E.filter(e => !e.down && (known.has(e.a) || known.has(e.b)))
+      .map(e => byId(e.a, e.b) < 0 ? [e.a, e.b, e] : [e.b, e.a, e])
+      .sort((p, r) => byId(p[0], r[0]) || byId(p[1], r[1]));
+    db += '<div class="links">' + links.map(([a, b, e]) => {
+      const isNew = prev && !prev.has(a) && !prev.has(b), own = a === sel || b === sel;
+      return `<span class="lk${isNew ? ' new' : ''}${own ? ' own' : ''}">${a} – ${b} : <b>coût ${cost(e.rate)}</b></span>`;
+    }).join('') + '</div>';
+    if (known.size === N) db += `<div style="margin-top:8px"><span class="ok">Carte complète</span> : ${links.length} ${pl(links.length, 'lien')}, identique dans les ${N} routeurs.</div>`;
+    else db += `<div style="margin-top:8px" class="muted">${known.size === 1 ? `Pour l’instant, ${sel} ne connaît que son propre LSA.` : `LSA reçus : ${[...known].sort(byId).join(', ')}.`}</div>`;
+  }
+  $('db').innerHTML = db;
+  // tableau de Dijkstra
+  if (S) {
+    $('hDij').textContent = 'Dijkstra depuis ' + sel;
+    $('hDijR').textContent = S.finished ? '✓' : '';
+    renderDij();
+  }
+  // table de routage
+  if (OS.routes) {
+    $('hOspfTable').textContent = 'Table de routage de ' + sel;
+    let h = '<thead><tr><th>Destination</th><th>Passerelle</th><th>Coût total</th></tr></thead><tbody>';
+    for (const r of OS.routes) {
+      h += r.path ? `<tr data-d="${r.dest}" class="${pinDest === r.dest ? 'pin' : ''}"><td class="dst">${r.dest}</td><td class="gw">${r.gw}</td><td class="dd">${r.cost}</td></tr>`
+                  : `<tr data-d="${r.dest}"><td class="dst">${r.dest}</td><td class="inf">—</td><td class="inf">injoignable</td></tr>`;
+    }
+    $('ospfTbl').innerHTML = h + '</tbody>';
+    renderTrace();
+  }
+  $('hExplain').textContent = 'Étape';
+  $('explain').innerHTML = OS.explain;
+  setCodeHL(S && S.started && !S.finished && OS.stage === 'dijkstra' ? [S.line] : []);
+}
+function fmt(d) { return d === Infinity ? '∞' : d; }
+function cellHTML(c) { return !c || c.kind === 'fixedcol' ? '' : `<span class="d">${fmt(c.d)}</span>${c.p ? `<span class="p">(${c.p})</span>` : ''}`; }
+function renderDij() {
+  const I = ids();
+  let h = `<thead><tr><th class="step"></th>${I.map(v => `<th class="v${v === sel ? ' start' : ''}">${v}</th>`).join('')}<th class="pick">Fixé</th></tr></thead><tbody>`;
+  S.rows.forEach((row, i) => {
+    const last = i === S.rows.length - 1;
+    h += `<tr${last ? ' class="cur"' : ''}><td class="step">${i === 0 ? '0' : row.src}</td>`;
+    for (const v of I) {
+      const c = row.cells[v];
+      if (!c) h += `<td class="empty"></td>`;
+      else if (c.kind === 'fixedcol') h += `<td class="fixedcol"></td>`;
+      else h += `<td class="${c.kind}${row.chosen === v ? ' chosen' : ''}${c.hot && last ? ' hot' : ''}">${cellHTML(c)}</td>`;
+    }
+    h += `<td class="pick">${row.chosen != null ? `${row.chosen} <span class="p">${fmt(row.chosenD)}</span>` : ''}</td></tr>`;
+  });
+  $('tbl').innerHTML = h + '</tbody>';
+  $('tbl').classList.toggle('dense', I.length > 8 || (I.length > 6 && window.innerWidth <= 1100));
+  const w = $('tableWrap'); w.scrollTop = w.scrollHeight;
+}
+
+// ── Comparer ──
+function renderCmp() {
+  if (!CMP) return;
+  const kv = (stats, path, key) => {
+    if (!stats) {
+      const tr = key === 'rip' ? CMP.rip.trace : null;
+      return `<span class="k">Route</span><span class="v" style="color:#ffb4c2">${tr && tr.status === 'loop' ? 'boucle de routage' : 'injoignable'}</span>`;
+    }
+    return `<span class="k">Route</span><span class="v route">${path.join(' → ')}</span>
+      <span class="k">Sauts</span><span class="v">${stats.hops}</span>
+      <span class="k">Coût total</span><span class="v">${stats.cost} <small>${stats.costs.length > 1 ? '(' + stats.costs.join(' + ') + ')' : ''}</small></span>
+      <span class="k">Goulot</span><span class="v">${stats.bottleneck} Mb/s <small>(débit le plus faible)</small></span>`;
+  };
+  $('cmpRipKv').innerHTML = kv(CMP.rip.stats, CMP.rip.path, 'rip');
+  $('cmpOspfKv').innerHTML = kv(CMP.ospf.stats, CMP.ospf.path, 'ospf');
+  const r = CMP.rip.stats, o = CMP.ospf.stats;
+  let rr = '', or = '';
+  if (RACE && RACE.reported && r && o) {
+    if (r.cost === o.cost) rr = or = '<span class="rank first">✓ ex aequo</span>';
+    else { or = '<span class="rank first">✓ 1er arrivé</span>'; rr = '<span class="rank">✓ 2e</span>'; }
+  }
+  $('cmpRipR').innerHTML = `${dep} → ${arr}${rr ? ' · ' + rr : ''}`;
+  $('cmpOspfR').innerHTML = `${dep} → ${arr}${or ? ' · ' + or : ''}`;
+  $('hExplain').textContent = 'À retenir';
+  let h = T.cmp.lesson;
+  if (!r || !o) h += T.cmp.unreach;
+  else if (r.cost === o.cost && CMP.rip.path.join() === CMP.ospf.path.join()) h += T.cmp.same(o.hops, o.cost);
+  else h += T.cmp.diff(r.hops, r.cost, o.hops, o.cost);
+  $('explain').innerHTML = h + T.cmp.note;
+}
+
+// ─────────────────────── Réseau (canvas) ───────────────────────
+const cv = $('graph'), ctx = cv.getContext('2d');
+let G = { W: 0, H: 0, R: 20, pl: 50, pr: 50, pt: 80, pb: 50 };
+let topH = 46, botH = 22;
+new ResizeObserver(() => { topH = $('canvasTop').offsetHeight; }).observe($('canvasTop'));
+new ResizeObserver(() => { botH = $('canvasBottom').offsetHeight; }).observe($('canvasBottom'));
+function metrics(W, H) {
+  const R = Math.max(12, Math.min(20, Math.min(W, H * 1.7) / 26));
+  G = { W, H, R, pl: R + 30, pr: R + 30, pt: 10 + topH + R + 20, pb: 8 + botH + R + 16 };
+  const spare = H - G.pt - G.pb;
+  if (spare < 90) { const k = Math.min(R, 90 - spare); G.pt -= k * 0.6; G.pb -= k * 0.4; }   // canvas très bas (mobile)
+}
+function toPx(v) { return [G.pl + v.x * (G.W - G.pl - G.pr), G.pt + v.y * (G.H - G.pt - G.pb)]; }
+function fromPx(px, py) { return [(px - G.pl) / (G.W - G.pl - G.pr), (py - G.pt) / (G.H - G.pt - G.pb)]; }
+// épaisseur du lien : échelle logarithmique du débit (1 Mb/s très fin, 100 Mb/s épais)
+function linkW(rate) { return Math.max(1, (1 + 3 * Math.log10(rate)) * Math.min(1, G.R / 17)); }
+function rrect(c, x, y, w, h, r, keep) { if (!keep) c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function pill(x, y, text, o = {}) {
+  ctx.font = o.font || '700 11px Inter, sans-serif';
+  const tw = ctx.measureText(text).width + (o.padX || 12), h = o.h || 19;
+  if (o.glow) { ctx.shadowColor = o.glow; ctx.shadowBlur = 12; }
+  ctx.fillStyle = o.bg || 'rgba(20,23,34,0.95)';
+  rrect(ctx, x - tw / 2, y - h / 2, tw, h, Math.min(8, h / 2)); ctx.fill(); ctx.shadowBlur = 0;
+  if (o.border !== 'none') { ctx.strokeStyle = o.border || 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1; ctx.stroke(); }
+  ctx.fillStyle = o.color || '#e6e8ef'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, x, y + 0.5);
+}
+function edgeIs(e, a, b) { return sameLink(e, a, b); }
+
+function draw() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H || !NET.V.length) return;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  metrics(W, H);
+  const t = now(), R = G.R, P = {};
+  NET.V.forEach(v => P[v.id] = toPx(v));
+  const TR = currentTrace();
+  // nuages décoratifs (réseau du cours)
+  if (NET.clouds.length && W > 420 && H > 250) NET.clouds.forEach(c => P[c.at] && drawCloud(c, P[c.at]));
+  // liens
+  const dijOn = tab === 'ospf' && S && S.started && (OS.stage === 'dijkstra' || OS.stage === 'table');
+  for (const e of NET.E) {
+    const [x1, y1] = P[e.a], [x2, y2] = P[e.b];
+    ctx.lineCap = 'round';
+    if (e.down) {
+      ctx.strokeStyle = hoverEdge === e && act === 'cut' ? C.amber : 'rgba(255,92,122,0.75)'; ctx.lineWidth = 2; ctx.setLineDash([7, 6]);
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+      continue;
+    }
+    let color = 'rgba(255,255,255,0.20)', w = linkW(e.rate), glow = null;
+    if (tab === 'ospf' && OS.stage === 'ready') color = 'rgba(255,255,255,0.13)';
+    if (dijOn && (S.pred[e.b] === e.a || S.pred[e.a] === e.b)) color = 'rgba(181,123,255,0.8)';
+    const cur = dijOn && S.edge && edgeIs(e, S.edge[0], S.edge[1]);
+    if (cur) { color = S.edgeOk === 'yes' ? C.teal : S.edgeOk === 'no' ? C.red : C.amber; glow = color; }
+    if (hoverEdge === e && (act === 'cut' || act === 'rate')) { color = C.amber; glow = C.amber; }
+    ctx.strokeStyle = color; ctx.lineWidth = w;
+    if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = 14; }
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.shadowBlur = 0;
+    if (cur) {   // point animé dans le sens de la relaxation (comme dijkstra.html)
+      const [fx, fy] = P[S.edge[0]], [tx, ty] = P[S.edge[1]], k = (t * 1.4) % 1;
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(fx + (tx - fx) * k, fy + (ty - fy) * k, 4, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  // routes mises en valeur
+  if (TR) drawRoute(P, TR.path, TR.status === 'ok' ? C.teal : C.red, 0, 5);
+  if (tab === 'comparer' && CMP) {
+    if (CMP.rip.path) drawRoute(P, CMP.rip.path, C.amber, 5, 4);
+    if (CMP.ospf.path) drawRoute(P, CMP.ospf.path, C.teal, -5, 4);
+  }
+  // étiquettes des liens
+  for (const e of NET.E) linkLabel(e, P, dijOn);
+  // pulsations
+  pulses = pulses.filter(p => t - p.t0 < 1.3);
+  for (const p of pulses) {
+    if (!P[p.id]) continue;
+    const k = (t - p.t0) / 1.3, [x, y] = P[p.id];
+    ctx.strokeStyle = p.color; ctx.globalAlpha = 1 - k; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(x, y, R + 3 + 18 * k, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  // routeurs
+  for (const v of NET.V) drawRouter(v, P, TR, dijOn, t);
+  // trace : message sur le réseau en cas d'échec
+  if (TR && TR.status !== 'ok' && P[TR.at]) {
+    const [x, y] = P[TR.at];
+    pill(x, y + R + 14, TR.status === 'loop' ? 'boucle de routage !' : 'paquet perdu', { bg: 'rgba(255,92,122,0.92)', border: 'none', color: '#1a0610', font: '800 11px Inter, sans-serif' });
+  }
+  // pastilles en mouvement
+  if (ANIM) drawPellets(P, t);
+  // course des paquets
+  if (tab === 'comparer' && CMP && RACE) drawRace(P, t);
+}
+function drawCloud(c, at) {
+  const [ax, ay] = at, R = G.R;
+  ctx.font = '700 10.5px Inter, sans-serif'; const w1 = ctx.measureText(c.t).width;
+  ctx.font = '600 9.5px "JetBrains Mono", monospace'; const w2 = ctx.measureText(c.s).width;
+  const w = Math.max(w1, w2) + 24, h = 40;
+  const cx = Math.min(G.W - w / 2 - 6, Math.max(w / 2 + 6, ax)), cy = Math.min(G.H - h / 2 - 8 - botH, ay + R + 34 + h / 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.setLineDash([3, 4]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(ax, ay + R); ctx.lineTo(cx, cy - h / 2 + 4); ctx.stroke(); ctx.setLineDash([]);
+  const bx = cx - w / 2, by = cy - h / 2 + 9, bh = h - 9;
+  const shape = () => {
+    ctx.beginPath(); rrect(ctx, bx, by, w, bh, bh / 2, true);
+    ctx.moveTo(cx - w * 0.17 + 10, by + 3); ctx.arc(cx - w * 0.17, by + 3, 10, 0, Math.PI * 2);
+    ctx.moveTo(cx + w * 0.1 + 13, by + 2); ctx.arc(cx + w * 0.1, by + 2, 13, 0, Math.PI * 2);
+  };
+  shape(); ctx.strokeStyle = 'rgba(108,158,255,0.45)'; ctx.lineWidth = 2; ctx.stroke();
+  shape(); ctx.fillStyle = '#161c2c'; ctx.fill();   // remplissage opaque : masque les traits intérieurs
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#c9d4ff'; ctx.font = '700 10.5px Inter, sans-serif'; ctx.fillText(c.t, cx, by + bh * 0.36);
+  ctx.fillStyle = '#8b90a5'; ctx.font = '600 9.5px "JetBrains Mono", monospace'; ctx.fillText(c.s, cx, by + bh * 0.74);
+}
+// Route dessinée avec des flèches ; off = décalage perpendiculaire (pour voir deux routes à la fois)
+function drawRoute(P, path, color, off, w) {
+  ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round';
+  ctx.shadowColor = color; ctx.shadowBlur = 12;
+  for (let i = 1; i < path.length; i++) {
+    if (!P[path[i - 1]] || !P[path[i]]) continue;
+    const [x1, y1] = P[path[i - 1]], [x2, y2] = P[path[i]];
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, nx = -uy * off, ny = ux * off;
+    ctx.beginPath(); ctx.moveTo(x1 + nx, y1 + ny); ctx.lineTo(x2 + nx, y2 + ny); ctx.stroke();
+    // flèche après l'étiquette du lien, avant le routeur
+    const ta = Math.max(0.5, Math.min(1 - (G.R + 10) / L, 0.5 + 36 / L)), ax = x1 + dx * ta + nx, ay = y1 + dy * ta + ny, s = 6 + w / 2;
+    ctx.beginPath(); ctx.moveTo(ax + ux * s, ay + uy * s); ctx.lineTo(ax - ux * s - uy * s * 0.8, ay - uy * s + ux * s * 0.8); ctx.lineTo(ax - ux * s + uy * s * 0.8, ay - uy * s - ux * s * 0.8); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+function linkLabel(e, P, dijOn) {
+  const [x1, y1] = P[e.a], [x2, y2] = P[e.b], mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  if (e.down) {   // lien en panne : ✕ au milieu
+    ctx.fillStyle = '#3a1420'; ctx.strokeStyle = C.red; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(mx, my, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#ffb4c2'; ctx.beginPath(); ctx.moveTo(mx - 4, my - 4); ctx.lineTo(mx + 4, my + 4); ctx.moveTo(mx + 4, my - 4); ctx.lineTo(mx - 4, my + 4); ctx.stroke();
+    return;
+  }
+  const small = G.R < 15, hot = hoverEdge === e && (act === 'cut' || act === 'rate');
+  const cur = dijOn && S.edge && edgeIs(e, S.edge[0], S.edge[1]);
+  const curColor = cur ? (S.edgeOk === 'yes' ? C.teal : S.edgeOk === 'no' ? C.red : C.amber) : null;
+  const border = hot ? C.amber : curColor || 'rgba(255,255,255,0.18)';
+  if (tab === 'rip') { pill(mx, my, e.rate + ' Mb/s', { font: `700 ${small ? 9.5 : 11}px Inter, sans-serif`, border, h: small ? 16 : 19 }); return; }
+  const l1 = tab === 'ospf' ? 'coût ' + cost(e.rate) : e.rate + ' Mb/s', l2 = tab === 'ospf' ? e.rate + ' Mb/s' : 'coût ' + cost(e.rate);
+  const f1 = small ? 9.5 : 11, f2 = small ? 8.5 : 9.5;
+  ctx.font = `700 ${f1}px Inter, sans-serif`; const w1 = ctx.measureText(l1).width;
+  ctx.font = `600 ${f2}px Inter, sans-serif`; const w2 = ctx.measureText(l2).width;
+  const w = Math.max(w1, w2) + 12, h = f1 + f2 + 9;
+  ctx.fillStyle = curColor || 'rgba(20,23,34,0.95)'; rrect(ctx, mx - w / 2, my - h / 2, w, h, 7); ctx.fill();
+  ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `700 ${f1}px Inter, sans-serif`; ctx.fillStyle = curColor ? '#0b0d14' : '#fff'; ctx.fillText(l1, mx, my - h / 2 + 4 + f1 / 2);
+  ctx.font = `600 ${f2}px Inter, sans-serif`; ctx.fillStyle = curColor ? '#0b0d14' : (tab === 'ospf' ? '#8b90a5' : '#7df5df'); ctx.fillText(l2, mx, my + h / 2 - 4 - f2 / 2);
+}
+function drawRouter(v, P, TR, dijOn, t) {
+  const R = G.R, id = v.id, [x, y] = P[id];
+  let fill = '#1a1f2e', ring = 'rgba(255,255,255,0.28)', ringW = 2, glow = null, txt = '#fff';
+  if (tab === 'rip' || tab === 'ospf') if (id === sel) { ring = C.blue; ringW = 3; glow = 'rgba(108,158,255,0.6)'; }
+  if (tab === 'ospf' && OS.stage === 'ready' && id !== sel) ring = 'rgba(255,255,255,0.16)';
+  if (dijOn) {
+    if (S.fixed.has(id)) { fill = '#0f3d36'; if (id !== sel) ring = C.teal; }
+    if (S.edge && S.edge[1] === id) { ring = C.pink; glow = C.pink; ringW = 3; }
+    if (S.u === id && !S.finished) { fill = C.amber; ring = '#ffe08a'; glow = C.amber; ringW = 3; txt = '#0b0d14'; }
+  }
+  if (tab === 'comparer') {
+    if (id === dep) { ring = C.blue; ringW = 3; glow = 'rgba(108,158,255,0.6)'; }
+    if (id === arr) { ring = C.pink; ringW = 3; glow = 'rgba(255,79,163,0.6)'; }
+  }
+  if (TR && TR.path.includes(id) && id !== sel) {
+    ring = TR.status === 'ok' ? C.teal : C.red; ringW = 3;
+    if (TR.status === 'ok' && id === TR.path[TR.path.length - 1]) { fill = '#0f3d36'; glow = C.teal; }
+  }
+  if (TR && TR.status !== 'ok' && TR.at === id) { ring = C.red; glow = C.red; ringW = 3.5; }
+  if (hoverV === v && !dragging) ringW += 1;
+  const pulse = dijOn && S.u === id && !S.finished ? 1 + 0.05 * Math.sin(t * 6) : 1;
+  if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = 22; }
+  ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, R * pulse, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.strokeStyle = ring; ctx.lineWidth = ringW; ctx.stroke();
+  ctx.fillStyle = txt; ctx.font = `800 ${Math.max(9, Math.round(R * 0.66))}px Inter, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(id, x, y + 1);
+  const small = R < 15, f = `700 ${small ? 9.5 : 11}px Inter, sans-serif`, ph = small ? 16 : 19;
+  // étiquettes : ce que le routeur sélectionné sait de chaque destination (RIP)
+  if (tab === 'rip' && id !== sel) {
+    const e = RIP.tables[sel] && RIP.tables[sel][id], chg = (RIP.changed[sel] || []).includes(id);
+    const label = !e ? '?' : e.d >= INF ? '∞' : `${e.d} via ${e.gw}`;
+    pill(x, y - R - ph / 2 - 3, label, { font: f, h: ph, color: !e ? 'rgba(255,255,255,0.4)' : e.d >= INF ? '#ffb4c2' : '#fff', border: chg ? C.amber : undefined });
+  }
+  // OSPF : coût depuis la source pendant Dijkstra
+  if (dijOn) {
+    const d = S.dist[id], label = fmt(d) + (S.pred[id] ? ' (' + S.pred[id] + ')' : ''), fixed = S.fixed.has(id);
+    pill(x, y - R - ph / 2 - 3, label, { font: f, h: ph, bg: fixed ? 'rgba(46,230,197,0.18)' : 'rgba(20,23,34,0.95)', border: fixed ? C.teal : (S.edge && S.edge[1] === id && S.edgeOk === 'yes' ? C.pink : undefined), color: fixed ? '#7df5df' : (d === Infinity ? 'rgba(255,255,255,0.5)' : '#fff') });
+  }
+  // OSPF : nombre de LSA connus pendant l'inondation
+  if (tab === 'ospf' && !OS.updating && (OS.stage === 'hello' || OS.stage === 'flood')) {
+    const k = OS.known[id].size, N = NET.V.length, full = k === N;
+    pill(x, y + R + ph / 2 + 3, `LSA ${k}/${N}`, { font: f, h: ph, bg: full ? 'rgba(46,230,197,0.2)' : 'rgba(20,23,34,0.95)', border: full ? C.teal : undefined, color: full ? '#7df5df' : '#e6e8ef' });
+  }
+}
+function drawPellets(P, t) {
+  const p0 = Math.min(1, Math.max(0, (t - ANIM.t0) / ANIM.dur)), k = p0 < 0.5 ? 2 * p0 * p0 : 1 - 2 * (1 - p0) * (1 - p0);
+  const small = G.R < 15;
+  for (const p of ANIM.pellets) {
+    if (!P[p.from] || !P[p.to]) continue;
+    const [x1, y1] = P[p.from], [x2, y2] = P[p.to];
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    const sx = x1 + ux * G.R, sy = y1 + uy * G.R, ex = x2 - ux * G.R, ey = y2 - uy * G.R;
+    const x = sx + (ex - sx) * k - uy * 7, y = sy + (ey - sy) * k + ux * 7;   // décalage : les pastilles se croisent sans se cacher
+    pill(x, y, p.label, { font: `800 ${small ? 8.5 : 9.5}px Inter, sans-serif`, bg: p.color, border: 'none', color: '#0b0d14', h: small ? 13 : 15, padX: 9, glow: p.color });
+  }
+}
+function drawRace(P, t) {
+  const el = RACE.t0 == null ? 0 : Math.max(0, t - RACE.t0), R = G.R;
+  for (const [key, color, label, off] of [['rip', C.amber, 'RIP', 5], ['ospf', C.teal, 'OSPF', -5]]) {
+    const r = CMP[key];
+    if (!r.path || !r.stats || r.path.length < 2) continue;
+    const total = r.stats.cost * RACE.k;
+    if (el >= total) {   // arrivé : étiquette au-dessus (RIP) ou au-dessous (OSPF) de l'arrivée
+      const [x, y] = P[arr];
+      pill(x, key === 'rip' ? y - R - 13 : y + R + 13, label + ' ✓', { font: '800 10px Inter, sans-serif', bg: color, border: 'none', color: '#0b0d14', h: 17, glow: color });
+      continue;
+    }
+    let rest = el, i = 0;
+    while (i < r.stats.costs.length - 1 && rest > r.stats.costs[i] * RACE.k) { rest -= r.stats.costs[i] * RACE.k; i++; }
+    const f = Math.min(1, rest / (r.stats.costs[i] * RACE.k));
+    const [x1, y1] = P[r.path[i]], [x2, y2] = P[r.path[i + 1]];
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+    pill(x1 + dx * f - dy / L * off * 1.6, y1 + dy * f + dx / L * off * 1.6, label, { font: '800 10px Inter, sans-serif', bg: color, border: 'none', color: '#0b0d14', h: 17, glow: color });
+  }
+  if (RACE.t0 != null && el > RACE.max + 0.05 && !RACE.reported) raceReport();
+  if (RACE.t0 != null && el > RACE.max + 2.8) RACE.t0 = t + 0.4;   // la course recommence en boucle
+}
+
+// ── interactions : glisser un routeur ≠ cliquer ──
+let dragging = null, dragMoved = false, dragStart = null, hoverV = null, hoverEdge = null;
+function pos(ev) { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+function routerAt(px, py) { for (const v of NET.V) { const [x, y] = toPx(v); if (Math.hypot(x - px, y - py) <= G.R + 4) return v; } return null; }
+function edgeAt(px, py) {
+  let best = null, bd = Infinity;
+  for (const e of NET.E) {
+    const [x1, y1] = toPx(vert(e.a)), [x2, y2] = toPx(vert(e.b));
+    const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1;
+    const k = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / L2));
+    const d = Math.hypot(px - (x1 + k * dx), py - (y1 + k * dy));
+    if (d < Math.max(11, linkW(e.rate) / 2 + 7) && d < bd) { bd = d; best = e; }
+  }
+  return best;
+}
+cv.addEventListener('pointerdown', ev => {
+  const [px, py] = pos(ev), v = routerAt(px, py);
+  if (v) { dragging = v; dragMoved = false; dragStart = [px, py]; cv.setPointerCapture(ev.pointerId); }
+});
+cv.addEventListener('pointermove', ev => {
+  const [px, py] = pos(ev);
+  if (dragging) {
+    if (!dragMoved && Math.hypot(px - dragStart[0], py - dragStart[1]) > 5) dragMoved = true;
+    if (dragMoved) { const [nx, ny] = fromPx(px, py); dragging.x = Math.min(1, Math.max(0, nx)); dragging.y = Math.min(1, Math.max(0, ny)); cv.style.cursor = 'grabbing'; }
+    return;
+  }
+  hoverV = routerAt(px, py);
+  hoverEdge = !hoverV && (act === 'cut' || act === 'rate') ? edgeAt(px, py) : null;
+  cv.style.cursor = hoverV ? 'grab' : hoverEdge ? 'pointer' : 'default';
+});
+cv.addEventListener('pointerup', ev => {
+  const [px, py] = pos(ev);
+  if (dragging) { const v = dragging; dragging = null; cv.style.cursor = 'grab'; if (!dragMoved) clickRouter(v.id); return; }
+  if (act === 'cut' || act === 'rate') { const e = edgeAt(px, py); if (e) clickLink(e); }
+});
+cv.addEventListener('pointerleave', () => { if (!dragging) { hoverV = null; hoverEdge = null; } });
+(function loop() { requestAnimationFrame(loop); draw(); })();
+
+// ─────────────────────── Onglets / boutons ───────────────────────
+function setTab(m) {
+  stopPlay(); cancelAnim();
+  if (OS.updating) { OS.updating = false; ospfFinal(); OS.explain = T.ospf.updated(sel); }
+  tab = m;
+  if (!ACTS[m].includes(act)) act = m === 'comparer' ? 'start' : 'select';
+  hoverDest = pinDest = null; hoverEdge = null;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('code').innerHTML = (m === 'ospf' ? T.codeDij : T.codeRip).map(l => `<li>${highlight(l)}</li>`).join('');
+  $('hCode').textContent = 'Python';
+  $('hCodeR').textContent = m === 'ospf' ? 'Dijkstra' : 'règle de mise à jour';
+  if (m === 'comparer') cmpCompute();
+  q.set('mode', m); history.replaceState(null, '', '?' + q.toString());
+  hideMsg(); renderSide(); setUI();
+}
+function setUI() {
+  const fin = isFinished();
+  document.querySelectorAll('[data-tabs]').forEach(el => { if (!el.closest('#side')) el.style.display = el.dataset.tabs.split(' ').includes(tab) ? '' : 'none'; });
+  document.querySelectorAll('.seg').forEach(b => b.classList.toggle('on', b.dataset.a === act));
+  const h = T.hints[act];
+  $('graphHint').textContent = typeof h === 'string' ? h : h[tab];
+  $('bRestore').classList.toggle('show', modified());
+  $('swSplit').checked = split; $('swSplitWrap').classList.toggle('on', split);
+  if (tab === 'comparer') {
+    $('bPlay').textContent = T.race; $('bPlay').className = 'btn teal'; $('bPlay').disabled = false;
+    $('bReset').title = 'Ramener les paquets au départ';
+    return;
+  }
+  const busy = !!ANIM || (tab === 'ospf' && OS.updating);
+  $('bPlay').textContent = playing ? T.pause : (fin ? T.replay : T.play);
+  $('bPlay').className = 'btn ' + (playing ? '' : 'teal');
+  $('bPlay').disabled = tab === 'ospf' && OS.updating;
+  $('bStep').disabled = playing || busy || (tab === 'ospf' && OS.stage === 'table');
+  $('bStep').title = tab === 'rip' ? 'Tour suivant' : 'Étape suivante';
+  $('bReset').title = tab === 'rip' ? 'Réinitialiser : tour 0, liens rétablis' : 'Recommencer depuis la phase 0';
+}
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => { if (b.dataset.m !== tab) setTab(b.dataset.m); });
+document.querySelectorAll('.seg').forEach(b => b.onclick = () => { act = b.dataset.a; hoverEdge = null; setUI(); });
+$('preset').innerHTML = Object.keys(T.presets).map(k => `<option value="${k}">${T.presets[k]}</option>`).join('');
+$('preset').onchange = e => { loadPreset(e.target.value); renderSide(); setUI(); };
+$('swSplit').onchange = e => { split = e.target.checked; if (tab === 'comparer') cmpCompute(); renderSide(); setUI(); };
+$('rSpeed').oninput = e => { speed = +e.target.value; };
+$('bRestore').onclick = () => restoreNetwork();
+$('bReset').onclick = () => {
+  hideMsg();
+  if (tab === 'rip') ripResetAll();
+  else if (tab === 'ospf') { stopPlay(); ospfReset(); }
+  else if (RACE) { RACE.t0 = null; RACE.reported = false; }
+  renderSide(); setUI();
+};
+$('bPlay').onclick = () => {
+  if (tab === 'comparer') { hideMsg(); raceStart(); return; }
+  if (playing) { stopPlay(); setUI(); return; }
+  if (isFinished()) { if (tab === 'rip') ripResetAll(); else ospfReset(); renderSide(); }
+  playing = true; hideMsg(); setUI(); tick();
+};
+$('bStep').onclick = () => { if ($('bStep').disabled) return; stopPlay(); hideMsg(); stepOnce(); setUI(); };
+// tables de routage : survol = route affichée, clic = route épinglée
+['ripTbl', 'ospfTbl'].forEach(id => {
+  const tb = $(id);
+  tb.addEventListener('mouseover', ev => { const tr = ev.target.closest('tr[data-d]'); if (tr && hoverDest !== tr.dataset.d) { hoverDest = tr.dataset.d; renderTrace(); } });
+  tb.addEventListener('mouseleave', () => { hoverDest = null; renderTrace(); });
+  tb.addEventListener('click', ev => { const tr = ev.target.closest('tr[data-d]'); if (!tr) return; pinDest = pinDest === tr.dataset.d ? null : tr.dataset.d; markPin(); renderTrace(); });
+});
+// journal RIP : survol d'une ligne = ligne de code correspondante
+$('ripLog').addEventListener('mouseover', ev => { const l = ev.target.closest('[data-l]'); setCodeHL(l ? l.dataset.l.split(',').map(Number) : []); });
+$('ripLog').addEventListener('mouseleave', () => setCodeHL([]));
+$('bInfo').onclick = () => { $('overlay').classList.add('open'); $('close').focus(); };
+$('close').onclick = () => $('overlay').classList.remove('open');
+$('overlay').onclick = ev => { if (ev.target.id === 'overlay') $('overlay').classList.remove('open'); };
+window.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') { $('overlay').classList.remove('open'); return; }
+  if ($('overlay').classList.contains('open') || ['INPUT', 'SELECT', 'TEXTAREA'].includes(ev.target.tagName)) return;
+  if (ev.key === ' ' || ev.code === 'Space') { ev.preventDefault(); $('bPlay').click(); }
+  else if (ev.key === 'ArrowRight') { ev.preventDefault(); if (tab !== 'comparer') $('bStep').click(); }
+});
+function showMsg(text, kind) {
+  const m = $('msg'); m.textContent = text; m.className = 'toast glass show' + (kind ? ' ' + kind : '');
+  clearTimeout(showMsg.t); showMsg.t = setTimeout(hideMsg, kind === 'bad' ? 2600 : 4200);
+}
+function hideMsg() { $('msg').classList.remove('show'); }
+
+// ─────────────────────── Démarrage ───────────────────────
+$('tHint').textContent = T.hint;
+if (q.get('horizon') === '1') split = true;
+loadPreset(PRESETS[q.get('preset')] ? q.get('preset') : 'p1');
+setTab(['rip', 'ospf', 'comparer'].includes(q.get('mode')) ? q.get('mode') : 'rip');
+</script>
+</body>
+</html>

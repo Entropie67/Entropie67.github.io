@@ -550,8 +550,8 @@
         <g class="rt"><circle cx="210" cy="105" r="22"/><text x="210" y="105">RA</text></g>
         <g class="rt"><circle cx="430" cy="105" r="22"/><text x="430" y="105">RB</text></g>
         <ellipse class="cloud" cx="210" cy="218" rx="54" ry="22"/><text class="devt" x="210" y="218">Internet (FAI)</text>
-        <text class="addr r" x="184" y="94">eth0</text><text class="addr r" x="184" y="84">.1.1</text>
-        <text class="addr l" x="236" y="94">eth1</text><text class="addr l" x="236" y="84">10.0.0.1</text>
+        <text class="addr r" x="184" y="94">eth0</text><text class="addr r" x="184" y="80">.1.1</text>
+        <text class="addr l" x="236" y="94">eth1</text><text class="addr l" x="236" y="80">10.0.0.1</text>
         <text class="addr r" x="404" y="94">10.0.0.2</text>
         <text class="addr l" x="456" y="94">.2.1</text>
         <text class="addr l" x="218" y="150">eth2 172.16.0.1</text>
@@ -626,13 +626,18 @@
         <li>sinon, on ne change rien (en cas d'égalité, on garde la route déjà connue).</li>
       </ul>
     </div>
-<pre class="code"><span class="kw">def</span> <span class="fn">recevoir</span>(table, voisin, vecteur):
+<pre class="code"><span class="kw">def</span> <span class="fn">recevoir</span>(moi, table, voisin, vecteur):
     <span class="cm"># table : {destination: (passerelle, distance)} ; vecteur : {destination: distance}</span>
     <span class="kw">for</span> dest, d <span class="kw">in</span> vecteur.items():
+        <span class="kw">if</span> dest == moi:                 <span class="cm"># le voisin parle de nous : inutile</span>
+            <span class="kw">continue</span>
         nouvelle = <span class="fn">min</span>(d + <span class="nb">1</span>, <span class="nb">16</span>)
-        <span class="kw">if</span> dest <span class="kw">not in</span> table <span class="kw">or</span> nouvelle &lt; table[dest][<span class="nb">1</span>]:
+        <span class="kw">if</span> dest <span class="kw">not in</span> table:
+            <span class="kw">if</span> nouvelle &lt; <span class="nb">16</span>:           <span class="cm"># destination inconnue et joignable</span>
+                table[dest] = (voisin, nouvelle)
+        <span class="kw">elif</span> nouvelle &lt; table[dest][<span class="nb">1</span>]:  <span class="cm"># strictement mieux</span>
             table[dest] = (voisin, nouvelle)
-        <span class="kw">elif</span> table[dest][<span class="nb">0</span>] == voisin:
+        <span class="kw">elif</span> table[dest][<span class="nb">0</span>] == voisin:  <span class="cm"># la route passe déjà par ce voisin</span>
             table[dest] = (voisin, nouvelle)</pre>
 
     <h3>Le réseau du chapitre</h3>

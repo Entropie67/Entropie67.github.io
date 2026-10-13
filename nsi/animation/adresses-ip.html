@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adresses IP et modèle OSI</title>
+<link rel="icon" type="image/png" href="../../logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="anim.css">
+<script defer src="anim.js"></script>
+<style>
+  [hidden] { display: none !important; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-variant-ligatures: none; }
+  .muted { color: var(--muted); } .small { font-size: 12px; line-height: 1.45; }
+
+  /* ── Onglets ── */
+  .tabs { position: fixed; top: calc(var(--topbar-h, 70px) + 26px); left: 50%; transform: translateX(-50%); z-index: 5;
+    display: flex; gap: 4px; padding: 5px; border-radius: 14px; max-width: calc(100vw - 20px); overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: 13.5px;
+    padding: 0 16px; height: 36px; border-radius: 10px; cursor: pointer; transition: .2s; white-space: nowrap; }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,.06); }
+  .tab.on { color: #fff; background: var(--grad-main); box-shadow: 0 6px 18px rgba(108,158,255,.35); }
+
+  /* ── Zone principale : panneau + cartes latérales ── */
+  #stage { position: fixed; left: 16px; right: 16px; top: calc(var(--topbar-h, 70px) + 82px); bottom: calc(var(--toolbar-h, 62px) + 30px); z-index: 2;
+    display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 14px; }
+  body.embed #stage { top: 66px; left: 10px; right: 10px; bottom: calc(var(--toolbar-h, 62px) + 20px); }
+  body.embed .tabs { top: 10px; }
+  body.embed .topbar, body.embed .orbs { display: none; }
+  body.embed .toolbar { bottom: 10px; }
+  /* centrée par left: 50 %, la barre n'aurait que la moitié de la largeur : on lui laisse sa largeur naturelle */
+  .toolbar { width: max-content; }
+  #main { display: grid; grid-template-rows: minmax(0, 1fr); min-height: 0; min-width: 0; }
+  .panel { position: relative; min-height: 0; min-width: 0; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+  #side { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; padding-right: 2px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+  .card { padding: 14px 16px; flex: 0 0 auto; }
+  .card h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .card h4 .r { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 600; }
+  .kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 12px; font-size: 13px; align-items: baseline; }
+  .kv .k { color: var(--muted); }
+  .kv .v { font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .kv .v.mono { font-size: 12.5px; }
+  .kv .v.b { color: var(--blue); } .kv .v.t { color: var(--teal); } .kv .v.p { color: var(--violet); } .kv .v.a { color: var(--amber); }
+  .kv sup, .txt sup { font-size: .7em; line-height: 0; }
+  .ty.privee { color: var(--teal); } .ty.publique { color: var(--blue); } .ty.boucle, .ty.apipa, .ty.multi, .ty.reservee { color: var(--amber); }
+  .note { margin-top: 10px; font-size: 12.5px; line-height: 1.45; padding: 8px 10px; border-radius: 10px; background: rgba(255,197,61,.08); border: 1px solid rgba(255,197,61,.3); color: #ffe6a8; }
+  .note b { color: #fff; }
+
+  .phead { display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; flex: none; }
+  .phead h3, .pduhead h3 { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 800; }
+  .phead .r { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .msgline { font-size: 12px; font-weight: 600; color: #ffb4c2; line-height: 1.4; }
+  .msgline.warn { color: #ffe08a; }
+  .phint { font-size: 11.5px; color: var(--muted); line-height: 1.4; flex: 1 1 200px; }
+  #pIp { gap: 8px; }
+
+  .txt { font-size: 13px; line-height: 1.55; color: #d8dbe6; }
+  .txt p { margin: 0 0 8px; } .txt p:last-child { margin-bottom: 0; }
+  .txt b { color: #fff; }
+  .txt .u { color: var(--amber); font-weight: 700; } .txt .p { color: var(--violet); font-weight: 700; } .txt .b { color: var(--blue); font-weight: 700; }
+  .txt .t { color: var(--teal); font-weight: 700; } .txt .k { color: var(--pink); font-weight: 700; }
+  .txt code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 5px; }
+  .calc { font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; padding: 7px 10px; border-radius: 9px; background: rgba(0,0,0,.25);
+    border: 1px solid var(--border); white-space: pre; overflow-x: auto; color: #cfd3e0; }
+
+  /* ── Grille des 32 bits ── */
+  @property --cx { syntax: '<length>'; inherits: true; initial-value: 0px; }
+  .bitwrap { position: relative; container-type: inline-size; width: 100%; max-width: 1080px; margin: 0 auto; flex: none; user-select: none; -webkit-user-select: none; }
+  #ipWrap { padding: 26px 0 18px; margin-top: auto; transition: --cx .3s cubic-bezier(.2,.9,.25,1); }
+  #cutWrap { padding: 0 0 2px; }
+  .bitgrid { --sep: clamp(7px, 1.8cqw, 16px); --gap: clamp(1px, .4cqw, 3px);
+    display: grid; column-gap: var(--gap);
+    grid-template-columns: repeat(8, minmax(0, 1fr)) var(--sep) repeat(8, minmax(0, 1fr)) var(--sep) repeat(8, minmax(0, 1fr)) var(--sep) repeat(8, minmax(0, 1fr)); }
+  .bit { height: clamp(18px, 4.3cqw, 30px); display: grid; place-items: center; border-radius: clamp(3px, .7cqw, 6px); border: 1px solid transparent;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; font-size: clamp(9px, 2.3cqw, 15px); line-height: 1;
+    transition: background-color .35s, color .35s, border-color .35s, box-shadow .35s, transform .15s; }
+  .bit.net.zero { background: rgba(108,158,255,.09); border-color: rgba(108,158,255,.22); color: rgba(170,196,255,.55); }
+  .bit.net.one { background: rgba(108,158,255,.62); border-color: rgba(170,196,255,.9); color: #fff; box-shadow: 0 0 10px rgba(108,158,255,.35); }
+  .bit.host.zero { background: rgba(46,230,197,.07); border-color: rgba(46,230,197,.2); color: rgba(125,245,223,.5); }
+  .bit.host.one { background: rgba(46,230,197,.62); border-color: rgba(125,245,223,.9); color: #03201b; box-shadow: 0 0 10px rgba(46,230,197,.3); }
+  .bit.brw.zero { background: rgba(181,123,255,.12); border-color: rgba(181,123,255,.38); color: rgba(217,184,255,.7); }
+  .bit.brw.one { background: rgba(181,123,255,.72); border-color: rgba(217,184,255,.95); color: #fff; box-shadow: 0 0 10px rgba(181,123,255,.4); }
+  .bit.ip { cursor: pointer; }
+  .bit.ip:hover { transform: translateY(-2px); border-color: #fff; }
+  .bit.drag { cursor: ew-resize; touch-action: none; }
+  .bit.pop { animation: bitpop .35s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes bitpop { 0% { transform: scale(.6); } }
+  .dot { display: flex; align-items: flex-end; justify-content: center; height: clamp(18px, 4.3cqw, 30px); font-weight: 800; color: var(--muted); font-size: clamp(11px, 2.2cqw, 16px); line-height: 1; }
+  .wt { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: clamp(7px, 1.6cqw, 10.5px); color: rgba(255,255,255,.42); padding-bottom: 2px; white-space: nowrap; }
+  .cap { display: flex; align-items: baseline; gap: 10px; font-size: clamp(11px, 1.9cqw, 13px); font-weight: 700; color: #cfd3e0; margin-top: 7px; padding-bottom: 3px; min-width: 0; }
+  .cap.first { margin-top: 0; }
+  .cap .cl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cap .cv { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-weight: 700; white-space: nowrap; }
+  .cap .cv.mk { color: var(--muted); } .cap .cv.b { color: var(--blue); } .cap .cv.t { color: var(--teal); } .cap .cv.p { color: var(--violet); }
+  .cap .op { color: var(--amber); }
+  .cap .xs { color: var(--muted); font-weight: 600; }
+  .cap .warn { color: var(--amber); }
+  @container (max-width: 460px) { .cap .xs { display: none; } }
+  .dec { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(10px, 1.9cqw, 13px); color: var(--muted); padding-top: 2px; transition: color .3s; }
+  .dec.n { color: #a9c4ff; } .dec.h { color: #8ff0dd; } .dec.mx { color: var(--amber); } .dec.sb { color: #d9b8ff; }
+
+  /* trait /n déplaçable et piste de glissement */
+  .track { position: absolute; left: 0; right: 0; top: 0; height: 24px; z-index: 2; cursor: ew-resize; touch-action: none; }
+  .track::before { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, rgba(108,158,255,.55) 0 var(--cx), rgba(46,230,197,.4) var(--cx) 100%); }
+  .cut { position: absolute; top: 0; width: 18px; margin-left: -9px; z-index: 4; cursor: ew-resize; touch-action: none; outline: none;
+    transition: left .3s cubic-bezier(.2,.9,.25,1); }
+  .cut.drag { transition: left .08s linear; }
+  .cut::before { content: ""; position: absolute; left: 8px; width: 2px; top: 18px; bottom: 0; border-radius: 2px; background: #fff;
+    box-shadow: 0 0 0 1px rgba(11,13,20,.55), 0 0 12px rgba(255,255,255,.6); }
+  .cut .knob { position: absolute; top: 0; left: 50%; transform: translateX(-50%); padding: 1px 9px; border-radius: 999px; background: var(--grad-main);
+    color: #fff; font-weight: 800; font-size: 12px; line-height: 1.45; white-space: nowrap; box-shadow: 0 4px 16px rgba(108,158,255,.55); }
+  .cut.al .knob { left: 2px; transform: none; } .cut.ar .knob { left: auto; right: 2px; transform: none; }
+  .cut:focus-visible .knob { outline: 2px solid #fff; outline-offset: 2px; }
+  .mixbox { position: absolute; z-index: 1; pointer-events: none; border: 1.5px dashed rgba(255,197,61,.8); border-radius: 10px; background: rgba(255,197,61,.04);
+    transition: left .3s, width .3s, top .3s, height .3s, opacity .3s; }
+  .mixbox.off { opacity: 0; }
+  .mixbox span { position: absolute; left: 50%; bottom: -17px; transform: translateX(-50%); font-size: 10.5px; font-weight: 800; color: var(--amber); white-space: nowrap; letter-spacing: .04em; }
+  .pfoot { display: flex; flex-direction: column; gap: 6px; align-items: center; margin-bottom: auto; flex: none; }
+  .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; font-size: 11.5px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .lg-net { background: rgba(108,158,255,.62); } .lg-host { background: rgba(46,230,197,.62); } .lg-sub { background: rgba(181,123,255,.72); }
+  .lg-mix { border: 1.5px dashed rgba(255,197,61,.9); }
+
+  /* ── Champs de saisie, préfixe, pastilles ── */
+  .field { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border);
+    background: rgba(255,255,255,.04); transition: border-color .2s, box-shadow .2s; cursor: text; }
+  .field .lbl, .slider .lbl, .prefix .lbl, .kset .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; white-space: nowrap; }
+  .field input { appearance: none; border: 0; outline: 0; background: transparent; color: var(--text); font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 600; font-size: 14px; width: 15.5ch; min-width: 0; padding: 0; }
+  #netIn { width: 18.5ch; }
+  .field:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(108,158,255,.15); }
+  .field.bad, .field.bad:focus-within { border-color: var(--red); box-shadow: 0 0 0 3px rgba(255,92,122,.2); }
+  .field.bad input { color: #ffb4c2; }
+  .card .field { display: flex; width: 100%; height: 36px; border-radius: 10px; }
+  .card .field input { flex: 1; width: auto; font-size: 13px; }
+  .prefix, .kset { display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 6px 0 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,.04); }
+  .prefix .btn { height: 30px; width: 30px; padding: 0; border-radius: 8px; font-size: 17px; border-color: transparent; }
+  .prefix .val { min-width: 40px; text-align: center; font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums; color: var(--blue); }
+  .kset { gap: 10px; }
+  .slider { display: inline-flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,.04); }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 110px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.15); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--grad-main); border: 2px solid #fff; box-shadow: 0 2px 10px rgba(108,158,255,.6); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--grad-main); border: 2px solid #fff; cursor: pointer; }
+  input[type=range]:focus-visible { box-shadow: 0 0 0 3px rgba(108,158,255,.35); }
+  .pills { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pill { appearance: none; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--muted); font: inherit; font-weight: 700; font-size: 12.5px;
+    padding: 0 12px; height: 32px; border-radius: 9px; cursor: pointer; transition: .2s; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .pill:hover { color: var(--text); }
+  .pill.on { color: #fff; background: var(--grad-main); border-color: transparent; }
+  .pill.off { opacity: .32; cursor: not-allowed; }
+  .kset .pill { height: 30px; padding: 0 10px; }
+  select.btn { padding-right: 32px; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 18px, calc(100% - 11px) 18px; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; }
+  select.btn.sm { padding-right: 28px; background-position: calc(100% - 15px) 15px, calc(100% - 10px) 15px; }
+  select.btn option { background: #181b24; color: var(--text); }
+  .tb { display: none; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .tb.on { display: flex; }
+
+  /* ── Même réseau ? ── */
+  .nets2 { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: center; margin: 10px 0 4px; }
+  .netbox { padding: 7px 8px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,.04); text-align: center; min-width: 0; }
+  .netbox .a { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+  .netbox .nv { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; color: var(--blue); overflow-wrap: anywhere; }
+  .eq { font-size: 22px; font-weight: 800; color: var(--teal); } .eq.no { color: var(--red); }
+  .cap2 { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 8px; }
+  .verdict { font-size: 13px; line-height: 1.45; padding: 8px 10px; border-radius: 10px; }
+  .verdict.ok { background: rgba(46,230,197,.1); color: #a6f5e6; border: 1px solid rgba(46,230,197,.35); }
+  .verdict.no { background: rgba(255,92,122,.1); color: #ffc2cd; border: 1px solid rgba(255,92,122,.35); }
+  .verdict b { color: #fff; }
+
+  /* ── Sous-réseaux ── */
+  .cutok { display: flex; flex-direction: column; gap: 10px; flex: 1 1 auto; min-height: 0; }
+  .ko { margin: auto; max-width: 520px; text-align: center; font-size: 14px; line-height: 1.55; color: #ffd0d9; padding: 18px; border-radius: 12px;
+    border: 1px dashed rgba(255,92,122,.5); background: rgba(255,92,122,.07); }
+  .barbox { display: flex; flex-direction: column; gap: 5px; flex: none; }
+  .bar { position: relative; display: flex; height: 48px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-hi); background: rgba(255,255,255,.03); }
+  .seg { position: relative; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer;
+    border-right: 1px solid rgba(11,13,20,.75); color: #fff; overflow: hidden; transition: filter .2s, box-shadow .2s; animation: segin .45s both cubic-bezier(.2,.9,.3,1); }
+  .seg:last-child { border-right: 0; }
+  .seg.c0, .sw.c0 { background: linear-gradient(180deg, rgba(108,158,255,.62), rgba(108,158,255,.32)); }
+  .seg.c1, .sw.c1 { background: linear-gradient(180deg, rgba(181,123,255,.62), rgba(181,123,255,.32)); }
+  .seg .si { font-size: 9.5px; font-weight: 800; opacity: .75; }
+  .seg .sl { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .bar.nolbl .seg .sl, .bar.noidx .seg .si { display: none; }
+  .bar.hashl .seg:not(.hl) { filter: saturate(.55) brightness(.75); }
+  .seg.hl { filter: brightness(1.4); box-shadow: inset 0 0 0 2px #fff; z-index: 1; }
+  @keyframes segin { from { opacity: 0; transform: scaleY(.3); } }
+  .scale { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
+  .scale .mono { color: #cfd3e0; }
+  .twrap { overflow: auto; flex: 1 1 auto; min-height: 130px; border-radius: 10px; border: 1px solid var(--border); scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+  table.sn { border-collapse: separate; border-spacing: 0; width: 100%; font-variant-numeric: tabular-nums; }
+  table.sn th, table.sn td { padding: 5px 6px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.sn th { position: sticky; top: 0; z-index: 1; background: rgba(20,23,34,.97); font-size: 9.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 800; }
+  table.sn td { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #d8dbe6; transition: background .15s; }
+  table.sn td.b { color: #a9c4ff; font-weight: 700; } table.sn td.t { color: #8ff0dd; }
+  table.sn .sw { display: inline-block; min-width: 22px; padding: 1px 4px; border-radius: 5px; text-align: center; color: #fff; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 10.5px; }
+  table.sn tbody tr { cursor: pointer; }
+  table.sn tbody tr.hl td { background: rgba(108,158,255,.16); color: #fff; }
+
+  /* ── Encapsulation OSI : scène SVG ── */
+  #pOsi { gap: 8px; }
+  .scene { position: relative; flex: 1 1 auto; min-height: 210px; }
+  #osiSvg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+  .L7 { --c: 255,197,61; } .L6 { --c: 255,166,77; } .L5 { --c: 255,140,105; } .L4 { --c: 181,123,255; } .L3 { --c: 108,158,255; } .L2 { --c: 255,79,163; } .L1 { --c: 46,230,197; }
+  .lay { cursor: pointer; transition: opacity .35s; }
+  .lay rect { fill: rgba(var(--c), .07); stroke: rgba(var(--c), .35); stroke-width: 1.2; transition: fill .3s, stroke .3s, stroke-width .3s; }
+  .lay text { fill: rgba(230,232,239,.8); font-family: 'Inter', sans-serif; font-weight: 600; dominant-baseline: central; pointer-events: none; transition: fill .3s; }
+  .lay tspan.n { font-weight: 800; fill: rgb(var(--c)); }
+  .lay tspan.lsub { fill: var(--muted); font-weight: 600; }
+  .lay:hover rect { stroke: rgba(var(--c), .85); }
+  .lay.on rect { fill: rgba(var(--c), .42); stroke: rgb(var(--c)); stroke-width: 2; }
+  .lay.on { filter: drop-shadow(0 0 7px rgba(var(--c), .6)); }
+  .lay.on text, .lay.on tspan.n, .lay.on tspan.lsub { fill: #fff; }
+  .lay.pick rect { stroke: #fff; stroke-dasharray: 4 3; stroke-width: 1.6; }
+  .grp { opacity: 0; pointer-events: none; }
+  svg.tcp .osiL { opacity: 0; pointer-events: none; }
+  svg.tcp .grp { opacity: 1; pointer-events: auto; }
+  .dname { fill: #fff; font-family: 'Inter', sans-serif; font-weight: 800; text-anchor: middle; }
+  .dsub { fill: var(--muted); font-family: 'JetBrains Mono', monospace; font-weight: 600; text-anchor: middle; }
+  .cable { fill: none; stroke: rgba(255,255,255,.22); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; transition: stroke .3s; }
+  .cable.on { stroke: rgba(46,230,197,.85); filter: drop-shadow(0 0 6px rgba(46,230,197,.8)); }
+  .maclbl { fill: rgba(255,255,255,.45); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .bitg { fill: #fff; font-family: 'JetBrains Mono', monospace; font-weight: 700; text-anchor: middle; dominant-baseline: central; stroke: #0b0d14; stroke-width: 3px; paint-order: stroke; }
+  .tok { stroke: #fff; stroke-width: 2; filter: drop-shadow(0 0 6px rgba(255,255,255,.8)); transition: fill .3s; }
+
+  /* ── Barre PDU ── */
+  .pdubox { flex: none; display: flex; flex-direction: column; gap: 7px; container-type: inline-size; }
+  .pduhead { display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; }
+  .chain { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 4px; font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,.32); }
+  .chain span { padding: 1px 8px; border-radius: 999px; transition: background .3s, color .3s; }
+  .chain i { font-style: normal; opacity: .55; }
+  .chain span.on { color: #0b0d14; }
+  .chain span.on[data-n=donnees] { background: var(--amber); } .chain span.on[data-n=segment] { background: var(--violet); }
+  .chain span.on[data-n=paquet] { background: var(--blue); } .chain span.on[data-n=trame] { background: var(--pink); } .chain span.on[data-n=bits] { background: var(--teal); }
+  /* la trame complète tient sur une ligne vers 490 px ; en dessous on réserve deux lignes pour que la scène ne saute pas */
+  .pdu { display: flex; flex-wrap: wrap; align-items: stretch; row-gap: 4px; min-height: 50px; }
+  @container (max-width: 490px) { .pdu { min-height: 100px; align-content: flex-start; } }
+  .blk { --c: 255,255,255; display: flex; flex-direction: column; justify-content: center; gap: 1px; overflow: hidden; white-space: nowrap;
+    max-width: 0; opacity: 0; padding: 5px 0; margin-right: 0; border: 0 solid rgba(var(--c), .55); border-radius: 8px; background: rgba(var(--c), .13);
+    transition: max-width .5s cubic-bezier(.3,.8,.3,1), opacity .4s, padding .5s, margin .5s, border-width .5s, border-color .4s; }
+  .blk.in { max-width: 240px; opacity: 1; padding: 4px 6px; margin-right: 4px; border-width: 1px; }
+  .blk.in.sealed { opacity: .5; border-style: dashed; }
+  .blk.eth, .blk.fcs { --c: 255,79,163; } .blk.ip { --c: 108,158,255; } .blk.tcp { --c: 181,123,255; } .blk.data { --c: 255,197,61; }
+  .blk .bt { font-size: 9px; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: rgb(var(--c)); display: flex; gap: 6px; justify-content: space-between; }
+  .blk .bt b { font-family: 'JetBrains Mono', monospace; color: #fff; letter-spacing: 0; padding: 0 3px; border-radius: 4px; transition: background .3s, color .3s; }
+  .blk .f { font-size: 9.5px; color: var(--muted); }
+  .blk .f b { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 600; color: #e6e8ef; padding: 0 2px; border-radius: 4px; transition: background .3s, color .3s, box-shadow .3s; }
+  .blk b.chg { background: rgba(255,197,61,.92); color: #1d1400; animation: flash 1.2s; }
+  .blk b.same { background: rgba(46,230,197,.16); color: #a6f5e6; box-shadow: inset 0 0 0 1px rgba(46,230,197,.6); }
+  @keyframes flash { 0%, 40% { box-shadow: 0 0 0 4px rgba(255,197,61,.45); } 100% { box-shadow: 0 0 0 0 rgba(255,197,61,0); } }
+  .blk .bits { display: none; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; line-height: 1.4; color: #7df5df; }
+  .pdu.asbits .blk .f { display: none; }
+  .pdu.asbits .blk .bits { display: block; }
+  .pdu.asbits .blk { background: rgba(46,230,197,.08); }
+  .pempty { display: none; align-items: center; font-size: 12px; color: rgba(255,255,255,.3); }
+  .pdu.none .pempty { display: flex; }
+  .hops { display: grid; grid-template-columns: repeat(5, auto); justify-content: start; gap: 2px 8px; font-size: 10px; overflow-x: auto; align-items: center; scrollbar-width: thin; }
+  .hops .h { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; font-weight: 800; white-space: nowrap; }
+  .hops .lb { color: #cfd3e0; font-weight: 700; white-space: nowrap; }
+  .hops .c { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; white-space: nowrap; color: #e6e8ef; padding: 0 3px; border-radius: 4px; transition: background .3s, color .3s; }
+  .hops .c.na { color: rgba(255,255,255,.22); }
+  .hops .c.chg { background: rgba(255,197,61,.88); color: #1d1400; }
+  .hops .c.same { color: #a6f5e6; box-shadow: inset 0 0 0 1px rgba(46,230,197,.55); background: rgba(46,230,197,.12); }
+
+  /* carte « Couche active » et table de routage */
+  .lhd { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .lhd .ln { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 17px; color: #0b0d14; background: rgb(var(--c)); box-shadow: 0 4px 14px rgba(var(--c), .4); }
+  .lhd b { display: block; font-size: 15px; color: #fff; }
+  .lhd small { display: block; font-size: 11.5px; color: var(--muted); }
+  .role { margin: 0 0 8px; font-size: 13px; line-height: 1.5; color: #d8dbe6; }
+  .lpills { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; font-size: 11.5px; color: var(--muted); }
+  .lpills .pill { height: 28px; padding: 0 10px; font-size: 12px; }
+  .rt { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11.5px; }
+  .rt th, .rt td { padding: 3px 6px; border-bottom: 1px solid var(--border); text-align: left; }
+  .rt th { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; font-weight: 800; }
+  .rt td { font-family: 'JetBrains Mono', monospace; }
+  .rt tr.hit td { background: rgba(108,158,255,.18); color: #fff; }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    #stage { grid-template-columns: minmax(0, 1fr) 330px; }
+    body[data-mode="decoupage"] #stage { grid-template-columns: minmax(0, 1fr) 300px; }   /* place pour les 6 colonnes du tableau */
+  }
+  @media (max-width: 820px) {
+    /* une seule colonne : le panneau puis les cartes, le tout défile verticalement */
+    #stage { display: block; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+    #main { display: block; }
+    .panel { overflow: visible; margin-bottom: 12px; }
+    #side { overflow: visible; padding-right: 0; }
+    .scene { flex: none; height: clamp(225px, 58vw, 360px); }
+    .twrap { flex: none; max-height: 320px; }
+    #ipWrap { margin-top: 0; } .pfoot { margin-bottom: 0; }
+    .tab { padding: 0 11px; font-size: 12.5px; height: 32px; }
+  }
+  @media (max-width: 600px) {
+    .titleblock h1 { font-size: 14px; white-space: normal; }
+    .back { padding: 8px 6px; }
+    .tab .lg, .pill .lg { display: none; }
+    .toolbar { left: 8px; right: 8px; transform: none; max-width: none; width: auto; padding: 7px; gap: 6px; }
+    .toolbar .sep, .slider .lbl, .prefix .lbl, .kset .lbl { display: none; }
+    .tb { gap: 6px; width: 100%; }
+    .field { flex: 1 1 140px; padding: 0 9px; gap: 6px; height: 38px; }
+    .field .lbl { font-size: 9.5px; letter-spacing: .04em; }
+    .field input, #netIn { width: 100%; font-size: 12.5px; }
+    .prefix { flex: 1 1 100%; order: 3; height: 38px; justify-content: space-between; }
+    .prefix input[type=range] { flex: 1; width: auto; }
+    .kset { height: 38px; padding: 0 6px; }
+    .slider { padding: 0 8px; height: 38px; } .slider input[type=range] { width: 80px; }
+    .panel { padding: 12px 10px; }
+    .card { padding: 12px 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bit, .cut, .mixbox, .blk, .seg, #ipWrap { transition: none; animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+
+<div class="topbar glass">
+  <a class="back" href="../index.html">← NSI</a>
+  <div class="titleblock">
+    <h1 id="tTitle">Adresses IP et modèle OSI</h1>
+    <p id="tHint"></p>
+  </div>
+  <div class="spacer"></div>
+  <div class="chipset">
+    <a class="btn sm" id="bCours" href="../terminale/chapitre_reseaux/cours-reseaux.html">Cours</a>
+    <button id="bInfo" class="btn sm">Info</button>
+  </div>
+</div>
+
+<div class="tabs glass" id="tabs">
+  <button class="tab on" data-m="ip">Adresse<span class="lg"> et masque</span></button>
+  <button class="tab" data-m="decoupage">Sous-réseaux</button>
+  <button class="tab" data-m="osi"><span class="lg">Encapsulation </span>OSI</button>
+</div>
+<div id="msg" class="toast glass" style="top: calc(var(--topbar-h, 70px) + 80px);"></div>
+
+<div id="stage">
+  <div id="main">
+    <!-- ═══ Adresse et masque ═══ -->
+    <section class="panel glass m-ip" id="pIp">
+      <div class="phead">
+        <span class="phint" id="ipHint" title="On peut aussi glisser la ligne du masque, ou utiliser les flèches ← →">Cliquez un bit pour le basculer · glissez le trait /n</span>
+        <span class="msgline" id="ipErr"></span>
+        <div class="r"><select id="exSel" class="btn sm" aria-label="Exemples"></select></div>
+      </div>
+      <div class="bitwrap" id="ipWrap">
+        <div class="track" id="ipTrack" title="Glissez pour changer le préfixe"></div>
+        <div class="bitgrid" id="ipBits"></div>
+        <div class="mixbox off" id="mixBox"><span>octet mixte</span></div>
+        <div class="cut" id="ipCut" tabindex="0" role="slider" aria-label="Préfixe : frontière entre la partie réseau et la partie hôte" aria-valuemin="0" aria-valuemax="32"><span class="knob" id="ipKnob">/24</span></div>
+      </div>
+      <div class="pfoot">
+        <div class="legend" id="ipLegend"></div>
+      </div>
+    </section>
+
+    <!-- ═══ Sous-réseaux ═══ -->
+    <section class="panel glass m-decoupage" id="pCut" hidden>
+      <div class="phead"><h3 id="cutTitle"></h3><span class="msgline" id="cutErr"></span></div>
+      <div class="ko" id="cutKo" hidden></div>
+      <div class="cutok" id="cutOk">
+        <div class="bitwrap" id="cutWrap"><div class="bitgrid" id="cutBits"></div></div>
+        <div class="legend" id="cutLegend"></div>
+        <div class="barbox">
+          <div class="bar" id="bar"></div>
+          <div class="scale"><span class="mono" id="barL"></span><span id="barM"></span><span class="mono" id="barR"></span></div>
+        </div>
+        <div class="twrap" id="twrap"><table class="sn" id="cutTable"></table></div>
+      </div>
+    </section>
+
+    <!-- ═══ Encapsulation OSI ═══ -->
+    <section class="panel glass m-osi" id="pOsi" hidden>
+      <div class="scene" id="scene"><svg id="osiSvg" xmlns="http://www.w3.org/2000/svg" aria-label="PC, routeur et serveur avec leurs couches"></svg></div>
+      <div class="pdubox">
+        <div class="pduhead"><h3 title="Protocol Data Unit : l’unité de données manipulée par chaque couche">PDU</h3><div class="chain" id="chain"></div></div>
+        <div class="pdu none" id="pdu">
+          <div class="blk eth" id="blk-eth" title="En-tête Ethernet (couche 2)">
+            <div class="bt">Ethernet</div>
+            <div class="f">dest <b id="fMacD">aa:bb:cc:00:00:fe</b></div>
+            <div class="f">src <b id="fMacS">aa:bb:cc:00:00:01</b></div>
+            <div class="bits"></div>
+          </div>
+          <div class="blk ip" id="blk-ip" title="En-tête IP (couche 3)">
+            <div class="bt">IP <span>TTL <b id="fTtl">64</b></span></div>
+            <div class="f">src <b id="fIpS">192.168.1.37</b></div>
+            <div class="f">dest <b id="fIpD">203.0.113.10</b></div>
+            <div class="bits"></div>
+          </div>
+          <div class="blk tcp" id="blk-tcp" title="En-tête TCP (couche 4) : ports source et destination">
+            <div class="bt">TCP</div>
+            <div class="f">src <b>52814</b></div>
+            <div class="f">dest <b>80</b></div>
+            <div class="bits"></div>
+          </div>
+          <div class="blk data" id="blk-data" title="Données de l’application (couche 7)">
+            <div class="bt">Données HTTP</div>
+            <div class="f"><b>GET /index.html</b></div>
+            <div class="bits"></div>
+          </div>
+          <div class="blk fcs" id="blk-fcs" title="FCS : code de contrôle d’erreur (CRC) ajouté à la fin de la trame">
+            <div class="bt">FCS</div>
+            <div class="f">CRC</div>
+            <div class="bits"></div>
+          </div>
+          <div class="pempty">rien pour l’instant : lancez l’animation</div>
+        </div>
+        <div class="hops" id="hops">
+          <span class="h">Saut</span><span class="h">MAC src</span><span class="h">MAC dest</span><span class="h">IP src</span><span class="h">IP dest</span>
+          <span class="lb">PC → routeur</span><span class="c" id="h1ms"></span><span class="c" id="h1md"></span><span class="c" id="h1is"></span><span class="c" id="h1id"></span>
+          <span class="lb">routeur → serveur</span><span class="c" id="h2ms"></span><span class="c" id="h2md"></span><span class="c" id="h2is"></span><span class="c" id="h2id"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="side">
+    <!-- Adresse et masque -->
+    <div class="card glass m-ip">
+      <h4>Résultats</h4>
+      <div class="kv" id="ipRes"></div>
+      <div id="ipNotes"></div>
+    </div>
+    <div class="card glass m-ip">
+      <h4>Même réseau ?</h4>
+      <label class="field" id="fIp2"><span class="lbl">2e adresse</span><input id="ip2In" value="192.168.1.200" spellcheck="false" autocomplete="off" inputmode="decimal" aria-label="Seconde adresse IP"></label>
+      <div id="sameOut"></div>
+    </div>
+    <div class="card glass m-ip">
+      <h4>Méthode</h4>
+      <div class="txt" id="ipMethod"></div>
+    </div>
+
+    <!-- Sous-réseaux -->
+    <div class="card glass m-decoupage" hidden>
+      <h4>Calcul</h4>
+      <div class="kv" id="cutCalc"></div>
+    </div>
+    <div class="card glass m-decoupage" hidden>
+      <h4 id="cutDetH">Sous-réseau</h4>
+      <div id="cutDet"></div>
+    </div>
+    <div class="card glass m-decoupage" hidden>
+      <h4>Méthode</h4>
+      <div class="txt" id="cutMethod"></div>
+    </div>
+
+    <!-- Encapsulation OSI -->
+    <div class="card glass m-osi" hidden>
+      <h4>Étape <span class="r" id="stepNo"></span></h4>
+      <div class="txt" id="osiExplain"></div>
+    </div>
+    <div class="card glass m-osi" hidden>
+      <h4>Couche active <span class="r" id="layR"></span></h4>
+      <div id="layCard"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar glass">
+  <div class="tb on" id="tb-ip">
+    <label class="field" id="fIp"><span class="lbl">IP</span><input id="ipIn" value="192.168.1.37" spellcheck="false" autocomplete="off" inputmode="decimal" aria-label="Adresse IP"></label>
+    <div class="prefix">
+      <span class="lbl">préfixe</span>
+      <button class="btn" id="nMinus" title="Partie réseau plus courte (n − 1)">−</button>
+      <input type="range" id="nRange" min="0" max="32" step="1" value="24" aria-label="Préfixe n">
+      <button class="btn" id="nPlus" title="Partie réseau plus longue (n + 1)">+</button>
+      <span class="val" id="nVal">/24</span>
+    </div>
+    <label class="field" id="fMask"><span class="lbl">masque</span><input id="maskIn" value="255.255.255.0" spellcheck="false" autocomplete="off" inputmode="decimal" aria-label="Masque en décimal pointé"></label>
+  </div>
+  <div class="tb" id="tb-decoupage">
+    <label class="field" id="fNet"><span class="lbl">réseau</span><input id="netIn" value="192.168.10.0/24" spellcheck="false" autocomplete="off" aria-label="Réseau de départ, notation CIDR"></label>
+    <div class="kset"><span class="lbl">sous-réseaux</span><div class="pills" id="kPills"></div></div>
+  </div>
+  <div class="tb" id="tb-osi">
+    <div class="pills" id="viewPills">
+      <button class="pill on" data-v="osi">Vue OSI<span class="lg"> (7 couches)</span></button>
+      <button class="pill" data-v="tcp">Vue TCP/IP<span class="lg"> (4 couches)</span></button>
+    </div>
+    <div class="sep"></div>
+    <div class="slider"><span class="lbl">vitesse</span><input type="range" id="rSpeed" min="0" max="100" value="50" aria-label="Vitesse"></div>
+    <button id="bReset" class="btn icon" title="Revenir au début">⏮</button>
+    <button id="bPlay" class="btn teal">▶ Lancer</button>
+    <button id="bStep" class="btn icon" title="Étape suivante">⏭</button>
+  </div>
+</div>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="modal glass">
+    <button id="close" class="close" aria-label="Fermer">×</button>
+    <div id="infoContent"></div>
+  </div>
+</div>
+
+<!-- ============ Logique pure ============ -->
+<script id="logic">
+// Une adresse IPv4 est manipulée comme un entier non signé sur 32 bits (0 à 4 294 967 295).
+// Les opérateurs bit à bit de JavaScript travaillent sur des entiers SIGNÉS : on ramène
+// systématiquement le résultat en non signé avec « >>> 0 ».
+function parseIP(s) {
+  const m = /^\s*(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\s*$/.exec(String(s));
+  if (!m) return null;
+  let x = 0;
+  for (let i = 1; i <= 4; i++) {
+    const o = Number(m[i]);
+    if (o > 255) return null;
+    x = x * 256 + o;                 // multiplication : pas de dépassement signé
+  }
+  return x;
+}
+function formatIP(x) {
+  x = x >>> 0;
+  return (x >>> 24) + '.' + ((x >>> 16) & 255) + '.' + ((x >>> 8) & 255) + '.' + (x & 255);
+}
+function toOctets(x) { x = x >>> 0; return [x >>> 24, (x >>> 16) & 255, (x >>> 8) & 255, x & 255]; }
+// Les 32 bits, celui de poids fort en premier
+function toBits(x) { x = x >>> 0; const b = []; for (let i = 31; i >= 0; i--) b.push((x >>> i) & 1); return b; }
+function toBin8(o) { return o.toString(2).padStart(8, '0'); }
+
+// Préfixe seul : « 24 » ou « /24 »
+function parsePrefix(s) {
+  const m = /^\s*\/?\s*(\d{1,2})\s*$/.exec(String(s));
+  if (!m) return null;
+  const n = Number(m[1]);
+  return n <= 32 ? n : null;
+}
+// « 192.168.1.37/24 » → { ip, n } ; le préfixe est facultatif (n vaut alors null)
+function parseCIDR(s) {
+  const m = /^\s*([0-9.]+)\s*(?:\/\s*(\d{1,2}))?\s*$/.exec(String(s));
+  if (!m) return null;
+  const ip = parseIP(m[1]);
+  if (ip === null) return null;
+  if (m[2] === undefined) return { ip, n: null };
+  const n = Number(m[2]);
+  return n <= 32 ? { ip, n } : null;
+}
+
+// Masque /n : n bits à 1 puis 32 − n bits à 0.
+// Attention : en JavaScript, x << 32 vaut x (décalage pris modulo 32) : /0 est traité à part.
+function maskFromPrefix(n) { return n <= 0 ? 0 : (0xFFFFFFFF << (32 - n)) >>> 0; }
+// Préfixe d'un masque, ou null si ses 1 ne sont pas contigus à gauche (ex. 255.255.0.255)
+function prefixFromMask(m) {
+  m = m >>> 0;
+  const host = (~m) >>> 0;                       // partie hôte : doit être de la forme 0…01…1
+  if ((host & (host + 1)) !== 0) return null;
+  let n = 0;
+  while (n < 32 && ((m >>> (31 - n)) & 1)) n++;
+  return n;
+}
+// Masque saisi en décimal pointé ou sous la forme /n → { n } ou { error: 'format' | 'contigu' }
+function parseMask(s) {
+  const p = parsePrefix(s);
+  if (p !== null) return { n: p };
+  const m = parseIP(s);
+  if (m === null) return { error: 'format' };
+  const n = prefixFromMask(m);
+  return n === null ? { error: 'contigu' } : { n };
+}
+
+function networkOf(ip, n) { return (ip & maskFromPrefix(n)) >>> 0; }        // IP ET masque
+function broadcastOf(ip, n) { return (ip | ~maskFromPrefix(n)) >>> 0; }     // partie hôte à 1
+function addressCount(n) { return Math.pow(2, 32 - n); }
+// Machines adressables : 2^(32 − n) − 2 ; cas particuliers /31 (liaison point à point, 2 adresses) et /32 (une seule machine)
+function hostCount(n) { return n === 32 ? 1 : n === 31 ? 2 : Math.pow(2, 32 - n) - 2; }
+function firstHost(ip, n) { return n >= 31 ? networkOf(ip, n) : networkOf(ip, n) + 1; }
+function lastHost(ip, n) { return n >= 31 ? broadcastOf(ip, n) : broadcastOf(ip, n) - 1; }
+function sameNetwork(a, b, n) { return networkOf(a, n) === networkOf(b, n); }
+
+// Plages particulières (la première qui contient l'adresse l'emporte)
+const IP_RANGES = [
+  ['0.0.0.0', 8, 'reservee', 'réservée (« ce réseau »)'],
+  ['10.0.0.0', 8, 'privee', 'privée'],
+  ['127.0.0.0', 8, 'boucle', 'boucle locale'],
+  ['169.254.0.0', 16, 'apipa', 'lien-local (APIPA)'],
+  ['172.16.0.0', 12, 'privee', 'privée'],
+  ['192.168.0.0', 16, 'privee', 'privée'],
+  ['224.0.0.0', 4, 'multi', 'multidiffusion'],
+  ['255.255.255.255', 32, 'reservee', 'diffusion limitée'],
+  ['240.0.0.0', 4, 'reservee', 'réservée'],
+];
+function addressType(ip) {
+  for (const [a, n, key, label] of IP_RANGES) if (networkOf(ip, n) === parseIP(a)) return { key, label, block: a + '/' + n };
+  return { key: 'publique', label: 'publique', block: null };
+}
+
+// Octet « mixte » (à la fois réseau et hôte) quand n n'est pas multiple de 8.
+// Dans cet octet, le masque vaut m et les réseaux vont de (256 − m) en (256 − m).
+function mixedOctet(ip, n) {
+  if (n % 8 === 0) return null;
+  const k = n >> 3, m = toOctets(maskFromPrefix(n))[k], step = 256 - m, v = toOctets(ip)[k];
+  const low = v - (v % step);          // = v ET m
+  return { k, m, step, v, low, high: low + step - 1 };
+}
+
+// Découpage d'un réseau /n en k sous-réseaux (k puissance de 2) : on emprunte log2(k) bits à la partie hôte.
+function subnets(net, n, k) {
+  const b = Math.log2(k);
+  if (!Number.isInteger(b) || b < 1) return { error: 'k' };
+  const p = n + b;
+  if (p > 30) return { error: 'trop', p };       // il faut garder au moins 2 bits d'hôte
+  const size = Math.pow(2, 32 - p), base = networkOf(net, n), list = [];
+  for (let i = 0; i < k; i++) {
+    const a = base + i * size;
+    list.push({ i, net: a, first: a + 1, last: a + size - 2, bcast: a + size - 1, hosts: size - 2 });
+  }
+  return { p, b, size, hosts: size - 2, mask: maskFromPrefix(p), list };
+}
+function binStr(i, b) { return i.toString(2).padStart(b, '0'); }
+
+if (typeof module !== 'undefined') module.exports = { parseIP, formatIP, toOctets, toBits, toBin8, parsePrefix, parseCIDR, maskFromPrefix, prefixFromMask, parseMask, networkOf, broadcastOf, addressCount, hostCount, firstHost, lastHost, sameNetwork, addressType, mixedOctet, subnets, binStr };
+</script>
+
+<script>
+// ─────────────────────── Textes ───────────────────────
+const T = {
+  hint: {
+    ip: 'Tapez une adresse et un préfixe : les 32 bits s’alignent, et le ET logique avec le masque donne l’adresse du réseau.',
+    decoupage: 'Découpez un réseau en sous-réseaux : on emprunte des bits à la partie hôte et le préfixe s’allonge.',
+    osi: 'Suivez une requête web du PC jusqu’au serveur : encapsulation, passage par le routeur, décapsulation.',
+  },
+  badIp: 'Adresse invalide : quatre nombres de 0 à 255 séparés par des points.',
+  badMask: 'Masque invalide : quatre nombres de 0 à 255 (ex. 255.255.255.0) ou /n.',
+  maskNonContig: 'Masque non contigu : ses bits à 1 doivent être tous à gauche (ex. 255.255.255.192).',
+  badNet: 'Réseau invalide : écrivez par exemple 192.168.10.0/24.',
+  noPrefix: 'Précisez le préfixe : par exemple 192.168.10.0/24.',
+  final: 'Les adresses MAC changent à chaque saut, les adresses IP restent les mêmes de bout en bout.',
+  steps: [
+    'Le navigateur du <b>PC</b> (192.168.1.37) demande la page <b>http://203.0.113.10/index.html</b>. Suivez la requête couche par couche : ▶ pour lancer, ⏭ pour avancer d’une étape. Cliquez une couche pour lire son rôle.',
+    '<b>Couche 7 – Application (PC).</b> Le navigateur fabrique la requête HTTP <code>GET /index.html</code>. Pour l’instant, ce ne sont que des <span class="u">données</span>.',
+    '<b>Couches 6 et 5 – Présentation et Session (PC).</b> Les caractères sont codés (UTF-8), les données peuvent être chiffrées (TLS, pour HTTPS) et le dialogue avec le serveur est ouvert puis maintenu. Dans le modèle TCP/IP, ces rôles sont assurés par l’application elle-même : <b>rien de visible n’est ajouté</b> ici.',
+    '<b>Couche 4 – Transport (PC).</b> TCP ajoute son en-tête : port source <b>52814</b> (choisi par le système), port destination <b>80</b> (le service web) et un numéro de séquence. On obtient un <span class="p">segment</span>. TCP garantit l’arrivée et l’ordre des données grâce aux <b>accusés de réception</b>.',
+    null,   // étape 4 : texte calculé (ET logique avec le masque), voir osiText()
+    '<b>Couche 2 – Liaison (PC).</b> Ethernet ajoute son en-tête : MAC destination = celle du <b>routeur</b> (aa:bb:cc:00:00:fe, la passerelle, obtenue par ARP), MAC source = celle du PC (aa:bb:cc:00:00:01), et à la fin le <b>FCS</b>, un code de contrôle d’erreur. On obtient une <span class="k">trame</span>. La MAC de destination n’est <b>pas</b> celle du serveur : une trame ne va que jusqu’à l’appareil suivant.',
+    '<b>Couche 1 – Physique (PC).</b> La trame devient une suite de <span class="t">bits</span> : signal électrique dans un câble, onde Wi-Fi ou lumière dans une fibre. Les bits voyagent sur le câble jusqu’au routeur.',
+    '<b>Routeur – couches 1 puis 2.</b> Le routeur reçoit les bits et reconstitue la trame. Il vérifie le <b>FCS</b> (la trame n’a pas été abîmée) et que la MAC destination est bien la sienne, puis il <b>retire l’en-tête Ethernet</b> : il reste le paquet.',
+    '<b>Routeur – couche 3.</b> Le routeur lit l’<b>IP destination</b> 203.0.113.10 et consulte sa <b>table de routage</b> pour choisir l’interface de sortie. Il décrémente le TTL : 64 → <b>63</b> (à 0, le paquet serait détruit : il ne peut pas tourner en rond). Il ne regarde <b>pas</b> les couches 4 à 7 : le segment TCP et la requête restent fermés.'
+      + '<table class="rt"><tr><th>Réseau de destination</th><th>Interface</th></tr><tr><td>192.168.1.0/24</td><td>eth0 (côté PC)</td></tr><tr class="hit"><td>203.0.113.0/24</td><td>eth1 (côté serveur)</td></tr><tr><td>0.0.0.0/0</td><td>vers le fournisseur d’accès</td></tr></table>',
+    '<b>Routeur – couches 2 puis 1.</b> Le routeur fabrique une <b>nouvelle trame</b> avec de <span class="u">nouvelles adresses MAC</span> : MAC source = la sienne côté serveur (aa:bb:cc:00:01:fe), MAC destination = celle du serveur (aa:bb:cc:00:01:0a). Les <span class="t">adresses IP n’ont pas changé</span>. Les bits partent sur le second câble.',
+    '<b>Serveur – couches 1, 2 puis 3.</b> Décapsulation : le serveur reconstitue la trame, vérifie le FCS et retire l’en-tête Ethernet ; il vérifie que l’IP destination 203.0.113.10 est bien la sienne, puis retire l’en-tête IP. Il reste le segment.',
+    '<b>Serveur – couche 4.</b> TCP vérifie le segment, renvoie un <b>accusé de réception</b> au PC, puis transmet les données au programme qui écoute le <b>port 80</b> : le serveur web.',
+    '<b>Serveur – couche 7.</b> Le serveur web reçoit <code>GET /index.html</code>. Il va répondre en renvoyant la page par le même chemin, en sens inverse : encapsulation sur le serveur, décapsulation sur le PC.',
+  ],
+  infoHTML: `
+<h2>Adresses IP et modèle OSI</h2>
+<h3>Adresse IPv4</h3>
+<p>Une adresse IPv4 est un nombre de <b>32 bits</b>, écrit sous la forme de <b>4 octets</b> en décimal séparés par des points : 192.168.1.37. Chaque octet vaut de 0 à 255 (poids 128, 64, 32, 16, 8, 4, 2, 1).</p>
+<h3>Masque et notation CIDR</h3>
+<p>Les <b>n premiers bits</b> désignent le réseau, les 32 − n suivants la machine (partie hôte). Le <b>masque</b> s’écrit avec n bits à 1 puis des 0 : /24 ↔ 255.255.255.0, /26 ↔ 255.255.255.192. La notation CIDR écrit l’adresse suivie de /n : 192.168.1.37/24.</p>
+<h3>Adresse réseau et diffusion</h3>
+<p><b>Adresse réseau = IP ET masque</b>, bit à bit : la partie hôte est mise à 0. L’<b>adresse de diffusion</b> (broadcast) a sa partie hôte à 1 : un paquet qui lui est envoyé est reçu par toutes les machines du réseau. Ces deux adresses ne sont pas attribuables : un réseau /n contient 2<sup>32−n</sup> adresses, donc <b>2<sup>32−n</sup> − 2 machines</b>. Deux machines sont sur le même réseau si elles ont la même adresse réseau ; sinon, il faut passer par un routeur.</p>
+<h3>Adresses privées</h3>
+<p>10.0.0.0/8, 172.16.0.0/12 et 192.168.0.0/16 sont réservées aux réseaux locaux : elles ne circulent pas sur Internet (la box les traduit, c’est le NAT). 127.0.0.1 désigne la machine elle-même (boucle locale).</p>
+<h3>Le modèle OSI</h3>
+<p>Sept couches, de bas en haut : 1 Physique, 2 Liaison, 3 Réseau, 4 Transport, 5 Session, 6 Présentation, 7 Application. Pour s’en souvenir : « <b>P</b>our <b>L</b>e <b>R</b>éseau, <b>T</b>out <b>S</b>e <b>P</b>asse <b>A</b>utomatiquement ».</p>
+<p>Le modèle <b>TCP/IP</b>, celui d’Internet, n’en garde que quatre : Accès réseau (1 et 2), Internet (3), Transport (4), Application (5, 6 et 7).</p>
+<h3>Encapsulation</h3>
+<p>À l’émission, chaque couche ajoute son en-tête à ce que lui donne la couche du dessus : données → segment (TCP) → paquet (IP) → trame (Ethernet) → bits. À la réception, chaque couche retire le sien : c’est la décapsulation. Un routeur ne remonte que jusqu’à la couche 3 : il change les adresses MAC à chaque saut, jamais les adresses IP.</p>
+<h3>Commandes</h3>
+<p><b>Adresse et masque</b> : cliquez un bit de l’adresse pour le basculer ; glissez le trait /n ou la ligne du masque ; <span class="kbd">←</span> <span class="kbd">→</span> changent le préfixe.</p>
+<p><b>Encapsulation OSI</b> : <span class="kbd">Espace</span> lancer / pause · <span class="kbd">→</span> une étape · <span class="kbd">←</span> étape précédente · clic sur une couche : son rôle.</p>`,
+};
+
+const $ = id => document.getElementById(id);
+const q = new URLSearchParams(location.search);
+if (q.get('embed') === '1') document.body.classList.add('embed');
+
+const MODES = ['ip', 'decoupage', 'osi'];
+let mode = 'ip';
+const fmtN = x => x.toLocaleString('fr-FR');
+const pw2 = e => `2<sup>${e}</sup>`;
+const RANK = ['1er', '2e', '3e', '4e'];
+
+// ─────────────────────── Grille de bits (partagée par deux onglets) ───────────────────────
+// Une légende au-dessus de chaque ligne, les 4 octets séparés par des points,
+// la valeur décimale de chaque octet en dessous. Placement explicite dans une grille de 35 colonnes.
+function buildBitGrid(root, nLines, withWeights) {
+  root.innerHTML = '';
+  const G = { caps: [], cells: [], decs: [] };
+  const add = (cls, r, c, txt) => {
+    const e = document.createElement('div');
+    e.className = cls; e.style.gridRow = r; e.style.gridColumn = c;
+    if (txt != null) e.textContent = txt;
+    root.appendChild(e); return e;
+  };
+  let row = 1;
+  for (let L = 0; L < nLines; L++) {
+    const cap = add('cap' + (L === 0 ? ' first' : ''), row++, '1 / -1');
+    cap.innerHTML = '<span class="cl"></span><span class="cv"></span>';
+    G.caps.push(cap);
+    if (L === 0 && withWeights) [128, 64, 32, 16, 8, 4, 2, 1].forEach((w, i) => add('wt', row, String(i + 1), w)), row++;
+    const cells = [];
+    for (let i = 0; i < 32; i++) { const c = add('bit', row, String((i >> 3) * 9 + (i & 7) + 1)); c.dataset.i = i; cells.push(c); }
+    for (let o = 0; o < 3; o++) add('dot', row, String(o * 9 + 9), '.');
+    G.cells.push(cells); row++;
+    const decs = [];
+    for (let o = 0; o < 4; o++) decs.push(add('dec', row, `${o * 9 + 1} / span 8`));
+    G.decs.push(decs); row++;
+  }
+  return G;
+}
+// Abscisses (dans le conteneur positionné) des 33 frontières possibles entre bits
+function cutXs(G) {
+  const c = G.cells[0], xs = [];
+  for (let k = 0; k <= 32; k++) {
+    if (k === 0) xs.push(c[0].offsetLeft - 2);
+    else if (k === 32) xs.push(c[31].offsetLeft + c[31].offsetWidth + 2);
+    else xs.push((c[k - 1].offsetLeft + c[k - 1].offsetWidth + c[k].offsetLeft) / 2);
+  }
+  return xs;
+}
+function nearestK(xs, x) { let best = 0; for (let k = 1; k <= 32; k++) if (Math.abs(xs[k] - x) < Math.abs(xs[best] - x)) best = k; return best; }
+
+// ═══════════════════════ Onglet 1 : adresse et masque ═══════════════════════
+const EXAMPLES = ['192.168.1.37/24', '10.12.200.5/16', '172.16.45.200/20', '192.168.5.77/26', '192.168.0.130/25', '10.0.0.1/8', '8.8.8.8/32'];
+let ip = parseIP('192.168.1.37'), n = 24, ip2 = parseIP('192.168.1.200');
+let ipBad = false, maskBad = '', ip2Bad = false;
+const ipWrap = $('ipWrap');
+const ipGrid = buildBitGrid($('ipBits'), 4, true);
+ipGrid.cells[0].forEach((c, i) => c.addEventListener('click', () => toggleBit(i)));
+$('exSel').innerHTML = '<option value="">Exemples…</option>' + EXAMPLES.map(e => `<option value="${e}">${e}</option>`).join('');
+
+function paintIp() {
+  const net = networkOf(ip, n), bc = broadcastOf(ip, n);
+  const vals = [ip, maskFromPrefix(n), net, bc];
+  const isNet = n <= 30 && ip === net, isBc = n <= 30 && ip === bc;
+  const caps = [
+    'Adresse IP' + (isNet ? ' <span class="warn">· c’est l’adresse du réseau !</span>' : isBc ? ' <span class="warn">· c’est l’adresse de diffusion !</span>' : ''),
+    `Masque /${n} <span class="xs">· ${n} bit${n > 1 ? 's' : ''} à 1</span>`,
+    'IP <span class="op">ET</span> masque = adresse réseau',
+    'Adresse de diffusion (broadcast) <span class="xs">· partie hôte mise à 1</span>',
+  ];
+  const cvc = ['', 'mk', 'b', 't'];
+  const mx = n % 8 ? n >> 3 : -1;                   // indice de l'octet mixte
+  for (let L = 0; L < 4; L++) {
+    const bits = toBits(vals[L]), oct = toOctets(vals[L]);
+    ipGrid.caps[L].firstChild.innerHTML = caps[L];
+    const cv = ipGrid.caps[L].lastChild; cv.textContent = formatIP(vals[L]); cv.className = 'cv ' + cvc[L];
+    ipGrid.cells[L].forEach((c, i) => {
+      c.className = 'bit ' + (i < n ? 'net ' : 'host ') + (bits[i] ? 'one' : 'zero') + (L === 0 ? ' ip' : L === 1 ? ' drag' : '');
+      c.textContent = bits[i];
+    });
+    ipGrid.decs[L].forEach((d, o) => { d.textContent = oct[o]; d.className = 'dec ' + (o === mx ? 'mx' : (o + 1) * 8 <= n ? 'n' : 'h'); });
+  }
+  ipGrid.cells[0].forEach((c, i) => c.title = `bit de poids 2^${31 - i} — cliquer pour le basculer`);
+  $('ipLegend').innerHTML = `<span><i class="lg-net"></i>partie réseau : ${n} bit${n > 1 ? 's' : ''}</span><span><i class="lg-host"></i>partie hôte : ${32 - n} bit${32 - n > 1 ? 's' : ''}</span>` + (mx >= 0 ? '<span><i class="lg-mix"></i>octet mixte</span>' : '');
+}
+// Trait /n et cadre de l'octet mixte, placés d'après la position réelle des cases
+function placeIpCut() {
+  if (!ipGrid.cells[0][0].offsetWidth) return;      // onglet caché
+  const xs = cutXs(ipGrid), cut = $('ipCut'), last = ipGrid.cells[3][0];
+  cut.style.left = xs[n] + 'px';
+  cut.style.height = (last.offsetTop + last.offsetHeight + 4) + 'px';
+  cut.classList.toggle('al', n <= 1); cut.classList.toggle('ar', n >= 31);
+  cut.setAttribute('aria-valuenow', n); cut.setAttribute('aria-valuetext', '/' + n);
+  $('ipKnob').textContent = '/' + n;
+  ipWrap.style.setProperty('--cx', xs[n] + 'px');
+  const box = $('mixBox');
+  if (n % 8) {
+    const k = n >> 3, a = ipGrid.cells[0][k * 8], b = ipGrid.cells[0][k * 8 + 7], d = ipGrid.decs[3][k];
+    box.style.left = (a.offsetLeft - 4) + 'px';
+    box.style.width = (b.offsetLeft + b.offsetWidth - a.offsetLeft + 8) + 'px';
+    box.style.top = (a.offsetTop - 5) + 'px';
+    box.style.height = (d.offsetTop + d.offsetHeight - a.offsetTop + 8) + 'px';
+    box.classList.remove('off');
+  } else box.classList.add('off');
+}
+function showIpErrors() {
+  $('fIp').classList.toggle('bad', ipBad);
+  $('fMask').classList.toggle('bad', !!maskBad);
+  $('ipErr').textContent = ipBad ? T.badIp : maskBad;
+  $('ipHint').hidden = ipBad || !!maskBad;
+}
+// src : champ d'où vient la modification ('ip' ou 'mask') ; on ne réécrit pas un champ pendant qu'on y tape
+function renderIp(src) {
+  paintIp(); placeIpCut();
+  $('nRange').value = n; $('nVal').textContent = '/' + n;
+  $('nMinus').disabled = n <= 0; $('nPlus').disabled = n >= 32;
+  if (src !== 'mask') { $('maskIn').value = formatIP(maskFromPrefix(n)); maskBad = ''; }
+  if (src !== 'ip' && !ipBad) $('ipIn').value = formatIP(ip);
+  showIpErrors();
+  renderIpResults(); renderSame(); renderIpMethod();
+  const cur = `${formatIP(ip)}/${n}`;
+  $('exSel').value = EXAMPLES.includes(cur) ? cur : '';
+}
+function setN(k) {
+  k = Math.max(0, Math.min(32, k | 0));
+  if (k === n) return;
+  n = k; maskBad = ''; renderIp();
+}
+function toggleBit(i) {
+  ip = (ip ^ (1 << (31 - i))) >>> 0;
+  ipBad = false; renderIp();
+  ipGrid.cells[0][i].classList.add('pop');
+}
+
+function renderIpResults() {
+  const net = networkOf(ip, n), bc = broadcastOf(ip, n), h = 32 - n, typ = addressType(ip);
+  const mono = (x, c) => `<span class="v mono ${c || ''}">${formatIP(x)}</span>`;
+  const row = (k, v) => `<span class="k">${k}</span>${v}`;
+  $('ipRes').innerHTML =
+    row('Notation CIDR', `<span class="v mono">${formatIP(ip)}/${n}</span>`) +
+    row('Masque', mono(maskFromPrefix(n))) +
+    row('Adresse réseau', mono(net, 'b')) +
+    row('Diffusion', n >= 31 ? '<span class="v muted">aucune</span>' : mono(bc, 't')) +
+    row('Première machine', mono(firstHost(ip, n))) +
+    row('Dernière machine', mono(lastHost(ip, n))) +
+    row('Nombre d’adresses', `<span class="v">${pw2(h)} = ${fmtN(addressCount(n))}</span>`) +
+    row('Machines adressables', n <= 30 ? `<span class="v a">${pw2(h)} − 2 = ${fmtN(hostCount(n))}</span>` : `<span class="v a">${hostCount(n)} <span class="muted">(cas particulier)</span></span>`) +
+    row('Type', `<span class="v"><span class="ty ${typ.key}">${typ.label}</span>${typ.block ? ` <span class="muted" style="font-weight:500">(${typ.block})</span>` : ''}</span>`);
+  let note = '';
+  if (n === 32) note = '<b>/32</b> : le « réseau » ne contient qu’une seule adresse. On s’en sert pour désigner une machine précise (route d’hôte) : pas d’adresse de réseau ni de diffusion.';
+  else if (n === 31) note = '<b>/31</b> : seulement 2 adresses, utilisées pour une liaison point à point entre deux routeurs. Pas d’adresse de réseau ni de diffusion : les 2 adresses sont attribuées.';
+  else if (ip === net) note = `${formatIP(ip)} est l’<b>adresse du réseau</b> : elle ne peut pas être attribuée à une machine.`;
+  else if (ip === bc) note = `${formatIP(ip)} est l’<b>adresse de diffusion</b> : elle ne peut pas être attribuée à une machine.`;
+  $('ipNotes').innerHTML = note ? `<div class="note">${note}</div>` : '';
+}
+
+function renderSame() {
+  $('fIp2').classList.toggle('bad', ip2Bad);
+  if (ip2Bad) { $('sameOut').innerHTML = `<div class="msgline" style="margin-top:8px">${T.badIp}</div>`; return; }
+  const a = networkOf(ip, n), b = networkOf(ip2, n), same = a === b;
+  $('sameOut').innerHTML = `<div class="nets2">
+      <div class="netbox"><div class="a">${formatIP(ip)}</div><div class="nv">${formatIP(a)}</div></div>
+      <div class="eq${same ? '' : ' no'}">${same ? '=' : '≠'}</div>
+      <div class="netbox"><div class="a">${formatIP(ip2)}</div><div class="nv">${formatIP(b)}</div></div>
+    </div>
+    <div class="cap2">adresses réseau calculées avec le même masque /${n}</div>
+    <div class="verdict ${same ? 'ok' : 'no'}">${same
+      ? '✓ <b>Même réseau</b> : les deux machines communiquent directement (par un commutateur).'
+      : '✗ <b>Réseaux différents</b> : les paquets doivent passer par un routeur (la passerelle).'}</div>`
+    + (ip2 === ip ? '<div class="note">C’est la même adresse : deux machines d’un réseau ne peuvent pas avoir la même IP.</div>' : '');
+}
+
+function multiplesHTML(x) {
+  // quelques multiples du pas autour de l'octet de l'adresse : 0, 16, 32, 48, …
+  const vals = [...new Set([0, x.step, x.low - x.step, x.low, x.low + x.step].filter(v => v >= 0 && v < 256))].sort((a, b) => a - b);
+  let s = '';
+  vals.forEach((v, i) => { if (i && v - vals[i - 1] > x.step) s += ', …'; s += (i ? ', ' : '') + (v === x.low ? `<b>${v}</b>` : v); });
+  return s + (vals[vals.length - 1] < 256 - x.step ? ', …' : '');
+}
+function renderIpMethod() {
+  const net = networkOf(ip, n), bc = broadcastOf(ip, n), o = toOctets(ip);
+  let h = '<p><b>Adresse réseau = IP ET masque</b>, bit à bit : un bit du résultat vaut 1 seulement si le bit de l’IP <i>et</i> celui du masque valent 1. Le masque garde la partie réseau et efface la partie hôte. La diffusion, elle, met tous les bits d’hôte à 1.</p>';
+  if (n === 0) h += '<p><b>/0</b> : aucun bit de réseau. Le « réseau » 0.0.0.0/0 contient les 2<sup>32</sup> adresses : c’est ainsi qu’on note la <b>route par défaut</b>.</p>';
+  else if (n === 32) h += `<p><b>/32</b> : les 32 bits sont dans la partie réseau ; il n’y a plus de partie hôte et le « réseau » se réduit à ${formatIP(ip)}.</p>`;
+  else if (n % 8 === 0) {
+    const k = n / 8;
+    h += `<p>Ici n = ${n} est un multiple de 8 : on garde ${k > 1 ? `les <b>${k} premiers octets</b>` : 'le <b>premier octet</b>'} (${o.slice(0, k).join('.')}) et on met les autres à 0 → <span class="b">${formatIP(net)}</span>. Pour la diffusion, on les met à 255 → <span class="t">${formatIP(bc)}</span>.</p>`;
+  } else {
+    const x = mixedOctet(ip, n);
+    h += `<p>n = ${n} n’est pas un multiple de 8 : le <b>${RANK[x.k]} octet est mixte</b>. Le masque y vaut <b>${x.m}</b> : les réseaux vont de <b>256 − ${x.m} = ${x.step}</b> en ${x.step} (${multiplesHTML(x)}). ${x.v} est entre <b>${x.low}</b> et <b>${x.high}</b> → adresse réseau <span class="b">${formatIP(net)}</span>, diffusion <span class="t">${formatIP(bc)}</span>.</p>`;
+    h += `<div class="calc">${String(x.v).padStart(3)} = ${toBin8(x.v)}\n${String(x.m).padStart(3)} = ${toBin8(x.m)}\n ET → ${toBin8(x.low)} = ${x.low}</div>`;
+  }
+  $('ipMethod').innerHTML = h;
+}
+
+// Saisies
+const dots = s => s.replace(/,/g, '.');             // le pavé numérique français tape une virgule
+$('ipIn').addEventListener('input', () => {
+  const c = parseCIDR(dots($('ipIn').value));
+  if (!c) { ipBad = true; showIpErrors(); return; }  // on garde le dernier état valide
+  ipBad = false; ip = c.ip;
+  if (c.n !== null) n = c.n;
+  renderIp('ip');
+});
+$('ipIn').addEventListener('blur', () => { if (!ipBad) $('ipIn').value = formatIP(ip); });
+$('maskIn').addEventListener('input', () => {
+  const r = parseMask(dots($('maskIn').value));
+  if (r.error) { maskBad = r.error === 'contigu' ? T.maskNonContig : T.badMask; showIpErrors(); return; }
+  maskBad = ''; n = r.n; renderIp('mask');
+});
+$('maskIn').addEventListener('blur', () => { if (!maskBad) $('maskIn').value = formatIP(maskFromPrefix(n)); });
+$('ip2In').addEventListener('input', () => {
+  const v = parseIP(dots($('ip2In').value));
+  ip2Bad = v === null; if (!ip2Bad) ip2 = v;
+  renderSame();
+});
+$('ip2In').addEventListener('blur', () => { if (!ip2Bad) $('ip2In').value = formatIP(ip2); });
+['ipIn', 'maskIn', 'ip2In', 'netIn'].forEach(id => $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') ev.target.blur(); }));
+$('nRange').addEventListener('input', e => setN(+e.target.value));
+$('nMinus').onclick = () => setN(n - 1);
+$('nPlus').onclick = () => setN(n + 1);
+$('exSel').onchange = e => {
+  const c = parseCIDR(e.target.value); if (!c) return;
+  ip = c.ip; n = c.n; ipBad = false; maskBad = '';
+  $('ipIn').value = formatIP(ip); renderIp(); e.target.blur();
+};
+
+// Glisser le trait /n : par le trait lui-même, par la piste du haut ou par la ligne du masque
+let ipDrag = null;
+const localX = ev => ev.clientX - ipWrap.getBoundingClientRect().left - ipWrap.clientLeft;
+ipWrap.addEventListener('pointerdown', ev => {
+  if (ev.button > 0) return;
+  const t = ev.target, onCut = !!t.closest('#ipCut'), onTrack = t.id === 'ipTrack', onMask = t.classList.contains('drag');
+  if (!onCut && !onTrack && !onMask) return;
+  ev.preventDefault();
+  ipDrag = { id: ev.pointerId, x0: ev.clientX, moved: false, onCut, xs: cutXs(ipGrid) };
+  try { ipWrap.setPointerCapture(ev.pointerId); } catch (e) { /* rien */ }
+  $('ipCut').classList.add('drag');
+  if (onCut) $('ipCut').focus({ preventScroll: true });
+  else setN(nearestK(ipDrag.xs, localX(ev)));
+});
+ipWrap.addEventListener('pointermove', ev => {
+  if (!ipDrag || ev.pointerId !== ipDrag.id) return;
+  if (Math.abs(ev.clientX - ipDrag.x0) > 4) ipDrag.moved = true;
+  if (ipDrag.moved || !ipDrag.onCut) setN(nearestK(ipDrag.xs, localX(ev)));
+});
+function endIpDrag(ev) {
+  if (!ipDrag || ev.pointerId !== ipDrag.id) return;
+  const d = ipDrag; ipDrag = null;
+  $('ipCut').classList.remove('drag');
+  // simple clic sur le trait : on le transmet au bit de l'adresse qui est dessous
+  if (d.onCut && !d.moved && ev.type === 'pointerup') {
+    const under = document.elementsFromPoint(ev.clientX, ev.clientY).find(e => e.classList && e.classList.contains('ip'));
+    if (under) toggleBit(+under.dataset.i);
+  }
+}
+ipWrap.addEventListener('pointerup', endIpDrag);
+ipWrap.addEventListener('pointercancel', endIpDrag);
+new ResizeObserver(() => { if (mode === 'ip') placeIpCut(); }).observe(ipWrap);
+
+// ═══════════════════════ Onglet 2 : sous-réseaux ═══════════════════════
+const KS = [2, 4, 8, 16, 32, 64];
+let cutNet = parseIP('192.168.10.0'), cutN = 24, cutK = 4;
+let cutHover = null, cutSel = null, cutBad = '', cutNote = '', CUT = null;
+const cutGrid = buildBitGrid($('cutBits'), 1, false);
+$('kPills').innerHTML = KS.map(k => `<button class="pill" data-k="${k}">${k}</button>`).join('');
+const cutShown = () => cutHover !== null ? cutHover : cutSel;
+// Fin de l'adresse affichée dans la barre : seulement les octets qui varient (.64, .128.0…)
+function suffix(x) { const from = Math.min(3, cutN >> 3), o = toOctets(x); return from === 0 ? o.join('.') : '.' + o.slice(from).join('.'); }
+const tooSmall = k => cutN + Math.log2(k) > 30;
+
+function fixK() {
+  // le réseau a changé : si le découpage demandé n'est plus possible, on prend le plus grand possible
+  if (!tooSmall(cutK)) return;
+  const ok = KS.filter(k => !tooSmall(k));
+  if (!ok.length) return;
+  const b = Math.log2(cutK), k = ok[ok.length - 1];
+  showMsg(`/${cutN} + ${b} bits = /${cutN + b} : au-delà de /30. On découpe en ${k} sous-réseaux.`, 'bad');
+  cutK = k;
+}
+function applyNet(commit) {
+  const c = parseCIDR(dots($('netIn').value));
+  if (!c || c.n === null) { cutBad = c ? T.noPrefix : T.badNet; showCutMsg(); return; }
+  cutBad = '';
+  const net = networkOf(c.ip, c.n);
+  cutNote = net !== c.ip ? `${formatIP(c.ip)} n’est pas une adresse de réseau pour /${c.n} : on part de son adresse réseau ${formatIP(net)}/${c.n}.` : (commit ? cutNote : '');
+  const changed = net !== cutNet || c.n !== cutN;
+  cutNet = net; cutN = c.n;
+  if (commit) $('netIn').value = `${formatIP(cutNet)}/${cutN}`;
+  if (changed) { cutHover = cutSel = null; fixK(); renderCut(true); } else showCutMsg();
+}
+function showCutMsg() {
+  $('fNet').classList.toggle('bad', !!cutBad);
+  $('cutErr').textContent = cutBad || cutNote;
+  $('cutErr').className = 'msgline' + (cutBad ? '' : ' warn');
+}
+function setK(k) {
+  if (tooSmall(k)) {
+    const b = Math.log2(k);
+    showMsg(`Refusé : /${cutN} + ${b} bits = /${cutN + b}. Au-delà de /30, il ne resterait pas assez d’adresses pour des machines.`, 'bad');
+    return;
+  }
+  cutK = k; cutHover = cutSel = null; renderCut(true);
+}
+
+function renderCut(rebuild) {
+  document.querySelectorAll('#kPills .pill').forEach(b => {
+    const k = +b.dataset.k;
+    b.classList.toggle('on', k === cutK); b.classList.toggle('off', tooSmall(k));
+    b.title = tooSmall(k) ? `Impossible : /${cutN} + ${Math.log2(k)} = /${cutN + Math.log2(k)} dépasse /30` : `Découper en ${k} sous-réseaux (/${cutN + Math.log2(k)})`;
+  });
+  showCutMsg();
+  $('cutTitle').textContent = `Découper ${formatIP(cutNet)}/${cutN} en ${cutK} sous-réseaux`;
+  const S = subnets(cutNet, cutN, cutK);
+  const ok = !S.error;
+  $('cutOk').hidden = !ok; $('cutKo').hidden = ok;
+  if (!ok) {
+    CUT = null;
+    $('cutTitle').textContent = `Découper ${formatIP(cutNet)}/${cutN}`;
+    $('cutKo').innerHTML = `<b>/${cutN} : ce réseau ne peut plus être découpé.</b><br>Chaque sous-réseau doit garder au moins 2 bits d’hôte (préfixe /30 au maximum : 4 adresses, 2 machines). Partez d’un réseau /29 ou plus grand.`;
+    $('cutCalc').innerHTML = `<span class="k">Réseau</span><span class="v mono">${formatIP(cutNet)}/${cutN}</span><span class="k">Machines</span><span class="v a">${fmtN(hostCount(cutN))}</span>`;
+    $('cutDetH').textContent = 'Sous-réseau'; $('cutDet').innerHTML = '<div class="muted small">—</div>';
+    $('cutMethod').innerHTML = '<p>Emprunter b bits à la partie hôte donne 2<sup>b</sup> sous-réseaux, mais il faut qu’il reste au moins 2 bits d’hôte dans chacun.</p>';
+    return;
+  }
+  CUT = S;
+  if (rebuild) { buildBar(S); buildCutTable(S); }
+  $('cutLegend').innerHTML = `<span><i class="lg-net"></i>réseau de départ : ${cutN} bits</span><span><i class="lg-sub"></i>bits empruntés : ${S.b}</span><span><i class="lg-host"></i>hôte : ${32 - S.p} bits</span>`;
+  $('barL').textContent = formatIP(cutNet);
+  $('barM').textContent = `${fmtN(addressCount(cutN))} adresses en tout, ${cutK} blocs de ${fmtN(S.size)}`;
+  $('barR').textContent = formatIP(broadcastOf(cutNet, cutN));
+  $('cutCalc').innerHTML = [
+    ['Réseau de départ', `<span class="v mono">${formatIP(cutNet)}/${cutN}</span>`],
+    ['Sous-réseaux voulus', `<span class="v">k = ${cutK} = ${pw2(S.b)}</span>`],
+    ['Bits empruntés', `<span class="v p">${S.b}</span>`],
+    ['Nouveau préfixe', `<span class="v b">/${cutN} + ${S.b} = /${S.p}</span>`],
+    ['Nouveau masque', `<span class="v mono">${formatIP(S.mask)}</span>`],
+    ['Adresses par sous-réseau', `<span class="v">${pw2(32 - S.p)} = ${fmtN(S.size)}</span>`],
+    ['Machines par sous-réseau', `<span class="v a">${fmtN(S.size)} − 2 = ${fmtN(S.hosts)}</span>`],
+  ].map(([k, v]) => `<span class="k">${k}</span>${v}`).join('');
+  $('cutMethod').innerHTML = cutMethodHTML(S);
+  paintCutFocus();
+}
+// Ce qui dépend du sous-réseau survolé ou sélectionné
+function paintCutFocus() {
+  const S = CUT; if (!S) return;
+  const i = cutShown(), val = i === null ? cutNet : S.list[i].net;
+  const bits = toBits(val), oct = toOctets(val);
+  cutGrid.cells[0].forEach((c, j) => {
+    c.className = 'bit ' + (j < cutN ? 'net' : j < S.p ? 'brw' : 'host') + (bits[j] ? ' one' : ' zero');
+    c.textContent = bits[j];
+  });
+  cutGrid.decs[0].forEach((d, o) => { d.textContent = oct[o]; d.className = 'dec ' + ((o + 1) * 8 <= cutN ? 'n' : o * 8 >= S.p ? 'h' : 'sb'); });
+  const cap = cutGrid.caps[0];
+  if (i === null) {
+    cap.firstChild.innerHTML = `Réseau de départ <span class="xs">· les bits violets sont empruntés à la partie hôte</span>`;
+    cap.lastChild.innerHTML = `${formatIP(cutNet)}/${cutN} → /${S.p}`; cap.lastChild.className = 'cv b';
+  } else {
+    cap.firstChild.innerHTML = `Sous-réseau n°${i + 1} <span class="xs">· bits empruntés = ${binStr(i, S.b)}</span>`;
+    cap.lastChild.textContent = `${formatIP(S.list[i].net)}/${S.p}`; cap.lastChild.className = 'cv p';
+  }
+  // surbrillance barre ↔ tableau
+  $('bar').classList.toggle('hashl', i !== null);
+  $('bar').querySelectorAll('.seg').forEach((s, j) => s.classList.toggle('hl', j === i));
+  $('cutTable').querySelectorAll('tbody tr').forEach((r, j) => r.classList.toggle('hl', j === i));
+  // carte de détail
+  if (i === null) {
+    $('cutDetH').textContent = 'Sous-réseau';
+    $('cutDet').innerHTML = '<div class="muted small">Survolez ou cliquez une ligne du tableau, ou un morceau de la barre.</div>';
+  } else {
+    const s = S.list[i];
+    $('cutDetH').innerHTML = `Sous-réseau n°${i + 1}<span class="r mono" style="color:var(--violet)">${binStr(i, S.b)}</span>`;
+    $('cutDet').innerHTML = '<div class="kv">' + [
+      ['Adresse', `<span class="v mono b">${formatIP(s.net)}/${S.p}</span>`],
+      ['Masque', `<span class="v mono">${formatIP(S.mask)}</span>`],
+      ['Première machine', `<span class="v mono">${formatIP(s.first)}</span>`],
+      ['Dernière machine', `<span class="v mono">${formatIP(s.last)}</span>`],
+      ['Diffusion', `<span class="v mono t">${formatIP(s.bcast)}</span>`],
+      ['Machines', `<span class="v a">${fmtN(s.hosts)}</span>`],
+      ['Bits empruntés', `<span class="v mono p">${binStr(i, S.b)}</span>`],
+    ].map(([k, v]) => `<span class="k">${k}</span>${v}`).join('') + '</div>';
+  }
+}
+function buildBar(S) {
+  const bar = $('bar');
+  bar.innerHTML = S.list.map((s, i) => `<div class="seg c${i % 2}" data-i="${i}" title="n°${i + 1} : ${formatIP(s.net)}/${S.p}" style="animation-delay:${Math.min(i * 15, 450)}ms"><span class="si">${i + 1}</span><span class="sl">${suffix(s.net)}</span></div>`).join('');
+  fitBarLabels();
+}
+function fitBarLabels() {
+  if (!CUT) return;
+  const bar = $('bar'), w = bar.clientWidth / cutK, len = Math.max(...CUT.list.map(s => suffix(s.net).length));
+  bar.classList.toggle('nolbl', w < len * 7.2 + 8);
+  bar.classList.toggle('noidx', w < 16);
+}
+function buildCutTable(S) {
+  $('cutTable').innerHTML = '<thead><tr><th>n°</th><th>Sous-réseau</th><th>1re machine</th><th>Dernière machine</th><th>Diffusion</th><th>Machines</th></tr></thead><tbody>'
+    + S.list.map((s, i) => `<tr data-i="${i}"><td><span class="sw c${i % 2}">${i + 1}</span></td><td class="b">${formatIP(s.net)}/${S.p}</td><td>${formatIP(s.first)}</td><td>${formatIP(s.last)}</td><td class="t">${formatIP(s.bcast)}</td><td>${fmtN(s.hosts)}</td></tr>`).join('')
+    + '</tbody>';
+  $('twrap').scrollTop = 0;
+}
+function cutMethodHTML(S) {
+  const j = (S.p - 1) >> 3, step = Math.pow(2, (j + 1) * 8 - S.p);
+  const starts = S.list.slice(0, 4).map(s => suffix(s.net)).join(', ') + (cutK > 4 ? ', …, ' + suffix(S.list[cutK - 1].net) : '');
+  const codes = S.b <= 3 ? S.list.map((s, i) => binStr(i, S.b)).join(', ') : `de ${binStr(0, S.b)} à ${binStr(cutK - 1, S.b)}`;
+  return `<p>Pour obtenir <b>k = ${cutK} = ${pw2(S.b)}</b> sous-réseaux, on <b>emprunte ${S.b} bit${S.b > 1 ? 's' : ''}</b> à la partie hôte : le préfixe passe de /${cutN} à <b>/${S.p}</b> (n + log<sub>2</sub>(k)) et le masque devient ${formatIP(S.mask)}.</p>`
+    + `<p>Il reste 32 − ${S.p} = ${32 - S.p} bits d’hôte : ${pw2(32 - S.p)} = ${fmtN(S.size)} adresses par sous-réseau, dont <b>${fmtN(S.hosts)} machines</b> (on retire l’adresse du réseau et celle de diffusion).</p>`
+    + `<p>Les sous-réseaux se suivent de <b>${step} en ${step}</b> dans le ${RANK[j]} octet : ${starts}. Les bits <span class="p">violets</span> les numérotent : ${codes}.</p>`;
+}
+function setCutHover(i) { if (cutHover === i) return; cutHover = i; paintCutFocus(); }
+function selectCut(i, fromBar) {
+  cutSel = cutSel === i ? null : i; paintCutFocus();
+  if (fromBar && cutSel !== null) { const r = $('cutTable').querySelectorAll('tbody tr')[i]; if (r) r.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+}
+$('bar').addEventListener('pointerover', e => { const s = e.target.closest('.seg'); if (s) setCutHover(+s.dataset.i); });
+$('bar').addEventListener('pointerleave', () => setCutHover(null));
+$('bar').addEventListener('click', e => { const s = e.target.closest('.seg'); if (s) selectCut(+s.dataset.i, true); });
+$('cutTable').addEventListener('pointerover', e => { const r = e.target.closest('tbody tr'); if (r) setCutHover(+r.dataset.i); });
+$('cutTable').addEventListener('pointerleave', () => setCutHover(null));
+$('cutTable').addEventListener('click', e => { const r = e.target.closest('tbody tr'); if (r) selectCut(+r.dataset.i, false); });
+$('kPills').addEventListener('click', e => { const b = e.target.closest('.pill'); if (b) setK(+b.dataset.k); });
+$('netIn').addEventListener('input', () => applyNet(false));
+$('netIn').addEventListener('change', () => applyNet(true));
+new ResizeObserver(fitBarLabels).observe($('bar'));
+
+// ═══════════════════════ Onglet 3 : encapsulation OSI ═══════════════════════
+const LAYERS = {
+  7: { name: 'Application', tcp: 'Application', pdu: 'données', role: 'Offre les services réseau aux programmes : afficher une page web, envoyer un courriel, trouver l’adresse d’un nom de domaine…', protos: 'HTTP, HTTPS, DNS, SMTP, IMAP, FTP, SSH', hw: 'aucun : ce sont des logiciels (navigateur, serveur web)', addr: 'URL ou nom de domaine (http://203.0.113.10/index.html)' },
+  6: { name: 'Présentation', tcp: 'Application', pdu: 'données', role: 'Met les données dans un format compris des deux côtés : codage des caractères, compression, chiffrement.', protos: 'UTF-8, TLS (chiffrement), JPEG, MIME', hw: 'aucun (logiciel)', addr: 'aucune' },
+  5: { name: 'Session', tcp: 'Application', pdu: 'données', role: 'Ouvre, maintient et ferme le dialogue entre les deux applications, et le reprend après une coupure.', protos: 'TLS (ouverture de session), RPC', hw: 'aucun (logiciel)', addr: 'aucune' },
+  4: { name: 'Transport', tcp: 'Transport', pdu: 'segment (TCP) ou datagramme (UDP)', role: 'Transporte les données de bout en bout, d’un programme à un autre : découpe, numérote, accuse réception et renvoie ce qui est perdu (TCP).', protos: 'TCP, UDP', hw: 'aucun : géré par le système d’exploitation des deux machines', addr: 'numéro de port (80 : serveur web ; 52814 : port choisi par le client)' },
+  3: { name: 'Réseau', tcp: 'Internet', pdu: 'paquet', role: 'Achemine les paquets de réseau en réseau jusqu’à la destination : c’est le routage.', protos: 'IP (IPv4, IPv6), ICMP (ping)', hw: 'routeur', addr: 'adresse IP (192.168.1.37 → 203.0.113.10)' },
+  2: { name: 'Liaison', tcp: 'Accès réseau', pdu: 'trame', role: 'Transmet les trames d’un appareil au suivant sur un même réseau local et détecte les erreurs (FCS).', protos: 'Ethernet, Wi-Fi (802.11), ARP', hw: 'commutateur (switch), carte réseau', addr: 'adresse MAC (aa:bb:cc:00:00:01…)' },
+  1: { name: 'Physique', tcp: 'Accès réseau', pdu: 'bits', role: 'Transmet les bits sous forme de signal : tension électrique, onde radio, impulsions de lumière.', protos: 'câble à paires torsadées (RJ45), fibre optique, ondes Wi-Fi', hw: 'câbles, concentrateur (hub), répéteur, carte réseau', addr: 'aucune' },
+};
+const GROUPS = [
+  { key: 'app', name: 'Application', ls: [7, 6, 5], c: 'L7' },
+  { key: 'tr', name: 'Transport', ls: [4], c: 'L4' },
+  { key: 'int', name: 'Internet', ls: [3], c: 'L3' },
+  { key: 'acc', name: 'Accès réseau', ls: [2, 1], c: 'L2' },
+];
+const DEVS = ['pc', 'router', 'server'];
+const DEV = {
+  pc: { name: 'PC client', short: 'PC client', sub: '192.168.1.37', subN: '192.168.1.37', label: 'PC client', layers: [7, 6, 5, 4, 3, 2, 1] },
+  router: { name: 'Routeur (passerelle)', short: 'Routeur', sub: '192.168.1.1 | 203.0.113.1', subN: '(passerelle)', label: 'routeur', layers: [3, 2, 1] },
+  server: { name: 'Serveur web', short: 'Serveur web', sub: '203.0.113.10', subN: '203.0.113.10', label: 'serveur web', layers: [7, 6, 5, 4, 3, 2, 1] },
+};
+const MAC = { pc: 'aa:bb:cc:00:00:01', rLan: 'aa:bb:cc:00:00:fe', rWan: 'aa:bb:cc:00:01:fe', srv: 'aa:bb:cc:00:01:0a' };
+const PDU_COL = { donnees: '#ffc53d', segment: '#b57bff', paquet: '#6c9eff', trame: '#ff4fa3', bits: '#2ee6c5' };
+const PDU_LBL = { donnees: 'données', segment: 'segment', paquet: 'paquet', trame: 'trame', bits: 'bits' };
+
+// État de la PDU à chaque étape (seq : états transitoires montrés juste avant, le temps de « voir » la décapsulation)
+const PD = { data: 1, name: 'donnees' }, PS = { tcp: 1, data: 1, name: 'segment' }, PP = { ip: 1, tcp: 1, data: 1, name: 'paquet' };
+const PT = { eth: 1, ip: 1, tcp: 1, data: 1, fcs: 1, name: 'trame' };
+// pos : indice du point de passage où se trouve le jeton (voir buildScene)
+const STEPS = [
+  { dev: null, layers: [], focus: 0, pos: -1, pdu: {} },
+  { dev: 'pc', layers: [7], focus: 7, pos: 0, pdu: PD },
+  { dev: 'pc', layers: [6, 5], focus: 6, pos: 2, pdu: PD },
+  { dev: 'pc', layers: [4], focus: 4, pos: 3, pdu: PS },
+  { dev: 'pc', layers: [3], focus: 3, pos: 4, pdu: PP, wait: 1.3 },
+  { dev: 'pc', layers: [2], focus: 2, pos: 5, pdu: PT, wait: 1.3 },
+  { dev: 'pc', layers: [1], focus: 1, pos: 11, pdu: { ...PT, bits: 1, name: 'bits' }, cable: 1 },
+  { dev: 'router', layers: [1, 2], focus: 2, pos: 12, pdu: { ...PP, sealed: 1 }, seq: [{ ...PT, sealed: 1 }] },
+  { dev: 'router', layers: [3], focus: 3, pos: 13, pdu: { ...PP, sealed: 1, ttl: 63, ttlChg: 1 }, wait: 1.4 },
+  { dev: 'router', layers: [2, 1], focus: 2, pos: 20, pdu: { ...PT, name: ['trame', 'bits'], mac: 2, ttl: 63, sealed: 1, macChg: 1, ipSame: 1 }, cable: 2, wait: 1.4 },
+  { dev: 'server', layers: [1, 2, 3], focus: 3, pos: 22, pdu: { ...PS }, seq: [{ ...PT, mac: 2, ttl: 63 }, { ...PP, ttl: 63 }] },
+  { dev: 'server', layers: [4], focus: 4, pos: 23, pdu: PD, seq: [{ ...PS }] },
+  { dev: 'server', layers: [7], focus: 7, pos: 26, pdu: PD },
+];
+const LAST = STEPS.length - 1;
+let osiStep = 0, playing = false, timer = null, speed = 50, view = 'osi', layerSel = null;
+let subTimers = [], SC = null, tokAnim = null, tokFill = '#fff';
+
+function osiText(s) {
+  if (s !== 4) return T.steps[s];
+  const pc = parseIP('192.168.1.37'), dst = parseIP('203.0.113.10');
+  return `<p><b>Couche 3 – Réseau (PC).</b> IP ajoute son en-tête : IP source 192.168.1.37, IP destination 203.0.113.10, TTL 64. On obtient un <span class="b">paquet</span>.</p><p>Le PC fait un ET logique avec son masque /24 : 203.0.113.10 ET 255.255.255.0 = <b>${formatIP(networkOf(dst, 24))}</b>, différent de son réseau ${formatIP(networkOf(pc, 24))}. La destination n’est pas sur son réseau : il faut passer par la <b>passerelle</b> 192.168.1.1.</p>`;
+}
+
+// ── Scène SVG : trois piles de couches, deux câbles ──
+const NS = 'http://www.w3.org/2000/svg';
+function sv(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function cumLen(pts) { const a = [0]; for (let i = 1; i < pts.length; i++) a.push(a[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); return a; }
+function pointOn(pts, acc, u) {
+  if (pts.length === 1) return pts[0];
+  const L = acc[acc.length - 1] * u;
+  let i = 1; while (i < acc.length - 1 && acc[i] < L) i++;
+  const f = (L - acc[i - 1]) / ((acc[i] - acc[i - 1]) || 1);
+  return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f];
+}
+function buildScene() {
+  const box = $('scene'), svg = $('osiSvg'), W = box.clientWidth, H = box.clientHeight;
+  if (!W || !H) { SC = null; return; }
+  const narrow = W < 520, padX = 4;
+  // largeurs : PC et serveur = sw, routeur = 0,8 sw ; la pile est alignée en bas (couches 1 au même niveau)
+  const sw = Math.min(190, (W - 2 * padX - 2 * Math.max(16, W * .07)) / 2.8), rw = sw * .8;
+  const gap = Math.min(150, (W - 2 * padX - 2 * sw - rw) / 2);
+  const x0 = (W - (2 * sw + rw + 2 * gap)) / 2;
+  const X = { pc: x0, router: x0 + sw + gap, server: x0 + sw + gap + rw + gap }, Wd = { pc: sw, router: rw, server: sw };
+  const cx = d => X[d] + Wd[d] / 2;
+  const macLbl = cx('router') - cx('pc') >= 215;
+  const headH = narrow ? 34 : 44, cableH = macLbl ? 40 : narrow ? 22 : 28;
+  const lh = Math.max(15, Math.min(34, (H - headH - cableH - 6) / 7));
+  const y0 = Math.max(2, (H - headH - 7 * lh - cableH) / 2) + headH, base = y0 + 7 * lh;
+  const ly = L => base - L * lh;                           // haut de la couche L
+  const fs = Math.max(9, Math.min(12.5, lh * .5, sw / 12));
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = '';
+  const gCab = sv('g', {}, svg);
+  for (const d of DEVS) {
+    const g = sv('g', {}, svg), top = ly(DEV[d].layers[0]), mid = d === 'router';
+    const tx = mid ? cx(d) : X[d] + 8, anchor = mid ? 'middle' : 'start', rx = Math.min(7, lh / 3);
+    sv('text', { x: cx(d), y: top - headH + (narrow ? 11 : 14), class: 'dname', 'font-size': narrow ? 11 : 12.5 }, g).textContent = narrow ? DEV[d].short : DEV[d].name;
+    sv('text', { x: cx(d), y: top - headH + (narrow ? 24 : 29), class: 'dsub', 'font-size': narrow ? 9 : 10 }, g).textContent = narrow ? DEV[d].subN : DEV[d].sub;
+    for (const L of DEV[d].layers) {               // couches OSI
+      const gl = sv('g', { class: `lay osiL L${L}`, id: `ly-${d}-${L}`, 'data-dev': d, 'data-l': L }, g);
+      sv('rect', { x: X[d], y: ly(L) + 1.5, width: Wd[d], height: lh - 3, rx }, gl);
+      const t = sv('text', { x: tx, y: ly(L) + lh / 2, 'font-size': fs, 'text-anchor': anchor }, gl);
+      sv('tspan', { class: 'n' }, t).textContent = L + ' ';
+      t.appendChild(document.createTextNode(LAYERS[L].name));
+    }
+    for (const G of GROUPS) {                        // regroupement TCP/IP
+      const ls = G.ls.filter(L => DEV[d].layers.includes(L)); if (!ls.length) continue;
+      const yT = ly(Math.max(...ls)), yB = ly(Math.min(...ls)) + lh, two = ls.length > 1 && yB - yT > 2.4 * fs + 6;
+      const gg = sv('g', { class: `lay grp ${G.c}`, id: `gp-${d}-${G.key}`, 'data-dev': d, 'data-l': Math.max(...ls) }, g);
+      sv('rect', { x: X[d], y: yT + 1.5, width: Wd[d], height: yB - yT - 3, rx }, gg);
+      const t = sv('text', { x: tx, y: (yT + yB) / 2 - (two ? fs * .62 : 0), 'font-size': fs, 'text-anchor': anchor }, gg);
+      t.textContent = G.name + (two ? '' : ` (${ls.join('-')})`);
+      if (two) { const t2 = sv('text', { x: tx, y: (yT + yB) / 2 + fs * .72, 'font-size': fs * .85, 'text-anchor': anchor }, gg); sv('tspan', { class: 'lsub' }, t2).textContent = `couches ${ls.join('-')}`; }
+    }
+  }
+  // câbles : du bas de la couche 1 d'un appareil au bas de la couche 1 du suivant
+  const cy = base + (macLbl ? 14 : cableH * .55);
+  const route = (a, b) => [[cx(a), base], [cx(a), cy], [cx(b), cy], [cx(b), base]];
+  const r1 = route('pc', 'router'), r2 = route('router', 'server');
+  const dPath = r => 'M' + r.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L');
+  sv('path', { d: dPath(r1), class: 'cable', id: 'cab1' }, gCab);
+  sv('path', { d: dPath(r2), class: 'cable', id: 'cab2' }, gCab);
+  if (macLbl) {
+    const lab = (x, anchor, txt) => { sv('text', { x, y: cy + 14, class: 'maclbl', 'text-anchor': anchor, 'font-size': 9.5 }, gCab).textContent = txt; };
+    lab(cx('pc') + 6, 'start', MAC.pc); lab(cx('router') - 6, 'end', MAC.rLan);
+    lab(cx('router') + 6, 'start', MAC.rWan); lab(cx('server') - 6, 'end', MAC.srv);
+  }
+  // points de passage du jeton (indices utilisés par STEPS[].pos)
+  const inR = d => X[d] + Wd[d] - 11, inL = d => X[d] + 11, my = L => ly(L) + lh / 2;
+  const wp = [];
+  for (let L = 7; L >= 1; L--) wp.push([inR('pc'), my(L)]);                       // 0 à 6 : PC, de 7 à 1
+  wp.push(...r1);                                                                   // 7 à 10 : câble 1
+  wp.push([inL('router'), my(1)], [inL('router'), my(2)], [inR('router'), my(3)], [inR('router'), my(2)], [inR('router'), my(1)]);  // 11 à 15
+  wp.push(...r2);                                                                   // 16 à 19 : câble 2
+  for (let L = 1; L <= 7; L++) wp.push([inR('server'), my(L)]);                    // 20 à 26 : serveur, de 1 à 7
+  const gBits = sv('g', { id: 'bitsG' }, svg);
+  const glyphs = Array.from({ length: 40 }, () => { const t = sv('text', { class: 'bitg', 'font-size': narrow ? 9 : 10.5, opacity: 0 }, gBits); t.textContent = Math.random() < .5 ? '0' : '1'; return t; });
+  const tok = sv('circle', { r: narrow ? 5 : 6, class: 'tok', opacity: 0 }, svg);
+  tok.style.fill = tokFill;
+  SC = { wp, r1, r2, acc1: cumLen(r1), acc2: cumLen(r2), glyphs, gBits, tok, svg };
+  tokAnim = null;
+}
+function paintScene() {
+  if (!SC) return;
+  const st = STEPS[osiStep];
+  SC.svg.classList.toggle('tcp', view === 'tcp');
+  for (const d of DEVS) {
+    for (const L of DEV[d].layers) {
+      const e = $(`ly-${d}-${L}`);
+      e.classList.toggle('on', st.dev === d && st.layers.includes(L));
+      e.classList.toggle('pick', !!layerSel && layerSel.dev === d && layerSel.L === L);
+    }
+    for (const G of GROUPS) {
+      const e = $(`gp-${d}-${G.key}`); if (!e) continue;
+      e.classList.toggle('on', st.dev === d && G.ls.some(L => st.layers.includes(L)));
+      e.classList.toggle('pick', !!layerSel && layerSel.dev === d && G.ls.includes(layerSel.L));
+    }
+  }
+  $('cab1').classList.toggle('on', st.cable === 1);
+  $('cab2').classList.toggle('on', st.cable === 2);
+}
+// Animation continue : le jeton qui se déplace et les bits qui défilent sur le câble
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (mode !== 'osi' || !SC) return;
+  const st = STEPS[osiStep];
+  let p = null;
+  if (tokAnim) {
+    const u = Math.min(1, (now - tokAnim.t0) / tokAnim.dur), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+    p = pointOn(tokAnim.pts, tokAnim.acc, e);
+    if (u >= 1) tokAnim = null;
+  } else if (st.pos >= 0) p = SC.wp[st.pos];
+  if (p) { SC.tok.setAttribute('cx', p[0].toFixed(1)); SC.tok.setAttribute('cy', p[1].toFixed(1)); SC.tok.setAttribute('opacity', 1); }
+  else SC.tok.setAttribute('opacity', 0);
+  if (st.cable) {
+    const pts = st.cable === 1 ? SC.r1 : SC.r2, acc = st.cable === 1 ? SC.acc1 : SC.acc2, len = acc[acc.length - 1];
+    const N = Math.max(6, Math.min(SC.glyphs.length, Math.round(len / 22))), off = (now / 1000) * (60 + speed * 1.4) / len;
+    SC.glyphs.forEach((g, j) => {
+      if (j >= N) { g.setAttribute('opacity', 0); return; }
+      const u = (off + j / N) % 1, [x, y] = pointOn(pts, acc, u);
+      g.setAttribute('x', x.toFixed(1)); g.setAttribute('y', y.toFixed(1));
+      g.setAttribute('opacity', Math.min(1, u * 10, (1 - u) * 10).toFixed(2));
+    });
+  } else SC.glyphs.forEach(g => g.setAttribute('opacity', 0));
+}
+function tokenGo(a, b, dur) {
+  if (!SC || a < 0 || b <= a) { tokAnim = null; return; }
+  const pts = SC.wp.slice(a, b + 1);
+  tokAnim = { pts, acc: cumLen(pts), t0: performance.now(), dur };
+}
+
+// ── Barre PDU ──
+function applyPdu(s) {
+  const P = Object.assign({ ttl: 64, mac: 1 }, s);
+  const keys = ['eth', 'ip', 'tcp', 'data', 'fcs'];
+  keys.forEach(k => $('blk-' + k).classList.toggle('in', !!P[k]));
+  $('pdu').classList.toggle('none', !keys.some(k => P[k]));
+  $('pdu').classList.toggle('asbits', !!P.bits);
+  ['tcp', 'data'].forEach(k => $('blk-' + k).classList.toggle('sealed', !!P.sealed));
+  $('fMacD').textContent = P.mac === 2 ? MAC.srv : MAC.rLan;
+  $('fMacS').textContent = P.mac === 2 ? MAC.rWan : MAC.pc;
+  ['fMacD', 'fMacS'].forEach(id => $(id).classList.toggle('chg', !!P.macChg));
+  ['fIpS', 'fIpD'].forEach(id => $(id).classList.toggle('same', !!P.ipSame));
+  $('fTtl').textContent = P.ttl; $('fTtl').classList.toggle('chg', !!P.ttlChg);
+  const names = [].concat(P.name || []);
+  $('chain').querySelectorAll('span').forEach(e => e.classList.toggle('on', names.includes(e.dataset.n)));
+  if (names.length) tokFill = PDU_COL[names[names.length - 1]];
+  if (SC) SC.tok.style.fill = tokFill;
+}
+$('chain').innerHTML = Object.keys(PDU_LBL).map(k => `<span data-n="${k}">${PDU_LBL[k]}</span>`).join('<i>→</i>');
+// version « bits » de chaque bloc : autant de 0 et de 1 que de caractères affichés
+document.querySelectorAll('.blk').forEach(b => {
+  b.querySelector('.bits').innerHTML = [...b.querySelectorAll('.f')].map(f => '<div>' + Array.from({ length: Math.max(6, f.textContent.trim().length) }, () => Math.random() < .5 ? 0 : 1).join('') + '</div>').join('');
+});
+function renderHops() {
+  const k1 = osiStep >= 5, k2 = osiStep >= 9;
+  const cell = (id, txt, known, cls) => { const e = $(id); e.textContent = known ? txt : '—'; e.className = 'c' + (known ? (cls ? ' ' + cls : '') : ' na'); };
+  cell('h1ms', MAC.pc, k1); cell('h1md', MAC.rLan, k1); cell('h1is', '192.168.1.37', k1); cell('h1id', '203.0.113.10', k1);
+  cell('h2ms', MAC.rWan, k2, 'chg'); cell('h2md', MAC.srv, k2, 'chg'); cell('h2is', '192.168.1.37', k2, 'same'); cell('h2id', '203.0.113.10', k2, 'same');
+}
+
+// ── Cartes « Étape » et « Couche active » ──
+function renderOsiCards() {
+  const st = STEPS[osiStep];
+  $('stepNo').textContent = `${osiStep} / ${LAST}`;
+  $('osiExplain').innerHTML = osiText(osiStep);
+  const L = layerSel ? layerSel.L : st.focus, dev = layerSel ? layerSel.dev : st.dev;
+  $('layR').textContent = dev ? DEV[dev].label : '';
+  if (!L) { $('layCard').innerHTML = '<div class="muted small">Aucune couche active pour l’instant. Cliquez une couche d’une pile pour lire son rôle.</div>'; return; }
+  const d = LAYERS[L];
+  let h = `<div class="lhd L${L}"><span class="ln">${L}</span><div><b>${d.name}</b><small>modèle TCP/IP : ${d.tcp}</small></div></div>`
+    + `<p class="role">${d.role}</p><div class="kv">`
+    + [['PDU', `<span class="v">${d.pdu}</span>`], ['Protocoles', `<span class="v" style="font-weight:600">${d.protos}</span>`], ['Matériel', `<span class="v" style="font-weight:600">${d.hw}</span>`], ['Adresse', `<span class="v" style="font-weight:600">${d.addr}</span>`]]
+      .map(([k, v]) => `<span class="k">${k}</span>${v}`).join('') + '</div>';
+  if (st.layers.length > 1 || (layerSel && st.layers.length)) {
+    h += '<div class="lpills">couches de l’étape :' + st.layers.map(x => `<button class="pill${x === L && (!layerSel || layerSel.dev === st.dev) ? ' on' : ''}" data-l="${x}">${x} ${LAYERS[x].name}</button>`).join('') + '</div>';
+  }
+  $('layCard').innerHTML = h;
+}
+$('layCard').addEventListener('click', e => {
+  const b = e.target.closest('.pill'); if (!b) return;
+  const st = STEPS[osiStep], L = +b.dataset.l;
+  layerSel = L === st.focus ? null : { dev: st.dev, L };
+  paintScene(); renderOsiCards();
+});
+$('osiSvg').addEventListener('click', e => {
+  const g = e.target.closest('.lay'); if (!g) return;
+  const sel = { dev: g.dataset.dev, L: +g.dataset.l }, st = STEPS[osiStep];
+  layerSel = (st.dev === sel.dev && st.focus === sel.L) ? null : sel;
+  paintScene(); renderOsiCards();
+});
+
+// ── Lecture pas à pas ──
+function delayMs() { return 3400 * Math.pow(1 - speed / 100, 1.6) + 900; }
+function goStep(s, animate) {
+  s = Math.max(0, Math.min(LAST, s));
+  subTimers.forEach(clearTimeout); subTimers = [];
+  const prev = osiStep; osiStep = s; layerSel = null;
+  const st = STEPS[s];
+  if (animate && st.seq) {
+    // décapsulation visible : on montre d'abord l'unité reçue, puis on retire les en-têtes un à un
+    const d = Math.max(280, delayMs() * .25);
+    applyPdu(st.seq[0]);
+    st.seq.slice(1).concat([st.pdu]).forEach((p, j) => subTimers.push(setTimeout(() => applyPdu(p), (j + 1) * d)));
+  } else applyPdu(st.pdu);
+  if (animate && s === prev + 1 && STEPS[prev].pos >= 0) {
+    const pts = SC ? SC.wp.slice(STEPS[prev].pos, st.pos + 1) : [];
+    const len = pts.length > 1 ? cumLen(pts)[pts.length - 1] : 0;
+    tokenGo(STEPS[prev].pos, st.pos, Math.min(delayMs() * .6, 280 + len * 2.4));
+  } else tokAnim = null;
+  paintScene(); renderHops(); renderOsiCards(); setOsiUI();
+  if (s === LAST && animate) showMsg(T.final, 'win'); else hideMsg();
+}
+function setOsiUI() {
+  $('bPlay').textContent = playing ? '⏸ Pause' : osiStep >= LAST ? '↺ Rejouer' : '▶ Lancer';
+  $('bPlay').className = 'btn ' + (playing ? '' : 'teal');
+  $('bStep').disabled = playing || osiStep >= LAST;
+}
+function schedule() {
+  clearTimeout(timer); if (!playing) return;
+  timer = setTimeout(() => {
+    goStep(osiStep + 1, true);
+    if (osiStep >= LAST) playing = false;
+    setOsiUI(); schedule();
+  }, delayMs() * (STEPS[osiStep].wait || 1));
+}
+function stopPlay() { playing = false; clearTimeout(timer); setOsiUI(); }
+function setView(v) {
+  view = v;
+  document.querySelectorAll('#viewPills .pill').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  paintScene();
+}
+$('bPlay').onclick = () => {
+  if (playing) { stopPlay(); return; }
+  if (osiStep >= LAST) goStep(0, false);
+  playing = true; goStep(osiStep + 1, true);
+  if (osiStep >= LAST) playing = false;
+  setOsiUI(); schedule();
+};
+$('bStep').onclick = () => { stopPlay(); goStep(osiStep + 1, true); };
+$('bReset').onclick = () => { stopPlay(); goStep(0, false); };
+$('rSpeed').oninput = e => { speed = +e.target.value; schedule(); };
+document.querySelectorAll('#viewPills .pill').forEach(b => b.onclick = () => setView(b.dataset.v));
+new ResizeObserver(() => { if (mode === 'osi') { buildScene(); paintScene(); } }).observe($('scene'));
+requestAnimationFrame(frame);
+
+// ─────────────────────── Onglets, modale, clavier ───────────────────────
+function setMode(m) {
+  mode = m;
+  document.body.dataset.mode = m;
+  stopPlay(); hideMsg();
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  document.querySelectorAll('.tb').forEach(b => b.classList.toggle('on', b.id === 'tb-' + m));
+  document.querySelectorAll('.m-ip, .m-decoupage, .m-osi').forEach(e => e.hidden = !e.classList.contains('m-' + m));
+  $('tHint').textContent = T.hint[m];
+  q.set('mode', m);
+  try { history.replaceState(null, '', '?' + q.toString()); } catch (e) { /* fichier local : sans importance */ }
+  if (m === 'ip') renderIp();
+  else if (m === 'decoupage') renderCut(true);
+  else { buildScene(); goStep(osiStep, false); }
+}
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => setMode(b.dataset.m));
+$('infoContent').innerHTML = T.infoHTML;
+$('bInfo').onclick = () => { $('overlay').classList.add('open'); $('close').focus(); };
+$('close').onclick = () => $('overlay').classList.remove('open');
+$('overlay').onclick = ev => { if (ev.target.id === 'overlay') $('overlay').classList.remove('open'); };
+window.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') { $('overlay').classList.remove('open'); return; }
+  const tag = ev.target.tagName;
+  if ($('overlay').classList.contains('open') || ['INPUT', 'SELECT', 'TEXTAREA'].includes(tag)) return;
+  if (mode === 'ip') {
+    if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') { ev.preventDefault(); setN(n - 1); }
+    else if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') { ev.preventDefault(); setN(n + 1); }
+  } else if (mode === 'osi') {
+    if ((ev.key === ' ' || ev.code === 'Space') && tag !== 'BUTTON') { ev.preventDefault(); $('bPlay').click(); }
+    else if (ev.key === 'ArrowRight') { ev.preventDefault(); if (osiStep < LAST) $('bStep').click(); }
+    else if (ev.key === 'ArrowLeft') { ev.preventDefault(); stopPlay(); goStep(osiStep - 1, false); }
+  }
+});
+function showMsg(text, kind) {
+  const m = $('msg'); m.textContent = text; m.className = 'toast glass show' + (kind ? ' ' + kind : '');
+  clearTimeout(showMsg.t); showMsg.t = setTimeout(hideMsg, kind === 'bad' ? 3600 : 7000);
+}
+function hideMsg() { $('msg').classList.remove('show'); }
+
+// ─────────────────────── Démarrage ───────────────────────
+// Paramètres facultatifs : ?mode=ip|decoupage|osi &embed=1 &ip=172.16.45.200/20 &ip2=… &reseau=10.0.0.0/8 &k=8 &vue=tcpip
+(function init() {
+  const cI = parseCIDR(q.get('ip') || '');
+  if (cI) { ip = cI.ip; if (cI.n !== null) n = cI.n; }
+  const i2 = parseIP(q.get('ip2') || '');
+  if (i2 !== null) ip2 = i2;
+  const cN = parseCIDR(q.get('reseau') || '');
+  if (cN && cN.n !== null) { cutN = cN.n; cutNet = networkOf(cN.ip, cN.n); }
+  const k0 = Number(q.get('k'));
+  if (KS.includes(k0)) cutK = k0;
+  if (tooSmall(cutK)) { const ok = KS.filter(k => !tooSmall(k)); if (ok.length) cutK = ok[ok.length - 1]; }
+  $('ipIn').value = formatIP(ip); $('ip2In').value = formatIP(ip2); $('netIn').value = `${formatIP(cutNet)}/${cutN}`;
+  if (q.get('vue') === 'tcpip') view = 'tcp';
+  setView(view);
+  applyPdu(STEPS[0].pdu); renderHops(); renderOsiCards();
+  const m0 = q.get('mode');
+  setMode(MODES.includes(m0) ? m0 : 'ip');
+})();
+</script>
+</body>
+</html>
