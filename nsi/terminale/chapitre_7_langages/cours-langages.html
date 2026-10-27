@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Langages et programmation — Terminale NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --warn:#ffc53d; --bad:#ff5c7a; --vio:#b57bff; --pink:#ff4fa3; }
+
+  .chapnav{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.92);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .chapnav-in{max-width:var(--max-w);margin:0 auto;display:flex;gap:.4rem;overflow-x:auto;
+    padding:.55rem 1.5rem;scrollbar-width:none}
+  .chapnav-in::-webkit-scrollbar{display:none}
+  .chapnav a{flex:none;text-decoration:none;color:var(--text-muted);font-size:.82rem;font-weight:500;
+    padding:.35rem .7rem;border-radius:100px;border:1px solid transparent;white-space:nowrap;transition:.18s}
+  .chapnav a:hover{color:var(--text);background:var(--bg-card)}
+  .chapnav a.on{color:var(--nsi);background:var(--nsi-dim);border-color:rgba(108,158,255,.3)}
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);
+    text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+
+  .part{scroll-margin-top:110px;margin-bottom:3.2rem}
+  .part > h2{display:flex;align-items:baseline;gap:.7rem;font-size:1.45rem;
+    padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.3rem}
+  .part > h2 .pn{font-family:var(--mono);font-size:.85rem;color:var(--nsi);
+    background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .part h3{font-size:1.02rem;color:var(--nsi);margin:1.6rem 0 .5rem}
+  .part p{margin-bottom:.85rem;color:#c9cdda}
+  .part ul,.part ol{margin:0 0 .9rem 1.2rem;color:#c9cdda}
+  .part li{margin-bottom:.35rem}
+  .part b,.part strong{color:var(--text);font-weight:600}
+  code,.m{font-family:var(--mono);font-size:.92em}
+  .m{color:var(--nsi);background:rgba(108,158,255,.09);padding:.08em .35em;border-radius:4px;white-space:nowrap}
+  .m.v{color:var(--vio);background:rgba(181,123,255,.11)}
+  .m.o{color:var(--warn);background:rgba(255,197,61,.11)}
+  .m.g{color:var(--ok);background:rgba(52,211,153,.11)}
+  sub,sup{font-size:.72em}
+
+  .box{border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 8px 8px 0;
+    background:var(--bg-card);padding:1rem 1.2rem;margin:1.1rem 0}
+  .box .lbl{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--nsi);display:block;margin-bottom:.5rem}
+  .box.meth{border-left-color:var(--vio)} .box.meth .lbl{color:var(--vio)}
+  .box.warn{border-left-color:var(--warn)} .box.warn .lbl{color:var(--warn)}
+  .box.key{border-left-color:var(--ok);background:rgba(52,211,153,.06)} .box.key .lbl{color:var(--ok)}
+  .box.def{border-left-color:var(--pink)} .box.def .lbl{color:var(--pink)}
+  .box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+
+  .tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}
+  .tbl th,.tbl td{border:1px solid var(--border);padding:.45rem .6rem;text-align:center}
+  .tbl th{background:var(--bg-card);color:var(--nsi);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+  .tbl td{color:#c9cdda}
+  .tbl td.mono{font-family:var(--mono)}
+  .tbl td.l{text-align:left}
+  .tbl tr:nth-child(even) td{background:rgba(255,255,255,.017)}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1rem 0}
+  .scrollx .tbl{margin:0;min-width:480px}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.6;background:#0c0e15;
+    border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;
+    overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+  pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+
+  .fig{margin:1.2rem 0;text-align:center}
+  .fig svg{max-width:100%;height:auto}
+  .fig .cap{font-size:.8rem;color:var(--text-muted);margin-top:.4rem}
+
+  /* diagramme de classe */
+  .uml{display:inline-block;background:var(--bg-card);border:2px solid var(--vio);border-radius:8px;overflow:hidden;font-family:var(--mono);text-align:left;min-width:200px;margin:.4rem}
+  .uml .cn{background:rgba(181,123,255,.14);color:var(--vio);padding:.35rem .6rem;font-weight:700;text-align:center;font-size:.9rem;border-bottom:1px solid var(--border)}
+  .uml .at,.uml .mt{padding:.25rem .6rem;font-size:.78rem;color:#c9cdda}
+  .uml .at{border-bottom:1px dashed var(--border)}
+  .uml .mt .met{color:var(--nsi)}
+  .uml-wrap{display:flex;justify-content:center;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin:1.2rem 0}
+  .uml-arrow{display:flex;align-items:center;color:var(--vio);font-size:1.2rem;font-weight:700}
+
+  /* paradigmes grid */
+  .paradigms{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.8rem;margin:1rem 0}
+  .paradigms > div{border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:.9rem 1rem}
+  .paradigms h4{font-size:.78rem;color:var(--nsi);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+  .paradigms p{font-size:.86rem;margin-bottom:.4rem}
+  .paradigms .lex{font-family:var(--mono);font-size:.74rem;color:var(--text-muted);display:block}
+
+  /* machine de turing */
+  .tape{display:flex;gap:3px;justify-content:center;margin:1rem 0;overflow-x:auto;padding-bottom:.3rem}
+  .tape .cell{min-width:36px;height:38px;border:1px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:1rem;color:#c9cdda;position:relative}
+  .tape .cell.head{border-color:var(--warn);border-width:2px;background:rgba(255,197,61,.1);color:var(--warn)}
+  .tape .cell.head::before{content:"▼";position:absolute;top:-14px;color:var(--warn);font-size:.75rem}
+
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);
+    border-left:3px solid var(--ok);border-radius:0 10px 10px 0;background:rgba(52,211,153,.06);
+    padding:1.1rem 1.3rem;margin:2.5rem 0 1rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--ok);color:#06281c;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+
+  .recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem;margin:1rem 0}
+  .recap div{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.7rem .85rem;font-size:.86rem;color:#c9cdda}
+  .recap div b{display:block;color:var(--ok);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem}
+
+  @media (max-width:640px){
+    .chapnav-in{padding:.5rem 1rem}
+    .part > h2{font-size:1.2rem}
+    pre.code{font-size:.76rem}
+    .uml-arrow{transform:rotate(90deg)}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="chapnav">
+  <div class="chapnav-in" id="chapnav">
+    <a href="#p1">1 · Paradigmes</a>
+    <a href="#p2">2 · POO : classes et objets</a>
+    <a href="#p3">3 · Encapsulation</a>
+    <a href="#p4">4 · Héritage</a>
+    <a href="#p5">5 · Fonctionnel</a>
+    <a href="#p6">6 · Spécifications</a>
+    <a href="#p7">7 · Tester</a>
+    <a href="#p8">8 · Déboguer</a>
+    <a href="#p9">9 · Calculabilité</a>
+    <a href="#p10">10 · À retenir</a>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>Langages et programmation <span class="badge badge-nsi">Terminale</span></h1>
+    <p class="subtitle">Comment on <b>organise</b> un programme (POO, paradigmes), comment on prouve qu'il fait ce qu'il
+      doit (spécifications, assertions, tests), comment on <b>trouve l'erreur</b> quand il échoue, et pourquoi
+      <b>certains problèmes</b> n'ont tout simplement pas de programme pour les résoudre.</p>
+  </div>
+
+  <!-- ══════════════════ 1 ══════════════════ -->
+  <section class="part" id="p1">
+    <h2><span class="pn">1</span> Un programme, plusieurs façons de l'écrire</h2>
+    <p>Depuis la Première, nous écrivons des programmes <b>impératifs</b> : une suite d'instructions qui modifient des
+      variables (<code>x = x + 1</code>, boucles <code>for</code>…). Mais ce n'est pas la seule façon de penser un calcul.
+      Deux autres styles reviennent sans cesse en Terminale :</p>
+
+    <div class="paradigms">
+      <div>
+        <h4>Impératif</h4>
+        <p>On dit à l'ordinateur <b>comment</b> faire, étape par étape. Variables, boucles, tableaux modifiés en place.</p>
+        <code class="lex">x = 0; for i in t: x = x + i</code>
+      </div>
+      <div>
+        <h4>Fonctionnel</h4>
+        <p>On compose des <b>fonctions</b> qui ne modifient rien. Pas d'effet de bord ; une fonction appelée deux fois rend le même résultat.</p>
+        <code class="lex">sum(map(carre, t))</code>
+      </div>
+      <div>
+        <h4>Orienté objet</h4>
+        <p>On regroupe <b>données</b> et <b>actions</b> dans des <b>objets</b>. Chaque objet connaît son état et ce qu'il sait faire.</p>
+        <code class="lex">compte.deposer(100)</code>
+      </div>
+    </div>
+
+    <div class="box def">
+      <span class="lbl">Définition — paradigme de programmation</span>
+      <p>Un <b>paradigme</b> est une façon d'organiser le code et de penser le calcul. Python est <b>multi-paradigme</b> :
+        on peut y mélanger les trois styles. L'important n'est pas d'en choisir un pour toujours, mais de savoir
+        reconnaître lequel se prête à quel problème.</p>
+    </div>
+
+    <p>Dans ce chapitre, nous entrons en détail dans le paradigme <b>orienté objet</b> — le plus demandé au bac — puis
+      nous donnons un aperçu du <b>fonctionnel</b>. Les parties 6 à 8 reviennent sur ce qu'on écrit <b>autour</b> du code
+      (spécifications, tests, débogage), et la partie 9 montre, par un théorème, pourquoi tout n'est pas programmable.</p>
+  </section>
+
+  <!-- ══════════════════ 2 ══════════════════ -->
+  <section class="part" id="p2">
+    <h2><span class="pn">2</span> La programmation orientée objet (POO)</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Une <b>classe</b> est un <b>modèle</b> qui décrit un type d'objets : les <b>attributs</b> qu'ils portent
+        (leurs données) et les <b>méthodes</b> qu'ils savent faire (leurs fonctions). Un <b>objet</b> est une
+        <b>instance</b> concrète de la classe. De la classe <code>Chien</code> on peut créer autant d'objets que de
+        chiens individuels : Rex, Médor, Fido…</p>
+    </div>
+
+    <p>L'analogie classique : la classe est le <b>moule à gâteau</b>, les objets sont les gâteaux qu'on en fait.
+      Un même moule peut produire mille gâteaux ; chaque gâteau a sa propre vie.</p>
+
+    <h3>Un premier exemple : la classe <code>Point</code></h3>
+<pre class="code"><span class="kw">class</span> <span class="fn">Point</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, x, y):      <span class="cm"># le constructeur : fabrique un nouveau Point</span>
+        self.x = x                      <span class="cm"># attributs d'instance</span>
+        self.y = y
+
+    <span class="kw">def</span> <span class="fn">distance</span>(self, autre):      <span class="cm"># une méthode</span>
+        dx = self.x - autre.x
+        dy = self.y - autre.y
+        <span class="kw">return</span> (dx * dx + dy * dy) ** <span class="nb">0.5</span>
+
+<span class="cm"># Création de deux objets Point</span>
+a = <span class="fn">Point</span>(<span class="nb">3</span>, <span class="nb">4</span>)
+b = <span class="fn">Point</span>(<span class="nb">0</span>, <span class="nb">0</span>)
+
+a.x                 <span class="cm"># → 3     : on lit un attribut</span>
+a.<span class="fn">distance</span>(b)       <span class="cm"># → 5.0   : on appelle une méthode sur l'objet a</span></pre>
+
+    <div class="box key">
+      <span class="lbl">Trois mots à retenir</span>
+      <ul>
+        <li><b>Classe</b> : le modèle (ce que savent tous les Points).</li>
+        <li><b>Instance</b> (ou <b>objet</b>) : un exemplaire concret (<code>a</code>, <code>b</code>).</li>
+        <li><b>self</b> : à l'intérieur d'une méthode, désigne l'objet sur lequel la méthode a été appelée.
+          <code>a.distance(b)</code> appelle la méthode avec <code>self = a</code> et <code>autre = b</code>.</li>
+      </ul>
+    </div>
+
+    <h3>Le constructeur <code>__init__</code></h3>
+    <p>C'est la méthode spéciale que Python appelle automatiquement <b>au moment de la création</b> d'un objet.
+      C'est elle qui donne leurs valeurs initiales aux attributs. Un objet qui n'a pas été correctement initialisé
+      est une source classique de bugs.</p>
+
+    <h3>Méthode ou fonction ?</h3>
+    <p>Une <b>fonction</b> prend ses données en arguments et rend un résultat ; une <b>méthode</b> est une fonction
+      <b>attachée à un objet</b> : elle agit sur ses attributs (via <code>self</code>) et éventuellement en lit ou
+      modifie l'état.</p>
+<pre class="code">distance_point(a, b)        <span class="cm"># style fonctionnel : la fonction prend les objets</span>
+a.<span class="fn">distance</span>(b)                <span class="cm"># style OO : on demande au point a sa distance à b</span></pre>
+  </section>
+
+  <!-- ══════════════════ 3 ══════════════════ -->
+  <section class="part" id="p3">
+    <h2><span class="pn">3</span> Encapsulation : cacher pour mieux protéger</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>L'<b>encapsulation</b> est le principe selon lequel un objet ne doit être <b>modifié</b> que par <b>ses propres
+        méthodes</b>. L'extérieur ne touche pas directement aux attributs : il passe par l'interface que la classe lui
+        offre.</p>
+    </div>
+
+    <p>Exemple : un compte bancaire. Rien n'empêche d'écrire <code>compte.solde = -1000000</code>… sauf qu'on ne veut
+      précisément <b>pas</b> ça. On préfère exposer deux méthodes qui, elles, vérifient :</p>
+
+<pre class="code"><span class="kw">class</span> <span class="fn">Compte</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, titulaire):
+        self.titulaire = titulaire
+        self._solde = <span class="nb">0</span>          <span class="cm"># convention : _nom = "ne touchez pas directement"</span>
+
+    <span class="kw">def</span> <span class="fn">deposer</span>(self, montant):
+        <span class="kw">if</span> montant &lt;= <span class="nb">0</span>:
+            <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">"montant positif attendu"</span>)
+        self._solde += montant
+
+    <span class="kw">def</span> <span class="fn">retirer</span>(self, montant):
+        <span class="kw">if</span> montant &gt; self._solde:
+            <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="st">"solde insuffisant"</span>)
+        self._solde -= montant
+
+    <span class="kw">def</span> <span class="fn">solde</span>(self):
+        <span class="kw">return</span> self._solde       <span class="cm"># accès en lecture seule</span>
+
+c = <span class="fn">Compte</span>(<span class="st">"Alice"</span>)
+c.<span class="fn">deposer</span>(<span class="nb">100</span>)
+c.<span class="fn">retirer</span>(<span class="nb">30</span>)
+c.<span class="fn">solde</span>()                     <span class="cm"># → 70</span></pre>
+
+    <div class="box warn">
+      <span class="lbl">Attention — Python ne force rien</span>
+      <p>À la différence de Java, Python n'a pas de vraie protection : un <code>_solde</code> précédé d'un underscore
+        <b>peut</b> toujours être lu ou écrit de l'extérieur. L'underscore est une <b>convention sociale</b> : il dit
+        « ne touche pas, tu casseras quelque chose ». La protection vient de la <b>discipline</b> de qui utilise la
+        classe, pas du langage.</p>
+    </div>
+
+    <h3>Ce que l'encapsulation apporte</h3>
+    <ul>
+      <li>L'objet reste toujours dans un <b>état valide</b> (ici : solde ≥ 0).</li>
+      <li>On peut changer l'<b>implémentation interne</b> (par exemple ajouter un historique des opérations) sans toucher au code qui utilise la classe.</li>
+      <li>Le code appelant est plus court et plus lisible : <code>c.deposer(100)</code> plutôt que la logique étalée partout.</li>
+    </ul>
+  </section>
+
+  <!-- ══════════════════ 4 ══════════════════ -->
+  <section class="part" id="p4">
+    <h2><span class="pn">4</span> L'héritage : spécialiser une classe</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Une classe <b>fille</b> (ou <b>sous-classe</b>) <b>hérite</b> d'une classe <b>mère</b> : elle reprend
+        automatiquement tous ses attributs et toutes ses méthodes, et peut en ajouter ou en <b>redéfinir</b>
+        (polymorphisme).</p>
+    </div>
+
+    <h3>Un exemple : des formes géométriques</h3>
+<pre class="code"><span class="kw">class</span> <span class="fn">Forme</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, nom):
+        self.nom = nom
+
+    <span class="kw">def</span> <span class="fn">aire</span>(self):
+        <span class="kw">raise</span> <span class="fn">NotImplementedError</span>(<span class="st">"à redéfinir dans les sous-classes"</span>)
+
+    <span class="kw">def</span> <span class="fn">decrire</span>(self):
+        <span class="kw">return</span> f<span class="st">"{self.nom} d'aire {self.aire():.2f}"</span>
+
+<span class="kw">class</span> <span class="fn">Rectangle</span>(<span class="fn">Forme</span>):              <span class="cm"># Rectangle hérite de Forme</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, L, l):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(<span class="st">"rectangle"</span>)   <span class="cm"># appelle le constructeur de la mère</span>
+        self.L = L
+        self.l = l
+
+    <span class="kw">def</span> <span class="fn">aire</span>(self):                     <span class="cm"># on redéfinit (polymorphisme)</span>
+        <span class="kw">return</span> self.L * self.l
+
+<span class="kw">class</span> <span class="fn">Cercle</span>(<span class="fn">Forme</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, r):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(<span class="st">"cercle"</span>)
+        self.r = r
+
+    <span class="kw">def</span> <span class="fn">aire</span>(self):
+        <span class="kw">return</span> <span class="nb">3.14159</span> * self.r ** <span class="nb">2</span>
+
+formes = [<span class="fn">Rectangle</span>(<span class="nb">3</span>, <span class="nb">4</span>), <span class="fn">Cercle</span>(<span class="nb">5</span>)]
+<span class="kw">for</span> f <span class="kw">in</span> formes:
+    <span class="fn">print</span>(f.<span class="fn">decrire</span>())      <span class="cm"># la bonne méthode aire() est appelée pour chaque objet</span></pre>
+
+    <div class="uml-wrap">
+      <div class="uml">
+        <div class="cn">Forme</div>
+        <div class="at">nom</div>
+        <div class="mt"><span class="met">aire()</span></div>
+        <div class="mt"><span class="met">decrire()</span></div>
+      </div>
+      <div class="uml-arrow">↙  ↘</div>
+      <div class="uml">
+        <div class="cn">Rectangle</div>
+        <div class="at">L, l</div>
+        <div class="mt"><span class="met">aire()</span> ← redéfini</div>
+      </div>
+      <div class="uml">
+        <div class="cn">Cercle</div>
+        <div class="at">r</div>
+        <div class="mt"><span class="met">aire()</span> ← redéfini</div>
+      </div>
+    </div>
+
+    <div class="box key">
+      <span class="lbl">Trois concepts d'un seul coup</span>
+      <ul>
+        <li><b>Héritage</b> : <code>Rectangle(Forme)</code> dit que Rectangle est une forme. Il récupère <code>nom</code> et <code>decrire</code>.</li>
+        <li><b>super()</b> appelle une méthode de la classe mère depuis la fille — typiquement le constructeur.</li>
+        <li><b>Polymorphisme</b> : <code>aire()</code> existe dans Forme mais est <b>redéfinie</b> dans chaque fille.
+          Appeler <code>f.aire()</code> exécute la version adaptée à l'objet <code>f</code>, sans que le code appelant
+          sache de quel type exactement il s'agit.</li>
+      </ul>
+    </div>
+
+    <div class="box warn">
+      <span class="lbl">À utiliser avec modération</span>
+      <p>L'héritage sert à exprimer un lien <b>« est un »</b> : un rectangle <b>est une</b> forme. Si le lien est plutôt
+        <b>« a un »</b> (une voiture <b>a un</b> moteur), on préfère la <b>composition</b> : la classe Voiture a un
+        attribut Moteur. Hériter juste pour partager quelques méthodes finit souvent par introduire des bugs : trop
+        d'héritage étouffe la lisibilité.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 5 ══════════════════ -->
+  <section class="part" id="p5">
+    <h2><span class="pn">5</span> Un aperçu du paradigme fonctionnel</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Dans le paradigme <b>fonctionnel</b>, une <b>fonction pure</b> rend un résultat qui ne dépend que de ses
+        arguments, et ne modifie <b>rien</b> en dehors d'elle (ni variable globale, ni objet reçu, ni fichier…).
+        Appelée deux fois avec les mêmes arguments, elle rend deux fois le même résultat.</p>
+    </div>
+
+<pre class="code"><span class="cm"># Pure : ne modifie rien, dépend seulement de n</span>
+<span class="kw">def</span> <span class="fn">carre</span>(n):
+    <span class="kw">return</span> n * n
+
+<span class="cm"># Non pure : modifie la liste reçue (effet de bord)</span>
+<span class="kw">def</span> <span class="fn">ajouter_zero</span>(t):
+    t.append(<span class="nb">0</span>)
+
+<span class="cm"># Non pure : dépend d'une variable globale</span>
+compteur = <span class="nb">0</span>
+<span class="kw">def</span> <span class="fn">compter</span>():
+    <span class="kw">global</span> compteur
+    compteur += <span class="nb">1</span>
+    <span class="kw">return</span> compteur</pre>
+
+    <h3>Les fonctions sont des valeurs comme les autres</h3>
+    <p>En Python, on peut passer une fonction en argument, la ranger dans une liste, la renvoyer. Trois outils de la
+      bibliothèque standard illustrent le style fonctionnel :</p>
+<pre class="code"><span class="fn">list</span>(<span class="fn">map</span>(carre, [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>, <span class="nb">4</span>]))         <span class="cm"># → [1, 4, 9, 16]</span>
+<span class="fn">list</span>(<span class="fn">filter</span>(<span class="kw">lambda</span> x: x &gt; <span class="nb">10</span>, [<span class="nb">5</span>, <span class="nb">12</span>, <span class="nb">8</span>, <span class="nb">20</span>]))  <span class="cm"># → [12, 20]</span>
+<span class="fn">sum</span>(<span class="fn">map</span>(carre, [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>, <span class="nb">4</span>]))              <span class="cm"># → 30</span></pre>
+    <p>Un <code>lambda</code> est juste une fonction écrite en une ligne, sans nom. Les <b>compréhensions de listes</b>
+      jouent le même rôle avec une syntaxe plus pythonique :</p>
+<pre class="code">[carre(x) <span class="kw">for</span> x <span class="kw">in</span> [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>, <span class="nb">4</span>]]              <span class="cm"># → [1, 4, 9, 16]</span>
+[x <span class="kw">for</span> x <span class="kw">in</span> [<span class="nb">5</span>, <span class="nb">12</span>, <span class="nb">8</span>, <span class="nb">20</span>] <span class="kw">if</span> x &gt; <span class="nb">10</span>]  <span class="cm"># → [12, 20]</span></pre>
+
+    <div class="box key">
+      <span class="lbl">Pourquoi s'y intéresser</span>
+      <ul>
+        <li>Les fonctions pures sont <b>plus faciles à tester</b> (il suffit de les appeler avec des entrées et de vérifier la sortie).</li>
+        <li>Elles sont <b>plus faciles à paralléliser</b> : pas d'état partagé, donc pas de collision entre threads.</li>
+        <li>Elles rendent le <b>raisonnement</b> plus simple : on remplace mentalement un appel par son résultat.</li>
+      </ul>
+      <p>La récursivité, étudiée au chapitre 1, est le cœur du style fonctionnel : définir une fonction par un cas de
+        base et une combinaison d'appels, sans variable mutable.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 6 ══════════════════ -->
+  <section class="part" id="p6">
+    <h2><span class="pn">6</span> Spécifier une fonction</h2>
+    <p>Avant d'écrire une fonction, on dit ce qu'elle fait. Cela paraît trivial — mais c'est précisément ce que l'on
+      écrit <b>mal</b> ou <b>pas</b> qui finit en bug.</p>
+
+    <div class="box def">
+      <span class="lbl">Les quatre points d'une spécification</span>
+      <ol>
+        <li><b>Signature</b> : nom, types des arguments, type du résultat.</li>
+        <li><b>Préconditions</b> : les hypothèses sur les arguments. Si elles ne sont pas vérifiées, la fonction n'a aucune obligation de bien se comporter.</li>
+        <li><b>Postconditions</b> : ce que vaut le résultat, et ce que la fonction garantit à sa fin.</li>
+        <li><b>Effets de bord</b> : ce que la fonction modifie en dehors de son résultat (une liste reçue, un fichier, un compteur global…). Idéal : aucun.</li>
+      </ol>
+    </div>
+
+<pre class="code"><span class="kw">def</span> <span class="fn">dichotomie</span>(t, x):
+    <span class="st">"""Cherche x dans la liste triée t.
+
+    Préconditions : t est une liste <b>triée dans l'ordre croissant</b> ;
+                    x est comparable aux éléments de t.
+    Postcondition : renvoie un indice i tel que t[i] == x,
+                    ou -1 si x n'est pas dans t.
+    Effet de bord : aucun — t n'est pas modifiée.
+    Coût : O(log n)."""</span>
+    ...</pre>
+
+    <h3>Préconditions à l'exécution : les assertions</h3>
+    <p>L'instruction <code>assert</code> vérifie, pendant l'exécution, qu'une condition est vraie. Si elle est fausse,
+      le programme s'arrête avec une <code>AssertionError</code> et un message. C'est le moyen le plus simple de
+      <b>détecter très tôt</b> une précondition violée.</p>
+
+<pre class="code"><span class="kw">def</span> <span class="fn">factorielle</span>(n):
+    <span class="kw">assert</span> n &gt;= <span class="nb">0</span>, <span class="st">"factorielle n'est définie que pour n ≥ 0"</span>
+    r = <span class="nb">1</span>
+    <span class="kw">for</span> k <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1</span>, n + <span class="nb">1</span>):
+        r *= k
+    <span class="kw">return</span> r
+
+<span class="fn">factorielle</span>(-<span class="nb">3</span>)   <span class="cm"># → AssertionError: factorielle n'est définie que pour n ≥ 0</span></pre>
+
+    <h3>Invariant de boucle</h3>
+    <p>Un <b>invariant</b> est une propriété qui reste vraie à chaque tour de boucle. Il sert à <b>prouver</b> qu'une
+      boucle fait bien ce qu'elle doit. Pour la somme :</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">somme</span>(t):
+    s = <span class="nb">0</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(t)):
+        <span class="cm"># Invariant : s = t[0] + t[1] + ... + t[i-1]</span>
+        s = s + t[i]
+    <span class="cm"># Après la boucle : s = t[0] + ... + t[n-1]</span>
+    <span class="kw">return</span> s</pre>
+    <p>L'invariant est vrai avant la boucle (somme vide = 0), reste vrai à chaque passage (on ajoute <code>t[i]</code>),
+      et après la boucle il entraîne la postcondition.</p>
+  </section>
+
+  <!-- ══════════════════ 7 ══════════════════ -->
+  <section class="part" id="p7">
+    <h2><span class="pn">7</span> Tester systématiquement</h2>
+    <p>Une spécification sans tests n'engage que celui qui l'écrit. Un <b>test</b> est un petit programme qui
+      exécute la fonction sur un cas précis et <b>vérifie</b> le résultat. On l'écrit <b>une fois</b> et il protège le
+      code pour toujours.</p>
+
+    <h3>Les tests unitaires avec <code>assert</code></h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">maximum</span>(t):
+    m = t[<span class="nb">0</span>]
+    <span class="kw">for</span> x <span class="kw">in</span> t[<span class="nb">1</span>:]:
+        <span class="kw">if</span> x &gt; m:
+            m = x
+    <span class="kw">return</span> m
+
+<span class="cm"># Les tests, en dessous :</span>
+<span class="kw">assert</span> <span class="fn">maximum</span>([<span class="nb">3</span>]) == <span class="nb">3</span>                      <span class="cm"># cas particulier : un seul élément</span>
+<span class="kw">assert</span> <span class="fn">maximum</span>([<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>]) == <span class="nb">3</span>                <span class="cm"># max à la fin</span>
+<span class="kw">assert</span> <span class="fn">maximum</span>([<span class="nb">3</span>, <span class="nb">2</span>, <span class="nb">1</span>]) == <span class="nb">3</span>                <span class="cm"># max au début</span>
+<span class="kw">assert</span> <span class="fn">maximum</span>([<span class="nb">1</span>, <span class="nb">3</span>, <span class="nb">2</span>]) == <span class="nb">3</span>                <span class="cm"># max au milieu</span>
+<span class="kw">assert</span> <span class="fn">maximum</span>([-<span class="nb">5</span>, -<span class="nb">2</span>, -<span class="nb">8</span>]) == -<span class="nb">2</span>           <span class="cm"># valeurs négatives</span>
+<span class="kw">assert</span> <span class="fn">maximum</span>([<span class="nb">4</span>, <span class="nb">4</span>, <span class="nb">4</span>]) == <span class="nb">4</span>                <span class="cm"># doublons</span>
+<span class="fn">print</span>(<span class="st">"Tous les tests passent."</span>)</pre>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — penser aux cas limites</span>
+      <ul>
+        <li>Les <b>cas de base</b> : liste à un élément, chaîne vide, entier 0, arbre vide…</li>
+        <li>Les <b>valeurs extrêmes</b> : négatives, très grandes, nulles.</li>
+        <li>Les <b>doublons</b> et les cas où plusieurs réponses sont valides.</li>
+        <li>Les cas où la fonction doit <b>échouer</b> ou lever une exception.</li>
+      </ul>
+      <p>Un bug qui a échappé aux tests, ajoutez un nouveau test qui le reproduit <b>avant</b> de corriger : il sera
+        votre garde-fou pour qu'il ne revienne jamais.</p>
+    </div>
+
+    <h3>La bibliothèque <code>doctest</code></h3>
+    <p>Permet d'écrire des tests <b>dans la docstring</b> de la fonction, sous forme d'exemples :</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">pgcd</span>(a, b):
+    <span class="st">"""Renvoie le plus grand commun diviseur de a et b.
+
+    &gt;&gt;&gt; pgcd(12, 18)
+    6
+    &gt;&gt;&gt; pgcd(100, 25)
+    25
+    &gt;&gt;&gt; pgcd(7, 11)
+    1
+    """</span>
+    <span class="kw">while</span> b != <span class="nb">0</span>:
+        a, b = b, a % b
+    <span class="kw">return</span> a
+
+<span class="kw">if</span> __name__ == <span class="st">"__main__"</span>:
+    <span class="kw">import</span> doctest
+    doctest.<span class="fn">testmod</span>()           <span class="cm"># exécute tous les &gt;&gt;&gt; de la docstring</span></pre>
+    <p>Double avantage : la documentation <b>est</b> la suite de tests, et elle ne peut pas devenir fausse sans que
+      les tests s'en aperçoivent.</p>
+  </section>
+
+  <!-- ══════════════════ 8 ══════════════════ -->
+  <section class="part" id="p8">
+    <h2><span class="pn">8</span> Déboguer : trouver et comprendre l'erreur</h2>
+
+    <div class="box def">
+      <span class="lbl">Démarche</span>
+      <ol>
+        <li><b>Reproduire</b> le bug : trouver l'entrée minimale qui le déclenche.</li>
+        <li><b>Observer</b> l'état des variables à des endroits bien choisis (<code>print</code>, débogueur).</li>
+        <li><b>Isoler</b> l'étape qui donne un résultat faux : par recherche dichotomique dans le code.</li>
+        <li><b>Comprendre</b> pourquoi — pas seulement « quoi ».</li>
+        <li><b>Corriger</b>, puis <b>ajouter un test</b> qui reproduit le cas initial.</li>
+      </ol>
+    </div>
+
+    <h3>L'outil le plus utilisé : <code>print</code></h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">moyenne</span>(notes):
+    s = <span class="nb">0</span>
+    <span class="kw">for</span> n <span class="kw">in</span> notes:
+        s += n
+        <span class="fn">print</span>(f<span class="st">"n = {n}, s = {s}"</span>)   <span class="cm"># sondage pendant le développement</span>
+    <span class="kw">return</span> s / <span class="fn">len</span>(notes)</pre>
+    <p>À retirer avant la version finale. Pour un code qui doit rester bavard, on utilise <b>le module <code>logging</code></b>,
+      qu'on peut activer ou couper selon le besoin.</p>
+
+    <h3>Un vrai débogueur : <code>pdb</code></h3>
+    <p>Ajouter <code>breakpoint()</code> à l'endroit douteux arrête le programme et ouvre une console interactive :
+      on peut inspecter les variables, exécuter la ligne suivante (<code>n</code>), entrer dans un appel de fonction
+      (<code>s</code>), continuer (<code>c</code>). Dans un IDE (VS Code, Thonny, PyCharm), tout cela se fait avec
+      des points d'arrêt cliquables.</p>
+
+    <div class="box warn">
+      <span class="lbl">Les erreurs à savoir lire</span>
+      <ul>
+        <li><code>NameError</code> : variable ou fonction qui n'existe pas (faute de frappe, oubli d'un <code>import</code>).</li>
+        <li><code>TypeError</code> : opération sur des valeurs incompatibles (<code>"3" + 4</code>).</li>
+        <li><code>IndexError</code> : indice hors des bornes d'une liste.</li>
+        <li><code>KeyError</code> : clé absente d'un dictionnaire.</li>
+        <li><code>ZeroDivisionError</code> : division par zéro.</li>
+        <li><code>RecursionError</code> : récursion trop profonde (voir chapitre 1).</li>
+        <li><code>AssertionError</code> : une précondition a été violée.</li>
+      </ul>
+      <p>La <b>trace</b> (<i>traceback</i>) part toujours de l'erreur et remonte vers l'appel qui l'a provoquée : à lire
+        <b>de bas en haut</b>.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 9 ══════════════════ -->
+  <section class="part" id="p9">
+    <h2><span class="pn">9</span> Calculabilité : ce qu'une machine ne peut pas calculer</h2>
+
+    <p>Depuis le début de l'année, on a écrit des programmes et étudié leur coût. Mais une question plus profonde se
+      pose : <b>existe-t-il des problèmes pour lesquels aucun programme ne peut exister ?</b> La réponse est <b>oui</b>,
+      et elle a été démontrée en 1936 par Alan Turing.</p>
+
+    <h3>La machine de Turing</h3>
+    <p>Avant même l'invention des ordinateurs, Turing a défini un modèle de calcul abstrait, extrêmement simple :</p>
+    <ul>
+      <li>un <b>ruban</b> infini découpé en cases, chaque case portant un symbole ;</li>
+      <li>une <b>tête de lecture-écriture</b> qui pointe sur une case ;</li>
+      <li>un <b>état interne</b> (comme la ligne courante d'un programme) ;</li>
+      <li>un <b>programme</b>, c'est-à-dire une table de transitions : « dans l'état <i>e</i>, en lisant le symbole <i>s</i>, écrire <i>s'</i>, se déplacer d'une case à gauche ou à droite, passer dans l'état <i>e'</i> ».</li>
+    </ul>
+
+    <div class="tape">
+      <div class="cell">1</div><div class="cell">0</div><div class="cell head">1</div><div class="cell">1</div><div class="cell">0</div><div class="cell">·</div><div class="cell">·</div>
+    </div>
+    <p style="text-align:center;font-size:.82rem;color:var(--text-muted);margin-top:-.5rem">Un ruban, une tête, un état. Rien d'autre.</p>
+
+    <div class="box key">
+      <span class="lbl">Thèse de Church–Turing</span>
+      <p>Tout ce qu'un ordinateur « raisonnable » (Python, un smartphone, un supercalculateur, votre calculatrice avec
+        les boucles) peut calculer, une machine de Turing sait le faire aussi — simplement plus lentement. C'est une
+        thèse (admise, non démontrable) : la notion intuitive de « calculable » coïncide avec celle de « calculable par
+        une machine de Turing ».</p>
+      <p>Autrement dit : <b>tous les langages sont équivalents</b> en pouvoir expressif. Le choix du langage change le
+        confort et la vitesse, jamais ce qui est calculable.</p>
+    </div>
+
+    <h3>Le problème de l'arrêt</h3>
+    <p>Imaginons un programme magique <code>halte(P, e)</code> qui, pour tout programme <code>P</code> et toute entrée
+      <code>e</code>, renvoie <code>True</code> si <code>P</code> finit par s'arrêter sur l'entrée <code>e</code>, et
+      <code>False</code> s'il boucle à l'infini. Un tel outil serait précieux : on vérifierait toute récursion, toute
+      boucle.</p>
+
+    <div class="box warn">
+      <span class="lbl">Théorème de Turing (1936)</span>
+      <p>Un tel programme <code>halte</code> <b>n'existe pas</b>. Il n'y a aucun algorithme qui, en analysant le code
+        d'un programme et une entrée, décide à coup sûr si ce programme finira ou bouclera.</p>
+    </div>
+
+    <h3>Pourquoi — l'idée de la preuve</h3>
+    <p>Supposons qu'un tel <code>halte</code> existe. Construisons alors ce programme malicieux :</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">piege</span>(P):
+    <span class="kw">if</span> <span class="fn">halte</span>(P, P):              <span class="cm"># si P appliqué à son propre code s'arrête…</span>
+        <span class="kw">while</span> <span class="kw">True</span>:                 <span class="cm"># …alors on boucle,</span>
+            <span class="kw">pass</span>
+    <span class="kw">else</span>:                          <span class="cm"># et si P boucle…</span>
+        <span class="kw">return</span>                     <span class="cm"># …alors on s'arrête.</span></pre>
+    <p>Que se passe-t-il quand on appelle <code>piege(piege)</code> ? S'il s'arrête, alors <code>halte(piege, piege)</code>
+      doit avoir renvoyé <code>True</code> — donc on est entré dans la boucle infinie, ce qui contredit « il s'arrête ».
+      Et s'il ne s'arrête pas, alors <code>halte</code> a renvoyé <code>False</code> — donc on est passé par le
+      <code>return</code>, ce qui contredit « il ne s'arrête pas ». Contradiction dans les deux cas : notre hypothèse
+      initiale (<code>halte</code> existe) est fausse.</p>
+
+    <div class="box key">
+      <span class="lbl">Conséquences très concrètes</span>
+      <ul>
+        <li>Il n'y aura jamais d'<b>antivirus parfait</b> : décider si un programme est inoffensif revient à décider s'il s'arrête, et c'est indécidable.</li>
+        <li>Il n'y aura jamais de <b>compilateur</b> qui garantit qu'un programme ne contient aucune boucle infinie.</li>
+        <li>En pratique, on contourne avec des <b>analyses partielles</b> : on détecte certaines boucles, on prouve la terminaison de certaines récursions. Mais pas toutes.</li>
+      </ul>
+    </div>
+
+    <p>D'autres problèmes sont <b>indécidables</b> : vérifier automatiquement qu'un programme est correct, décider si
+      deux programmes calculent la même fonction, prouver mécaniquement n'importe quel théorème mathématique… C'est le
+      théorème d'incomplétude de Gödel (1931), dont Turing a donné quelques années plus tard une version
+      informatique.</p>
+  </section>
+
+  <!-- ══════════════════ 10 ══════════════════ -->
+  <section class="part" id="p10">
+    <h2><span class="pn">10</span> Ce qu'il faut retenir</h2>
+    <div class="recap">
+      <div><b>Paradigme</b>Façon d'organiser le code. Impératif (par défaut), fonctionnel (fonctions pures), orienté objet (classes).</div>
+      <div><b>Classe / objet</b>La classe est le modèle, l'objet une instance. Attributs = données, méthodes = fonctions, self = l'objet appelant.</div>
+      <div><b>Encapsulation</b>Modifier un objet seulement par ses méthodes. En Python, convention <code>_nom</code> ; pas de vraie protection.</div>
+      <div><b>Héritage</b>Une fille reprend ses attributs et méthodes de sa mère, en ajoute ou redéfinit (polymorphisme). <code>super()</code> appelle la mère.</div>
+      <div><b>Fonction pure</b>Dépend seulement de ses arguments, aucun effet de bord. <code>map</code>, <code>filter</code>, comprehensions.</div>
+      <div><b>Spécifier</b>Signature, préconditions, postconditions, effets de bord. Vérifier avec <code>assert</code>.</div>
+      <div><b>Invariant de boucle</b>Propriété vraie à chaque tour. Sert à prouver qu'une boucle fait ce qu'elle doit.</div>
+      <div><b>Tester</b>Un test par cas, dont les cas limites. <code>assert</code> ou <code>doctest</code>. Un bug trouvé → un test ajouté.</div>
+      <div><b>Déboguer</b>Reproduire, observer, isoler, comprendre, corriger, tester. <code>print</code>, <code>breakpoint()</code>, lire la trace.</div>
+      <div><b>Church–Turing</b>Tous les langages calculent les mêmes fonctions. Une machine de Turing suffit.</div>
+      <div><b>Indécidabilité</b>Le problème de l'arrêt n'a pas d'algorithme. Antivirus parfait, correction automatique : impossibles.</div>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div class="t">
+      <b>Le TD autocorrigé</b>
+      <span>POO (classes, héritage, polymorphisme), paradigmes, spécifications et tests, débogage, calculabilité :
+        chaque réponse est corrigée immédiatement.</span>
+    </div>
+    <a href="exercices-langages.html">Faire le TD →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  var links = [].slice.call(document.querySelectorAll('#chapnav a'));
+  var parts = links.map(function(l){ return document.querySelector(l.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 140, k = 0;
+    parts.forEach(function(p, i){ if (p && p.offsetTop <= y) k = i; });
+    links.forEach(function(l, i){ l.classList.toggle('on', i === k); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>
