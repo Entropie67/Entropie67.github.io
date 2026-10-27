@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graphes · Terminale maths expertes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{
+  --indigo:#1E1B3A; --ink:#2D2A45; --violet:#7C4DFF; --violet-soft:#B79CFF;
+  --amber:#F0A202; --paper:#FAF8FF; --paper-dim:#EDE9F7; --muted:#9B95C4;
+  --line:rgba(183,156,255,.22); --green:#3ECF8E; --rose:#FF8CB4; --blue:#78B4FF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--indigo);color:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
+
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5.5vh 8vw;opacity:0;transition:opacity .4s ease}
+.slide.active{display:flex;opacity:1}
+.slide.scroll{justify-content:flex-start;overflow-y:auto}
+
+.slide.section{justify-content:center}
+.slide.section .num-big{font-family:'Fraunces';font-size:clamp(4rem,12vw,10rem);color:rgba(183,156,255,.18);line-height:.8;font-weight:600}
+.slide.section h1{margin-top:-2rem}
+
+.eyebrow{font-size:clamp(.7rem,1.05vw,.92rem);font-weight:600;color:var(--violet-soft);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.eyebrow .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--amber)}
+
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.2rem,5.5vw,4.6rem);line-height:1.02;letter-spacing:-.015em}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.3vw,2.7rem);line-height:1.1;margin-bottom:1.3rem;letter-spacing:-.01em}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.1rem,1.7vw,1.35rem);margin:0 0 .5rem;color:var(--violet-soft)}
+.lead{font-size:clamp(.95rem,1.45vw,1.28rem);line-height:1.55;max-width:64ch}
+.sm{font-size:clamp(.85rem,1.2vw,1.05rem);line-height:1.5}
+.muted{color:var(--muted)}
+.result{color:var(--amber);font-weight:600}
+.imag{color:var(--violet-soft);font-weight:600}
+
+.card{background:rgba(124,77,255,.08);border-left:3px solid var(--violet);border-radius:0 14px 14px 0;padding:1.3rem 1.6rem;max-width:66ch}
+.card.amber{background:rgba(240,162,2,.09);border-left-color:var(--amber)}
+.card.demo{background:rgba(255,255,255,.03);border-left-color:var(--muted)}
+.card.green{background:rgba(62,207,142,.08);border-left-color:var(--green)}
+.card + .card{margin-top:.9rem}
+.tag{font-size:.75rem;font-weight:600;letter-spacing:.04em;color:var(--violet-soft);text-transform:uppercase;display:block;margin-bottom:.45rem}
+.card.amber .tag{color:var(--amber)}
+.card.demo .tag{color:var(--muted)}
+.card.green .tag{color:var(--green)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}
+.two-col.top{align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+.katex{font-size:1.04em}
+[data-tex-display]{margin:.5rem 0}
+.ex{font-size:clamp(.95rem,1.4vw,1.22rem);line-height:1.9}
+ul.props,ul.list{padding:0;margin-top:.5rem}
+ul.props li,ul.list li{margin:.35rem 0;list-style:none}
+
+/* graphes SVG */
+.g-wrap{display:flex;justify-content:center;align-items:center}
+svg.g{width:min(42vw,520px);height:auto;overflow:visible}
+svg.g .edge{stroke:var(--violet-soft);stroke-width:2;fill:none;stroke-linecap:round}
+svg.g .edge.d{marker-end:url(#arr)}
+svg.g .edge.hi{stroke:var(--amber);stroke-width:3}
+svg.g .edge.dim{stroke:var(--muted);stroke-width:1.4;opacity:.5}
+svg.g .wlab{font-family:'JetBrains Mono', monospace;font-size:12px;fill:var(--amber);font-weight:600}
+svg.g .node circle{fill:var(--ink);stroke:var(--violet-soft);stroke-width:2}
+svg.g .node text{fill:var(--paper);font-family:'Inter',sans-serif;font-weight:700;font-size:14px;text-anchor:middle;dominant-baseline:central}
+svg.g .node.c1 circle{fill:#B23A48} svg.g .node.c2 circle{fill:#1F8A70} svg.g .node.c3 circle{fill:#345995} svg.g .node.c4 circle{fill:#E07A5F}
+svg.g .node.src circle{stroke:var(--amber);stroke-width:3}
+svg.g .node.vis circle{fill:rgba(240,162,2,.3)}
+svg.g .dlab{font-family:'JetBrains Mono', monospace;font-size:11px;fill:var(--green);font-weight:600}
+svg.g .euler{stroke:var(--amber);stroke-width:3;fill:none;stroke-linecap:round;opacity:.75}
+
+/* matrices */
+.mat{display:inline-block;position:relative;padding:0 .4em}
+.mat .bar{position:absolute;top:0;bottom:0;width:3px;background:var(--paper)}
+.mat .bar.l{left:0;border-top-left-radius:4px;border-bottom-left-radius:4px}
+.mat .bar.r{right:0;border-top-right-radius:4px;border-bottom-right-radius:4px}
+.mat table{border-collapse:separate;border-spacing:4px 2px;font-family:'JetBrains Mono', monospace;font-size:1rem}
+.mat td{padding:.1em .35em;text-align:center;min-width:1.3em;color:var(--paper)}
+.mat td.hi{color:var(--amber);font-weight:600}
+.mat td.z{color:var(--muted)}
+
+/* table de parcours */
+.ptable{border-collapse:collapse;font-family:'JetBrains Mono', monospace;font-size:.9rem;margin:.6rem auto}
+.ptable th,.ptable td{border:1px solid var(--line);padding:.3rem .7rem;text-align:center;color:var(--paper)}
+.ptable th{background:rgba(124,77,255,.14);color:var(--violet-soft);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase}
+.ptable td.hi{color:var(--amber);font-weight:600;background:rgba(240,162,2,.1)}
+.ptable td.ok{color:var(--green);font-weight:600}
+.ptable td.inf{color:var(--muted);font-style:italic}
+
+/* exemples concrets grid */
+.concrete{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.9rem;margin-top:.4rem}
+.concrete > div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:.9rem 1.1rem}
+.concrete h3{font-size:.95rem;margin-bottom:.3rem}
+.concrete p{font-size:.88rem;color:var(--paper);line-height:1.5}
+
+.openbox{margin-top:1.1rem;padding:.7rem .9rem;border:1px dashed var(--muted);border-radius:10px;max-width:52ch;font-size:.9rem}
+
+/* controls */
+.controls{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;align-items:center;background:rgba(45,42,69,.85);backdrop-filter:blur(10px);padding:.45rem .6rem;border-radius:100px;border:1px solid var(--line);z-index:50;font-size:.85rem}
+.controls button{font-family:inherit;font-size:.85rem;background:transparent;color:var(--paper);border:none;cursor:pointer;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.controls button:hover{background:rgba(124,77,255,.25)}
+.controls .num{color:var(--muted);min-width:3.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.controls .sep{width:1px;height:1.3rem;background:var(--line)}
+.toggle{display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.toggle:hover{background:rgba(124,77,255,.25)}
+.toggle input{display:none}
+.toggle .track{width:32px;height:17px;border-radius:100px;background:rgba(255,255,255,.2);position:relative;transition:background .2s}
+.toggle .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--paper);transition:transform .2s}
+.toggle input:checked + .track{background:var(--amber)}
+.toggle input:checked + .track::after{transform:translateX(15px)}
+
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--violet);z-index:60;transition:width .3s}
+
+.cta-nsi{background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.4);border-radius:14px;padding:1.1rem 1.3rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:1rem;max-width:68ch}
+.cta-nsi .ct{flex:1 1 240px}
+.cta-nsi .ct b{display:block;color:var(--green);margin-bottom:.25rem}
+.cta-nsi a{flex:none;background:var(--green);color:#06281c;font-weight:600;text-decoration:none;padding:.55rem 1rem;border-radius:8px;font-size:.9rem}
+.cta-nsi a:hover{filter:brightness(1.08)}
+
+@media print{
+  @page{size:A4 portrait;margin:15mm 14mm}
+  html,body{height:auto;overflow:visible;background:#fff;color:var(--ink)}
+  .controls,.progress{display:none !important}
+  .deck{position:static}
+  .slide{position:static;display:block !important;opacity:1 !important;padding:0;margin:0 0 6mm;break-inside:avoid}
+  .slide.section{margin:8mm 0 4mm;border-bottom:2px solid var(--violet);padding-bottom:2mm;break-before:page}
+  .slide.section:first-of-type{break-before:avoid}
+  .slide.section .num-big{font-size:20pt;color:var(--violet);display:inline;margin-right:3mm}
+  .slide.section h1{display:inline;font-size:19pt;margin:0}
+  .slide.cover{border-bottom:2px solid var(--violet);padding-bottom:4mm;margin-bottom:6mm;break-after:avoid;break-before:avoid}
+  .eyebrow{color:var(--violet);margin-bottom:.25rem;font-size:8pt}
+  h1{font-size:22pt;color:var(--ink)} h2{font-size:14pt;color:var(--violet);margin:0 0 2.5mm} h3{font-size:11pt;color:var(--violet)}
+  .lead,.sm,.ex{font-size:10pt;color:var(--ink);max-width:none;line-height:1.5}
+  .two-col,.grid2,.concrete{grid-template-columns:1fr;gap:0}
+  .card{background:#F4F0FF;border-left:3px solid var(--violet);color:var(--ink);max-width:none;padding:2.5mm 4mm;border-radius:0 5px 5px 0;margin-bottom:2mm}
+  .card.amber{background:#FDF6E7;border-left-color:var(--amber)}
+  .card.demo{background:#F6F6FA;border-left-color:#999}
+  .card.green{background:#E8F7F0;border-left-color:var(--green)}
+  .tag{color:var(--violet)} .card.amber .tag{color:#B8730C} .card.green .tag{color:#1F8A70}
+  .result{color:#B8730C} .imag{color:#6B3FD6}
+  .g-wrap{page-break-inside:avoid} svg.g{width:70mm}
+  svg.g .node text{fill:#fff}
+  .mat td{color:var(--ink)} .mat .bar{background:var(--ink)}
+  .ptable th,.ptable td{color:var(--ink)}
+  .concrete > div{border:1px solid #ccc;background:#fafafa}
+  .cta-nsi{background:#E8F7F0;border-color:#1F8A70}
+  .cta-nsi .ct b{color:#1F8A70}
+  .cta-nsi a{background:#1F8A70;color:#fff;padding:1mm 3mm;border-radius:3px}
+}
+
+/* ================= SOMMAIRE ================= */
+.toc-back{position:fixed;inset:0;background:rgba(20,18,40,.62);backdrop-filter:blur(3px);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+.toc-back.open{opacity:1;pointer-events:auto}
+.toc{position:fixed;z-index:71;left:50%;top:50%;transform:translate(-50%,-46%) scale(.97);width:min(430px,92vw);max-height:76vh;overflow-y:auto;
+     background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1.1rem 1.2rem;
+     opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.toc.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.toc h4{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--violet-soft);margin-bottom:.6rem;padding-left:.5rem}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc button{width:100%;display:flex;gap:.75rem;align-items:baseline;text-align:left;background:transparent;border:none;cursor:pointer;
+            font-family:inherit;font-size:.97rem;line-height:1.35;color:var(--paper);padding:.62rem .55rem;border-radius:9px;transition:background .18s}
+.toc button:hover,.toc button:focus-visible{background:rgba(124,77,255,.22);outline:none}
+.toc .tnum{color:var(--violet-soft);font-weight:600;font-size:.8rem;min-width:1.1rem;flex:none}
+
+/* ================= MODE PORTABLE ================= */
+body.mobile{overflow:visible;height:auto;min-height:100%;-webkit-text-size-adjust:100%}
+body.mobile .deck{position:static;inset:auto}
+body.mobile .slide{position:static;inset:auto;display:flex !important;opacity:1 !important;overflow:visible;
+                   justify-content:flex-start;padding:1.7rem 1.15rem 1.9rem;border-bottom:1px solid var(--line);scroll-margin-top:0}
+body.mobile .slide:last-of-type{border-bottom:none;padding-bottom:6.5rem}
+body.mobile .slide.cover{padding-top:3rem;padding-bottom:2.6rem}
+body.mobile .slide.section{background:rgba(124,77,255,.09);border-bottom:none;padding:2.2rem 1.15rem 1.6rem;align-items:flex-start}
+body.mobile .slide.section .num-big{font-size:3.4rem;line-height:.8;margin-bottom:.3rem}
+body.mobile .slide.section h1{margin-top:0}
+body.mobile h1{font-size:1.95rem;line-height:1.12}
+body.mobile .slide.cover h1{font-size:2.25rem}
+body.mobile h2{font-size:1.42rem;margin-bottom:.85rem}
+body.mobile h3{font-size:1.05rem}
+body.mobile .lead{font-size:1.02rem;line-height:1.6;max-width:none}
+body.mobile .sm{font-size:.95rem;line-height:1.55}
+body.mobile .ex{font-size:1rem;line-height:1.8}
+body.mobile .eyebrow{font-size:.78rem;margin-bottom:.7rem}
+body.mobile .two-col,body.mobile .grid2,body.mobile .concrete{grid-template-columns:1fr;gap:1.3rem}
+body.mobile .card,body.mobile .cta-nsi{max-width:none}
+body.mobile svg.g{width:100%;max-width:none}
+</style>
+</head>
+
+<body>
+<div class="progress" id="prog"></div>
+
+<div class="deck">
+
+<!-- ============ COUVERTURE ============ -->
+<section class="slide cover active">
+  <div class="eyebrow"><span class="dot"></span>Chapitre 8 · Maths expertes · Terminale</div>
+  <h1>Graphes</h1>
+  <p class="lead" style="margin-top:1rem">Du dessin au théorème : vocabulaire, matrice d'adjacence et comptage de chemins, coloration (nombre chromatique, Welsh–Powell), parcours eulériens, puis le plus court chemin avec Dijkstra.</p>
+  <div class="cta-nsi">
+    <div class="ct"><b>Pour aller plus loin</b>Structures Python, parcours en profondeur et en largeur, complexité et animations interactives : voir le chapitre NSI « Structures de données ».</div>
+    <a href="../../nsi/terminale/chapitre_structures/cours-structures.html">Voir côté NSI →</a>
+  </div>
+</section>
+
+<!-- ============ §1 VOCABULAIRE ============ -->
+<section class="slide section">
+  <div class="num-big">1</div>
+  <h1>Vocabulaire<br>d'un graphe</h1>
+</section>
+
+<section class="slide">
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Définition</div>
+      <h2>Un graphe,<br>c'est une relation dessinée</h2>
+      <div class="card">
+        <span class="tag">Définition</span>
+        <p class="sm">Un <b>graphe</b> est un couple <span data-tex>G=(S,A)</span> où <span data-tex>S</span> est un ensemble fini de <b>sommets</b> et <span data-tex>A</span> un ensemble d'<b>arêtes</b>, chaque arête reliant deux sommets.</p>
+        <p class="sm" style="margin-top:.5rem">Si les arêtes ont un <b>sens</b>, le graphe est <span class="result">orienté</span> (on parle alors d'arcs).</p>
+      </div>
+      <div class="card amber" style="margin-top:.9rem">
+        <span class="tag">Vocabulaire</span>
+        <ul class="props sm">
+          <li>• deux sommets reliés par une arête sont <b>adjacents</b> ;</li>
+          <li>• le <b>degré</b> d'un sommet est le nombre d'arêtes qui le touchent ;</li>
+          <li>• un graphe est <b>simple</b> s'il n'a ni boucle ni arête multiple.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="g-wrap">
+      <svg class="g" viewBox="0 0 320 230">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="18" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--violet-soft)"/></marker></defs>
+        <line class="edge" x1="60" y1="50" x2="200" y2="50"/>
+        <line class="edge" x1="60" y1="50" x2="60" y2="170"/>
+        <line class="edge" x1="200" y1="50" x2="260" y2="170"/>
+        <line class="edge" x1="60" y1="170" x2="200" y2="50"/>
+        <line class="edge" x1="60" y1="170" x2="260" y2="170"/>
+        <line class="edge" x1="200" y1="50" x2="260" y2="170"/>
+        <g class="node"><circle cx="60" cy="50" r="18"/><text x="60" y="50">A</text></g>
+        <g class="node"><circle cx="200" cy="50" r="18"/><text x="200" y="50">B</text></g>
+        <g class="node"><circle cx="60" cy="170" r="18"/><text x="60" y="170">C</text></g>
+        <g class="node"><circle cx="260" cy="170" r="18"/><text x="260" y="170">D</text></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Degré, somme des degrés</div>
+  <h2>Un invariant à retenir</h2>
+  <div class="card">
+    <span class="tag">Propriété (poignées de main)</span>
+    <p class="sm">Dans un graphe simple non orienté, la somme des degrés des sommets est égale à <span class="result">deux fois le nombre d'arêtes</span> :</p>
+    <div data-tex-display>\sum_{s\in S} \deg(s) = 2\,|A|</div>
+    <p class="sm">Chaque arête contribue <span data-tex>+1</span> au degré de ses deux extrémités.</p>
+  </div>
+  <div class="card amber" style="margin-top:.9rem">
+    <span class="tag">Corollaire</span>
+    <p class="sm">Dans tout graphe, le nombre de sommets de degré <b>impair</b> est pair. Un petit groupe où chacun a serré un nombre impair de mains compte toujours un nombre pair de membres.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Encore quelques mots</div>
+  <h2>Chaîne, cycle, connexité</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Chaîne et longueur</span>
+      <p class="sm">Une <b>chaîne</b> est une suite d'arêtes consécutives : <span data-tex>s_0 - s_1 - s_2 - \cdots - s_k</span>. Sa <b>longueur</b> est le nombre d'arêtes <span data-tex>k</span>.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Cycle</span>
+      <p class="sm">Un <b>cycle</b> est une chaîne qui revient à son point de départ, sans répéter d'arête. Un triangle est le plus petit cycle d'un graphe simple.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Connexité</span>
+      <p class="sm">Un graphe est <b>connexe</b> si, entre deux sommets quelconques, il existe une chaîne.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Distance</span>
+      <p class="sm">La <b>distance</b> entre deux sommets est la longueur de la plus courte chaîne qui les relie (si elle existe).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ §2 MATRICE ============ -->
+<section class="slide section">
+  <div class="num-big">2</div>
+  <h1>Matrice<br>d'adjacence</h1>
+</section>
+
+<section class="slide">
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Définition</div>
+      <h2>Ranger un graphe<br>dans un tableau</h2>
+      <div class="card">
+        <span class="tag">Définition</span>
+        <p class="sm">Pour un graphe à <span data-tex>n</span> sommets numérotés <span data-tex>1,2,\dots,n</span>, la <b>matrice d'adjacence</b> est la matrice <span data-tex>M\in\mathcal M_n(\mathbb{R})</span> dont le coefficient à la ligne <span data-tex>i</span> et colonne <span data-tex>j</span> vaut :</p>
+        <div data-tex-display>M_{i,j}=\begin{cases}1&\text{s'il existe une arête de }i\text{ vers }j,\\ 0&\text{sinon.}\end{cases}</div>
+      </div>
+      <div class="card amber" style="margin-top:.8rem">
+        <span class="tag">Propriété</span>
+        <p class="sm">Si le graphe est <b>non orienté</b> et <b>simple</b>, alors <span data-tex>M</span> est <span class="result">symétrique</span> et sa <b>diagonale est nulle</b>.</p>
+      </div>
+    </div>
+    <div class="g-wrap" style="flex-direction:column;gap:1rem">
+      <svg class="g" viewBox="0 0 240 190" style="width:min(28vw,320px)">
+        <line class="edge" x1="60" y1="40" x2="180" y2="40"/>
+        <line class="edge" x1="60" y1="40" x2="60" y2="140"/>
+        <line class="edge" x1="180" y1="40" x2="180" y2="140"/>
+        <line class="edge" x1="60" y1="140" x2="180" y2="140"/>
+        <line class="edge" x1="60" y1="40" x2="180" y2="140"/>
+        <g class="node"><circle cx="60" cy="40" r="17"/><text x="60" y="40">1</text></g>
+        <g class="node"><circle cx="180" cy="40" r="17"/><text x="180" y="40">2</text></g>
+        <g class="node"><circle cx="60" cy="140" r="17"/><text x="60" y="140">3</text></g>
+        <g class="node"><circle cx="180" cy="140" r="17"/><text x="180" y="140">4</text></g>
+      </svg>
+      <div class="mat"><div class="bar l"></div><div class="bar r"></div>
+        <table>
+          <tr><td class="z">0</td><td class="hi">1</td><td class="hi">1</td><td class="hi">1</td></tr>
+          <tr><td class="hi">1</td><td class="z">0</td><td class="z">0</td><td class="hi">1</td></tr>
+          <tr><td class="hi">1</td><td class="z">0</td><td class="z">0</td><td class="hi">1</td></tr>
+          <tr><td class="hi">1</td><td class="hi">1</td><td class="hi">1</td><td class="z">0</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Le résultat central</div>
+  <h2>Compter les chaînes<br>avec les puissances de M</h2>
+  <div class="card">
+    <span class="tag">Théorème</span>
+    <p class="sm">Soit <span data-tex>M</span> la matrice d'adjacence d'un graphe à <span data-tex>n</span> sommets. Pour tout entier <span data-tex>k\geq 1</span>, le coefficient <span data-tex>(M^k)_{i,j}</span> est égal au <b>nombre de chaînes de longueur <span data-tex>k</span></b> allant du sommet <span data-tex>i</span> au sommet <span data-tex>j</span>.</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Démonstration — par récurrence sur k</span>
+    <p class="sm"><b>Initialisation.</b> Pour <span data-tex>k=1</span>, <span data-tex>M_{i,j}</span> compte les chaînes de longueur 1 de <span data-tex>i</span> à <span data-tex>j</span> : exactement les arêtes.</p>
+    <p class="sm" style="margin-top:.4rem"><b>Hérédité.</b> On suppose la propriété vraie au rang <span data-tex>k</span>. Comme <span data-tex>M^{k+1}=M^k\times M</span> :</p>
+    <div data-tex-display>(M^{k+1})_{i,j}=\sum_{\ell=1}^{n}(M^k)_{i,\ell}\,M_{\ell,j}</div>
+    <p class="sm">À <span data-tex>\ell</span> fixé, <span data-tex>(M^k)_{i,\ell}\,M_{\ell,j}</span> compte les chaînes de longueur <span data-tex>k</span> de <span data-tex>i</span> à <span data-tex>\ell</span>, suivies de l'arête <span data-tex>\ell\to j</span> : c'est le nombre de chaînes de longueur <span data-tex>k+1</span> de <span data-tex>i</span> à <span data-tex>j</span> dont l'avant-dernier sommet est <span data-tex>\ell</span>. En sommant sur <span data-tex>\ell</span>, on obtient toutes les chaînes de longueur <span data-tex>k+1</span>.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Un exemple à la main</div>
+  <h2>Chaînes de longueur 2 dans le graphe précédent</h2>
+  <div class="two-col top">
+    <div>
+      <p class="sm">On calcule <span data-tex>M^2</span> pour le graphe ci-contre :</p>
+      <div data-tex-display>M=\begin{pmatrix}0&1&1&1\\1&0&0&1\\1&0&0&1\\1&1&1&0\end{pmatrix}</div>
+      <div data-tex-display>M^2=\begin{pmatrix}\htmlClass{result-tex}{3}&1&1&2\\1&2&2&1\\1&2&2&1\\2&1&1&3\end{pmatrix}</div>
+      <p class="sm" style="margin-top:.5rem">Lecture : il y a <span class="result">3</span> chaînes de longueur 2 du sommet 1 à lui-même (1→2→1, 1→3→1, 1→4→1), et <span class="result">2</span> chaînes de longueur 2 de 1 à 4.</p>
+    </div>
+    <div class="g-wrap">
+      <svg class="g" viewBox="0 0 240 190">
+        <line class="edge hi" x1="60" y1="40" x2="180" y2="40"/>
+        <line class="edge dim" x1="60" y1="40" x2="60" y2="140"/>
+        <line class="edge hi" x1="180" y1="40" x2="180" y2="140"/>
+        <line class="edge dim" x1="60" y1="140" x2="180" y2="140"/>
+        <line class="edge dim" x1="60" y1="40" x2="180" y2="140"/>
+        <g class="node src"><circle cx="60" cy="40" r="17"/><text x="60" y="40">1</text></g>
+        <g class="node"><circle cx="180" cy="40" r="17"/><text x="180" y="40">2</text></g>
+        <g class="node"><circle cx="60" cy="140" r="17"/><text x="60" y="140">3</text></g>
+        <g class="node src"><circle cx="180" cy="140" r="17"/><text x="180" y="140">4</text></g>
+      </svg>
+      <p class="sm muted" style="text-align:center;margin-top:.4rem">Un chemin 1→2→4 de longueur 2 (en orange).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ §3 COLORATION ============ -->
+<section class="slide section">
+  <div class="num-big">3</div>
+  <h1>Coloration<br>de graphes</h1>
+</section>
+
+<section class="slide">
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Définition</div>
+      <h2>Colorer sans conflit</h2>
+      <div class="card">
+        <span class="tag">Définition</span>
+        <p class="sm">Une <b>coloration propre</b> d'un graphe est une attribution d'une couleur à chaque sommet, telle que deux sommets <b>adjacents</b> aient toujours des couleurs <span class="result">différentes</span>.</p>
+      </div>
+      <div class="card amber" style="margin-top:.8rem">
+        <span class="tag">Nombre chromatique</span>
+        <p class="sm">Le <b>nombre chromatique</b> <span data-tex>\chi(G)</span> est le plus petit nombre de couleurs permettant une coloration propre de <span data-tex>G</span>.</p>
+      </div>
+    </div>
+    <div class="g-wrap">
+      <svg class="g" viewBox="0 0 300 220">
+        <line class="edge" x1="150" y1="30" x2="60" y2="100"/>
+        <line class="edge" x1="150" y1="30" x2="240" y2="100"/>
+        <line class="edge" x1="60" y1="100" x2="240" y2="100"/>
+        <line class="edge" x1="60" y1="100" x2="100" y2="190"/>
+        <line class="edge" x1="240" y1="100" x2="200" y2="190"/>
+        <line class="edge" x1="100" y1="190" x2="200" y2="190"/>
+        <g class="node c1"><circle cx="150" cy="30" r="18"/><text x="150" y="30">A</text></g>
+        <g class="node c2"><circle cx="60" cy="100" r="18"/><text x="60" y="100">B</text></g>
+        <g class="node c3"><circle cx="240" cy="100" r="18"/><text x="240" y="100">C</text></g>
+        <g class="node c3"><circle cx="100" cy="190" r="18"/><text x="100" y="190">D</text></g>
+        <g class="node c2"><circle cx="200" cy="190" r="18"/><text x="200" y="190">E</text></g>
+      </svg>
+      <p class="sm muted" style="text-align:center;margin-top:.4rem">Une coloration propre avec 3 couleurs — on ne pourrait pas faire mieux ici (triangle A–B–C).</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Deux bornes à savoir</div>
+  <h2>Encadrement de <span data-tex>\chi(G)</span></h2>
+  <div class="card">
+    <span class="tag">Minoration</span>
+    <p class="sm">Si <span data-tex>G</span> contient un sous-graphe complet (clique) de <span data-tex>p</span> sommets, alors ces <span data-tex>p</span> sommets sont deux à deux adjacents et nécessitent <span data-tex>p</span> couleurs distinctes :</p>
+    <div data-tex-display>\chi(G) \ \geq\ \omega(G)</div>
+    <p class="sm">où <span data-tex>\omega(G)</span> est la taille de la plus grande clique.</p>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Majoration</span>
+    <p class="sm">Soit <span data-tex>\Delta(G)</span> le <b>degré maximum</b> des sommets. En colorant les sommets un par un, chaque sommet a au plus <span data-tex>\Delta(G)</span> voisins déjà colorés et peut toujours prendre une couleur « libre » parmi <span data-tex>\Delta(G)+1</span> :</p>
+    <div data-tex-display>\chi(G) \ \leq\ \Delta(G) + 1</div>
+    <p class="sm">(cette borne est serrée pour un graphe complet ou un cycle impair.)</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Un algorithme glouton</div>
+  <h2>Welsh–Powell</h2>
+  <div class="card">
+    <span class="tag">Principe</span>
+    <ol class="props sm">
+      <li><b>1.</b> Ranger les sommets par <b>degré décroissant</b> ;</li>
+      <li><b>2.</b> Prendre une première couleur. L'attribuer au premier sommet non colorié, puis à chaque sommet suivant <b>non adjacent</b> à un déjà colorié de cette couleur ;</li>
+      <li><b>3.</b> Prendre une nouvelle couleur et recommencer, jusqu'à ce que tout soit colorié.</li>
+    </ol>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Remarque</span>
+    <p class="sm">L'algorithme donne <b>une</b> coloration propre, pas forcément celle de nombre chromatique minimum. Il majore <span data-tex>\chi(G)</span> et sert dans la pratique : affectation de fréquences, planning d'examens, allocation de registres…</p>
+  </div>
+</section>
+
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Pourquoi c'est important</div>
+  <h2>Quatre situations<br>que la coloration résout</h2>
+  <div class="concrete">
+    <div>
+      <h3>Carte de géographie</h3>
+      <p>Colorier les pays d'une carte de sorte que deux pays voisins aient des couleurs différentes : c'est le célèbre <b>théorème des quatre couleurs</b> (démontré en 1976), qui dit que 4 couleurs suffisent pour n'importe quelle carte planaire.</p>
+    </div>
+    <div>
+      <h3>Planning d'examens</h3>
+      <p>Chaque <b>sommet</b> est une matière ; une <b>arête</b> entre deux matières s'il existe un élève qui passe les deux. Une coloration propre donne un planning : les matières de même couleur passent en même temps. <span class="result">χ(G) = nombre de créneaux</span> nécessaire.</p>
+    </div>
+    <div>
+      <h3>Fréquences radio</h3>
+      <p>Chaque antenne est un sommet ; une arête relie deux antennes assez proches pour interférer. Une coloration = une affectation de fréquences sans interférence ; χ(G) = nombre minimum de fréquences.</p>
+    </div>
+    <div>
+      <h3>Attribution de salles</h3>
+      <p>Les activités sont les sommets ; une arête relie deux activités qui se chevauchent dans le temps. χ(G) donne le nombre minimum de salles pour tout accueillir en même temps.</p>
+    </div>
+    <div>
+      <h3>Sudoku</h3>
+      <p>Un sudoku classique se modélise par un graphe à 81 sommets, chaque case reliée aux cases qui lui interdisent la même valeur. Résoudre le sudoku, c'est trouver une coloration propre avec 9 couleurs — et ces 9 sont le nombre chromatique.</p>
+    </div>
+    <div>
+      <h3>Compilateur et registres</h3>
+      <p>Dans un compilateur, chaque variable est un sommet ; deux variables sont reliées si leurs durées de vie se chevauchent. Les colorier avec <span data-tex>k</span> couleurs, c'est allouer <span data-tex>k</span> registres processeur sans conflit.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Un exemple complet</div>
+  <h2>Planning des examens</h2>
+  <div class="two-col top">
+    <div>
+      <p class="sm">Cinq matières, et pour chaque paire la liste des étudiants communs :</p>
+      <ul class="props sm" style="margin-top:.4rem">
+        <li>• M (maths) — P (physique) — I (info) sont suivies par les scientifiques,</li>
+        <li>• P et C (chimie) partagent des étudiants,</li>
+        <li>• C et B (biologie) aussi,</li>
+        <li>• I et B n'ont personne en commun.</li>
+      </ul>
+      <p class="sm" style="margin-top:.6rem">Welsh–Powell (degrés : P=3, C=2, M=2, I=2, B=2) :</p>
+      <ul class="props sm" style="margin-top:.3rem">
+        <li>— couleur <b style="color:#B23A48">1</b> : P ;</li>
+        <li>— couleur <b style="color:#1F8A70">2</b> : C puis M (non adjacents) ;</li>
+        <li>— couleur <b style="color:#345995">3</b> : I et B.</li>
+      </ul>
+      <p class="sm" style="margin-top:.5rem"><span class="result">Trois créneaux</span> suffisent : {P} | {C, M} | {I, B}.</p>
+    </div>
+    <div class="g-wrap">
+      <svg class="g" viewBox="0 0 300 230">
+        <line class="edge" x1="150" y1="35" x2="60" y2="100"/>
+        <line class="edge" x1="150" y1="35" x2="240" y2="100"/>
+        <line class="edge" x1="150" y1="35" x2="150" y2="130"/>
+        <line class="edge" x1="60" y1="100" x2="150" y2="130"/>
+        <line class="edge" x1="150" y1="130" x2="100" y2="200"/>
+        <line class="edge" x1="150" y1="130" x2="240" y2="100"/>
+        <g class="node c1"><circle cx="150" cy="35" r="19"/><text x="150" y="35">P</text></g>
+        <g class="node c2"><circle cx="60" cy="100" r="19"/><text x="60" y="100">M</text></g>
+        <g class="node c2"><circle cx="240" cy="100" r="19"/><text x="240" y="100">C</text></g>
+        <g class="node c3"><circle cx="150" cy="130" r="19"/><text x="150" y="130">I</text></g>
+        <g class="node c3"><circle cx="100" cy="200" r="19"/><text x="100" y="200">B</text></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ============ §4 EULER ============ -->
+<section class="slide section">
+  <div class="num-big">4</div>
+  <h1>Parcours<br>eulériens</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Les ponts de Königsberg</div>
+  <h2>Peut-on dessiner tout d'une traite ?</h2>
+  <div class="two-col top">
+    <div>
+      <p class="sm">La ville de Königsberg (aujourd'hui Kaliningrad) comptait sept ponts. Les habitants cherchaient une promenade qui traverse <b>chaque pont une et une seule fois</b> et revienne au point de départ.</p>
+      <p class="sm" style="margin-top:.6rem">En 1735, Euler montre que c'est impossible — et fonde la théorie des graphes au passage. Il modélise les quatre rives par quatre sommets et les ponts par des arêtes.</p>
+      <div class="card amber" style="margin-top:.9rem">
+        <span class="tag">Observation d'Euler</span>
+        <p class="sm">Dans une telle promenade, chaque sommet est <b>traversé</b> : à chaque passage on y entre par une arête et on en sort par une autre. Les arêtes incidentes doivent donc s'apparier, et le degré du sommet doit être <b>pair</b>. Or à Königsberg, tous les sommets ont un degré impair : impossible.</p>
+      </div>
+    </div>
+    <div class="g-wrap">
+      <svg class="g" viewBox="0 0 300 220">
+        <path class="edge" d="M 150 40 Q 90 60 60 120"/>
+        <path class="edge" d="M 150 40 Q 210 60 240 120"/>
+        <path class="edge" d="M 150 40 Q 130 90 150 110"/>
+        <path class="edge" d="M 150 40 Q 170 90 150 110"/>
+        <path class="edge" d="M 60 120 Q 100 160 150 180"/>
+        <path class="edge" d="M 240 120 Q 200 160 150 180"/>
+        <path class="edge" d="M 150 110 Q 140 150 150 180"/>
+        <g class="node"><circle cx="150" cy="40" r="17"/><text x="150" y="40">N</text></g>
+        <g class="node"><circle cx="60" cy="120" r="17"/><text x="60" y="120">O</text></g>
+        <g class="node"><circle cx="240" cy="120" r="17"/><text x="240" y="120">E</text></g>
+        <g class="node"><circle cx="150" cy="110" r="17"/><text x="150" y="110">Î</text></g>
+        <g class="node"><circle cx="150" cy="180" r="17"/><text x="150" y="180">S</text></g>
+      </svg>
+      <p class="sm muted" style="text-align:center;margin-top:.4rem">Les quatre rives et les sept ponts. Degrés : 3, 3, 5, 3 — tous impairs.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Définitions</div>
+  <h2>Chaîne et cycle eulériens</h2>
+  <div class="card">
+    <span class="tag">Définitions</span>
+    <ul class="props sm">
+      <li>• Une <b>chaîne eulérienne</b> parcourt <b>chaque arête du graphe exactement une fois</b> ;</li>
+      <li>• un <b>cycle eulérien</b> est une chaîne eulérienne qui revient à son sommet de départ.</li>
+    </ul>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Théorème d'Euler</span>
+    <p class="sm">Soit <span data-tex>G</span> un graphe connexe. Alors :</p>
+    <ul class="props sm" style="margin-top:.4rem">
+      <li>• <span data-tex>G</span> admet un <b>cycle</b> eulérien si et seulement si <b>tous</b> ses sommets ont un degré pair ;</li>
+      <li>• <span data-tex>G</span> admet une <b>chaîne</b> eulérienne (non fermée) si et seulement s'il a <b>exactement deux</b> sommets de degré impair. La chaîne commence à l'un et finit à l'autre.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Trois graphes, trois cas</div>
+  <h2>À vérifier d'un coup d'œil</h2>
+  <div class="grid2" style="grid-template-columns:repeat(3, 1fr)">
+    <div class="g-wrap" style="flex-direction:column">
+      <svg class="g" viewBox="0 0 160 160" style="width:min(16vw,220px)">
+        <line class="edge" x1="80" y1="30" x2="30" y2="110"/>
+        <line class="edge" x1="80" y1="30" x2="130" y2="110"/>
+        <line class="edge" x1="30" y1="110" x2="130" y2="110"/>
+        <g class="node"><circle cx="80" cy="30" r="16"/><text x="80" y="30">A</text></g>
+        <g class="node"><circle cx="30" cy="110" r="16"/><text x="30" y="110">B</text></g>
+        <g class="node"><circle cx="130" cy="110" r="16"/><text x="130" y="110">C</text></g>
+      </svg>
+      <p class="sm" style="text-align:center"><b style="color:var(--green)">Cycle eulérien</b><br>Tous les degrés valent 2.</p>
+    </div>
+    <div class="g-wrap" style="flex-direction:column">
+      <svg class="g" viewBox="0 0 180 160" style="width:min(16vw,220px)">
+        <line class="edge" x1="30" y1="80" x2="90" y2="30"/>
+        <line class="edge" x1="90" y1="30" x2="150" y2="80"/>
+        <line class="edge" x1="30" y1="80" x2="90" y2="130"/>
+        <line class="edge" x1="90" y1="130" x2="150" y2="80"/>
+        <line class="edge" x1="90" y1="30" x2="90" y2="130"/>
+        <g class="node"><circle cx="30" cy="80" r="16"/><text x="30" y="80">A</text></g>
+        <g class="node"><circle cx="90" cy="30" r="16"/><text x="90" y="30">B</text></g>
+        <g class="node"><circle cx="150" cy="80" r="16"/><text x="150" y="80">C</text></g>
+        <g class="node"><circle cx="90" cy="130" r="16"/><text x="90" y="130">D</text></g>
+      </svg>
+      <p class="sm" style="text-align:center"><b style="color:var(--amber)">Chaîne eulérienne</b><br>Deux degrés impairs (B et D) : chaîne B→…→D.</p>
+    </div>
+    <div class="g-wrap" style="flex-direction:column">
+      <svg class="g" viewBox="0 0 180 160" style="width:min(16vw,220px)">
+        <line class="edge" x1="30" y1="40" x2="150" y2="40"/>
+        <line class="edge" x1="30" y1="40" x2="30" y2="120"/>
+        <line class="edge" x1="150" y1="40" x2="150" y2="120"/>
+        <line class="edge" x1="30" y1="120" x2="150" y2="120"/>
+        <line class="edge" x1="30" y1="40" x2="150" y2="120"/>
+        <line class="edge" x1="150" y1="40" x2="30" y2="120"/>
+        <g class="node"><circle cx="30" cy="40" r="16"/><text x="30" y="40">A</text></g>
+        <g class="node"><circle cx="150" cy="40" r="16"/><text x="150" y="40">B</text></g>
+        <g class="node"><circle cx="30" cy="120" r="16"/><text x="30" y="120">C</text></g>
+        <g class="node"><circle cx="150" cy="120" r="16"/><text x="150" y="120">D</text></g>
+      </svg>
+      <p class="sm" style="text-align:center"><b style="color:#B23A48">Ni l'un ni l'autre</b><br>Quatre sommets de degré 3 : impossible.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application</div>
+  <h2>Dessiner d'un seul trait</h2>
+  <p class="lead">« Dessiner une figure sans lever le crayon et sans repasser sur un trait » revient à chercher une chaîne eulérienne dans le graphe où les sommets sont les intersections et les arêtes les traits. Le théorème d'Euler donne la réponse <b>en un coup d'œil</b> : il suffit de compter les sommets de degré impair.</p>
+  <div class="card amber" style="margin-top:.9rem">
+    <span class="tag">À retenir</span>
+    <ul class="props sm">
+      <li>• <b>0</b> sommet de degré impair : on peut le faire, en revenant au départ ;</li>
+      <li>• <b>2</b> sommets de degré impair : on peut le faire, en commençant à l'un et en finissant à l'autre ;</li>
+      <li>• <b>plus</b> de 2 : impossible.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ §5 DIJKSTRA ============ -->
+<section class="slide section">
+  <div class="num-big">5</div>
+  <h1>Dijkstra :<br>plus court chemin</h1>
+</section>
+
+<section class="slide">
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Graphes pondérés</div>
+      <h2>Des arêtes avec un coût</h2>
+      <div class="card">
+        <span class="tag">Définition</span>
+        <p class="sm">Un <b>graphe pondéré</b> est un graphe où chaque arête <span data-tex>(i,j)</span> porte un nombre <span data-tex>p(i,j)\geq 0</span>, son <b>poids</b> (durée, distance, coût…).</p>
+        <p class="sm" style="margin-top:.5rem">La <b>longueur</b> d'une chaîne est la somme des poids des arêtes qui la composent. Un <b>plus court chemin</b> de <span data-tex>s</span> à <span data-tex>t</span> est une chaîne de <span data-tex>s</span> à <span data-tex>t</span> de longueur minimale.</p>
+      </div>
+    </div>
+    <div class="g-wrap">
+      <svg class="g" viewBox="0 0 320 220">
+        <line class="edge" x1="60" y1="50" x2="200" y2="50"/>
+        <line class="edge" x1="60" y1="50" x2="60" y2="170"/>
+        <line class="edge" x1="200" y1="50" x2="280" y2="110"/>
+        <line class="edge" x1="60" y1="170" x2="180" y2="190"/>
+        <line class="edge" x1="200" y1="50" x2="180" y2="190"/>
+        <line class="edge" x1="280" y1="110" x2="180" y2="190"/>
+        <text class="wlab" x="125" y="42">7</text>
+        <text class="wlab" x="35" y="115">2</text>
+        <text class="wlab" x="255" y="78">3</text>
+        <text class="wlab" x="110" y="195">5</text>
+        <text class="wlab" x="205" y="130">4</text>
+        <text class="wlab" x="245" y="160">6</text>
+        <g class="node src"><circle cx="60" cy="50" r="18"/><text x="60" y="50">A</text></g>
+        <g class="node"><circle cx="200" cy="50" r="18"/><text x="200" y="50">B</text></g>
+        <g class="node"><circle cx="280" cy="110" r="18"/><text x="280" y="110">C</text></g>
+        <g class="node"><circle cx="60" cy="170" r="18"/><text x="60" y="170">D</text></g>
+        <g class="node"><circle cx="180" cy="190" r="18"/><text x="180" y="190">E</text></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>L'idée de Dijkstra (1959)</div>
+  <h2>Avancer sommet par sommet,<br>du plus proche au plus lointain</h2>
+  <div class="card">
+    <span class="tag">Algorithme</span>
+    <ol class="props sm">
+      <li><b>1.</b> Mettre une distance 0 au sommet de départ, <span data-tex>+\infty</span> ailleurs. Aucun sommet n'est encore <b>fixé</b>.</li>
+      <li><b>2.</b> Choisir le sommet non fixé de plus petite distance ; le marquer fixé.</li>
+      <li><b>3.</b> Pour chacun de ses voisins non fixés, améliorer sa distance : si « distance du sommet fixé » + « poids de l'arête » est plus petit que sa distance actuelle, la remplacer.</li>
+      <li><b>4.</b> Reprendre au 2 tant qu'il reste des sommets non fixés.</li>
+    </ol>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Pourquoi ça marche</span>
+    <p class="sm">Les poids étant positifs, le sommet de plus petite distance <b>non fixé</b> ne peut plus être amélioré par un autre chemin : y passer d'abord par un troisième sommet non fixé coûterait au moins autant que la distance actuelle. Sa distance est donc définitive.</p>
+  </div>
+</section>
+
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Déroulement sur le graphe précédent</div>
+  <h2>Dijkstra depuis A</h2>
+  <p class="sm" style="margin-bottom:.6rem">Chaque ligne du tableau donne les distances après avoir fixé un sommet (en gras à gauche). Un <span data-tex>\infty</span> signifie « pas encore atteint ».</p>
+  <table class="ptable">
+    <tr><th>fixé</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
+    <tr><td class="hi">A (0)</td><td class="ok">0</td><td>7</td><td class="inf">∞</td><td>2</td><td class="inf">∞</td></tr>
+    <tr><td class="hi">D (2)</td><td class="ok">0</td><td>7</td><td class="inf">∞</td><td class="ok">2</td><td>7</td></tr>
+    <tr><td class="hi">B (7)</td><td class="ok">0</td><td class="ok">7</td><td>10</td><td class="ok">2</td><td>7</td></tr>
+    <tr><td class="hi">E (7)</td><td class="ok">0</td><td class="ok">7</td><td>10</td><td class="ok">2</td><td class="ok">7</td></tr>
+    <tr><td class="hi">C (10)</td><td class="ok">0</td><td class="ok">7</td><td class="ok">10</td><td class="ok">2</td><td class="ok">7</td></tr>
+  </table>
+  <div class="card green" style="max-width:60ch;margin-top:.6rem">
+    <span class="tag">Lecture</span>
+    <p class="sm">La distance de A à chaque sommet est donnée dans la dernière ligne. En particulier : <span data-tex>d(A,E)=7</span>, atteinte par le chemin A→D→E (poids 2+5). Attention, un autre chemin de même longueur passe par A→B→E (poids 7+… non, 7+4=11, non) ; ici il est unique.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Et pour reconstruire le chemin ?</div>
+  <h2>Garder le prédécesseur</h2>
+  <div class="card">
+    <span class="tag">Technique</span>
+    <p class="sm">Pour chaque sommet, on retient à chaque amélioration le <b>prédécesseur</b> qui a servi à l'améliorer. Une fois Dijkstra terminé, on remonte depuis le sommet d'arrivée, de prédécesseur en prédécesseur, pour reconstituer le chemin complet.</p>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">À retenir</span>
+    <ul class="props sm">
+      <li>• Dijkstra nécessite des <b>poids positifs</b> (ou nuls). Avec des poids négatifs, il peut faire des erreurs ; on utilise alors d'autres algorithmes (Bellman–Ford).</li>
+      <li>• En pratique, Dijkstra sert dans les GPS, les routeurs internet (algorithme OSPF), les jeux vidéo…</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ §6 POUR ALLER PLUS LOIN ============ -->
+<section class="slide section">
+  <div class="num-big">6</div>
+  <h1>Pour aller<br>plus loin</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Côté NSI</div>
+  <h2>Les graphes vus par l'informaticien</h2>
+  <p class="lead">En maths expertes, un graphe est un objet mathématique qu'on étudie avec des matrices et des théorèmes. En NSI, un graphe est une structure de données qu'on <b>stocke en mémoire</b> et qu'on parcourt avec des algorithmes.</p>
+  <div class="cta-nsi">
+    <div class="ct">
+      <b>Chapitre NSI « Structures de données »</b>
+      Deux représentations (matrice et dictionnaire d'adjacence), parcours en profondeur (DFS, avec une pile) et en largeur (BFS, avec une file), complexité en O(n + m), implémentation Python, animation « labyrinthe » à exécuter pas à pas.
+    </div>
+    <a href="../../nsi/terminale/chapitre_structures/cours-structures.html#p7">Voir le chapitre →</a>
+  </div>
+  <div class="card demo" style="margin-top:1rem">
+    <span class="tag">Correspondances</span>
+    <ul class="props sm">
+      <li>• Les <b>parcours DFS/BFS</b> généralisent les parcours eulériens : ils visitent les sommets (pas les arêtes) et terminent toujours.</li>
+      <li>• <b>Dijkstra</b> s'implémente efficacement avec une <b>file de priorité</b> (tas binaire) : voir §6 du chapitre NSI.</li>
+      <li>• La <b>coloration</b> et la plupart des problèmes d'optimisation sur les graphes sont <b>NP-difficiles</b> : on y revient en algorithmique avancée.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ L'ESSENTIEL ============ -->
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Fiche de révision</div>
+  <h2>L'essentiel du chapitre</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Vocabulaire</span>
+      <p class="sm">Sommets, arêtes, degré, chaîne, cycle, connexité. Somme des degrés = <span data-tex>2|A|</span>. Nombre de sommets de degré impair est pair.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Matrice d'adjacence</span>
+      <p class="sm"><span data-tex>M_{i,j}=1</span> si arête, sinon 0. Symétrique pour un graphe non orienté. <span data-tex>(M^k)_{i,j}</span> = nombre de chaînes de longueur <span data-tex>k</span> de <span data-tex>i</span> à <span data-tex>j</span>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Coloration</span>
+      <p class="sm"><span data-tex>\chi(G)\geq\omega(G)</span> (clique maximale) et <span data-tex>\chi(G)\leq\Delta(G)+1</span>. Welsh–Powell : glouton par degré décroissant. Planning, fréquences, salles.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Parcours eulérien</span>
+      <p class="sm">Cycle eulérien ⟺ tous les sommets ont un degré pair. Chaîne eulérienne non fermée ⟺ exactement 2 sommets de degré impair.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Dijkstra</span>
+      <p class="sm">Plus court chemin dans un graphe à poids positifs. Fixer les sommets du plus proche au plus lointain, améliorer les voisins non fixés.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Côté NSI</span>
+      <p class="sm">Pour l'implémentation Python, les représentations, DFS/BFS et la complexité : <a href="../../nsi/terminale/chapitre_structures/cours-structures.html#p7" style="color:var(--green);text-decoration:underline">chapitre « Structures de données »</a>.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="controls">
+  <button id="prev">‹</button>
+  <span class="num"><span id="cur">1</span>/<span id="tot">1</span></span>
+  <button id="next">›</button>
+  <span class="sep"></span>
+  <button id="tocBtn" title="Aller à une partie">Sommaire</button>
+  <span class="sep"></span>
+  <label class="toggle" title="Affichage optimisé pour smartphone"><input type="checkbox" id="mobileToggle"><span class="track"></span><span>Mode portable</span></label>
+  <span class="sep"></span>
+  <button id="printBtn" title="Imprimer en PDF A4">Imprimer PDF</button>
+</div>
+
+<div class="toc-back" id="tocBack"></div>
+<nav class="toc" id="toc" aria-label="Sommaire du chapitre" aria-hidden="true">
+  <h4>Sommaire</h4>
+  <ol id="tocList"></ol>
+</nav>
+
+<script>
+function renderMath(){
+  document.querySelectorAll('[data-tex]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+  document.querySelectorAll('[data-tex-display]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{displayMode:true,throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+}
+window.addEventListener('load',()=>setTimeout(renderMath,150));
+
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+const cur=document.getElementById('cur'),tot=document.getElementById('tot'),prog=document.getElementById('prog');
+tot.textContent=slides.length;
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));cur.textContent=i+1;prog.style.width=((i+1)/slides.length*100)+'%';if(slides[i].scrollTop!==undefined)slides[i].scrollTop=0;}
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('prev').onclick=()=>show(i-1);
+document.addEventListener('keydown',e=>{if(document.body.classList.contains('mobile'))return;if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
+document.getElementById('printBtn').onclick=()=>window.print();
+
+const toc=document.getElementById('toc'),tocBack=document.getElementById('tocBack'),tocList=document.getElementById('tocList');
+function titleOf(h){
+  if(!h)return'Partie';
+  const c=h.cloneNode(true);
+  c.querySelectorAll('br').forEach(b=>b.replaceWith(document.createTextNode(' ')));
+  return c.textContent.replace(/\s+/g,' ').trim();
+}
+(function buildToc(){
+  const entries=[{n:'↑',t:'Début du cours',k:0}];
+  slides.forEach((s,k)=>{
+    if(!s.classList.contains('section'))return;
+    const num=s.querySelector('.num-big');
+    entries.push({n:num?num.textContent.trim():'',t:titleOf(s.querySelector('h1')),k});
+  });
+  entries.forEach(e=>{
+    const li=document.createElement('li'),b=document.createElement('button');
+    b.dataset.i=e.k;
+    const sp=document.createElement('span');sp.className='tnum';sp.textContent=e.n;
+    b.append(sp,document.createTextNode(e.t));
+    li.append(b);tocList.append(li);
+  });
+})();
+function openToc(o){toc.classList.toggle('open',o);tocBack.classList.toggle('open',o);toc.setAttribute('aria-hidden',String(!o));}
+document.getElementById('tocBtn').onclick=()=>openToc(!toc.classList.contains('open'));
+tocBack.onclick=()=>openToc(false);
+tocList.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const n=+b.dataset.i;openToc(false);
+  if(document.body.classList.contains('mobile')){
+    if(n===0)window.scrollTo({top:0,behavior:'smooth'});
+    else slides[n].scrollIntoView({behavior:'smooth',block:'start'});
+  }else show(n);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')openToc(false)});
+
+const mobileToggle=document.getElementById('mobileToggle');
+const mq=window.matchMedia('(max-width: 820px)');
+let manual=false;
+function scrollProg(){
+  const h=document.documentElement,max=h.scrollHeight-h.clientHeight;
+  prog.style.width=(max>4?Math.min(100,h.scrollTop/max*100):100)+'%';
+}
+function setMobile(on){
+  document.body.classList.toggle('mobile',on);
+  mobileToggle.checked=on;
+  openToc(false);
+  if(on){
+    requestAnimationFrame(()=>{
+      if(i>0)slides[i].scrollIntoView({block:'start'});
+      scrollProg();
+    });
+  }else{
+    window.scrollTo(0,0);
+    show(i);
+  }
+}
+mobileToggle.addEventListener('change',e=>{manual=true;setMobile(e.target.checked)});
+mq.addEventListener('change',e=>{if(!manual)setMobile(e.matches)});
+window.addEventListener('scroll',()=>{if(document.body.classList.contains('mobile'))scrollProg()},{passive:true});
+
+show(0);
+setMobile(mq.matches);
+</script>
+</body>
+</html>
