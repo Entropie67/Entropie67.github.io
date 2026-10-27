@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Structures de données — Terminale NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --warn:#ffc53d; --bad:#ff5c7a; --vio:#b57bff; --pink:#ff4fa3; }
+
+  .chapnav{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.92);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .chapnav-in{max-width:var(--max-w);margin:0 auto;display:flex;gap:.4rem;overflow-x:auto;
+    padding:.55rem 1.5rem;scrollbar-width:none}
+  .chapnav-in::-webkit-scrollbar{display:none}
+  .chapnav a{flex:none;text-decoration:none;color:var(--text-muted);font-size:.82rem;font-weight:500;
+    padding:.35rem .7rem;border-radius:100px;border:1px solid transparent;white-space:nowrap;transition:.18s}
+  .chapnav a:hover{color:var(--text);background:var(--bg-card)}
+  .chapnav a.on{color:var(--nsi);background:var(--nsi-dim);border-color:rgba(108,158,255,.3)}
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);
+    text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+
+  .part{scroll-margin-top:110px;margin-bottom:3.2rem}
+  .part > h2{display:flex;align-items:baseline;gap:.7rem;font-size:1.45rem;
+    padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.3rem}
+  .part > h2 .pn{font-family:var(--mono);font-size:.85rem;color:var(--nsi);
+    background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .part h3{font-size:1.02rem;color:var(--nsi);margin:1.6rem 0 .5rem}
+  .part p{margin-bottom:.85rem;color:#c9cdda}
+  .part ul,.part ol{margin:0 0 .9rem 1.2rem;color:#c9cdda}
+  .part li{margin-bottom:.35rem}
+  .part b,.part strong{color:var(--text);font-weight:600}
+  code,.m{font-family:var(--mono);font-size:.92em}
+  .m{color:var(--nsi);background:rgba(108,158,255,.09);padding:.08em .35em;border-radius:4px;white-space:nowrap}
+  .m.v{color:var(--vio);background:rgba(181,123,255,.11)}
+  .m.o{color:var(--warn);background:rgba(255,197,61,.11)}
+  .m.g{color:var(--ok);background:rgba(52,211,153,.11)}
+  sub,sup{font-size:.72em}
+
+  .box{border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 8px 8px 0;
+    background:var(--bg-card);padding:1rem 1.2rem;margin:1.1rem 0}
+  .box .lbl{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--nsi);display:block;margin-bottom:.5rem}
+  .box.meth{border-left-color:var(--vio)} .box.meth .lbl{color:var(--vio)}
+  .box.warn{border-left-color:var(--warn)} .box.warn .lbl{color:var(--warn)}
+  .box.key{border-left-color:var(--ok);background:rgba(52,211,153,.06)} .box.key .lbl{color:var(--ok)}
+  .box.def{border-left-color:var(--pink)} .box.def .lbl{color:var(--pink)}
+  .box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+
+  .tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}
+  .tbl th,.tbl td{border:1px solid var(--border);padding:.45rem .6rem;text-align:center}
+  .tbl th{background:var(--bg-card);color:var(--nsi);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+  .tbl td{color:#c9cdda}
+  .tbl td.mono{font-family:var(--mono)}
+  .tbl td.l{text-align:left}
+  .tbl tr:nth-child(even) td{background:rgba(255,255,255,.017)}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1rem 0}
+  .scrollx .tbl{margin:0;min-width:480px}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.6;background:#0c0e15;
+    border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;
+    overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+  pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+
+  .fig{margin:1.2rem 0;text-align:center}
+  .fig svg{max-width:100%;height:auto}
+  .fig .cap{font-size:.8rem;color:var(--text-muted);margin-top:.4rem}
+
+  svg .e{stroke:rgba(255,255,255,.4);stroke-width:2;stroke-linecap:round}
+  svg .e.d{marker-end:url(#dir)}
+  svg .cell rect{fill:#1a1f2e;stroke:rgba(255,255,255,.4);stroke-width:1.5}
+  svg .cell .val{fill:#fff;font-family:'JetBrains Mono', monospace;font-weight:600;font-size:13px;text-anchor:middle;dominant-baseline:central}
+  svg .cell .ptr{fill:var(--nsi);font-family:'JetBrains Mono', monospace;font-size:10px;text-anchor:middle;dominant-baseline:central}
+  svg .cell.head rect{stroke:var(--ok);stroke-width:2.5}
+  svg .cell.tail rect{stroke:var(--warn);stroke-width:2.5}
+  svg .arr{stroke:var(--vio);stroke-width:1.6;fill:none;marker-end:url(#ah)}
+  svg .lab{fill:var(--text-muted);font-family:var(--mono);font-size:10px}
+  svg .lab.b{fill:var(--nsi)} svg .lab.g{fill:var(--ok)} svg .lab.o{fill:var(--warn)} svg .lab.p{fill:var(--vio)}
+  svg .nd circle{fill:#1a1f2e;stroke:rgba(255,255,255,.4);stroke-width:2}
+  svg .nd text{fill:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;text-anchor:middle;dominant-baseline:central}
+  svg .nd.root circle{stroke:var(--nsi);stroke-width:2.5}
+  svg .nd.leaf circle{fill:#0f3d36;stroke:var(--ok)}
+  svg .nd.hi circle{fill:#3a2a12;stroke:var(--warn)}
+
+  .frame-emb{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#0b0d14;margin:1.3rem 0;position:relative}
+  .frame-emb iframe{display:block;width:100%;height:560px;border:0}
+  .frame-emb .fbar{display:flex;align-items:center;gap:.8rem;padding:.5rem .9rem;border-top:1px solid var(--border);
+    background:var(--bg-card);font-size:.8rem;color:var(--text-muted)}
+  .frame-emb .fbar a{margin-left:auto;color:var(--nsi);text-decoration:none;font-weight:600;white-space:nowrap}
+  .frame-emb .fbar a:hover{text-decoration:underline}
+
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);
+    border-left:3px solid var(--ok);border-radius:0 10px 10px 0;background:rgba(52,211,153,.06);
+    padding:1.1rem 1.3rem;margin:2.5rem 0 1rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--ok);color:#06281c;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+  .cta.anim{border-left-color:var(--vio);background:rgba(181,123,255,.07)} .cta.anim a{background:var(--vio);color:#1b0f2e}
+
+  .recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem;margin:1rem 0}
+  .recap div{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.7rem .85rem;font-size:.86rem;color:#c9cdda}
+  .recap div b{display:block;color:var(--ok);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem}
+
+  .stackviz{display:flex;flex-direction:column-reverse;gap:3px;border:2px solid var(--border);border-top:none;border-radius:0 0 10px 10px;background:var(--bg-card);padding:6px;width:150px;margin:1rem auto;min-height:140px}
+  .stackviz .lv{font-family:var(--mono);font-size:.84rem;background:var(--nsi-dim);color:var(--nsi);border:1px solid rgba(108,158,255,.35);border-radius:5px;padding:.3rem;text-align:center}
+  .stacklabel{text-align:center;color:var(--text-muted);font-size:.78rem;font-family:var(--mono);margin:.4rem 0 -.3rem}
+  .queueviz{display:flex;gap:3px;border:2px solid var(--border);border-left:none;border-right:none;background:var(--bg-card);padding:6px;margin:1rem auto;min-height:40px;width:fit-content}
+  .queueviz .lv{font-family:var(--mono);font-size:.84rem;background:var(--nsi-dim);color:var(--nsi);border:1px solid rgba(108,158,255,.35);border-radius:5px;padding:.3rem .6rem;text-align:center}
+  .queuelabel{text-align:center;color:var(--text-muted);font-size:.78rem;font-family:var(--mono);margin:.4rem 0 -.3rem}
+
+  @media (max-width:640px){
+    .chapnav-in{padding:.5rem 1rem}
+    .part > h2{font-size:1.2rem}
+    pre.code{font-size:.76rem}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="chapnav">
+  <div class="chapnav-in" id="chapnav">
+    <a href="#p1">1 · Interface et implémentation</a>
+    <a href="#p2">2 · Listes chaînées</a>
+    <a href="#p3">3 · Les piles (LIFO)</a>
+    <a href="#p4">4 · Les files (FIFO)</a>
+    <a href="#p5">5 · Les arbres (rappel)</a>
+    <a href="#p6">6 · Files de priorité et tas</a>
+    <a href="#p7">7 · Les graphes</a>
+    <a href="#p8">8 · Choisir sa structure</a>
+    <a href="#p9">9 · À retenir</a>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>Structures de données <span class="badge badge-nsi">Terminale</span></h1>
+    <p class="subtitle">Au-delà des listes et dictionnaires de Python : listes chaînées, piles, files, files de
+      priorité et graphes. Pour chaque structure, l'<b>interface</b> qu'elle expose, une <b>implémentation</b> en
+      Python et les <b>situations</b> où elle s'impose.</p>
+  </div>
+
+  <div class="cta anim">
+    <div class="t">
+      <b>Les animations liées à ce chapitre</b>
+      <span>Arbres binaires, parcours de graphes (profondeur, largeur, A*), Dijkstra sur un graphe pondéré — à ouvrir en plein écran quand une structure apparaît.</span>
+    </div>
+    <a href="../../index.html#animations" target="_blank" rel="noopener">Voir les animations →</a>
+  </div>
+
+  <!-- ══════════════════ 1 ══════════════════ -->
+  <section class="part" id="p1">
+    <h2><span class="pn">1</span> Interface et implémentation</h2>
+    <p>Depuis la Première, nous utilisons des <b>listes</b> et des <b>dictionnaires</b> Python. Ce sont des structures
+      concrètes, bien pratiques, mais la question de ce chapitre est différente : <i>pour un problème donné, quelle
+      est la structure qui mène à l'algorithme le plus simple et le plus rapide ?</i></p>
+
+    <div class="box def">
+      <span class="lbl">Type abstrait</span>
+      <p>Un <b>type abstrait de données</b> (ADT) est défini par :</p>
+      <ul>
+        <li>l'ensemble des <b>valeurs</b> qu'il représente (par exemple « une suite de livres » ou « une file d'attente ») ;</li>
+        <li>les <b>opérations</b> qu'on peut effectuer sur ces valeurs, avec leur <b>signature</b> et leur <b>effet attendu</b>.</li>
+      </ul>
+      <p>Un ADT dit <b>ce que la structure fait</b>, pas <b>comment elle est codée</b>. On parle de son <b>interface</b>.</p>
+    </div>
+
+    <p>Une même interface peut avoir plusieurs <b>implémentations</b>, aux performances différentes. La pile, par exemple,
+      est définie par les opérations <code>empiler</code>, <code>dépiler</code>, <code>sommet</code> et <code>est_vide</code>.
+      On peut la coder avec une liste Python, ou avec une liste chaînée que nous construirons tout à l'heure. Le code qui
+      <i>utilise</i> la pile n'a pas besoin de savoir : il appelle <code>empiler</code> et <code>dépiler</code>, c'est tout.</p>
+
+    <div class="box key">
+      <span class="lbl">Deux habitudes à prendre</span>
+      <ol>
+        <li>Avant d'écrire du code, se demander : <b>quelles opérations</b> mon algorithme a-t-il besoin de faire sur ses données ? C'est l'interface qu'il faut.</li>
+        <li>Choisir ensuite l'<b>implémentation</b> qui rend ces opérations efficaces (constante, logarithmique, linéaire…).</li>
+      </ol>
+    </div>
+
+    <h3>Un rappel des coûts de la liste Python</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Opération</th><th>Coût (liste Python)</th><th>Commentaire</th></tr>
+      <tr><td class="l mono">t[i]</td><td>O(1)</td><td class="l">Accès direct par indice.</td></tr>
+      <tr><td class="l mono">t.append(x)</td><td>O(1) <i>amorti</i></td><td class="l">Ajout en fin de liste.</td></tr>
+      <tr><td class="l mono">t.pop()</td><td>O(1)</td><td class="l">Retrait du dernier.</td></tr>
+      <tr><td class="l mono">t.pop(0) / t.insert(0, x)</td><td>O(n)</td><td class="l">Il faut décaler tous les éléments.</td></tr>
+      <tr><td class="l mono">x in t</td><td>O(n)</td><td class="l">On lit chaque case jusqu'à trouver.</td></tr>
+    </table></div>
+    <p>C'est le <b>décalage</b> de <code>pop(0)</code> et <code>insert(0, x)</code> qui va justifier l'introduction de nouvelles
+      structures.</p>
+  </section>
+
+  <!-- ══════════════════ 2 ══════════════════ -->
+  <section class="part" id="p2">
+    <h2><span class="pn">2</span> Les listes chaînées</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Une <b>liste chaînée</b> est une suite de <b>cellules</b>, chacune portant deux informations : une <b>valeur</b>
+        et une <b>référence</b> vers la cellule suivante (ou <code>None</code> pour la dernière). On accède à la liste
+        par sa <b>tête</b> : la toute première cellule.</p>
+    </div>
+
+    <div class="fig">
+      <svg viewBox="0 0 540 110">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b57bff"/></marker>
+          <marker id="dir" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="rgba(255,255,255,.5)"/></marker>
+        </defs>
+        <text class="lab g" x="40" y="18">tête</text>
+        <g class="cell head"><rect x="40" y="30" width="80" height="50" rx="5"/>
+          <text class="val" x="68" y="55">42</text><line x1="90" y1="30" x2="90" y2="80" stroke="rgba(255,255,255,.3)"/>
+          <text class="ptr" x="105" y="55">•</text></g>
+        <path class="arr" d="M 118 55 L 158 55"/>
+        <g class="cell"><rect x="160" y="30" width="80" height="50" rx="5"/>
+          <text class="val" x="188" y="55">17</text><line x1="210" y1="30" x2="210" y2="80" stroke="rgba(255,255,255,.3)"/>
+          <text class="ptr" x="225" y="55">•</text></g>
+        <path class="arr" d="M 238 55 L 278 55"/>
+        <g class="cell"><rect x="280" y="30" width="80" height="50" rx="5"/>
+          <text class="val" x="308" y="55">9</text><line x1="330" y1="30" x2="330" y2="80" stroke="rgba(255,255,255,.3)"/>
+          <text class="ptr" x="345" y="55">•</text></g>
+        <path class="arr" d="M 358 55 L 398 55"/>
+        <g class="cell"><rect x="400" y="30" width="80" height="50" rx="5"/>
+          <text class="val" x="428" y="55">25</text><line x1="450" y1="30" x2="450" y2="80" stroke="rgba(255,255,255,.3)"/>
+          <text class="ptr" x="465" y="55">∅</text></g>
+        <text class="lab" x="440" y="100">None</text>
+      </svg>
+      <div class="cap">Une liste chaînée de quatre cellules. Chaque cellule contient une valeur et un « pointeur » vers la cellule suivante ; la dernière pointe vers None.</div>
+    </div>
+
+    <h3>Implémentation en Python</h3>
+<pre class="code"><span class="kw">class</span> <span class="fn">Cellule</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, valeur, suivant=<span class="kw">None</span>):
+        self.valeur = valeur
+        self.suivant = suivant        <span class="cm"># une Cellule, ou None</span>
+
+<span class="cm"># Construction de [42, 17, 9] "à la main" :</span>
+tete = <span class="fn">Cellule</span>(<span class="nb">42</span>, <span class="fn">Cellule</span>(<span class="nb">17</span>, <span class="fn">Cellule</span>(<span class="nb">9</span>)))
+
+tete.valeur                       <span class="cm"># → 42</span>
+tete.suivant.valeur               <span class="cm"># → 17</span>
+tete.suivant.suivant.valeur       <span class="cm"># → 9</span>
+tete.suivant.suivant.suivant      <span class="cm"># → None</span></pre>
+
+    <h3>Les opérations usuelles</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">est_vide</span>(tete):
+    <span class="kw">return</span> tete <span class="kw">is None</span>
+
+<span class="kw">def</span> <span class="fn">longueur</span>(tete):
+    n = <span class="nb">0</span>
+    c = tete
+    <span class="kw">while</span> c <span class="kw">is not None</span>:
+        n += <span class="nb">1</span>
+        c = c.suivant
+    <span class="kw">return</span> n
+
+<span class="kw">def</span> <span class="fn">appartient</span>(tete, x):
+    c = tete
+    <span class="kw">while</span> c <span class="kw">is not None</span>:
+        <span class="kw">if</span> c.valeur == x:
+            <span class="kw">return</span> <span class="kw">True</span>
+        c = c.suivant
+    <span class="kw">return</span> <span class="kw">False</span>
+
+<span class="kw">def</span> <span class="fn">ajout_tete</span>(tete, x):
+    <span class="kw">return</span> <span class="fn">Cellule</span>(x, tete)           <span class="cm"># la nouvelle cellule pointe vers l'ancienne tête</span>
+
+<span class="kw">def</span> <span class="fn">supprime_tete</span>(tete):
+    <span class="kw">return</span> tete.suivant                <span class="cm"># la nouvelle tête est l'ancien second</span></pre>
+
+    <div class="box key">
+      <span class="lbl">Pourquoi c'est intéressant</span>
+      <p>Ajouter ou retirer en <b>tête</b> coûte <b>O(1)</b> : on ne touche qu'à une cellule. Dans une liste Python,
+        <code>t.insert(0, x)</code> est en O(n) à cause du décalage. En revanche, l'<b>accès au i-ième élément</b> coûte
+        O(i) dans une chaînée (il faut suivre i chaînons), contre O(1) dans un tableau.</p>
+    </div>
+
+    <h3>Insertion en milieu de liste</h3>
+    <p>Pour insérer une valeur entre deux cellules, il faut <b>recoller</b> deux pointeurs — jamais inverser l'ordre :</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">insere_apres</span>(cellule, x):
+    <span class="cm"># insère x juste après la cellule donnée</span>
+    nouvelle = <span class="fn">Cellule</span>(x, cellule.suivant)
+    cellule.suivant = nouvelle</pre>
+    <p>Si l'on écrivait d'abord <code>cellule.suivant = Cellule(x)</code>, on perdrait tout ce qui suit : attention à
+      l'<b>ordre des recollements</b> de pointeurs.</p>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Opération</th><th>Liste chaînée</th><th>Tableau (liste Python)</th></tr>
+      <tr><td class="l">Ajout en tête</td><td class="g"><b>O(1)</b></td><td>O(n)</td></tr>
+      <tr><td class="l">Retrait en tête</td><td class="g"><b>O(1)</b></td><td>O(n)</td></tr>
+      <tr><td class="l">Ajout en queue</td><td>O(n)</td><td class="g"><b>O(1)</b> amorti</td></tr>
+      <tr><td class="l">Accès à l'indice i</td><td>O(i)</td><td class="g"><b>O(1)</b></td></tr>
+      <tr><td class="l">Recherche</td><td>O(n)</td><td>O(n)</td></tr>
+      <tr><td class="l">Mémoire par élément</td><td>Valeur + pointeur</td><td class="g">Valeur seule</td></tr>
+    </table></div>
+    <p>La liste chaînée est donc le choix privilégié quand on manipule une suite <b>par ses deux bouts</b>, surtout la tête,
+      et peu par position.</p>
+  </section>
+
+  <!-- ══════════════════ 3 ══════════════════ -->
+  <section class="part" id="p3">
+    <h2><span class="pn">3</span> Les piles (LIFO)</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Une <b>pile</b> (<i>stack</i>) est une collection où l'on <b>empile</b> au sommet et où l'on <b>dépile</b> depuis
+        le sommet. Le dernier élément entré est le premier à sortir : règle <b>LIFO</b> (<i>Last In, First Out</i>).
+        Pensez à une pile d'assiettes.</p>
+    </div>
+
+    <div class="stacklabel">↓ dépiler · empiler ↑</div>
+    <div class="stackviz">
+      <div class="lv">42 ← sommet</div>
+      <div class="lv">17</div>
+      <div class="lv">9</div>
+      <div class="lv">3</div>
+    </div>
+
+    <h3>L'interface</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Opération</th><th>Rôle</th><th>Coût attendu</th></tr>
+      <tr><td class="l mono">empiler(p, x)</td><td class="l">Ajoute x au sommet.</td><td>O(1)</td></tr>
+      <tr><td class="l mono">depiler(p)</td><td class="l">Retire et renvoie le sommet.</td><td>O(1)</td></tr>
+      <tr><td class="l mono">sommet(p)</td><td class="l">Renvoie le sommet sans le retirer.</td><td>O(1)</td></tr>
+      <tr><td class="l mono">est_vide(p)</td><td class="l">Renvoie True si la pile est vide.</td><td>O(1)</td></tr>
+    </table></div>
+
+    <h3>Implémentation 1 : avec une liste Python</h3>
+    <p>Le sommet est la <b>fin</b> de la liste : <code>append</code> et <code>pop</code> sont déjà en O(1).</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">pile_vide</span>():
+    <span class="kw">return</span> []
+
+<span class="kw">def</span> <span class="fn">est_vide</span>(p):
+    <span class="kw">return</span> <span class="fn">len</span>(p) == <span class="nb">0</span>
+
+<span class="kw">def</span> <span class="fn">empiler</span>(p, x):
+    p.append(x)
+
+<span class="kw">def</span> <span class="fn">depiler</span>(p):
+    <span class="kw">return</span> p.pop()                 <span class="cm"># renvoie et retire le dernier</span>
+
+<span class="kw">def</span> <span class="fn">sommet</span>(p):
+    <span class="kw">return</span> p[-<span class="nb">1</span>]</pre>
+
+    <h3>Implémentation 2 : avec une liste chaînée</h3>
+    <p>Le sommet est la <b>tête</b> de la liste chaînée. Rien ne change pour l'utilisateur : seuls <code>empiler</code>
+      et <code>depiler</code> changent de contenu.</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">empiler</span>(p, x):
+    <span class="kw">return</span> <span class="fn">Cellule</span>(x, p)           <span class="cm"># nouvelle tête</span>
+
+<span class="kw">def</span> <span class="fn">depiler</span>(p):
+    <span class="kw">return</span> p.valeur, p.suivant     <span class="cm"># valeur en haut, reste de la pile</span></pre>
+
+    <h3>À quoi ça sert ?</h3>
+    <ul>
+      <li>La <b>pile d'appels</b> d'un programme (vue dans le chapitre récursivité) : chaque appel de fonction y empile un cadre.</li>
+      <li>Le <b>Ctrl + Z</b> d'un éditeur : la dernière action faite est la première à être défaite.</li>
+      <li>L'<b>évaluation</b> d'une expression en notation polonaise inverse : on empile les nombres, un opérateur dépile deux valeurs et empile le résultat.</li>
+      <li>Le <b>parcours en profondeur</b> d'un graphe (voir partie 7) : la pile remplace la pile d'appels de la version récursive.</li>
+      <li>Vérifier qu'une suite de parenthèses est <b>bien formée</b> : à chaque ouvrante on empile, à chaque fermante on vérifie le sommet.</li>
+    </ul>
+
+<pre class="code"><span class="kw">def</span> <span class="fn">parentheses_ok</span>(s):
+    pile = []
+    paires = {<span class="st">")"</span>: <span class="st">"("</span>, <span class="st">"]"</span>: <span class="st">"["</span>, <span class="st">"}"</span>: <span class="st">"{"</span>}
+    <span class="kw">for</span> c <span class="kw">in</span> s:
+        <span class="kw">if</span> c <span class="kw">in</span> <span class="st">"([{"</span>:
+            pile.append(c)
+        <span class="kw">elif</span> c <span class="kw">in</span> paires:
+            <span class="kw">if</span> <span class="kw">not</span> pile <span class="kw">or</span> pile.pop() != paires[c]:
+                <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">return</span> <span class="fn">len</span>(pile) == <span class="nb">0</span>
+
+<span class="fn">parentheses_ok</span>(<span class="st">"((a+b)*[c-d])"</span>)   <span class="cm"># → True</span>
+<span class="fn">parentheses_ok</span>(<span class="st">"(a+b"</span>)              <span class="cm"># → False : il reste ( dans la pile</span>
+<span class="fn">parentheses_ok</span>(<span class="st">"a+b)"</span>)              <span class="cm"># → False : pile vide quand on lit )</span></pre>
+  </section>
+
+  <!-- ══════════════════ 4 ══════════════════ -->
+  <section class="part" id="p4">
+    <h2><span class="pn">4</span> Les files (FIFO)</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Une <b>file</b> (<i>queue</i>) est une collection où l'on <b>enfile</b> à l'arrière et <b>défile</b> à l'avant.
+        Le premier élément entré est le premier à sortir : règle <b>FIFO</b> (<i>First In, First Out</i>). Pensez à une
+        file d'attente à la caisse.</p>
+    </div>
+
+    <div class="queuelabel">← défiler · enfiler ←</div>
+    <div class="queueviz">
+      <div class="lv">3</div><div class="lv">9</div><div class="lv">17</div><div class="lv">42</div>
+    </div>
+
+    <h3>L'interface</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Opération</th><th>Rôle</th><th>Coût attendu</th></tr>
+      <tr><td class="l mono">enfiler(f, x)</td><td class="l">Ajoute x à l'arrière.</td><td>O(1)</td></tr>
+      <tr><td class="l mono">defiler(f)</td><td class="l">Retire et renvoie l'élément de devant.</td><td>O(1)</td></tr>
+      <tr><td class="l mono">premier(f)</td><td class="l">Renvoie l'élément de devant sans le retirer.</td><td>O(1)</td></tr>
+      <tr><td class="l mono">est_vide(f)</td><td class="l">Renvoie True si la file est vide.</td><td>O(1)</td></tr>
+    </table></div>
+
+    <h3>Implémentation 1 : avec <code>collections.deque</code></h3>
+    <p>La <code>deque</code> (<i>double ended queue</i>) de Python ajoute et retire en O(1) <b>aux deux extrémités</b>.
+      C'est l'implémentation à utiliser dès qu'on fait des files.</p>
+<pre class="code"><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+f = <span class="fn">deque</span>()
+f.append(<span class="nb">3</span>)                <span class="cm"># enfile → [3]</span>
+f.append(<span class="nb">9</span>)                <span class="cm"># enfile → [3, 9]</span>
+f.append(<span class="nb">17</span>)               <span class="cm"># enfile → [3, 9, 17]</span>
+x = f.popleft()           <span class="cm"># défile → x = 3, f = [9, 17]</span></pre>
+
+    <div class="box warn">
+      <span class="lbl">Attention — ne pas utiliser list.pop(0)</span>
+      <p>Avec une liste Python classique, <code>list.pop(0)</code> fonctionne mais coûte O(n) à cause du décalage de
+        tous les éléments. Sur une boucle qui défile n fois, on passe de O(n) à O(n²). Utilisez systématiquement une
+        <code>deque</code>.</p>
+    </div>
+
+    <h3>Implémentation 2 : avec une liste chaînée</h3>
+    <p>On garde deux pointeurs : la <b>tête</b> pour défiler, la <b>queue</b> pour enfiler. L'enfilage et le défilage
+      sont tous deux en O(1).</p>
+<pre class="code"><span class="kw">class</span> <span class="fn">File</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self.tete = <span class="kw">None</span>
+        self.queue = <span class="kw">None</span>
+
+    <span class="kw">def</span> <span class="fn">enfiler</span>(self, x):
+        c = <span class="fn">Cellule</span>(x)
+        <span class="kw">if</span> self.queue <span class="kw">is None</span>:              <span class="cm"># file vide : la cellule devient tête ET queue</span>
+            self.tete = c
+        <span class="kw">else</span>:
+            self.queue.suivant = c            <span class="cm"># on accroche à l'arrière</span>
+        self.queue = c                        <span class="cm"># la nouvelle queue</span>
+
+    <span class="kw">def</span> <span class="fn">defiler</span>(self):
+        x = self.tete.valeur
+        self.tete = self.tete.suivant
+        <span class="kw">if</span> self.tete <span class="kw">is None</span>:                <span class="cm"># la file devient vide</span>
+            self.queue = <span class="kw">None</span>
+        <span class="kw">return</span> x</pre>
+
+    <h3>À quoi ça sert ?</h3>
+    <ul>
+      <li>Toutes les <b>files d'attente</b> : impression, requêtes réseau, service au supermarché, processus prêts à l'exécution.</li>
+      <li>Le <b>parcours en largeur</b> d'un graphe ou d'un arbre : on défile un sommet, on enfile ses voisins (voir partie 7 et le chapitre arbres).</li>
+      <li>Les <b>buffers</b> (tampons) entre deux programmes qui ne vont pas à la même vitesse.</li>
+    </ul>
+  </section>
+
+  <!-- ══════════════════ 5 ══════════════════ -->
+  <section class="part" id="p5">
+    <h2><span class="pn">5</span> Les arbres : un rappel</h2>
+    <p>Les <b>arbres binaires</b> font l'objet d'un chapitre dédié : vocabulaire (racine, feuille, hauteur, profondeur),
+      implémentation récursive en Python, parcours préfixe/infixe/suffixe/largeur, arbres binaires de recherche. On y
+      renvoie pour tous les détails. Ce qui compte ici, en vue de la partie 7, est que l'arbre est un cas particulier
+      d'une structure plus générale : le <b>graphe</b>.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 320 160">
+        <line class="e" x1="160" y1="20" x2="90" y2="70"/><line class="e" x1="160" y1="20" x2="230" y2="70"/>
+        <line class="e" x1="90" y1="70" x2="50" y2="130"/><line class="e" x1="90" y1="70" x2="130" y2="130"/>
+        <line class="e" x1="230" y1="70" x2="190" y2="130"/><line class="e" x1="230" y1="70" x2="270" y2="130"/>
+        <g class="nd root"><circle cx="160" cy="20" r="15"/><text x="160" y="20">A</text></g>
+        <g class="nd"><circle cx="90" cy="70" r="14"/><text x="90" y="70">B</text></g>
+        <g class="nd"><circle cx="230" cy="70" r="14"/><text x="230" y="70">C</text></g>
+        <g class="nd leaf"><circle cx="50" cy="130" r="13"/><text x="50" y="130">D</text></g>
+        <g class="nd leaf"><circle cx="130" cy="130" r="13"/><text x="130" y="130">E</text></g>
+        <g class="nd leaf"><circle cx="190" cy="130" r="13"/><text x="190" y="130">F</text></g>
+        <g class="nd leaf"><circle cx="270" cy="130" r="13"/><text x="270" y="130">G</text></g>
+      </svg>
+      <div class="cap">Un arbre binaire parfait de 7 nœuds. Voir le chapitre arbres binaires pour la définition formelle, les parcours et les ABR.</div>
+    </div>
+
+    <div class="cta">
+      <div class="t"><b>Chapitre « Arbres binaires »</b><span>Vocabulaire, parcours, ABR, complexité, avec animations.</span></div>
+      <a href="../chapitre_arbres/cours-arbres.html">Voir le chapitre →</a>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 6 ══════════════════ -->
+  <section class="part" id="p6">
+    <h2><span class="pn">6</span> Files de priorité et tas</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Une <b>file de priorité</b> est une file dans laquelle chaque élément porte une <b>priorité</b>. On enfile
+        comme dans une file ordinaire, mais <b>défiler</b> extrait l'élément de <b>plus grande priorité</b> (ou de
+        plus petite, selon la convention), peu importe l'ordre d'arrivée.</p>
+    </div>
+
+    <ul>
+      <li><b>Urgences hospitalières</b> : un patient qui arrive après un autre, mais plus grave, est pris en premier.</li>
+      <li><b>Ordonnancement de processus</b> (voir chapitre à venir) : le processus le plus prioritaire passe sur le processeur.</li>
+      <li><b>Algorithme de Dijkstra</b> : à chaque étape, on traite le sommet dont la distance estimée est minimale.</li>
+    </ul>
+
+    <h3>Une implémentation naïve, et pourquoi elle ne suffit pas</h3>
+    <p>Avec une liste Python, deux stratégies :</p>
+    <ul>
+      <li>Garder la liste <b>triée</b> : l'extraction du max est O(1) mais chaque insertion est O(n).</li>
+      <li>Garder la liste <b>non triée</b> : l'insertion est O(1) mais l'extraction demande une recherche en O(n).</li>
+    </ul>
+    <p>Dans les deux cas, un seul traitement coûte O(n). Pour un algorithme qui enchaîne enfilages et défilages, on
+      aimerait les deux en O(log n). Un <b>tas binaire</b> y parvient.</p>
+
+    <h3>Les tas binaires</h3>
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Un <b>tas-max</b> est un arbre binaire <b>complet</b> (tous les niveaux sont pleins, sauf peut-être le dernier
+        qui se remplit de gauche à droite) tel que, pour tout nœud, sa valeur est <b>supérieure ou égale</b> à celles
+        de ses fils. Le <b>maximum</b> global est donc à la racine.</p>
+    </div>
+
+    <div class="fig">
+      <svg viewBox="0 0 400 160">
+        <line class="e" x1="200" y1="20" x2="110" y2="70"/><line class="e" x1="200" y1="20" x2="290" y2="70"/>
+        <line class="e" x1="110" y1="70" x2="60" y2="130"/><line class="e" x1="110" y1="70" x2="160" y2="130"/>
+        <line class="e" x1="290" y1="70" x2="240" y2="130"/><line class="e" x1="290" y1="70" x2="340" y2="130"/>
+        <g class="nd root"><circle cx="200" cy="20" r="16"/><text x="200" y="20">42</text></g>
+        <g class="nd"><circle cx="110" cy="70" r="15"/><text x="110" y="70">30</text></g>
+        <g class="nd"><circle cx="290" cy="70" r="15"/><text x="290" y="70">25</text></g>
+        <g class="nd leaf"><circle cx="60" cy="130" r="13"/><text x="60" y="130">15</text></g>
+        <g class="nd leaf"><circle cx="160" cy="130" r="13"/><text x="160" y="130">20</text></g>
+        <g class="nd leaf"><circle cx="240" cy="130" r="13"/><text x="240" y="130">10</text></g>
+        <g class="nd leaf"><circle cx="340" cy="130" r="13"/><text x="340" y="130">8</text></g>
+      </svg>
+      <div class="cap">Un tas-max. Chaque père est ≥ ses deux fils. Le maximum (42) est à la racine. L'ordre des deux fils d'un même nœud n'est pas imposé (contrairement à un ABR).</div>
+    </div>
+
+    <h3>Stocké… dans un tableau</h3>
+    <p>Un arbre complet se range dans un tableau sans aucun pointeur : à l'indice 0, la racine ; aux indices 1 et 2 ses
+      fils ; aux indices 3, 4, 5, 6 les quatre petits-enfants… et ainsi de suite.</p>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>indice</th><td class="mono">0</td><td class="mono">1</td><td class="mono">2</td><td class="mono">3</td><td class="mono">4</td><td class="mono">5</td><td class="mono">6</td></tr>
+      <tr><th>valeur</th><td class="mono">42</td><td class="mono">30</td><td class="mono">25</td><td class="mono">15</td><td class="mono">20</td><td class="mono">10</td><td class="mono">8</td></tr>
+    </table></div>
+    <p>Les fils du nœud d'indice <i>i</i> sont aux indices <b>2i + 1</b> et <b>2i + 2</b>, et son père à <b>(i − 1) // 2</b>.
+      Pas de pointeur, pas de cellule : la structure tient dans le tableau.</p>
+
+    <div class="box key">
+      <span class="lbl">Les deux opérations fondamentales, en O(log n)</span>
+      <ul>
+        <li><b>Insérer</b> : on place la nouvelle valeur à la fin du tableau, puis on la fait <b>remonter</b> tant qu'elle
+          est plus grande que son père. La hauteur étant log<sub>2</sub>(n), on fait au plus log<sub>2</sub>(n) comparaisons.</li>
+        <li><b>Extraire le maximum</b> : on prend la racine, on la remplace par le dernier élément, puis on fait <b>descendre</b>
+          celui-ci en l'échangeant à chaque fois avec le plus grand de ses deux fils, tant qu'il est plus petit.</li>
+      </ul>
+    </div>
+
+    <p>Python fournit le module <code>heapq</code>, qui implémente directement un tas-<b>min</b> (le minimum est à la racine) :</p>
+<pre class="code"><span class="kw">import</span> heapq
+tas = []
+heapq.<span class="fn">heappush</span>(tas, <span class="nb">42</span>)
+heapq.<span class="fn">heappush</span>(tas, <span class="nb">30</span>)
+heapq.<span class="fn">heappush</span>(tas, <span class="nb">25</span>)
+heapq.<span class="fn">heappop</span>(tas)              <span class="cm"># → 25  (le plus petit)</span></pre>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Implémentation</th><th>Insérer</th><th>Extraire extremum</th></tr>
+      <tr><td class="l">Liste non triée</td><td class="g">O(1)</td><td>O(n)</td></tr>
+      <tr><td class="l">Liste triée</td><td>O(n)</td><td class="g">O(1)</td></tr>
+      <tr><td class="l"><b>Tas binaire</b></td><td class="g"><b>O(log n)</b></td><td class="g"><b>O(log n)</b></td></tr>
+    </table></div>
+  </section>
+
+  <!-- ══════════════════ 7 ══════════════════ -->
+  <section class="part" id="p7">
+    <h2><span class="pn">7</span> Les graphes</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Un <b>graphe</b> est un couple (S, A) : un ensemble de <b>sommets</b> S et un ensemble d'<b>arêtes</b> A, chaque
+        arête reliant deux sommets. Dans un <b>graphe orienté</b>, les arêtes ont un sens ; dans un <b>graphe pondéré</b>,
+        chaque arête porte un nombre (son poids ou coût).</p>
+    </div>
+
+    <ul>
+      <li>Un <b>réseau social</b> : les sommets sont les utilisateurs, les arêtes des liens d'amitié (non orienté) ou d'abonnement (orienté).</li>
+      <li>Une <b>carte routière</b> : les sommets sont les villes, les arêtes des routes pondérées par leur longueur.</li>
+      <li>Le <b>Web</b> : les sommets sont les pages, les arêtes les liens hypertexte (orienté).</li>
+      <li>Un <b>réseau électrique</b>, de <b>transports</b>, de <b>dépendances entre fichiers</b>…</li>
+    </ul>
+
+    <div class="fig">
+      <svg viewBox="0 0 500 200">
+        <!-- graphe non orienté à gauche -->
+        <line class="e" x1="80" y1="40" x2="180" y2="40"/>
+        <line class="e" x1="80" y1="40" x2="80" y2="140"/>
+        <line class="e" x1="180" y1="40" x2="180" y2="140"/>
+        <line class="e" x1="80" y1="140" x2="180" y2="140"/>
+        <line class="e" x1="180" y1="40" x2="80" y2="140"/>
+        <g class="nd"><circle cx="80" cy="40" r="16"/><text x="80" y="40">A</text></g>
+        <g class="nd"><circle cx="180" cy="40" r="16"/><text x="180" y="40">B</text></g>
+        <g class="nd"><circle cx="80" cy="140" r="16"/><text x="80" y="140">C</text></g>
+        <g class="nd"><circle cx="180" cy="140" r="16"/><text x="180" y="140">D</text></g>
+        <text class="lab" x="80" y="180" text-anchor="middle">Graphe non orienté</text>
+
+        <!-- graphe orienté pondéré à droite -->
+        <line class="e d" x1="320" y1="40" x2="415" y2="40"/>
+        <line class="e d" x1="320" y1="40" x2="320" y2="135"/>
+        <line class="e d" x1="420" y1="40" x2="420" y2="135"/>
+        <line class="e d" x1="325" y1="140" x2="415" y2="140"/>
+        <line class="e d" x1="415" y1="45" x2="325" y2="135"/>
+        <g class="nd"><circle cx="320" cy="40" r="16"/><text x="320" y="40">A</text></g>
+        <g class="nd"><circle cx="420" cy="40" r="16"/><text x="420" y="40">B</text></g>
+        <g class="nd"><circle cx="320" cy="140" r="16"/><text x="320" y="140">C</text></g>
+        <g class="nd"><circle cx="420" cy="140" r="16"/><text x="420" y="140">D</text></g>
+        <text class="lab b" x="365" y="35">3</text>
+        <text class="lab b" x="305" y="90">5</text>
+        <text class="lab b" x="435" y="90">2</text>
+        <text class="lab b" x="365" y="155">1</text>
+        <text class="lab b" x="355" y="100">4</text>
+        <text class="lab" x="370" y="180" text-anchor="middle">Graphe orienté pondéré</text>
+      </svg>
+    </div>
+
+    <h3>Deux représentations usuelles</h3>
+    <p>Pour un graphe de <i>n</i> sommets et <i>m</i> arêtes :</p>
+
+    <h3>1. Matrice d'adjacence</h3>
+    <p>Un tableau <code>M</code> de taille n × n, où <code>M[i][j]</code> vaut 1 (ou le poids) si l'arête (i, j) existe,
+      0 (ou <code>None</code>) sinon.</p>
+<pre class="code"><span class="cm"># sommets A, B, C, D numérotés 0, 1, 2, 3</span>
+M = [
+    [<span class="nb">0</span>, <span class="nb">1</span>, <span class="nb">1</span>, <span class="nb">0</span>],
+    [<span class="nb">1</span>, <span class="nb">0</span>, <span class="nb">1</span>, <span class="nb">1</span>],
+    [<span class="nb">1</span>, <span class="nb">1</span>, <span class="nb">0</span>, <span class="nb">1</span>],
+    [<span class="nb">0</span>, <span class="nb">1</span>, <span class="nb">1</span>, <span class="nb">0</span>],
+]
+<span class="cm"># M[1][3] == 1 : il y a une arête B—D</span></pre>
+    <p>Pour un graphe <b>non orienté</b>, la matrice est <b>symétrique</b>. Pour un graphe pondéré, on met le poids à la
+      place de 1. Coût mémoire : <b>n²</b> cases, quel que soit le nombre d'arêtes. Lire s'il existe une arête : O(1).</p>
+
+    <h3>2. Dictionnaire (ou liste) d'adjacence</h3>
+    <p>Pour chaque sommet, on stocke la <b>liste de ses voisins</b> :</p>
+<pre class="code">G = {
+    <span class="st">"A"</span>: [<span class="st">"B"</span>, <span class="st">"C"</span>],
+    <span class="st">"B"</span>: [<span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>],
+    <span class="st">"C"</span>: [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"D"</span>],
+    <span class="st">"D"</span>: [<span class="st">"B"</span>, <span class="st">"C"</span>],
+}</pre>
+    <p>Pour un graphe pondéré, chaque voisin devient un couple <code>(voisin, poids)</code>, ou une entrée de
+      sous-dictionnaire : <code>G["A"] = {"B": 3, "C": 5}</code>. Coût mémoire : <b>n + 2m</b> (chaque arête apparaît deux
+      fois, une pour chaque extrémité, dans un graphe non orienté).</p>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th></th><th>Matrice d'adjacence</th><th>Dictionnaire d'adjacence</th></tr>
+      <tr><td class="l">Mémoire</td><td>O(n²)</td><td class="g">O(n + m)</td></tr>
+      <tr><td class="l">« Y a-t-il une arête (i, j) ? »</td><td class="g">O(1)</td><td>O(degré de i)</td></tr>
+      <tr><td class="l">Parcourir les voisins de i</td><td>O(n)</td><td class="g">O(degré de i)</td></tr>
+      <tr><td class="l">À privilégier quand…</td><td>…m ≈ n² (graphe dense)</td><td>…m ≪ n² (graphe creux, cas usuel)</td></tr>
+    </table></div>
+
+    <h3>Les parcours</h3>
+    <p>Visiter tous les sommets accessibles depuis un sommet de départ. Deux stratégies :</p>
+    <ul>
+      <li><b>Parcours en profondeur</b> (DFS) : on va aussi loin que possible dans une direction avant de revenir en arrière. On utilise une <b>pile</b> (ou la récursion).</li>
+      <li><b>Parcours en largeur</b> (BFS) : on visite d'abord les voisins directs, puis les voisins des voisins, etc. On utilise une <b>file</b>. Dans un graphe non pondéré, BFS trouve le <b>plus court chemin</b> en nombre d'arêtes.</li>
+    </ul>
+
+<pre class="code"><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">bfs</span>(graphe, depart):
+    vus = {depart}
+    file = <span class="fn">deque</span>([depart])
+    <span class="kw">while</span> file:
+        s = file.popleft()
+        <span class="fn">print</span>(s)
+        <span class="kw">for</span> voisin <span class="kw">in</span> graphe[s]:
+            <span class="kw">if</span> voisin <span class="kw">not in</span> vus:
+                vus.add(voisin)
+                file.append(voisin)
+
+<span class="kw">def</span> <span class="fn">dfs</span>(graphe, s, vus=<span class="kw">None</span>):
+    <span class="kw">if</span> vus <span class="kw">is None</span>:
+        vus = <span class="fn">set</span>()
+    vus.add(s)
+    <span class="fn">print</span>(s)
+    <span class="kw">for</span> voisin <span class="kw">in</span> graphe[s]:
+        <span class="kw">if</span> voisin <span class="kw">not in</span> vus:
+            <span class="fn">dfs</span>(graphe, voisin, vus)</pre>
+
+    <div class="box key">
+      <span class="lbl">Complexité des parcours</span>
+      <p>DFS et BFS visitent chaque sommet et chaque arête au plus une fois : coût <b>O(n + m)</b>. Pour trouver le plus court
+        chemin dans un graphe <b>pondéré</b> à poids positifs, on remplace la file par une <b>file de priorité</b> indexée
+        par la distance estimée : c'est l'algorithme de <b>Dijkstra</b>, en O((n + m) log n).</p>
+    </div>
+
+    <h3>À manipuler : parcours de graphes</h3>
+    <div class="frame-emb">
+      <iframe src="../../animation/labyrinthe.html" title="Parcours de graphes" loading="lazy"></iframe>
+      <div class="fbar"><span>Profondeur (pile), largeur (file), glouton, A* et main droite : chaque parcours s'exécute pas à pas sur le même labyrinthe.</span><a href="../../animation/labyrinthe.html" target="_blank" rel="noopener">Plein écran ↗</a></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 8 ══════════════════ -->
+  <section class="part" id="p8">
+    <h2><span class="pn">8</span> Choisir sa structure</h2>
+    <p>Pour chaque problème, deux questions successives : <i>quelles opérations j'ai besoin de faire</i> (c'est le choix de
+      l'<b>ADT</b>), et <i>à quelle fréquence</i> (c'est le choix de l'<b>implémentation</b>).</p>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Besoin</th><th>Structure</th><th>Pourquoi</th></tr>
+      <tr><td class="l">Dernier arrivé, premier servi (annuler la dernière action, parcours en profondeur, pile d'appels, parenthèses)</td><td><b>Pile</b></td><td class="l">LIFO, empile/dépile en O(1).</td></tr>
+      <tr><td class="l">Premier arrivé, premier servi (file d'attente, parcours en largeur, buffers)</td><td><b>File</b></td><td class="l">FIFO. Utiliser <code>deque</code>, pas <code>list.pop(0)</code>.</td></tr>
+      <tr><td class="l">Toujours servir le plus prioritaire d'abord (Dijkstra, ordonnancement, simulations)</td><td><b>File de priorité (tas)</b></td><td class="l">Insérer et extraire extremum en O(log n).</td></tr>
+      <tr><td class="l">Beaucoup d'ajouts et de retraits en tête, peu d'accès par indice</td><td><b>Liste chaînée</b></td><td class="l">O(1) en tête, O(i) à l'indice i.</td></tr>
+      <tr><td class="l">Chercher souvent par position, modifier rarement les deux bouts</td><td><b>Tableau (liste Python)</b></td><td class="l">O(1) par indice, append en O(1) amorti.</td></tr>
+      <tr><td class="l">Relations entre objets (connexions, routes, dépendances)</td><td><b>Graphe</b></td><td class="l">Dictionnaire d'adjacence si creux, matrice si dense.</td></tr>
+      <tr><td class="l">Hiérarchie (fichiers, DOM, décision), tri par insertions successives</td><td><b>Arbre</b> / <b>ABR</b></td><td class="l">Voir le chapitre dédié.</td></tr>
+    </table></div>
+  </section>
+
+  <!-- ══════════════════ 9 ══════════════════ -->
+  <section class="part" id="p9">
+    <h2><span class="pn">9</span> Ce qu'il faut retenir</h2>
+    <div class="recap">
+      <div><b>ADT</b>Un type abstrait, c'est une interface : les opérations exposées, pas leur implémentation.</div>
+      <div><b>Liste chaînée</b>Cellules (valeur + suivant). Ajout/retrait en tête O(1), accès à l'indice i O(i).</div>
+      <div><b>Pile</b>LIFO. empiler, dépiler, sommet. En O(1). Évaluation RPN, parenthèses, DFS, Ctrl+Z.</div>
+      <div><b>File</b>FIFO. enfiler, défiler, premier. En O(1) avec <code>deque</code>. BFS, files d'attente, buffers.</div>
+      <div><b>File de priorité</b>Le plus prioritaire sort en premier. Implémentation : <b>tas binaire</b>, O(log n) par opération.</div>
+      <div><b>Tas binaire</b>Arbre complet, père ≥ fils. Stocké dans un tableau : fils de i aux indices 2i+1 et 2i+2.</div>
+      <div><b>Graphe</b>Sommets + arêtes. Orienté ou non, pondéré ou non. Deux représentations : matrice (dense) ou dictionnaire d'adjacence (creux).</div>
+      <div><b>Parcours</b>DFS avec une pile (profondeur), BFS avec une file (largeur). Chacun en O(n + m).</div>
+    </div>
+    <div class="box key">
+      <span class="lbl">Ce qu'il faut savoir faire</span>
+      <p>Écrire les quatre opérations sur une liste chaînée (longueur, ajout/retrait en tête, parcours) ;
+        implémenter une pile et une file avec une liste Python et avec une liste chaînée ; comprendre comment un
+        tas range un arbre complet dans un tableau ; passer d'une représentation de graphe à l'autre ; écrire
+        <code>bfs</code> et <code>dfs</code> ; dire quelle structure choisir pour un problème donné.</p>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div class="t">
+      <b>Le TD autocorrigé</b>
+      <span>Listes chaînées, piles, files, tas, graphes : trace à la main, code à compléter, choix de la structure.</span>
+    </div>
+    <a href="exercices-structures.html">Faire le TD →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  var links = [].slice.call(document.querySelectorAll('#chapnav a'));
+  var parts = links.map(function(l){ return document.querySelector(l.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 140, k = 0;
+    parts.forEach(function(p, i){ if (p && p.offsetTop <= y) k = i; });
+    links.forEach(function(l, i){ l.classList.toggle('on', i === k); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

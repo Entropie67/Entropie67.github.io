@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TD Structures de données — exercices autocorrigés — Terminale NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --ok-dim:rgba(52,211,153,.13); --bad:#ff5c7a; --bad-dim:rgba(255,92,122,.12);
+         --warn:#ffc53d; --vio:#b57bff; }
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+  .scorebar{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .scorebar-in{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;gap:.7rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+  .scoretxt{font-family:var(--mono);font-size:.88rem;color:var(--text);flex:none} .scoretxt b{color:var(--ok)}
+  .gauge{flex:1 1 90px;height:6px;border-radius:100px;background:var(--bg-card);overflow:hidden;min-width:70px}
+  .gauge i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+  .scorebar button{font-family:inherit;font-size:.8rem;background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.4rem .75rem;cursor:pointer;flex:none}
+  .scorebar button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .scorebar button.primary{background:var(--nsi-dim);color:var(--nsi);border-color:rgba(108,158,255,.35)}
+
+  .exo{scroll-margin-top:118px;margin-bottom:2.8rem}
+  .exo > h2{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;font-size:1.3rem;padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem}
+  .exo > h2 .pn{font-family:var(--mono);font-size:.8rem;color:var(--nsi);background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .exo > h2 .cnt{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--text-muted);font-weight:400;flex:none}
+  .exo > h2 .cnt.full{color:var(--ok)}
+  .consigne{color:#c9cdda;font-size:.93rem;margin:1.1rem 0 .7rem;line-height:1.55}
+  .consigne b{color:var(--text)}
+  .rappel{border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.88rem;color:#c9cdda}
+  .rappel b{color:var(--text)}
+  code,.m{font-family:var(--mono);font-size:.92em}
+
+  .fig{margin:.8rem 0 1rem;text-align:center;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:.6rem}
+  .fig svg{max-width:100%;height:auto}
+  .fig .cap{font-size:.8rem;color:var(--text-muted);margin-top:.3rem}
+  svg .e{stroke:rgba(255,255,255,.4);stroke-width:2;stroke-linecap:round}
+  svg .nd circle{fill:#1a1f2e;stroke:rgba(255,255,255,.4);stroke-width:2}
+  svg .nd text{fill:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;text-anchor:middle;dominant-baseline:central}
+  svg .nd.root circle{stroke:var(--nsi);stroke-width:2.5}
+  svg .cell rect{fill:#1a1f2e;stroke:rgba(255,255,255,.4);stroke-width:1.5}
+  svg .cell .val{fill:#fff;font-family:'JetBrains Mono', monospace;font-weight:600;font-size:13px;text-anchor:middle;dominant-baseline:central}
+  svg .arr{stroke:var(--vio);stroke-width:1.6;fill:none;marker-end:url(#ah)}
+
+  .qs{display:grid;gap:.55rem}
+  .q{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:.6rem;align-items:center;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .q:last-child{border-bottom:none}
+  .q .lab{font-size:.9rem;color:#c9cdda} .q .lab small{display:block;font-size:.74rem;color:var(--text-muted);margin-top:.1rem}
+  .fld{position:relative;display:flex;align-items:center;gap:.35rem}
+  input.f{font-family:var(--mono);font-size:.9rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.38rem .55rem;width:100%;min-width:0;transition:.15s}
+  input.f:focus{outline:none;border-color:var(--nsi)}
+  input.f.ok{border-color:var(--ok);background:var(--ok-dim)} input.f.ko{border-color:var(--bad);background:var(--bad-dim)}
+  .fld .mark{font-size:.95rem;width:1em;flex:none;text-align:center} .fld .mark.ok{color:var(--ok)} .fld .mark.ko{color:var(--bad)}
+  .sol{display:none;font-family:var(--mono);font-size:.76rem;color:var(--ok);margin-top:.2rem;word-break:break-all;grid-column:2}
+  .exo.solved .sol{display:block}
+
+  .mcq{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.8rem 1rem;margin:.6rem 0}
+  .mcq .qt{font-size:.92rem;color:var(--text);margin-bottom:.55rem}
+  .mcq label{display:flex;align-items:center;gap:.6rem;padding:.35rem .5rem;border-radius:7px;cursor:pointer;font-size:.88rem;color:#c9cdda;border:1px solid transparent}
+  .mcq label:hover{background:rgba(255,255,255,.04)}
+  .mcq input{accent-color:var(--nsi)}
+  .mcq.ok label.checked{border-color:var(--ok);background:var(--ok-dim)} .mcq.ko label.checked{border-color:var(--bad);background:var(--bad-dim)}
+  .exo.solved .mcq label.right{border-color:var(--ok)}
+  .mcq .expl{display:none;font-size:.84rem;color:#c9cdda;margin-top:.5rem;border-top:1px dashed var(--border);padding-top:.5rem}
+  .exo.solved .mcq .expl{display:block}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.9;background:#0c0e15;border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;margin:.7rem 0;overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c} pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+  pre.code input.f{display:inline-block;width:auto;min-width:9ch;padding:.1rem .45rem;font-size:.84rem;vertical-align:baseline;margin:0 .1rem}
+  pre.code .csol{display:none;color:var(--ok);font-size:.78rem} .exo.solved pre.code .csol{display:inline}
+
+  .open{border:1px solid var(--border);border-left:3px solid var(--vio);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.95rem 1.1rem;margin:1.1rem 0}
+  .open .qt{font-size:.92rem;color:var(--text);margin-bottom:.6rem}
+  .open textarea{width:100%;font-family:inherit;font-size:.88rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.5rem .65rem;min-height:4.2rem;resize:vertical}
+  .open textarea:focus{outline:none;border-color:var(--vio)}
+  .open .rev{margin-top:.55rem;font-family:inherit;font-size:.78rem;background:transparent;color:var(--vio);border:1px solid rgba(181,123,255,.35);border-radius:7px;padding:.35rem .7rem;cursor:pointer}
+  .open .rev:hover{background:rgba(181,123,255,.12)}
+  .open .modele{display:none;margin-top:.6rem;font-size:.87rem;color:#c9cdda;line-height:1.55;border-top:1px dashed var(--border);padding-top:.6rem}
+  .open .modele.show{display:block}
+  details.repli{border:1px solid var(--border);border-radius:8px;background:var(--bg-card);padding:.2rem .9rem;margin:1.2rem 0}
+  details.repli > summary{cursor:pointer;padding:.6rem 0;font-size:.9rem;color:var(--nsi);font-weight:600;list-style:none}
+  details.repli > summary::-webkit-details-marker{display:none}
+  details.repli > summary::before{content:"▸ "} details.repli[open] > summary::before{content:"▾ "}
+  .exfoot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .exfoot button{font-family:inherit;font-size:.78rem;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:7px;padding:.38rem .7rem;cursor:pointer}
+  .exfoot button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 10px 10px 0;background:var(--nsi-dim);padding:1.1rem 1.3rem;margin:1rem 0 2rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--nsi);color:#07182f;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+  .cta.anim{border-left-color:var(--vio);background:rgba(181,123,255,.07)} .cta.anim a{background:var(--vio);color:#1b0f2e}
+  @media (max-width:640px){
+    .scorebar-in{padding:.55rem 1rem;gap:.5rem} .scoretxt{font-size:.8rem}
+    .exo > h2{font-size:1.1rem}
+    .q{grid-template-columns:1fr} .sol{grid-column:1}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="scorebar">
+  <div class="scorebar-in">
+    <span class="scoretxt"><b id="sOk">0</b>/<span id="sTot">0</span></span>
+    <span class="gauge"><i id="sBar"></i></span>
+    <button type="button" id="btnCheck" class="primary">Tout vérifier</button>
+    <button type="button" id="btnReset">Effacer</button>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>TD Structures de données <span class="badge badge-nsi">Terminale</span></h1>
+    <p class="subtitle">Interfaces, listes chaînées, piles, files, tas et graphes.
+      Tapez votre réponse : elle est corrigée immédiatement. Vos réponses sont conservées dans ce navigateur.</p>
+  </div>
+
+  <div class="cta">
+    <div class="t"><b>Besoin d'un rappel ?</b><span>Toutes les définitions, les codes Python et les choix d'implémentation sont dans le cours.</span></div>
+    <a href="cours-structures.html">Voir le cours →</a>
+  </div>
+  <div class="cta anim">
+    <div class="t"><b>Pour les parcours de graphes</b><span>DFS, BFS, glouton et A* à exécuter pas à pas sur un labyrinthe.</span></div>
+    <a href="../../animation/labyrinthe.html" target="_blank" rel="noopener">Ouvrir l'animation ↗</a>
+  </div>
+
+  <div id="exos"></div>
+
+  <div class="cta">
+    <div class="t"><b>Le cours du chapitre</b><span>Interface et implémentation, listes chaînées, piles, files, tas, graphes.</span></div>
+    <a href="cours-structures.html">Voir le cours →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  'use strict';
+  var STORE = 'nsi-td-structures-v1';
+
+  var TD = [
+    { id: 'ex1', titre: 'Interface, implémentation, bonne structure', groupes: [
+      { type: 'rappel', texte: 'Un <b>type abstrait</b> définit des opérations ; l\'<b>implémentation</b> dit comment elles sont codées, et à quel coût. Avant de coder un algorithme, repérer quelles opérations il fait sur les données guide le choix.' },
+      { type: 'mcq', q: 'Un éditeur de texte propose un <b>Ctrl + Z</b> qui annule la dernière action. Quelle structure stocker les actions ?', opts: ['Une file (FIFO)', 'Une pile (LIFO)', 'Une file de priorité', 'Un arbre binaire de recherche'], ok: 1, expl: 'La <b>dernière</b> action faite est la première à défaire : LIFO, donc une pile.' },
+      { type: 'mcq', q: 'Un serveur gère les requêtes de ses clients dans leur ordre d\'arrivée.', opts: ['Une pile', 'Une file', 'Un tas', 'Une liste chaînée triée'], ok: 1, expl: '<b>Premier</b> arrivé, premier servi : FIFO, donc une file.' },
+      { type: 'mcq', q: 'On simule un service d\'urgence : chaque patient a une gravité (plus la gravité est grande, plus il doit être pris vite). Quelle structure ?', opts: ['Une pile', 'Une file', 'Une file de priorité', 'Une liste chaînée'], ok: 2, expl: 'Le patient de plus grande gravité passe en premier, peu importe l\'ordre d\'arrivée. C\'est le rôle exact d\'une file de priorité (tas).' },
+      { type: 'mcq', q: 'On veut représenter le réseau du métro parisien (stations + lignes) pour chercher le trajet le plus court.', opts: ['Une pile', 'Un graphe', 'Un arbre binaire', 'Une liste chaînée'], ok: 1, expl: 'Les stations sont des sommets, les tronçons de ligne sont des arêtes pondérées : un graphe. Le plus court chemin se trouve avec Dijkstra.' },
+      { type: 'mcq', q: 'Dans une liste Python <code>t</code> de 10 000 éléments, pourquoi <code>t.pop(0)</code> est-il à éviter ?', opts: ['Il est en O(1), tout va bien', 'Il est en O(n) : tous les éléments suivants sont décalés d\'un cran', 'Il lève une erreur'], ok: 1, expl: 'Retirer l\'élément 0 décale tout le reste d\'un cran : O(n). Pour une file, utiliser <code>collections.deque</code> ou une liste chaînée.' },
+      { type: 'mcq', q: 'Dans une <b>liste chaînée</b> de n éléments, quel coût pour accéder au i-ième élément ?', opts: ['O(1)', 'O(log n)', 'O(i)', 'O(n²)'], ok: 2, expl: 'Il faut suivre i pointeurs à partir de la tête. Si i = n − 1, c\'est O(n).' },
+    ] },
+
+    { id: 'ex2', titre: 'Listes chaînées', groupes: [
+      { type: 'rappel', texte: 'Une cellule porte une valeur et un pointeur <code>suivant</code>. L\'arbre vide est <code>None</code>. Ajout en tête : <code>Cellule(x, tete)</code>.' },
+      { type: 'code', consigne: 'On considère :', lines: [
+        '<span class="kw">class</span> <span class="fn">Cellule</span>:',
+        '    <span class="kw">def</span> <span class="fn">__init__</span>(self, valeur, suivant=<span class="kw">None</span>):',
+        '        self.valeur = valeur',
+        '        self.suivant = suivant',
+        '',
+        'tete = <span class="fn">Cellule</span>(<span class="nb">3</span>, <span class="fn">Cellule</span>(<span class="nb">7</span>, <span class="fn">Cellule</span>(<span class="nb">1</span>, <span class="fn">Cellule</span>(<span class="nb">9</span>))))' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: '<code>tete.valeur</code>', a: 3, t: 'int' },
+        { lab: '<code>tete.suivant.valeur</code>', a: 7, t: 'int' },
+        { lab: '<code>tete.suivant.suivant.suivant.valeur</code>', a: 9, t: 'int' },
+        { lab: '<code>tete.suivant.suivant.suivant.suivant</code>', small: 'écrire <code>None</code>', a: ['None', 'none', '∅', 'vide'], t: 'txt' },
+        { lab: 'La longueur de la liste', a: 4, t: 'int' },
+      ] },
+      { type: 'code', consigne: 'Complétez la fonction <b>longueur</b> (version itérative).', lines: [
+        '<span class="kw">def</span> <span class="fn">longueur</span>(tete):',
+        '    n = <span class="nb">0</span>',
+        '    c = tete',
+        '    <span class="kw">while</span> c <span class="kw">is not None</span>:',
+        '        n = n + <span class="nb">1</span>',
+        '        c = {{0}}',
+        '    <span class="kw">return</span> {{1}}' ],
+        blanks: [ { a: 'c.suivant', t: 'py' }, { a: 'n', t: 'py' } ] },
+      { type: 'code', consigne: 'Complétez la fonction <b>somme</b>, qui renvoie la somme des valeurs.', lines: [
+        '<span class="kw">def</span> <span class="fn">somme</span>(tete):',
+        '    s = <span class="nb">0</span>',
+        '    c = tete',
+        '    <span class="kw">while</span> c <span class="kw">is not None</span>:',
+        '        s = s + {{0}}',
+        '        c = c.suivant',
+        '    <span class="kw">return</span> s' ],
+        blanks: [ { a: 'c.valeur', t: 'py' } ] },
+      { type: 'code', consigne: 'Complétez <b>ajout_tete</b> et <b>supprime_tete</b>.', lines: [
+        '<span class="kw">def</span> <span class="fn">ajout_tete</span>(tete, x):',
+        '    <span class="kw">return</span> <span class="fn">Cellule</span>(x, {{0}})',
+        '',
+        '<span class="kw">def</span> <span class="fn">supprime_tete</span>(tete):',
+        '    <span class="kw">return</span> {{1}}' ],
+        blanks: [ { a: 'tete', t: 'py' }, { a: 'tete.suivant', t: 'py' } ] },
+      { type: 'mcq', q: 'Dans une liste chaînée simple, pourquoi <code>ajout_tete</code> est-elle en O(1) alors que <code>list.insert(0, x)</code> sur une liste Python est en O(n) ?', opts: ['Parce que les listes Python sont plus lentes en général', 'Parce que la liste chaînée ne touche qu\'à une seule cellule (la nouvelle), alors que la liste Python doit décaler tous les éléments existants d\'un cran', 'Parce que l\'ajout en tête d\'une liste chaînée est en réalité en O(n)'], ok: 1, expl: 'La liste chaînée est stockée par pointeurs : créer une nouvelle cellule et pointer vers l\'ancienne tête ne touche à rien d\'autre. La liste Python, elle, est un tableau contigu : décaler tout coûte O(n).' },
+      { type: 'open', q: 'Écrivez une fonction récursive <code>appartient(tete, x)</code> qui renvoie True si la valeur <code>x</code> apparaît dans la liste chaînée.', modele: '<pre class="code" style="margin:0">def appartient(tete, x):\n    if tete is None:\n        return False\n    if tete.valeur == x:\n        return True\n    return appartient(tete.suivant, x)</pre>Cas de base : la liste vide. Cas récursif : on compare la tête, et sinon on relance sur le reste.' },
+    ] },
+
+    { id: 'ex3', titre: 'Les piles (LIFO)', groupes: [
+      { type: 'rappel', texte: 'Pile = LIFO. On empile et dépile par le <b>sommet</b>. Avec une liste Python : <code>append</code> et <code>pop()</code>, tous deux en O(1). Dans une évaluation de notation polonaise inverse, lire un nombre = empiler ; lire un opérateur = dépiler deux nombres et empiler le résultat.' },
+      { type: 'qs', consigne: 'On part d\'une pile <code>p</code> vide, et on exécute, dans l\'ordre : <code>empiler(p, 3)</code>, <code>empiler(p, 7)</code>, <code>empiler(p, 2)</code>, puis <code>depiler(p)</code>, <code>empiler(p, 5)</code>, <code>depiler(p)</code>. Décrivez l\'état de la pile du <b>fond vers le sommet</b> à chaque étape (nombres séparés par des espaces ; écrivez <code>vide</code> si la pile est vide).', items: [
+        { lab: 'État après <code>empiler(p, 3)</code>', a: '3', t: 'txt' },
+        { lab: 'État après <code>empiler(p, 7)</code>', a: '3 7', t: 'txt' },
+        { lab: 'État après <code>empiler(p, 2)</code>', a: '3 7 2', t: 'txt' },
+        { lab: '<code>depiler(p)</code> renvoie…', a: 2, t: 'int' },
+        { lab: 'État après ce <code>depiler</code>', a: '3 7', t: 'txt' },
+        { lab: 'État après <code>empiler(p, 5)</code>', a: '3 7 5', t: 'txt' },
+        { lab: '<code>depiler(p)</code> renvoie…', a: 5, t: 'int' },
+        { lab: 'État final', a: '3 7', t: 'txt' },
+      ] },
+      { type: 'qs', consigne: 'On évalue la notation polonaise inverse <b>6 2 3 + × 1 −</b> avec une pile (nombre → on empile ; opérateur → on dépile deux valeurs et on empile le résultat de l\'opération sur ces deux valeurs, dans l\'ordre où elles ont été empilées).', items: [
+        { lab: 'État de la pile juste après le « + »', small: 'du fond vers le sommet, nombres séparés par des espaces', a: '6 5', t: 'txt' },
+        { lab: 'État de la pile juste après le « × »', a: '30', t: 'txt' },
+        { lab: 'État de la pile juste après le « 1 »', a: '30 1', t: 'txt' },
+        { lab: 'Résultat final', a: 29, t: 'int' },
+      ] },
+      { type: 'code', consigne: 'Complétez la fonction qui teste si une suite de parenthèses est bien formée.', lines: [
+        '<span class="kw">def</span> <span class="fn">parentheses_ok</span>(s):',
+        '    pile = []',
+        '    <span class="kw">for</span> c <span class="kw">in</span> s:',
+        '        <span class="kw">if</span> c == <span class="st">"("</span>:',
+        '            pile.{{0}}(c)',
+        '        <span class="kw">elif</span> c == <span class="st">")"</span>:',
+        '            <span class="kw">if</span> <span class="fn">len</span>(pile) == <span class="nb">0</span>:',
+        '                <span class="kw">return</span> {{1}}',
+        '            pile.{{2}}()',
+        '    <span class="kw">return</span> <span class="fn">len</span>(pile) == {{3}}' ],
+        blanks: [ { a: 'append', t: 'py' }, { a: 'False', t: 'py' }, { a: 'pop', t: 'py' }, { a: '0', t: 'py' } ] },
+      { type: 'mcq', q: 'Que renvoie <code>parentheses_ok("(()")</code> ?', opts: ['True', 'False, parce qu\'il reste une ( non refermée dans la pile', 'False, parce qu\'il y a trop de )'], ok: 1, expl: 'À la fin, la pile contient une « ( » : la condition finale <code>len(pile) == 0</code> est fausse.' },
+      { type: 'mcq', q: 'Dans le parcours en <b>profondeur</b> d\'un graphe, quelle structure stocke les sommets à visiter ?', opts: ['Une file', 'Une pile', 'Un tas', 'Un dictionnaire'], ok: 1, expl: 'DFS = on va aussi loin que possible, puis on revient. Dernier sommet découvert = premier exploré : LIFO.' },
+      { type: 'open', q: 'Écrivez une fonction <code>inverse(t)</code> qui renvoie la liste <code>t</code> à l\'envers en utilisant une pile (sans <code>t[::-1]</code>).', modele: '<pre class="code" style="margin:0">def inverse(t):\n    pile = []\n    for x in t:\n        pile.append(x)       # on empile tout dans l\'ordre\n    r = []\n    while len(pile) > 0:\n        r.append(pile.pop())  # on dépile : LIFO renverse l\'ordre\n    return r</pre>' },
+    ] },
+
+    { id: 'ex4', titre: 'Les files (FIFO)', groupes: [
+      { type: 'rappel', texte: 'File = FIFO. On enfile à l\'arrière, on défile à l\'avant. En Python, utilisez <code>collections.deque</code> : <code>append</code> enfile, <code>popleft</code> défile ; les deux en O(1).' },
+      { type: 'qs', consigne: 'On part d\'une file vide <code>f</code>, et on exécute : <code>enfiler(f, 3)</code>, <code>enfiler(f, 7)</code>, <code>enfiler(f, 2)</code>, puis <code>defiler(f)</code>, <code>enfiler(f, 5)</code>, <code>defiler(f)</code>. Décrivez l\'état de la file de l\'<b>avant vers l\'arrière</b>.', items: [
+        { lab: 'État après <code>enfiler(f, 3)</code>', a: '3', t: 'txt' },
+        { lab: 'État après <code>enfiler(f, 7)</code>', a: '3 7', t: 'txt' },
+        { lab: 'État après <code>enfiler(f, 2)</code>', a: '3 7 2', t: 'txt' },
+        { lab: '<code>defiler(f)</code> renvoie…', a: 3, t: 'int' },
+        { lab: 'État après ce <code>defiler</code>', a: '7 2', t: 'txt' },
+        { lab: 'État après <code>enfiler(f, 5)</code>', a: '7 2 5', t: 'txt' },
+        { lab: '<code>defiler(f)</code> renvoie…', a: 7, t: 'int' },
+        { lab: 'État final', a: '2 5', t: 'txt' },
+      ] },
+      { type: 'mcq', q: 'En Python, pour implémenter une file performante, on utilise :', opts: ['Une <code>list</code>, avec <code>append</code> et <code>pop(0)</code>', 'Une <code>collections.deque</code>, avec <code>append</code> et <code>popleft</code>', 'Un dictionnaire', 'Un ensemble (<code>set</code>)'], ok: 1, expl: '<code>list.pop(0)</code> est en O(n) ; sur n défilages, O(n²). <code>deque.popleft</code> est en O(1), donc O(n) au total.' },
+      { type: 'mcq', q: 'Dans le parcours en <b>largeur</b> d\'un graphe (BFS), quelle structure stocke les sommets à visiter ?', opts: ['Une pile', 'Une file', 'Un tas', 'Un arbre'], ok: 1, expl: 'BFS = on visite niveau par niveau. Les sommets découverts les premiers sont les premiers explorés : FIFO.' },
+      { type: 'code', consigne: 'Complétez un parcours en largeur sur un graphe représenté par un dictionnaire d\'adjacence.', lines: [
+        '<span class="kw">from</span> collections <span class="kw">import</span> deque',
+        '',
+        '<span class="kw">def</span> <span class="fn">bfs</span>(graphe, depart):',
+        '    vus = {depart}',
+        '    file = <span class="fn">deque</span>([depart])',
+        '    <span class="kw">while</span> {{0}}:',
+        '        s = file.{{1}}()',
+        '        <span class="fn">print</span>(s)',
+        '        <span class="kw">for</span> voisin <span class="kw">in</span> graphe[s]:',
+        '            <span class="kw">if</span> voisin <span class="kw">not in</span> {{2}}:',
+        '                vus.add(voisin)',
+        '                file.{{3}}(voisin)' ],
+        blanks: [ { a: 'file', t: 'py', alt: ['len(file) > 0', 'len(file)>0'] }, { a: 'popleft', t: 'py' }, { a: 'vus', t: 'py' }, { a: 'append', t: 'py' } ] },
+      { type: 'open', q: 'En vous appuyant sur l\'exemple de <code>bfs</code>, expliquez pourquoi le même code avec une pile (et <code>pop</code> au lieu de <code>popleft</code>) ferait un parcours en profondeur.', modele: 'Avec une file, les sommets découverts en premier (les voisins directs du départ) sont aussi explorés en premier : on avance par niveau. Avec une pile, c\'est le dernier sommet découvert (donc un voisin d\'un voisin, pour peu que le graphe le permette) qui est repris, ce qui pousse l\'exploration à aller aussi loin que possible dans une direction avant de revenir : c\'est le parcours en profondeur. Les deux visitent exactement les mêmes sommets, mais pas dans le même ordre.' },
+    ] },
+
+    { id: 'ex5', titre: 'Tas et files de priorité', groupes: [
+      { type: 'rappel', texte: '<b>Tas-max</b> : arbre binaire complet où chaque père est ≥ ses fils. La racine porte le maximum. Stocké en tableau : fils de <code>i</code> aux indices <code>2i+1</code> et <code>2i+2</code>, père à <code>(i−1)//2</code>. Insertion et extraction du max en O(log n).' },
+      { type: 'fig', svg: '<svg viewBox="0 0 400 160"><line class="e" x1="200" y1="20" x2="110" y2="70"/><line class="e" x1="200" y1="20" x2="290" y2="70"/><line class="e" x1="110" y1="70" x2="60" y2="130"/><line class="e" x1="110" y1="70" x2="160" y2="130"/><line class="e" x1="290" y1="70" x2="240" y2="130"/><g class="nd root"><circle cx="200" cy="20" r="16"/><text x="200" y="20">50</text></g><g class="nd"><circle cx="110" cy="70" r="15"/><text x="110" y="70">40</text></g><g class="nd"><circle cx="290" cy="70" r="15"/><text x="290" y="70">30</text></g><g class="nd"><circle cx="60" cy="130" r="13"/><text x="60" y="130">15</text></g><g class="nd"><circle cx="160" cy="130" r="13"/><text x="160" y="130">25</text></g><g class="nd"><circle cx="240" cy="130" r="13"/><text x="240" y="130">10</text></g></svg>', cap: 'Un tas-max de 6 éléments.' },
+      { type: 'qs', consigne: 'Pour le tas ci-dessus (racine en haut).', items: [
+        { lab: 'Le tableau qui le stocke, de la racine à la dernière feuille', small: 'nombres séparés par des espaces', a: '50 40 30 15 25 10', t: 'txt' },
+        { lab: 'Indice du maximum', a: 0, t: 'int' },
+        { lab: 'Indice du père de 25', small: '25 est à l\'indice 4', a: 1, t: 'int' },
+        { lab: 'Indice du fils gauche de 40', small: '40 est à l\'indice 1', a: 3, t: 'int' },
+        { lab: 'Indice du fils droit de 40', a: 4, t: 'int' },
+      ] },
+      { type: 'qs', consigne: '<b>Insertion.</b> On insère la valeur 45 : on la place à la fin, puis on la fait remonter tant qu\'elle est plus grande que son père.', items: [
+        { lab: 'Indice initial de 45 (après ajout au bout)', a: 6, t: 'int' },
+        { lab: 'Son père initial a pour valeur…', small: '(6 − 1) // 2 = 2', a: 30, t: 'int' },
+        { lab: '45 > 30 → on échange. Nouveau père de 45, quelle valeur ?', small: '(2 − 1) // 2 = 0', a: 50, t: 'int' },
+        { lab: '45 < 50 → stop. Indice final de 45', a: 2, t: 'int' },
+        { lab: 'Tableau du tas après insertion', a: '50 40 45 15 25 10 30', t: 'txt' },
+      ] },
+      { type: 'qs', consigne: '<b>Extraction du max.</b> On repart du tas initial (50 40 30 15 25 10). On retire la racine 50 ; la dernière valeur (10) prend sa place ; puis elle descend en s\'échangeant avec le plus grand de ses fils tant qu\'elle est plus petite.', items: [
+        { lab: 'Valeur extraite', a: 50, t: 'int' },
+        { lab: 'Juste après : la racine est…', a: 10, t: 'int' },
+        { lab: 'Les deux fils de la racine, pour valeur', small: 'séparés par un espace, dans l\'ordre indice 1 puis 2', a: '40 30', t: 'txt' },
+        { lab: 'On échange 10 avec…', a: 40, t: 'int' },
+        { lab: 'Nouvelle valeur à l\'indice 1 (où 10 est descendu), quels sont ses fils ?', small: 'valeurs des indices 3 et 4', a: '15 25', t: 'txt' },
+        { lab: 'On échange 10 avec…', a: 25, t: 'int' },
+        { lab: 'Tableau final', a: '40 25 30 15 10', t: 'txt' },
+      ] },
+      { type: 'mcq', q: 'Pourquoi insertion et extraction dans un tas sont-elles en O(log n) ?', opts: ['Parce qu\'on compare la valeur à chaque autre valeur du tableau', 'Parce qu\'on monte ou descend le long d\'une branche de l\'arbre, et un arbre complet a une hauteur en log₂(n)', 'Parce que Python optimise automatiquement'], ok: 1, expl: 'Un tas de n éléments est un arbre complet de hauteur ⌈log₂(n+1)⌉ ; les opérations suivent une branche, donc O(log n) comparaisons.' },
+      { type: 'mcq', q: 'Un algorithme a besoin, à chaque étape, d\'extraire le sommet de distance minimale parmi des milliers de candidats, et d\'insérer de nouveaux candidats. Que choisir ?', opts: ['Liste triée (insertion O(n), extraction O(1))', 'Liste non triée (insertion O(1), extraction O(n))', 'File de priorité par tas (insertion O(log n), extraction O(log n))'], ok: 2, expl: 'Les deux premières sont en O(n) pour l\'une des deux opérations : avec m étapes, O(mn). Le tas est en O((n + m) log n). C\'est la structure utilisée dans Dijkstra.' },
+    ] },
+
+    { id: 'ex6', titre: 'Graphes', groupes: [
+      { type: 'rappel', texte: 'Graphe = sommets + arêtes. Deux représentations : <b>matrice d\'adjacence</b> (M[i][j] = 1 si arête, 0 sinon), coûteuse en mémoire (n²) mais rapide pour tester une arête ; <b>dictionnaire d\'adjacence</b> (<code>G[s]</code> = liste des voisins de s), économe pour les graphes creux.' },
+      { type: 'fig', svg: '<svg viewBox="0 0 300 200"><line class="e" x1="80" y1="40" x2="220" y2="40"/><line class="e" x1="80" y1="40" x2="80" y2="150"/><line class="e" x1="220" y1="40" x2="220" y2="150"/><line class="e" x1="80" y1="150" x2="220" y2="150"/><line class="e" x1="80" y1="40" x2="150" y2="100"/><line class="e" x1="220" y1="150" x2="150" y2="100"/><g class="nd"><circle cx="80" cy="40" r="16"/><text x="80" y="40">A</text></g><g class="nd"><circle cx="220" cy="40" r="16"/><text x="220" y="40">B</text></g><g class="nd"><circle cx="150" cy="100" r="16"/><text x="150" y="100">E</text></g><g class="nd"><circle cx="80" cy="150" r="16"/><text x="80" y="150">C</text></g><g class="nd"><circle cx="220" cy="150" r="16"/><text x="220" y="150">D</text></g></svg>', cap: 'Un graphe non orienté à 5 sommets.' },
+      { type: 'qs', consigne: 'Observez le graphe ci-dessus.', items: [
+        { lab: 'Nombre de sommets', a: 5, t: 'int' },
+        { lab: 'Nombre d\'arêtes', a: 6, t: 'int' },
+        { lab: 'Degré du sommet A', small: 'nombre de voisins', a: 3, t: 'int' },
+        { lab: 'Degré du sommet D', a: 3, t: 'int' },
+        { lab: 'Voisins de E', small: 'lettres séparées par des espaces, dans n\'importe quel ordre', a: 'A D', t: 'txt' },
+      ] },
+      { type: 'code', consigne: 'Écrivez le dictionnaire d\'adjacence correspondant.', lines: [
+        'G = {',
+        '    <span class="st">"A"</span>: [<span class="st">"B"</span>, <span class="st">"C"</span>, {{0}}],',
+        '    <span class="st">"B"</span>: [<span class="st">"A"</span>, {{1}}],',
+        '    <span class="st">"C"</span>: [<span class="st">"A"</span>, {{2}}],',
+        '    <span class="st">"D"</span>: [<span class="st">"B"</span>, {{3}}],',
+        '    <span class="st">"E"</span>: [<span class="st">"A"</span>, {{4}}],',
+        '}' ],
+        blanks: [ { a: '"E"', t: 'py', alt: ["'E'"] }, { a: '"D"', t: 'py', alt: ["'D'"] }, { a: '"D"', t: 'py', alt: ["'D'"] }, { a: '"E"', t: 'py', alt: ["'E'"] }, { a: '"D"', t: 'py', alt: ["'D'"] } ] },
+      { type: 'mcq', q: 'Pour un graphe de n sommets et m arêtes avec <b>m très inférieur à n²</b> (graphe creux), quelle représentation est préférable ?', opts: ['Matrice d\'adjacence', 'Dictionnaire d\'adjacence', 'Les deux sont équivalentes'], ok: 1, expl: 'La matrice occupe toujours n² cases (la plupart à 0) ; le dictionnaire ne stocke que les arêtes effectivement présentes (O(n + m)).' },
+      { type: 'qs', consigne: 'On lance un parcours sur le graphe ci-dessus en partant de <b>A</b>. Les voisins d\'un sommet sont visités dans l\'ordre alphabétique.', items: [
+        { lab: 'Parcours en largeur (BFS) depuis A', small: 'lettres séparées par des espaces', a: 'A B C E D', t: 'txt' },
+        { lab: 'Parcours en profondeur (DFS, récursif) depuis A', a: 'A B D C E', t: 'txt' },
+      ] },
+      { type: 'mcq', q: 'Dans un graphe non pondéré, pour trouver le plus court chemin (en nombre d\'arêtes) entre deux sommets, on utilise…', opts: ['Un DFS', 'Un BFS', 'Un tri des sommets'], ok: 1, expl: 'BFS explore niveau par niveau à partir du départ : le premier instant où l\'on atteint le sommet d\'arrivée, le chemin suivi est de longueur minimale.' },
+      { type: 'open', q: 'Expliquez pourquoi un parcours (BFS ou DFS) d\'un graphe de n sommets et m arêtes a une complexité en O(n + m).', modele: 'Chaque sommet est marqué comme <b>vu</b> au moment où on l\'enfile (ou on l\'empile), et n\'y est plus jamais remis. Donc chaque sommet est enfilé / dépilé au plus une fois : coût total O(n) sur les sommets. Quand on traite un sommet, on inspecte ses voisins ; sur l\'ensemble du parcours, cela parcourt chaque arête au plus deux fois (une pour chaque extrémité, dans un graphe non orienté). Soit O(m) sur les arêtes. En tout : O(n + m).' },
+      { type: 'qs', repli: 'Pour s\'entraîner à la maison', consigne: 'Un graphe est donné par la matrice d\'adjacence (sommets 0, 1, 2, 3) :<br><code style="display:block;margin:.3rem 0;padding:.5rem;background:var(--bg-card);border-radius:5px">M = [[0,1,1,0],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1,0,0,1],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1,0,0,1],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0,1,1,0]]</code>', items: [
+        { lab: 'Le graphe est-il orienté ?', small: 'répondre oui ou non', a: ['non', 'no'], t: 'txt' },
+        { lab: 'Nombre d\'arêtes', a: 4, t: 'int' },
+        { lab: 'Voisins du sommet 0', small: 'séparés par des espaces', a: '1 2', t: 'txt' },
+        { lab: 'Degré du sommet 3', a: 2, t: 'int' },
+        { lab: 'Y a-t-il un chemin de 0 à 3 ?', small: 'oui ou non', a: ['oui', 'yes'], t: 'txt' },
+      ] },
+    ] },
+  ];
+
+  /* ================= normalisation ================= */
+  function strip(s){ return String(s == null ? '' : s).replace(/ /g, ' ').trim(); }
+  function noAccent(s){ return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s; }
+  function normSeq(s){ return strip(s).replace(/[,;→>\-]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function normTxt(s){ return noAccent(strip(s).toLowerCase()).replace(/\s+/g, ' ').replace(/[.!]$/, ''); }
+  function normPy(s){ return strip(s).replace(/\s+/g, '').replace(/"/g, "'"); }
+  function isRight(type, given, answer, alt){
+    var g = strip(given); if (!g) return false;
+    var answers = [].concat(answer).concat(alt || []);
+    switch (type){
+      case 'int': { var v = Number(g.replace(/\s/g, '').replace(',', '.')); return answers.some(function(a){ return v === Number(a); }); }
+      case 'txt': return answers.some(function(a){ return normTxt(g) === normTxt(a) || normSeq(g).toLowerCase() === normSeq(String(a)).toLowerCase(); });
+      case 'py': return answers.some(function(a){ return normPy(g) === normPy(String(a)); });
+    }
+    return false;
+  }
+  function showAns(a){ return [].concat(a)[0]; }
+
+  /* ================= state ================= */
+  var fields = [], mcqs = [];
+  var saved = {}; try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+  var saveTimer = null;
+  function persist(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      var o = {};
+      fields.forEach(function(f){ if (f.input.value) o[f.id] = f.input.value; });
+      mcqs.forEach(function(m){ var c = m.box.querySelector('input:checked'); if (c) o[m.id] = c.value; });
+      document.querySelectorAll('textarea[data-id]').forEach(function(t){ if (t.value) o[t.dataset.id] = t.value; });
+      try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) {}
+    }, 300);
+  }
+
+  /* ================= build ================= */
+  function el(tag, cls, html){ var d = document.createElement(tag); if (cls) d.className = cls; if (html != null) d.innerHTML = html; return d; }
+  function makeField(id, item, exo, inline){
+    var wrap = el(inline ? 'span' : 'div', 'fld');
+    var inp = el('input', 'f'); inp.type = 'text'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.setAttribute('aria-label', 'réponse');
+    if (item.t === 'int') inp.inputMode = 'numeric';
+    if (inline) inp.style.width = Math.max(9, String(showAns(item.a)).length + 3) + 'ch';
+    var mark = el('span', 'mark');
+    wrap.appendChild(inp); wrap.appendChild(mark);
+    var f = { id: id, type: item.t, answer: item.a, alt: item.alt, input: inp, mark: mark, exo: exo, state: null };
+    fields.push(f);
+    if (saved[id]) inp.value = saved[id];
+    function check(final){
+      var v = inp.value;
+      if (!strip(v)) { setState(f, null); return; }
+      setState(f, isRight(f.type, v, f.answer, f.alt) ? 'ok' : (final ? 'ko' : (f.state === 'ko' ? 'ko' : null)));
+    }
+    inp.addEventListener('input', function(){ check(false); persist(); });
+    inp.addEventListener('change', function(){ check(true); refresh(); });
+    inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') { check(true); refresh(); } });
+    f.check = function(){ check(true); };
+    return wrap;
+  }
+  function setState(f, st){
+    f.state = st;
+    f.input.classList.toggle('ok', st === 'ok'); f.input.classList.toggle('ko', st === 'ko');
+    f.mark.className = 'mark' + (st ? ' ' + st : ''); f.mark.textContent = st === 'ok' ? '✓' : st === 'ko' ? '✗' : '';
+    refresh();
+  }
+  function makeMcq(id, g, exo){
+    var box = el('div', 'mcq');
+    box.appendChild(el('div', 'qt', g.q));
+    var opts = el('div', 'opts');
+    g.opts.forEach(function(o, i){
+      var lab = el('label', i === g.ok ? 'right' : ''); var r = el('input'); r.type = 'radio'; r.name = id; r.value = i;
+      lab.appendChild(r); var span = el('span', null, o); lab.appendChild(span); opts.appendChild(lab);
+      r.addEventListener('change', function(){ mark(); persist(); refresh(); });
+    });
+    box.appendChild(opts);
+    if (g.expl) box.appendChild(el('div', 'expl', '→ ' + g.expl));
+    var m = { id: id, box: box, ok: g.ok, exo: exo, state: null };
+    function mark(){
+      var c = box.querySelector('input:checked');
+      box.querySelectorAll('label').forEach(function(l){ l.classList.toggle('checked', l.querySelector('input').checked); });
+      m.state = c ? (+c.value === g.ok ? 'ok' : 'ko') : null;
+      box.classList.toggle('ok', m.state === 'ok'); box.classList.toggle('ko', m.state === 'ko');
+    }
+    m.check = mark;
+    if (saved[id] != null) { var r0 = box.querySelector('input[value="' + saved[id] + '"]'); if (r0) r0.checked = true; }
+    mark();
+    mcqs.push(m);
+    return box;
+  }
+  function makeOpen(id, g){
+    var box = el('div', 'open'); box.appendChild(el('div', 'qt', g.q));
+    var ta = el('textarea'); ta.dataset.id = id; if (saved[id]) ta.value = saved[id]; ta.addEventListener('input', persist); box.appendChild(ta);
+    var b = el('button', 'rev', 'Voir une réponse modèle'); b.type = 'button';
+    var mod = el('div', 'modele', g.modele);
+    b.addEventListener('click', function(){ mod.classList.toggle('show'); b.textContent = mod.classList.contains('show') ? 'Masquer la réponse modèle' : 'Voir une réponse modèle'; });
+    box.appendChild(b); box.appendChild(mod); return box;
+  }
+
+  var root = document.getElementById('exos');
+  TD.forEach(function(ex, xi){
+    var sec = el('section', 'exo'); sec.id = ex.id;
+    sec.appendChild(el('h2', null, '<span class="pn">' + (xi + 1) + '</span> ' + ex.titre + ' <span class="cnt"></span>'));
+    ex.groupes.forEach(function(g, gi){
+      var host = sec;
+      if (g.repli) { var d = el('details', 'repli'); d.appendChild(el('summary', null, g.repli)); sec.appendChild(d); host = d; }
+      if (g.type === 'rappel') { host.appendChild(el('div', 'rappel', g.texte)); return; }
+      if (g.type === 'fig') { host.appendChild(el('div', 'fig', g.svg + (g.cap ? '<div class="cap">' + g.cap + '</div>' : ''))); return; }
+      if (g.consigne) host.appendChild(el('div', 'consigne', g.consigne));
+      if (g.type === 'qs') {
+        var qs = el('div', 'qs');
+        g.items.forEach(function(it, ii){
+          var id = ex.id + '_' + gi + '_' + ii;
+          var row = el('div', 'q');
+          row.appendChild(el('div', 'lab', it.lab + (it.small ? '<small>' + it.small + '</small>' : '')));
+          row.appendChild(makeField(id, it, sec));
+          row.appendChild(el('div', 'sol', '→ ' + showAns(it.a)));
+          qs.appendChild(row);
+        });
+        host.appendChild(qs);
+      } else if (g.type === 'mcq') {
+        host.appendChild(makeMcq(ex.id + '_' + gi, g, sec));
+      } else if (g.type === 'open') {
+        host.appendChild(makeOpen(ex.id + '_' + gi, g));
+      } else if (g.type === 'code') {
+        var pre = el('pre', 'code');
+        g.lines.forEach(function(line, li){
+          var parts = line.split(/\{\{(\d+)\}\}/);
+          for (var k = 0; k < parts.length; k++) {
+            if (k % 2 === 0) pre.appendChild(el('span', null, parts[k]));
+            else {
+              var b = g.blanks[+parts[k]], id2 = ex.id + '_' + gi + '_' + parts[k];
+              pre.appendChild(makeField(id2, b, sec, true));
+              pre.appendChild(el('span', 'csol', ' ← ' + showAns(b.a)));
+            }
+          }
+          if (li < g.lines.length - 1) pre.appendChild(document.createTextNode('\n'));
+        });
+        host.appendChild(pre);
+      }
+    });
+    var foot = el('div', 'exfoot');
+    var b1 = el('button', null, 'Vérifier cet exercice'); b1.type = 'button';
+    b1.addEventListener('click', function(){ fields.filter(function(f){ return f.exo === sec; }).forEach(function(f){ f.check(); }); refresh(); });
+    var b2 = el('button', null, 'Voir les réponses'); b2.type = 'button';
+    b2.addEventListener('click', function(){ sec.classList.toggle('solved'); b2.textContent = sec.classList.contains('solved') ? 'Masquer les réponses' : 'Voir les réponses'; });
+    foot.appendChild(b1); foot.appendChild(b2); sec.appendChild(foot);
+    root.appendChild(sec);
+  });
+
+  function refresh(){
+    var all = fields.concat(mcqs), ok = all.filter(function(f){ return f.state === 'ok'; }).length;
+    document.getElementById('sOk').textContent = ok; document.getElementById('sTot').textContent = all.length;
+    document.getElementById('sBar').style.width = (all.length ? 100 * ok / all.length : 0) + '%';
+    document.querySelectorAll('.exo').forEach(function(sec){
+      var mine = all.filter(function(f){ return f.exo === sec; }), k = mine.filter(function(f){ return f.state === 'ok'; }).length;
+      var c = sec.querySelector('.cnt'); c.textContent = k + ' / ' + mine.length; c.classList.toggle('full', k === mine.length && mine.length > 0);
+    });
+  }
+  document.getElementById('btnCheck').addEventListener('click', function(){ fields.forEach(function(f){ f.check(); }); mcqs.forEach(function(m){ m.check(); }); refresh(); });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if (!confirm('Effacer toutes vos réponses ?')) return;
+    fields.forEach(function(f){ f.input.value = ''; setState(f, null); });
+    mcqs.forEach(function(m){ m.box.querySelectorAll('input').forEach(function(r){ r.checked = false; }); m.check(); });
+    document.querySelectorAll('textarea[data-id]').forEach(function(t){ t.value = ''; });
+    document.querySelectorAll('.exo.solved').forEach(function(s){ s.classList.remove('solved'); });
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    refresh();
+  });
+  fields.forEach(function(f){ if (f.input.value) f.check(); });
+  refresh();
+})();
+</script>
+</body>
+</html>
