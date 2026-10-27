@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La récursivité — Terminale NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --warn:#ffc53d; --bad:#ff5c7a; --vio:#b57bff; --pink:#ff4fa3; }
+
+  .chapnav{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.92);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .chapnav-in{max-width:var(--max-w);margin:0 auto;display:flex;gap:.4rem;overflow-x:auto;
+    padding:.55rem 1.5rem;scrollbar-width:none}
+  .chapnav-in::-webkit-scrollbar{display:none}
+  .chapnav a{flex:none;text-decoration:none;color:var(--text-muted);font-size:.82rem;font-weight:500;
+    padding:.35rem .7rem;border-radius:100px;border:1px solid transparent;white-space:nowrap;transition:.18s}
+  .chapnav a:hover{color:var(--text);background:var(--bg-card)}
+  .chapnav a.on{color:var(--nsi);background:var(--nsi-dim);border-color:rgba(108,158,255,.3)}
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);
+    text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+
+  .part{scroll-margin-top:110px;margin-bottom:3.2rem}
+  .part > h2{display:flex;align-items:baseline;gap:.7rem;font-size:1.45rem;
+    padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.3rem}
+  .part > h2 .pn{font-family:var(--mono);font-size:.85rem;color:var(--nsi);
+    background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .part h3{font-size:1.02rem;color:var(--nsi);margin:1.6rem 0 .5rem}
+  .part p{margin-bottom:.85rem;color:#c9cdda}
+  .part ul,.part ol{margin:0 0 .9rem 1.2rem;color:#c9cdda}
+  .part li{margin-bottom:.35rem}
+  .part b,.part strong{color:var(--text);font-weight:600}
+  code,.m{font-family:var(--mono);font-size:.92em}
+  .m{color:var(--nsi);background:rgba(108,158,255,.09);padding:.08em .35em;border-radius:4px;white-space:nowrap}
+  .m.v{color:var(--vio);background:rgba(181,123,255,.11)}
+  .m.o{color:var(--warn);background:rgba(255,197,61,.11)}
+  .m.g{color:var(--ok);background:rgba(52,211,153,.11)}
+  sub,sup{font-size:.72em}
+
+  .box{border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 8px 8px 0;
+    background:var(--bg-card);padding:1rem 1.2rem;margin:1.1rem 0}
+  .box .lbl{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--nsi);display:block;margin-bottom:.5rem}
+  .box.meth{border-left-color:var(--vio)} .box.meth .lbl{color:var(--vio)}
+  .box.warn{border-left-color:var(--warn)} .box.warn .lbl{color:var(--warn)}
+  .box.key{border-left-color:var(--ok);background:rgba(52,211,153,.06)} .box.key .lbl{color:var(--ok)}
+  .box.def{border-left-color:var(--pink)} .box.def .lbl{color:var(--pink)}
+  .box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+
+  .tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}
+  .tbl th,.tbl td{border:1px solid var(--border);padding:.45rem .6rem;text-align:center}
+  .tbl th{background:var(--bg-card);color:var(--nsi);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+  .tbl td{color:#c9cdda}
+  .tbl td.mono{font-family:var(--mono)}
+  .tbl td.l{text-align:left}
+  .tbl tr:nth-child(even) td{background:rgba(255,255,255,.017)}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1rem 0}
+  .scrollx .tbl{margin:0;min-width:480px}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.6;background:#0c0e15;
+    border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;
+    overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+  pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic} pre.code .hl{background:rgba(108,158,255,.16);display:inline-block;width:100%}
+
+  .fig{margin:1.2rem 0;text-align:center}
+  .fig svg{max-width:100%;height:auto}
+  .fig .cap{font-size:.8rem;color:var(--text-muted);margin-top:.4rem}
+  .figrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.8rem;margin:1.2rem 0}
+  .figrow .fig{margin:0;border:1px solid var(--border);border-radius:10px;padding:.7rem .5rem .5rem;background:var(--bg-card)}
+  .figrow .fig .t{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:.3rem}
+  svg .e{stroke:rgba(255,255,255,.3);stroke-width:2;stroke-linecap:round}
+  svg .ar{stroke:var(--vio);stroke-width:1.6;fill:none;marker-end:url(#ah)}
+  svg .ret{stroke:var(--ok);stroke-width:1.6;fill:none;marker-end:url(#ah2);stroke-dasharray:4 3}
+  svg .n circle,svg .n rect{fill:#1a1f2e;stroke:rgba(255,255,255,.4);stroke-width:2}
+  svg .n text{fill:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;text-anchor:middle;dominant-baseline:central}
+  svg .n.root circle,svg .n.root rect{stroke:var(--nsi);stroke-width:2.5}
+  svg .n.base circle,svg .n.base rect{fill:#0f3d36;stroke:var(--ok)}
+  svg .n.hi circle,svg .n.hi rect{fill:#3a2a12;stroke:var(--warn)}
+  svg .lab{fill:var(--text-muted);font-family:var(--mono);font-size:10px}
+  svg .lab.b{fill:var(--nsi)} svg .lab.g{fill:var(--ok)} svg .lab.o{fill:var(--warn)} svg .lab.p{fill:var(--vio)}
+
+  /* pile d'appels */
+  .stack{display:flex;gap:1.2rem;align-items:flex-end;justify-content:center;margin:1rem 0;flex-wrap:wrap}
+  .stack .col{flex:1 1 180px;max-width:200px}
+  .stack .col .lab{text-align:center;font-size:.75rem;color:var(--text-muted);margin-bottom:.4rem;font-family:var(--mono)}
+  .stack .frames{display:flex;flex-direction:column-reverse;gap:2px;border:1px solid var(--border);border-radius:8px;background:#0c0e15;padding:4px;min-height:140px}
+  .stack .frame{font-family:var(--mono);font-size:.78rem;background:var(--nsi-dim);color:var(--nsi);border:1px solid rgba(108,158,255,.35);border-radius:5px;padding:.3rem .5rem;text-align:center}
+  .stack .frame.base{background:rgba(52,211,153,.14);color:var(--ok);border-color:rgba(52,211,153,.4)}
+  .stack .frame.ret{background:rgba(181,123,255,.12);color:var(--vio);border-color:rgba(181,123,255,.4)}
+
+  .frame-emb{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#0b0d14;margin:1.3rem 0;position:relative}
+  .frame-emb iframe{display:block;width:100%;height:560px;border:0}
+  .frame-emb .fbar{display:flex;align-items:center;gap:.8rem;padding:.5rem .9rem;border-top:1px solid var(--border);
+    background:var(--bg-card);font-size:.8rem;color:var(--text-muted)}
+  .frame-emb .fbar a{margin-left:auto;color:var(--nsi);text-decoration:none;font-weight:600;white-space:nowrap}
+  .frame-emb .fbar a:hover{text-decoration:underline}
+
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);
+    border-left:3px solid var(--ok);border-radius:0 10px 10px 0;background:rgba(52,211,153,.06);
+    padding:1.1rem 1.3rem;margin:2.5rem 0 1rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--ok);color:#06281c;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+  .cta.anim{border-left-color:var(--vio);background:rgba(181,123,255,.07)} .cta.anim a{background:var(--vio);color:#1b0f2e}
+
+  .recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem;margin:1rem 0}
+  .recap div{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.7rem .85rem;font-size:.86rem;color:#c9cdda}
+  .recap div b{display:block;color:var(--ok);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem}
+
+  .trace{font-family:var(--mono);font-size:.84rem;line-height:1.7;background:#0c0e15;
+    border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;
+    overflow-x:auto;color:#c9cdda;white-space:pre}
+  .trace .hi{color:var(--warn)} .trace .ret{color:var(--ok)} .trace .dim{color:var(--text-muted)}
+
+  @media (max-width:640px){
+    .chapnav-in{padding:.5rem 1rem}
+    .part > h2{font-size:1.2rem}
+    pre.code{font-size:.76rem}
+    .frame-emb iframe{height:520px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="chapnav">
+  <div class="chapnav-in" id="chapnav">
+    <a href="#p1">1 · Poupées russes</a>
+    <a href="#p2">2 · Définition</a>
+    <a href="#p3">3 · La pile d'appels</a>
+    <a href="#p4">4 · Récursif ou itératif ?</a>
+    <a href="#p5">5 · Diviser pour régner</a>
+    <a href="#p6">6 · Récursivité multiple</a>
+    <a href="#p7">7 · Pièges à éviter</a>
+    <a href="#p8">8 · À retenir</a>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>La récursivité <span class="badge badge-nsi">Terminale</span></h1>
+    <p class="subtitle">Une fonction qui s'appelle elle-même : définir un problème à partir d'un plus petit, dérouler la pile
+      d'appels, et découvrir la stratégie « diviser pour régner » qui rend si rapides la dichotomie, le tri fusion
+      ou les parcours d'arbres.</p>
+  </div>
+
+  <div class="cta anim">
+    <div class="t">
+      <b>L'animation du chapitre</b>
+      <span>Les Tours de Hanoï résolues disque par disque : la récursion déroule le même sous-problème sur deux tours plus petites.</span>
+    </div>
+    <a href="../../animation/tours-de-hanoi.html" target="_blank" rel="noopener">Ouvrir en plein écran →</a>
+  </div>
+
+  <!-- ══════════════════ 1 ══════════════════ -->
+  <section class="part" id="p1">
+    <h2><span class="pn">1</span> Des poupées russes partout</h2>
+    <p>Ouvrez une poupée russe : à l'intérieur, une autre poupée russe, un peu plus petite. Et à l'intérieur de celle-ci,
+      encore une autre. Jusqu'à la toute petite, pleine, que l'on ne peut plus ouvrir. Pour expliquer <i>à quoi ressemble</i>
+      une poupée russe, on peut dire : « c'est une poupée qui contient une poupée russe plus petite, sauf la dernière qui
+      est pleine ». Cette définition se mord la queue — elle utilise le mot qu'elle cherche à définir — et pourtant elle
+      est parfaitement claire.</p>
+
+    <div class="figrow">
+      <div class="fig"><div class="t">Poupées russes</div>
+        <svg viewBox="0 0 200 110">
+          <ellipse cx="100" cy="60" rx="60" ry="45" fill="#2a1d3f" stroke="#b57bff" stroke-width="2"/>
+          <ellipse cx="100" cy="60" rx="42" ry="33" fill="#3a2a12" stroke="#ffc53d" stroke-width="2"/>
+          <ellipse cx="100" cy="60" rx="27" ry="22" fill="#0f3d36" stroke="#34d399" stroke-width="2"/>
+          <ellipse cx="100" cy="60" rx="14" ry="12" fill="#1a2740" stroke="#6c9eff" stroke-width="2"/>
+        </svg></div>
+      <div class="fig"><div class="t">Un flocon de Koch</div>
+        <svg viewBox="0 0 200 110">
+          <polygon points="100,15 170,100 30,100" fill="none" stroke="#b57bff" stroke-width="2"/>
+          <polygon points="100,45 135,100 65,100" fill="none" stroke="#ffc53d" stroke-width="1.6"/>
+          <polygon points="100,65 118,100 82,100" fill="none" stroke="#34d399" stroke-width="1.3"/>
+          <polygon points="100,78 108,100 92,100" fill="none" stroke="#6c9eff" stroke-width="1.1"/>
+        </svg></div>
+      <div class="fig"><div class="t">Les ancêtres d'une personne</div>
+        <svg viewBox="0 0 220 110">
+          <line class="e" x1="110" y1="20" x2="60" y2="55"/><line class="e" x1="110" y1="20" x2="160" y2="55"/>
+          <line class="e" x1="60" y1="55" x2="30" y2="95"/><line class="e" x1="60" y1="55" x2="90" y2="95"/>
+          <line class="e" x1="160" y1="55" x2="130" y2="95"/><line class="e" x1="160" y1="55" x2="190" y2="95"/>
+          <g class="n root"><circle cx="110" cy="20" r="12"/><text x="110" y="20" font-size="10">moi</text></g>
+          <g class="n"><circle cx="60" cy="55" r="11"/><text x="60" y="55" font-size="9">mère</text></g>
+          <g class="n"><circle cx="160" cy="55" r="11"/><text x="160" y="55" font-size="9">père</text></g>
+          <g class="n base"><circle cx="30" cy="95" r="10"/></g><g class="n base"><circle cx="90" cy="95" r="10"/></g>
+          <g class="n base"><circle cx="130" cy="95" r="10"/></g><g class="n base"><circle cx="190" cy="95" r="10"/></g>
+        </svg></div>
+    </div>
+
+    <p>Les mathématiques regorgent de définitions de ce type. La <b>suite factorielle</b>, par exemple :</p>
+    <ul>
+      <li><span class="m">0! = 1</span>,</li>
+      <li>pour tout <span class="m">n ≥ 1</span>, <span class="m">n! = n × (n − 1)!</span>.</li>
+    </ul>
+    <p>Pour calculer <span class="m">4!</span>, cette définition dit : « c'est 4 fois 3! ». Et pour 3! : « c'est 3 fois 2! ». Et ainsi
+      de suite jusqu'à 0! qui vaut 1 par définition. On remonte alors : 1! = 1, 2! = 2, 3! = 6, 4! = 24. La définition se mord
+      la queue elle aussi, mais chaque appel porte sur un entier <b>strictement plus petit</b>, et le premier cas (n = 0) fournit
+      une réponse directe : on finit toujours par aboutir.</p>
+
+    <div class="box key">
+      <span class="lbl">L'idée</span>
+      <p>Un objet est <b>récursif</b> quand il contient une copie plus petite de lui-même. Une fonction est <b>récursive</b> quand
+        elle s'appelle elle-même. On programme ainsi tout ce qui a cette forme de « nuit étoilée dans la nuit étoilée » :
+        suites définies par récurrence, parcours d'arbres, flocons, divisions pour régner.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 2 ══════════════════ -->
+  <section class="part" id="p2">
+    <h2><span class="pn">2</span> Définition : les trois ingrédients</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Une <b>fonction récursive</b> est une fonction dont la définition fait intervenir, au moins une fois, un appel à
+        elle-même. Pour qu'elle fonctionne, elle doit respecter trois conditions :</p>
+      <ol>
+        <li>un ou plusieurs <b>cas de base</b>, où le résultat est connu directement, sans appel récursif ;</li>
+        <li>un <b>cas récursif</b>, où le résultat est construit à partir d'un ou plusieurs appels à la fonction ;</li>
+        <li>une <b>convergence vers le cas de base</b> : chaque appel récursif porte sur un sous-problème <b>strictement plus petit</b>,
+          de sorte qu'après un nombre fini d'étapes on tombe sur un cas de base.</li>
+      </ol>
+    </div>
+
+    <h3>L'exemple canonique : la factorielle</h3>
+    <p>On traduit directement la définition mathématique en Python :</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">factorielle</span>(n):
+    <span class="kw">if</span> n == <span class="nb">0</span>:                 <span class="cm"># cas de base</span>
+        <span class="kw">return</span> <span class="nb">1</span>
+    <span class="kw">return</span> n * <span class="fn">factorielle</span>(n - <span class="nb">1</span>)   <span class="cm"># cas récursif : n − 1 est plus petit que n</span>
+
+<span class="fn">factorielle</span>(<span class="nb">4</span>)                       <span class="cm"># → 24</span></pre>
+    <p>Les trois ingrédients sont là : le cas de base <code>n == 0</code> renvoie 1 sans appel ; le cas récursif renvoie
+      <code>n * factorielle(n − 1)</code> ; et <code>n − 1 &lt; n</code>, donc on se rapproche à chaque appel du cas de base.</p>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — écrire une fonction récursive</span>
+      <ol>
+        <li><b>Choisir le paramètre qui mesure la « taille » du problème</b> (ici n, ailleurs la longueur d'une liste, la hauteur d'un arbre…).</li>
+        <li><b>Traiter le ou les cas de base</b> : <i>que vaut le résultat si la taille est minimale ?</i></li>
+        <li><b>Écrire le cas récursif</b> en supposant que la fonction fonctionne déjà sur un problème plus petit (<b>hypothèse de récursion</b>),
+          et combiner ce résultat pour obtenir celui de la taille actuelle.</li>
+        <li><b>Vérifier la convergence</b> : chaque appel récursif porte-t-il sur un problème strictement plus petit ?</li>
+      </ol>
+    </div>
+
+    <h3>Trois autres fonctions, écrites avec la même méthode</h3>
+<pre class="code"><span class="cm"># Somme des entiers de 1 à n : 1 + 2 + … + n</span>
+<span class="kw">def</span> <span class="fn">somme</span>(n):
+    <span class="kw">if</span> n == <span class="nb">0</span>:
+        <span class="kw">return</span> <span class="nb">0</span>
+    <span class="kw">return</span> n + <span class="fn">somme</span>(n - <span class="nb">1</span>)
+
+<span class="cm"># Longueur d'une chaîne, sans utiliser len()</span>
+<span class="kw">def</span> <span class="fn">longueur</span>(s):
+    <span class="kw">if</span> s == <span class="st">""</span>:                 <span class="cm"># la chaîne vide : taille 0</span>
+        <span class="kw">return</span> <span class="nb">0</span>
+    <span class="kw">return</span> <span class="nb">1</span> + <span class="fn">longueur</span>(s[<span class="nb">1</span>:])     <span class="cm"># on retire un caractère</span>
+
+<span class="cm"># Puissance : x élevé à la n (n entier, n ≥ 0)</span>
+<span class="kw">def</span> <span class="fn">puissance</span>(x, n):
+    <span class="kw">if</span> n == <span class="nb">0</span>:
+        <span class="kw">return</span> <span class="nb">1</span>
+    <span class="kw">return</span> x * <span class="fn">puissance</span>(x, n - <span class="nb">1</span>)</pre>
+
+    <div class="box warn">
+      <span class="lbl">Attention — le cas de base n'est pas facultatif</span>
+      <p>Oublier le cas de base, ou le placer après l'appel récursif, donne une fonction qui s'appelle elle-même
+        <b>sans jamais s'arrêter</b>. Python finit par refuser (<code>RecursionError: maximum recursion depth exceeded</code>) :
+        c'est le signal, en Python, d'une récursion mal pensée.</p>
+    </div>
+
+    <h3>Une analogie : la récurrence au tableau</h3>
+    <p>En mathématiques, prouver qu'une propriété <i>P(n)</i> est vraie pour tout <i>n</i> par récurrence demande deux choses :
+      l'<b>initialisation</b> (<i>P(0)</i> vrai) et l'<b>hérédité</b> (<i>P(n) ⇒ P(n + 1)</i>). Les trois ingrédients d'une
+      fonction récursive sont les mêmes : le cas de base joue le rôle de l'initialisation, le cas récursif celui de l'hérédité,
+      et la convergence garantit que l'on balaye bien tous les entiers.</p>
+  </section>
+
+  <!-- ══════════════════ 3 ══════════════════ -->
+  <section class="part" id="p3">
+    <h2><span class="pn">3</span> La pile d'appels</h2>
+    <p>Quand <code>factorielle(4)</code> appelle <code>factorielle(3)</code>, l'exécution de la première fonction est
+      <b>suspendue</b> : Python met de côté sa variable <code>n</code> (qui vaut 4) et l'endroit du code où revenir,
+      puis lance la deuxième. Celle-ci appelle <code>factorielle(2)</code>, qui est encore suspendue, et ainsi de suite.
+      Toutes ces exécutions en attente s'empilent les unes sur les autres dans la <b>pile d'appels</b> (<i>call stack</i>) :
+      une pile au sens informatique du terme — dernier arrivé, premier servi.</p>
+
+    <h3>Dérouler <code>factorielle(4)</code></h3>
+    <p>À chaque appel, un nouveau <b>cadre</b> (<i>frame</i>) empile n et l'adresse de retour. Au moment où le cas de base
+      renvoie 1, la pile atteint sa taille maximale : 5 cadres. Puis chaque cadre est dépilé, en multipliant le résultat
+      reçu par sa propre valeur de n.</p>
+
+    <div class="stack">
+      <div class="col"><div class="lab">appel 1 : f(4)</div>
+        <div class="frames"><div class="frame">f(4)   n=4</div></div></div>
+      <div class="col"><div class="lab">appel 2 : f(3)</div>
+        <div class="frames"><div class="frame">f(4)   n=4</div><div class="frame">f(3)   n=3</div></div></div>
+      <div class="col"><div class="lab">appel 3 : f(2)</div>
+        <div class="frames"><div class="frame">f(4)   n=4</div><div class="frame">f(3)   n=3</div><div class="frame">f(2)   n=2</div></div></div>
+      <div class="col"><div class="lab">appel 4 : f(1)</div>
+        <div class="frames"><div class="frame">f(4)   n=4</div><div class="frame">f(3)   n=3</div><div class="frame">f(2)   n=2</div><div class="frame">f(1)   n=1</div></div></div>
+      <div class="col"><div class="lab">cas de base : f(0)</div>
+        <div class="frames"><div class="frame">f(4)   n=4</div><div class="frame">f(3)   n=3</div><div class="frame">f(2)   n=2</div><div class="frame">f(1)   n=1</div><div class="frame base">f(0) → 1</div></div></div>
+    </div>
+
+    <p>Puis la pile se dépile, chaque cadre récupère le résultat du suivant et le multiplie par son propre n :</p>
+
+    <div class="trace">f(4) appelle f(3) <span class="dim">… suspendu, n = 4</span>
+  f(3) appelle f(2) <span class="dim">… suspendu, n = 3</span>
+    f(2) appelle f(1) <span class="dim">… suspendu, n = 2</span>
+      f(1) appelle f(0) <span class="dim">… suspendu, n = 1</span>
+        <span class="hi">f(0) renvoie 1</span>                 <span class="dim">cas de base</span>
+      <span class="ret">f(1) renvoie 1 × 1 = 1</span>
+    <span class="ret">f(2) renvoie 2 × 1 = 2</span>
+  <span class="ret">f(3) renvoie 3 × 2 = 6</span>
+<span class="ret">f(4) renvoie 4 × 6 = 24</span></div>
+
+    <div class="box key">
+      <span class="lbl">À retenir</span>
+      <p>La pile d'appels mémorise, pour chaque fonction en cours, ses variables locales et l'endroit du code où reprendre.
+        Sa taille maximale, pendant un calcul récursif, s'appelle la <b>profondeur de récursion</b>. Pour <code>factorielle(n)</code>,
+        la profondeur vaut n + 1.</p>
+    </div>
+
+    <div class="box warn">
+      <span class="lbl">La limite de Python</span>
+      <p>Python limite la profondeur de récursion à environ <b>1000 appels</b> pour éviter de consommer toute la mémoire.
+        Au-delà, l'exception <code>RecursionError</code> est levée. On peut l'augmenter avec <code>sys.setrecursionlimit</code>,
+        mais c'est souvent le signe qu'il vaut mieux réécrire la fonction en itératif, ou qu'elle ne se rapproche pas assez
+        vite du cas de base.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 4 ══════════════════ -->
+  <section class="part" id="p4">
+    <h2><span class="pn">4</span> Récursif ou itératif ?</h2>
+    <p>Tout ce qui s'écrit avec une récursion peut aussi s'écrire avec une boucle (c'est un théorème : les deux sont équivalents
+      en puissance de calcul). Comparons <code>factorielle</code> dans les deux styles :</p>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Version récursive</th><th>Version itérative</th></tr>
+      <tr><td class="l"><pre class="code" style="margin:0"><span class="kw">def</span> <span class="fn">fact</span>(n):
+    <span class="kw">if</span> n == <span class="nb">0</span>:
+        <span class="kw">return</span> <span class="nb">1</span>
+    <span class="kw">return</span> n * <span class="fn">fact</span>(n - <span class="nb">1</span>)</pre></td>
+      <td class="l"><pre class="code" style="margin:0"><span class="kw">def</span> <span class="fn">fact</span>(n):
+    r = <span class="nb">1</span>
+    <span class="kw">for</span> k <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1</span>, n + <span class="nb">1</span>):
+        r = r * k
+    <span class="kw">return</span> r</pre></td></tr>
+    </table></div>
+
+    <h3>Quand préférer l'une ou l'autre</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th></th><th>Récursif</th><th>Itératif</th></tr>
+      <tr><td class="l"><b>Lisibilité</b></td><td class="l">Imbat­table quand le problème lui-même se décrit en termes de sous-problème (arbres, flocons, dichotomie, Hanoï).</td><td class="l">Imbat­table pour les parcours linéaires simples (<code>for</code> sur une liste, somme, moyenne…).</td></tr>
+      <tr><td class="l"><b>Mémoire</b></td><td class="l">Occupe la pile proportionnellement à la profondeur de récursion.</td><td class="l">Mémoire constante en général : quelques variables qu'on met à jour.</td></tr>
+      <tr><td class="l"><b>Risques</b></td><td class="l">Débordement de pile (<code>RecursionError</code>) si la récursion est trop profonde ; coût caché quand le même sous-problème est recalculé plusieurs fois (voir partie 6).</td><td class="l">Boucle infinie si la condition d'arrêt est mal écrite.</td></tr>
+      <tr><td class="l"><b>Exemples typiques</b></td><td class="l">Parcours d'arbre, dichotomie, tri fusion, Hanoï, flocon de Koch, backtracking.</td><td class="l">Somme, moyenne, max, parcours de tableau, recherche séquentielle.</td></tr>
+    </table></div>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — reconnaître un bon candidat à la récursion</span>
+      <p>Posez-vous : « puis-je décrire le problème en l'exprimant sur un sous-problème plus petit, de la même forme ? »
+        Si oui, la récursion sera naturelle. Si l'énoncé parle d'un parcours de la gauche vers la droite sans structure
+        hiérarchique, une boucle fera très bien l'affaire.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 5 ══════════════════ -->
+  <section class="part" id="p5">
+    <h2><span class="pn">5</span> Diviser pour régner</h2>
+    <p>La stratégie <b>diviser pour régner</b> (<i>divide and conquer</i>) consiste à :</p>
+    <ol>
+      <li><b>Diviser</b> le problème en plusieurs sous-problèmes du même type, plus petits ;</li>
+      <li><b>Résoudre récursivement</b> chaque sous-problème ;</li>
+      <li><b>Combiner</b> les résultats pour obtenir celui du problème initial.</li>
+    </ol>
+    <p>C'est l'une des idées algorithmiques les plus puissantes : elle fait souvent passer d'un coût en <b>O(n)</b> à un coût en
+      <b>O(log n)</b>, ou d'un coût en <b>O(n²)</b> à un coût en <b>O(n log n)</b>.</p>
+
+    <h3>La recherche dichotomique, en récursif</h3>
+    <p>Dans un tableau <b>trié</b>, on cherche la valeur <code>x</code>. On regarde l'élément du milieu : si c'est <code>x</code>,
+      c'est fini ; sinon, on relance la recherche sur la moitié qui peut encore contenir <code>x</code>. À chaque appel, la zone
+      de recherche est <b>divisée par deux</b> : d'où log<sub>2</sub>(n) appels au plus.</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">dichotomie</span>(t, x, g=<span class="nb">0</span>, d=<span class="kw">None</span>):
+    <span class="kw">if</span> d <span class="kw">is None</span>:
+        d = <span class="fn">len</span>(t) - <span class="nb">1</span>
+    <span class="kw">if</span> g &gt; d:
+        <span class="kw">return</span> -<span class="nb">1</span>                      <span class="cm"># cas de base : zone vide, absent</span>
+    m = (g + d) // <span class="nb">2</span>
+    <span class="kw">if</span> t[m] == x:
+        <span class="kw">return</span> m                       <span class="cm"># cas de base : trouvé</span>
+    <span class="kw">if</span> x &lt; t[m]:
+        <span class="kw">return</span> <span class="fn">dichotomie</span>(t, x, g, m - <span class="nb">1</span>)   <span class="cm"># moitié gauche</span>
+    <span class="kw">return</span> <span class="fn">dichotomie</span>(t, x, m + <span class="nb">1</span>, d)       <span class="cm"># moitié droite</span>
+
+<span class="fn">dichotomie</span>([<span class="nb">1</span>, <span class="nb">3</span>, <span class="nb">4</span>, <span class="nb">7</span>, <span class="nb">9</span>, <span class="nb">12</span>, <span class="nb">15</span>], <span class="nb">9</span>)   <span class="cm"># → 4</span></pre>
+
+    <h3>Le tri fusion</h3>
+    <p>Pour trier un tableau, on le coupe en deux moitiés, on trie chacune récursivement, puis on fusionne les deux listes
+      triées en une seule. Au bout du compte, l'algorithme fait O(n log n) opérations, bien mieux que les tris par
+      sélection ou par insertion vus en Première (en O(n²)).</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 540 230">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#b57bff"/></marker>
+          <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#34d399"/></marker>
+        </defs>
+        <!-- niveaux : [8 3 5 1 7 2 6 4] -> deux moitiés -> quatre -> huit singletons -->
+        <rect x="190" y="10" width="160" height="24" rx="4" fill="#2a1d3f" stroke="#b57bff"/>
+        <text x="270" y="26" fill="#fff" font-family="JetBrains Mono" font-size="12" text-anchor="middle">8 3 5 1 7 2 6 4</text>
+        <line class="ar" x1="240" y1="36" x2="140" y2="56"/><line class="ar" x1="300" y1="36" x2="400" y2="56"/>
+        <rect x="80" y="58" width="120" height="22" rx="4" fill="#2a1d3f" stroke="#b57bff"/>
+        <text x="140" y="73" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">8 3 5 1</text>
+        <rect x="340" y="58" width="120" height="22" rx="4" fill="#2a1d3f" stroke="#b57bff"/>
+        <text x="400" y="73" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">7 2 6 4</text>
+        <line class="ar" x1="110" y1="82" x2="60" y2="104"/><line class="ar" x1="170" y1="82" x2="220" y2="104"/>
+        <line class="ar" x1="370" y1="82" x2="320" y2="104"/><line class="ar" x1="430" y1="82" x2="480" y2="104"/>
+        <rect x="20" y="106" width="80" height="20" rx="4" fill="#2a1d3f" stroke="#b57bff"/><text x="60" y="120" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">8 3</text>
+        <rect x="180" y="106" width="80" height="20" rx="4" fill="#2a1d3f" stroke="#b57bff"/><text x="220" y="120" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">5 1</text>
+        <rect x="280" y="106" width="80" height="20" rx="4" fill="#2a1d3f" stroke="#b57bff"/><text x="320" y="120" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">7 2</text>
+        <rect x="440" y="106" width="80" height="20" rx="4" fill="#2a1d3f" stroke="#b57bff"/><text x="480" y="120" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">6 4</text>
+        <!-- flèches retour fusion -->
+        <line class="ret" x1="60" y1="150" x2="110" y2="130"/><line class="ret" x1="220" y1="150" x2="170" y2="130"/>
+        <line class="ret" x1="320" y1="150" x2="370" y2="130"/><line class="ret" x1="480" y1="150" x2="430" y2="130"/>
+        <rect x="20" y="152" width="80" height="20" rx="4" fill="#0f3d36" stroke="#34d399"/><text x="60" y="166" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">3 8</text>
+        <rect x="180" y="152" width="80" height="20" rx="4" fill="#0f3d36" stroke="#34d399"/><text x="220" y="166" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">1 5</text>
+        <rect x="280" y="152" width="80" height="20" rx="4" fill="#0f3d36" stroke="#34d399"/><text x="320" y="166" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">2 7</text>
+        <rect x="440" y="152" width="80" height="20" rx="4" fill="#0f3d36" stroke="#34d399"/><text x="480" y="166" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">4 6</text>
+        <line class="ret" x1="140" y1="198" x2="60" y2="176"/><line class="ret" x1="140" y1="198" x2="220" y2="176"/>
+        <line class="ret" x1="400" y1="198" x2="320" y2="176"/><line class="ret" x1="400" y1="198" x2="480" y2="176"/>
+        <rect x="80" y="198" width="120" height="22" rx="4" fill="#0f3d36" stroke="#34d399"/><text x="140" y="213" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">1 3 5 8</text>
+        <rect x="340" y="198" width="120" height="22" rx="4" fill="#0f3d36" stroke="#34d399"/><text x="400" y="213" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="middle">2 4 6 7</text>
+        <text class="lab p" x="10" y="25">divise</text><text class="lab g" x="10" y="213">fusionne</text>
+      </svg>
+      <div class="cap">Tri fusion : les flèches violettes descendent (division en moitiés), les flèches vertes remontent (fusion de deux listes triées).</div>
+    </div>
+
+<pre class="code"><span class="kw">def</span> <span class="fn">fusion</span>(a, b):            <span class="cm"># fusionne deux listes triées en une seule, triée</span>
+    r, i, j = [], <span class="nb">0</span>, <span class="nb">0</span>
+    <span class="kw">while</span> i &lt; <span class="fn">len</span>(a) <span class="kw">and</span> j &lt; <span class="fn">len</span>(b):
+        <span class="kw">if</span> a[i] &lt;= b[j]:
+            r.append(a[i]); i += <span class="nb">1</span>
+        <span class="kw">else</span>:
+            r.append(b[j]); j += <span class="nb">1</span>
+    <span class="kw">return</span> r + a[i:] + b[j:]
+
+<span class="kw">def</span> <span class="fn">tri_fusion</span>(t):
+    <span class="kw">if</span> <span class="fn">len</span>(t) &lt;= <span class="nb">1</span>:
+        <span class="kw">return</span> t                 <span class="cm"># cas de base : déjà trié</span>
+    m = <span class="fn">len</span>(t) // <span class="nb">2</span>
+    g = <span class="fn">tri_fusion</span>(t[:m])        <span class="cm"># trier la moitié gauche</span>
+    d = <span class="fn">tri_fusion</span>(t[m:])        <span class="cm"># trier la moitié droite</span>
+    <span class="kw">return</span> <span class="fn">fusion</span>(g, d)           <span class="cm"># combiner</span></pre>
+
+    <div class="box key">
+      <span class="lbl">Diviser pour régner, en résumé</span>
+      <p>À chaque étape le problème est <b>réduit d'un facteur</b> (souvent 2) et non d'une unité : la profondeur de récursion
+        est en <b>log n</b> au lieu de n, et c'est ce qui change tout. On retrouvera cette idée partout : parcours d'arbres,
+        exponentiation rapide, FFT, QuickSort, algorithmes géométriques.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 6 ══════════════════ -->
+  <section class="part" id="p6">
+    <h2><span class="pn">6</span> Récursivité multiple</h2>
+    <p>Jusqu'ici, chaque appel récursif en déclenchait un seul. Rien n'empêche d'en déclencher <b>plusieurs</b> : la fonction
+      forme alors un véritable <b>arbre d'appels</b>.</p>
+
+    <h3>La suite de Fibonacci</h3>
+    <p>Elle est définie par <span class="m">F(0) = 0</span>, <span class="m">F(1) = 1</span>, et pour <span class="m">n ≥ 2</span> :
+      <span class="m">F(n) = F(n − 1) + F(n − 2)</span>. Deux appels récursifs à chaque étage. La traduction en Python est
+      immédiate :</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">fib</span>(n):
+    <span class="kw">if</span> n &lt; <span class="nb">2</span>:
+        <span class="kw">return</span> n
+    <span class="kw">return</span> <span class="fn">fib</span>(n - <span class="nb">1</span>) + <span class="fn">fib</span>(n - <span class="nb">2</span>)</pre>
+
+    <div class="fig">
+      <svg viewBox="0 0 460 230">
+        <!-- fib(5) tree -->
+        <line class="e" x1="230" y1="25" x2="130" y2="65"/><line class="e" x1="230" y1="25" x2="330" y2="65"/>
+        <line class="e" x1="130" y1="65" x2="70" y2="105"/><line class="e" x1="130" y1="65" x2="190" y2="105"/>
+        <line class="e" x1="330" y1="65" x2="270" y2="105"/><line class="e" x1="330" y1="65" x2="390" y2="105"/>
+        <line class="e" x1="70" y1="105" x2="40" y2="145"/><line class="e" x1="70" y1="105" x2="100" y2="145"/>
+        <line class="e" x1="190" y1="105" x2="160" y2="145"/><line class="e" x1="190" y1="105" x2="220" y2="145"/>
+        <line class="e" x1="270" y1="105" x2="240" y2="145"/><line class="e" x1="270" y1="105" x2="300" y2="145"/>
+        <line class="e" x1="40" y1="145" x2="25" y2="185"/><line class="e" x1="40" y1="145" x2="55" y2="185"/>
+        <line class="e" x1="160" y1="145" x2="145" y2="185"/><line class="e" x1="160" y1="145" x2="175" y2="185"/>
+        <line class="e" x1="240" y1="145" x2="225" y2="185"/><line class="e" x1="240" y1="145" x2="255" y2="185"/>
+        <g class="n root"><circle cx="230" cy="25" r="18"/><text x="230" y="25">fib 5</text></g>
+        <g class="n"><circle cx="130" cy="65" r="16"/><text x="130" y="65" font-size="11">fib 4</text></g>
+        <g class="n hi"><circle cx="330" cy="65" r="16"/><text x="330" y="65" font-size="11">fib 3</text></g>
+        <g class="n"><circle cx="70" cy="105" r="14"/><text x="70" y="105" font-size="10">fib 3</text></g>
+        <g class="n hi"><circle cx="190" cy="105" r="14"/><text x="190" y="105" font-size="10">fib 2</text></g>
+        <g class="n hi"><circle cx="270" cy="105" r="14"/><text x="270" y="105" font-size="10">fib 2</text></g>
+        <g class="n base"><circle cx="390" cy="105" r="14"/><text x="390" y="105" font-size="10">fib 1</text></g>
+        <g class="n hi"><circle cx="40" cy="145" r="12"/><text x="40" y="145" font-size="9">fib 2</text></g>
+        <g class="n base"><circle cx="100" cy="145" r="12"/><text x="100" y="145" font-size="9">fib 1</text></g>
+        <g class="n base"><circle cx="160" cy="145" r="12"/><text x="160" y="145" font-size="9">fib 1</text></g>
+        <g class="n base"><circle cx="220" cy="145" r="12"/><text x="220" y="145" font-size="9">fib 0</text></g>
+        <g class="n base"><circle cx="240" cy="145" r="12"/><text x="240" y="145" font-size="9">fib 1</text></g>
+        <g class="n base"><circle cx="300" cy="145" r="12"/><text x="300" y="145" font-size="9">fib 0</text></g>
+        <g class="n base"><circle cx="25" cy="185" r="10"/><text x="25" y="185" font-size="8">1</text></g>
+        <g class="n base"><circle cx="55" cy="185" r="10"/><text x="55" y="185" font-size="8">0</text></g>
+        <g class="n base"><circle cx="145" cy="185" r="10"/><text x="145" y="185" font-size="8">1</text></g>
+        <g class="n base"><circle cx="175" cy="185" r="10"/><text x="175" y="185" font-size="8">0</text></g>
+        <g class="n base"><circle cx="225" cy="185" r="10"/><text x="225" y="185" font-size="8">1</text></g>
+        <g class="n base"><circle cx="255" cy="185" r="10"/><text x="255" y="185" font-size="8">0</text></g>
+        <text class="lab o" x="340" y="210">fib(2) et fib(3) sont recalculés plusieurs fois</text>
+      </svg>
+      <div class="cap">Arbre d'appels de <code>fib(5)</code>. Les sous-arbres identiques (en orange) sont recalculés à partir de zéro à chaque fois.</div>
+    </div>
+
+    <div class="box warn">
+      <span class="lbl">Attention — le coût caché</span>
+      <p>Le nombre d'appels de <code>fib(n)</code> est de l'ordre de <b>φ<sup>n</sup></b> (avec φ ≈ 1,618). Pour <span class="m">n = 40</span>,
+        c'est plus de 300 millions d'appels : <code>fib(40)</code> prend plusieurs secondes alors qu'il y a seulement 41 valeurs
+        à calculer. Une version itérative — ou récursive avec mémoïsation — règle le problème en 40 étapes.</p>
+    </div>
+
+<pre class="code"><span class="cm"># Version itérative : linéaire, en O(n)</span>
+<span class="kw">def</span> <span class="fn">fib_iter</span>(n):
+    a, b = <span class="nb">0</span>, <span class="nb">1</span>
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(n):
+        a, b = b, a + b
+    <span class="kw">return</span> a
+
+<span class="cm"># Version récursive mémoïsée : chaque fib(k) n'est calculé qu'une fois</span>
+<span class="kw">def</span> <span class="fn">fib_memo</span>(n, memo={}):
+    <span class="kw">if</span> n &lt; <span class="nb">2</span>:
+        <span class="kw">return</span> n
+    <span class="kw">if</span> n <span class="kw">not in</span> memo:
+        memo[n] = <span class="fn">fib_memo</span>(n - <span class="nb">1</span>) + <span class="fn">fib_memo</span>(n - <span class="nb">2</span>)
+    <span class="kw">return</span> memo[n]</pre>
+
+    <h3>Les Tours de Hanoï</h3>
+    <p>Trois tiges, <i>n</i> disques empilés par taille décroissante sur la tige de départ, les plus grands en bas. Il faut
+      déplacer la tour sur la tige d'arrivée, en respectant deux règles : <b>un seul disque à la fois</b>, et <b>jamais
+      un grand disque sur un plus petit</b>. L'algorithme récursif est d'une élégance rare :</p>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — Hanoï à n disques, de la tige A vers la tige C via B</span>
+      <ol>
+        <li>Si <span class="m">n = 0</span>, il n'y a rien à faire (cas de base).</li>
+        <li>Déplacer <b>n − 1 disques</b> de A vers B, en utilisant C comme intermédiaire. <i>(appel récursif)</i></li>
+        <li>Déplacer le <b>plus grand disque</b>, le seul resté sur A, directement sur C.</li>
+        <li>Déplacer les <b>n − 1 disques</b> de B vers C, en utilisant A comme intermédiaire. <i>(deuxième appel récursif)</i></li>
+      </ol>
+    </div>
+
+<pre class="code"><span class="kw">def</span> <span class="fn">hanoi</span>(n, depart, arrivee, intermediaire):
+    <span class="kw">if</span> n == <span class="nb">0</span>:
+        <span class="kw">return</span>
+    <span class="fn">hanoi</span>(n - <span class="nb">1</span>, depart, intermediaire, arrivee)
+    <span class="fn">print</span>(<span class="st">"déplacer un disque de"</span>, depart, <span class="st">"vers"</span>, arrivee)
+    <span class="fn">hanoi</span>(n - <span class="nb">1</span>, intermediaire, arrivee, depart)
+
+<span class="fn">hanoi</span>(<span class="nb">3</span>, <span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"B"</span>)</pre>
+    <p>Pour n disques, l'algorithme effectue exactement <span class="m">2<sup>n</sup> − 1</span> déplacements : 1 pour n = 1,
+      7 pour n = 3, 1023 pour n = 10. Si la légende de Brahma dit vrai (64 disques), 2<sup>64</sup> − 1 ≈ 1,8 × 10<sup>19</sup>
+      déplacements : plusieurs centaines de milliards d'années à raison d'un disque par seconde.</p>
+
+    <h3>À manipuler : résolution récursive des Tours de Hanoï</h3>
+    <div class="frame-emb">
+      <iframe src="../../animation/tours-de-hanoi.html" title="Tours de Hanoï" loading="lazy"></iframe>
+      <div class="fbar"><span>Choisissez le nombre de disques, laissez l'algorithme résoudre, comptez les coups : vous obtenez bien 2<sup>n</sup> − 1.</span><a href="../../animation/tours-de-hanoi.html" target="_blank" rel="noopener">Plein écran ↗</a></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 7 ══════════════════ -->
+  <section class="part" id="p7">
+    <h2><span class="pn">7</span> Les pièges classiques</h2>
+
+    <h3>1. Cas de base oublié</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">compte</span>(n):
+    <span class="kw">return</span> <span class="nb">1</span> + <span class="fn">compte</span>(n - <span class="nb">1</span>)      <span class="cm"># où est l'arrêt ?</span></pre>
+    <p>Sans test <code>if n == 0: return 0</code>, la fonction appelle <code>compte(-1)</code>, puis <code>compte(-2)</code>…
+      Rien ne l'arrête. Python finit par lever une <code>RecursionError</code>.</p>
+
+    <h3>2. Convergence oubliée</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">bizarre</span>(n):
+    <span class="kw">if</span> n == <span class="nb">0</span>:
+        <span class="kw">return</span> <span class="nb">0</span>
+    <span class="kw">return</span> <span class="fn">bizarre</span>(n + <span class="nb">1</span>)         <span class="cm"># on s'éloigne du cas de base</span></pre>
+    <p>Le cas de base existe, mais chaque appel augmente <code>n</code> : on n'y arrivera jamais pour <code>n = 1</code>, 2…
+      Même erreur à l'exécution.</p>
+
+    <h3>3. Modifier un argument au mauvais moment</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">somme</span>(n):
+    n = n - <span class="nb">1</span>
+    <span class="kw">if</span> n == <span class="nb">0</span>:
+        <span class="kw">return</span> <span class="nb">0</span>
+    <span class="kw">return</span> n + <span class="fn">somme</span>(n)             <span class="cm"># appel avec le même n modifié : ambigu</span></pre>
+    <p>Difficile à lire, et facile à se tromper d'un cran (on calcule la somme de 1 à n − 1 au lieu de 1 à n). Mieux vaut
+      laisser le paramètre tel quel et ne modifier que l'argument des appels : <code>return n + somme(n - 1)</code>.</p>
+
+    <h3>4. Recalcul massif (cf. partie 6)</h3>
+    <p>Deux appels récursifs qui portent sur les mêmes sous-problèmes font exploser le nombre total d'appels. Reconnaître
+      ce schéma — « est-ce que je vais recalculer dix fois la même chose ? » — et le corriger par mémoïsation ou par une
+      version itérative est un réflexe à prendre.</p>
+
+    <h3>5. Confondre récursif et renvoyé</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">longueur</span>(s):
+    <span class="kw">if</span> s == <span class="st">""</span>:
+        <span class="kw">return</span> <span class="nb">0</span>
+    <span class="fn">longueur</span>(s[<span class="nb">1</span>:])                   <span class="cm"># appel récursif… dont le résultat est jeté</span>
+    <span class="kw">return</span> <span class="nb">1</span></pre>
+    <p>La fonction appelle bien <code>longueur</code> sur <code>s[1:]</code>, mais ne récupère pas son résultat avec un
+      <code>return</code> : elle renvoie toujours 1, quelle que soit la longueur de la chaîne. Le bon code est
+      <code>return 1 + longueur(s[1:])</code>.</p>
+
+    <div class="box key">
+      <span class="lbl">Checklist avant de lancer une fonction récursive</span>
+      <ul>
+        <li>Le cas de base est-il écrit ? Est-il avant le <code>return</code> récursif ?</li>
+        <li>Chaque appel récursif porte-t-il sur un argument <b>strictement plus petit</b> ?</li>
+        <li>Le résultat de chaque appel récursif est-il bien <b>utilisé</b> dans un <code>return</code> ou une expression ?</li>
+        <li>Puis-je prévoir la profondeur maximale (reste-t-elle sous 1000) ?</li>
+        <li>Est-ce que je recalcule plusieurs fois le même sous-problème ? Si oui, mémoïsation ou itératif.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 8 ══════════════════ -->
+  <section class="part" id="p8">
+    <h2><span class="pn">8</span> Ce qu'il faut retenir</h2>
+    <div class="recap">
+      <div><b>Récursive</b>Une fonction qui s'appelle elle-même sur un sous-problème plus petit.</div>
+      <div><b>Les trois ingrédients</b>Un cas de base, un cas récursif, une convergence vers le cas de base.</div>
+      <div><b>Pile d'appels</b>Chaque appel suspendu occupe un cadre dans la pile ; le dépilement remonte les résultats.</div>
+      <div><b>Profondeur</b>Taille maximale de la pile pendant un calcul. Limite Python ≈ 1000.</div>
+      <div><b>Récursif ou itératif</b>Récursif pour les problèmes hiérarchiques (arbres, dichotomie, Hanoï) ; itératif pour les parcours linéaires.</div>
+      <div><b>Diviser pour régner</b>Diviser en sous-problèmes <b>plusieurs fois plus petits</b>, résoudre, combiner. Souvent O(log n) ou O(n log n).</div>
+      <div><b>Récursivité multiple</b>Plusieurs appels par étage → arbre d'appels. Risque de recalculs ; mémoïsation en remède.</div>
+      <div><b>Hanoï</b>Hanoï(n) = Hanoï(n − 1) + 1 + Hanoï(n − 1), soit 2<sup>n</sup> − 1 coups.</div>
+    </div>
+    <div class="box key">
+      <span class="lbl">Les fonctions à savoir écrire</span>
+      <p><code>factorielle</code>, <code>somme</code> des entiers, <code>puissance</code>, <code>longueur</code> d'une chaîne,
+        <code>dichotomie</code> récursive, <code>fib</code> (et sa version mémoïsée), <code>hanoi</code>, et toutes les
+        fonctions récursives sur les arbres binaires (<code>taille</code>, <code>hauteur</code>, parcours).</p>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div class="t">
+      <b>Le TD autocorrigé</b>
+      <span>Trace à la main, écrire des fonctions récursives, pile d'appels, dichotomie et Hanoï : chaque réponse est corrigée immédiatement.</span>
+    </div>
+    <a href="exercices-recursivite.html">Faire le TD →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  var links = [].slice.call(document.querySelectorAll('#chapnav a'));
+  var parts = links.map(function(l){ return document.querySelector(l.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 140, k = 0;
+    parts.forEach(function(p, i){ if (p && p.offsetTop <= y) k = i; });
+    links.forEach(function(l, i){ l.classList.toggle('on', i === k); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TD Types construits — exercices autocorrigés — Première NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --ok-dim:rgba(52,211,153,.13); --bad:#ff5c7a; --bad-dim:rgba(255,92,122,.12);
+         --warn:#ffc53d; --vio:#b57bff; }
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+  .scorebar{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .scorebar-in{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;gap:.7rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+  .scoretxt{font-family:var(--mono);font-size:.88rem;color:var(--text);flex:none} .scoretxt b{color:var(--ok)}
+  .gauge{flex:1 1 90px;height:6px;border-radius:100px;background:var(--bg-card);overflow:hidden;min-width:70px}
+  .gauge i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+  .scorebar button{font-family:inherit;font-size:.8rem;background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.4rem .75rem;cursor:pointer;flex:none}
+  .scorebar button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .scorebar button.primary{background:var(--nsi-dim);color:var(--nsi);border-color:rgba(108,158,255,.35)}
+
+  .exo{scroll-margin-top:118px;margin-bottom:2.8rem}
+  .exo > h2{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;font-size:1.3rem;padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem}
+  .exo > h2 .pn{font-family:var(--mono);font-size:.8rem;color:var(--nsi);background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .exo > h2 .cnt{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--text-muted);font-weight:400;flex:none}
+  .exo > h2 .cnt.full{color:var(--ok)}
+  .consigne{color:#c9cdda;font-size:.93rem;margin:1.1rem 0 .7rem;line-height:1.55}
+  .consigne b{color:var(--text)}
+  .rappel{border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.88rem;color:#c9cdda}
+  .rappel b{color:var(--text)}
+  code,.m{font-family:var(--mono);font-size:.92em}
+
+  .qs{display:grid;gap:.55rem}
+  .q{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:.6rem;align-items:center;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .q:last-child{border-bottom:none}
+  .q .lab{font-size:.9rem;color:#c9cdda} .q .lab small{display:block;font-size:.74rem;color:var(--text-muted);margin-top:.1rem}
+  .fld{position:relative;display:flex;align-items:center;gap:.35rem}
+  input.f{font-family:var(--mono);font-size:.9rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.38rem .55rem;width:100%;min-width:0;transition:.15s}
+  input.f:focus{outline:none;border-color:var(--nsi)}
+  input.f.ok{border-color:var(--ok);background:var(--ok-dim)} input.f.ko{border-color:var(--bad);background:var(--bad-dim)}
+  .fld .mark{font-size:.95rem;width:1em;flex:none;text-align:center} .fld .mark.ok{color:var(--ok)} .fld .mark.ko{color:var(--bad)}
+  .sol{display:none;font-family:var(--mono);font-size:.76rem;color:var(--ok);margin-top:.2rem;word-break:break-all;grid-column:2}
+  .exo.solved .sol{display:block}
+
+  .mcq{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.8rem 1rem;margin:.6rem 0}
+  .mcq .qt{font-size:.92rem;color:var(--text);margin-bottom:.55rem}
+  .mcq label{display:flex;align-items:center;gap:.6rem;padding:.35rem .5rem;border-radius:7px;cursor:pointer;font-size:.88rem;color:#c9cdda;border:1px solid transparent}
+  .mcq label:hover{background:rgba(255,255,255,.04)}
+  .mcq input{accent-color:var(--nsi)}
+  .mcq.ok label.checked{border-color:var(--ok);background:var(--ok-dim)} .mcq.ko label.checked{border-color:var(--bad);background:var(--bad-dim)}
+  .exo.solved .mcq label.right{border-color:var(--ok)}
+  .mcq .expl{display:none;font-size:.84rem;color:#c9cdda;margin-top:.5rem;border-top:1px dashed var(--border);padding-top:.5rem}
+  .exo.solved .mcq .expl{display:block}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.9;background:#0c0e15;border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;margin:.7rem 0;overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c} pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+  pre.code input.f{display:inline-block;width:auto;min-width:9ch;padding:.1rem .45rem;font-size:.84rem;vertical-align:baseline;margin:0 .1rem}
+  pre.code .csol{display:none;color:var(--ok);font-size:.78rem} .exo.solved pre.code .csol{display:inline}
+
+  .open{border:1px solid var(--border);border-left:3px solid var(--vio);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.95rem 1.1rem;margin:1.1rem 0}
+  .open .qt{font-size:.92rem;color:var(--text);margin-bottom:.6rem}
+  .open textarea{width:100%;font-family:inherit;font-size:.88rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.5rem .65rem;min-height:4.2rem;resize:vertical}
+  .open textarea:focus{outline:none;border-color:var(--vio)}
+  .open .rev{margin-top:.55rem;font-family:inherit;font-size:.78rem;background:transparent;color:var(--vio);border:1px solid rgba(181,123,255,.35);border-radius:7px;padding:.35rem .7rem;cursor:pointer}
+  .open .rev:hover{background:rgba(181,123,255,.12)}
+  .open .modele{display:none;margin-top:.6rem;font-size:.87rem;color:#c9cdda;line-height:1.55;border-top:1px dashed var(--border);padding-top:.6rem}
+  .open .modele.show{display:block}
+  details.repli{border:1px solid var(--border);border-radius:8px;background:var(--bg-card);padding:.2rem .9rem;margin:1.2rem 0}
+  details.repli > summary{cursor:pointer;padding:.6rem 0;font-size:.9rem;color:var(--nsi);font-weight:600;list-style:none}
+  details.repli > summary::-webkit-details-marker{display:none}
+  details.repli > summary::before{content:"▸ "} details.repli[open] > summary::before{content:"▾ "}
+  .exfoot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .exfoot button{font-family:inherit;font-size:.78rem;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:7px;padding:.38rem .7rem;cursor:pointer}
+  .exfoot button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 10px 10px 0;background:var(--nsi-dim);padding:1.1rem 1.3rem;margin:1rem 0 2rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--nsi);color:#07182f;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+
+  .tbltd{width:100%;border-collapse:collapse;font-size:.86rem;margin:.6rem 0}
+  .tbltd th,.tbltd td{border:1px solid var(--border);padding:.4rem .6rem;text-align:center;font-family:var(--mono)}
+  .tbltd th{background:var(--bg-card);color:var(--nsi);text-transform:uppercase;font-size:.72rem;letter-spacing:.05em}
+  @media (max-width:640px){
+    .scorebar-in{padding:.55rem 1rem;gap:.5rem} .scoretxt{font-size:.8rem}
+    .exo > h2{font-size:1.1rem}
+    .q{grid-template-columns:1fr} .sol{grid-column:1}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="scorebar">
+  <div class="scorebar-in">
+    <span class="scoretxt"><b id="sOk">0</b>/<span id="sTot">0</span></span>
+    <span class="gauge"><i id="sBar"></i></span>
+    <button type="button" id="btnCheck" class="primary">Tout vérifier</button>
+    <button type="button" id="btnReset">Effacer</button>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>TD Types construits <span class="badge badge-nsi">Première</span></h1>
+    <p class="subtitle">p-uplets, listes, alias et copies, matrices, dictionnaires, tables de données.
+      Tapez votre réponse : elle est corrigée immédiatement. Vos réponses sont conservées dans ce navigateur.</p>
+  </div>
+
+  <div class="cta">
+    <div class="t"><b>Besoin d'un rappel ?</b><span>Les définitions, les méthodes <code>append</code>, <code>pop</code>…, l'alias et les clés de dictionnaire : tout est dans le cours.</span></div>
+    <a href="cours-types-construits.html">Voir le cours →</a>
+  </div>
+
+  <div id="exos"></div>
+
+  <div class="cta">
+    <div class="t"><b>Le cours du chapitre</b><span>p-uplets, listes, dictionnaires, matrices, tables de données.</span></div>
+    <a href="cours-types-construits.html">Voir le cours →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  'use strict';
+  var STORE = 'nsi-td-types-construits-v1';
+
+  var TD = [
+    { id: 'ex1', titre: 'Les p-uplets', groupes: [
+      { type: 'rappel', texte: 'Un p-uplet s\'écrit entre parenthèses, est <b>ordonné</b>, de <b>longueur fixée</b> et <b>immuable</b>. Accès par indice (à partir de 0). Pour un p-uplet d\'un seul élément, la virgule est obligatoire : <code>(5,)</code>.' },
+      { type: 'code', consigne: 'On considère :', lines: [
+        'date = (<span class="nb">7</span>, <span class="nb">10</span>, <span class="nb">2026</span>)',
+        'point = (<span class="nb">3</span>, <span class="nb">4</span>)' ], blanks: [] },
+      { type: 'qs', consigne: 'Donnez le résultat exact de chaque expression.', items: [
+        { lab: '<code>date[0]</code>', a: 7, t: 'int' },
+        { lab: '<code>date[2]</code>', a: 2026, t: 'int' },
+        { lab: '<code>len(date)</code>', a: 3, t: 'int' },
+        { lab: '<code>point[0] + point[1]</code>', a: 7, t: 'int' },
+        { lab: '<code>point + (5, 6)</code>', small: 'écrire le résultat entre parenthèses', a: ['(3,4,5,6)'], alt: ['(3, 4, 5, 6)'], t: 'txt' },
+        { lab: '<code>2026 in date</code>', a: ['True', 'true', 'vrai'], t: 'txt' },
+        { lab: '<code>len((5,))</code>', a: 1, t: 'int' },
+        { lab: '<code>len((5))</code>', small: 'attention, ce n\'est pas un p-uplet', a: ['typeerror', 'erreur', 'error'], t: 'txt' },
+      ] },
+      { type: 'mcq', q: 'Que se passe-t-il si l\'on écrit <code>point[0] = 99</code> ?', opts: ['L\'abscisse devient 99', 'Python lève une erreur <code>TypeError</code> : les p-uplets sont immuables', 'Rien, l\'instruction est ignorée'], ok: 1, expl: 'Un p-uplet ne peut pas être modifié après sa création. Pour « changer » un point, il faut en recréer un nouveau : <code>point = (99, point[1])</code>.' },
+      { type: 'code', consigne: 'La fonction suivante utilise un p-uplet pour renvoyer deux valeurs.', lines: [
+        '<span class="kw">def</span> <span class="fn">min_max</span>(t):',
+        '    <span class="kw">return</span> <span class="fn">min</span>(t), <span class="fn">max</span>(t)',
+        '',
+        'a, b = <span class="fn">min_max</span>([<span class="nb">7</span>, <span class="nb">3</span>, <span class="nb">9</span>, <span class="nb">1</span>, <span class="nb">4</span>])' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Que vaut <code>a</code> ?', a: 1, t: 'int' },
+        { lab: 'Que vaut <code>b</code> ?', a: 9, t: 'int' },
+        { lab: '<code>min_max([2, 2, 2])</code> renvoie…', small: 'écrire le p-uplet', a: ['(2,2)'], alt: ['(2, 2)'], t: 'txt' },
+      ] },
+      { type: 'open', q: 'Écrivez une seule ligne de Python qui échange les valeurs de <code>a</code> et <code>b</code>, sans utiliser de troisième variable.', modele: '<pre class="code" style="margin:0">a, b = b, a</pre>Python évalue d\'abord le p-uplet <code>(b, a)</code> à droite, puis l\'affecte au p-uplet de variables <code>(a, b)</code> à gauche.' },
+    ] },
+
+    { id: 'ex2', titre: 'Les listes : accès et modification', groupes: [
+      { type: 'rappel', texte: 'Les listes sont modifiables. <code>t.append(x)</code> ajoute à la fin, <code>t.pop()</code> retire et renvoie le dernier, <code>t.insert(i, x)</code> insère à l\'indice i. Ces méthodes modifient la liste et <b>ne renvoient pas la nouvelle liste</b> (sauf pop).' },
+      { type: 'code', consigne: 'On considère :', lines: ['t = [<span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">30</span>, <span class="nb">40</span>, <span class="nb">50</span>]'], blanks: [] },
+      { type: 'qs', consigne: 'Donnez le résultat de chaque expression (sans les instructions qui précèdent sauf si c\'est précisé).', items: [
+        { lab: '<code>t[0]</code>', a: 10, t: 'int' },
+        { lab: '<code>t[4]</code>', a: 50, t: 'int' },
+        { lab: '<code>t[-1]</code>', a: 50, t: 'int' },
+        { lab: '<code>t[-2]</code>', a: 40, t: 'int' },
+        { lab: '<code>len(t)</code>', a: 5, t: 'int' },
+        { lab: '<code>sum(t)</code>', a: 150, t: 'int' },
+        { lab: '<code>min(t)</code>', a: 10, t: 'int' },
+        { lab: '<code>t[5]</code>', small: 'si c\'est une erreur, écrivez le nom de l\'erreur', a: ['indexerror', 'erreur', 'error'], t: 'txt' },
+        { lab: '<code>30 in t</code>', a: ['True', 'true', 'vrai'], t: 'txt' },
+      ] },
+      { type: 'qs', consigne: 'On exécute les instructions suivantes, dans l\'ordre, en partant de <code>t = [10, 20, 30, 40, 50]</code>. Donnez la valeur de <code>t</code> après chaque étape (écrivez la liste entre crochets).', items: [
+        { lab: '<code>t.append(60)</code>', a: ['[10,20,30,40,50,60]'], alt: ['[10, 20, 30, 40, 50, 60]'], t: 'txt' },
+        { lab: 'puis <code>t.pop()</code>', small: 'donnez la liste t', a: ['[10,20,30,40,50]'], alt: ['[10, 20, 30, 40, 50]'], t: 'txt' },
+        { lab: 'puis <code>t[1] = 99</code>', a: ['[10,99,30,40,50]'], alt: ['[10, 99, 30, 40, 50]'], t: 'txt' },
+        { lab: 'puis <code>t.insert(0, 0)</code>', a: ['[0,10,99,30,40,50]'], alt: ['[0, 10, 99, 30, 40, 50]'], t: 'txt' },
+        { lab: 'puis <code>t.remove(99)</code>', a: ['[0,10,30,40,50]'], alt: ['[0, 10, 30, 40, 50]'], t: 'txt' },
+        { lab: 'puis <code>del t[0]</code>', a: ['[10,30,40,50]'], alt: ['[10, 30, 40, 50]'], t: 'txt' },
+      ] },
+      { type: 'mcq', q: 'Quelle est la valeur de <code>t</code> après <code>t = t.append(60)</code> (sur <code>t = [10, 20, 30]</code>) ?', opts: ['[10, 20, 30, 60]', '[10, 20, 30]', '<code>None</code>'], ok: 2, expl: '<code>append</code> modifie la liste et renvoie <code>None</code>. L\'affectation <code>t = ...</code> écrase donc <code>t</code> par <code>None</code>. On écrit simplement <code>t.append(60)</code>, sans affectation.' },
+      { type: 'code', consigne: 'Complétez la fonction <b>moyenne</b> qui renvoie la moyenne des éléments d\'une liste non vide.', lines: [
+        '<span class="kw">def</span> <span class="fn">moyenne</span>(t):',
+        '    <span class="kw">return</span> <span class="fn">sum</span>(t) / {{0}}' ],
+        blanks: [ { a: 'len(t)', t: 'py' } ] },
+      { type: 'code', consigne: 'Complétez une fonction qui compte les notes au-dessus de 10.', lines: [
+        '<span class="kw">def</span> <span class="fn">nb_bonnes</span>(notes):',
+        '    c = <span class="nb">0</span>',
+        '    <span class="kw">for</span> n <span class="kw">in</span> notes:',
+        '        <span class="kw">if</span> n &gt;= {{0}}:',
+        '            c = c + <span class="nb">1</span>',
+        '    <span class="kw">return</span> {{1}}' ],
+        blanks: [ { a: '10', t: 'py' }, { a: 'c', t: 'py' } ] },
+      { type: 'open', q: 'Écrivez une fonction <code>pairs(t)</code> qui renvoie la liste des éléments pairs d\'une liste d\'entiers <code>t</code>.', modele: '<pre class="code" style="margin:0">def pairs(t):\n    r = []\n    for x in t:\n        if x % 2 == 0:\n            r.append(x)\n    return r</pre>Ou plus court, en compréhension : <code>return [x for x in t if x % 2 == 0]</code>.' },
+    ] },
+
+    { id: 'ex3', titre: 'Alias ou copie ?', groupes: [
+      { type: 'rappel', texte: 'Après <code>b = a</code>, les deux variables désignent la <b>même</b> liste : modifier l\'une modifie l\'autre. Pour vraiment copier : <code>b = a.copy()</code> (ou <code>list(a)</code>, ou <code>a[:]</code>).' },
+      { type: 'code', consigne: 'On exécute :', lines: [
+        'a = [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>]',
+        'b = a',
+        'b.append(<span class="nb">4</span>)' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Que vaut <code>b</code> ?', a: ['[1,2,3,4]'], alt: ['[1, 2, 3, 4]'], t: 'txt' },
+        { lab: 'Que vaut <code>a</code> ?', a: ['[1,2,3,4]'], alt: ['[1, 2, 3, 4]'], t: 'txt' },
+      ] },
+      { type: 'code', consigne: 'On exécute, à partir d\'une liste neuve :', lines: [
+        'a = [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>]',
+        'b = a.<span class="fn">copy</span>()',
+        'b.append(<span class="nb">4</span>)' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Que vaut <code>b</code> ?', a: ['[1,2,3,4]'], alt: ['[1, 2, 3, 4]'], t: 'txt' },
+        { lab: 'Que vaut <code>a</code> ?', a: ['[1,2,3]'], alt: ['[1, 2, 3]'], t: 'txt' },
+      ] },
+      { type: 'mcq', q: 'Lequel des codes suivants <b>ne crée pas</b> une copie indépendante de <code>a</code> ?', opts: ['<code>b = a.copy()</code>', '<code>b = list(a)</code>', '<code>b = a[:]</code>', '<code>b = a</code>'], ok: 3, expl: 'Les trois premiers font bien une copie ; <code>b = a</code> ne fait que donner un second nom à la même liste.' },
+      { type: 'mcq', q: 'Et si <code>a</code> et <code>b</code> étaient des p-uplets ? Que se passerait-il après <code>b = a</code> ?', opts: ['Même problème : modifier b modifierait a', 'Aucun problème : les p-uplets sont immuables, on ne peut pas les modifier de toute façon', 'Erreur à l\'exécution'], ok: 1, expl: 'Puisqu\'aucune instruction ne peut modifier un p-uplet, le fait que deux variables partagent le même p-uplet est sans conséquence. Les p-uplets sont donc plus sûrs quand on partage des données.' },
+      { type: 'open', q: 'Écrivez les instructions qui suivent, à partir de <code>a = [1, 2, 3]</code>, de façon à obtenir <code>a = [1, 2, 3]</code> et <code>b = [1, 2, 3, 4]</code> (deux listes différentes).', modele: '<pre class="code" style="margin:0">a = [1, 2, 3]\nb = a.copy()      # ou list(a), ou a[:]\nb.append(4)</pre>' },
+    ] },
+
+    { id: 'ex4', titre: 'Matrices (tableaux de tableaux)', groupes: [
+      { type: 'rappel', texte: 'Une matrice est une liste de listes. On accède à la case ligne <i>i</i>, colonne <i>j</i> par <code>m[i][j]</code>. Le nombre de lignes est <code>len(m)</code>, le nombre de colonnes <code>len(m[0])</code> (en supposant des lignes de même longueur).' },
+      { type: 'code', consigne: 'On considère la matrice :', lines: [
+        'm = [',
+        '    [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>, <span class="nb">4</span>],',
+        '    [<span class="nb">5</span>, <span class="nb">6</span>, <span class="nb">7</span>, <span class="nb">8</span>],',
+        '    [<span class="nb">9</span>, <span class="nb">10</span>, <span class="nb">11</span>, <span class="nb">12</span>],',
+        ']' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Nombre de lignes', a: 3, t: 'int' },
+        { lab: 'Nombre de colonnes', a: 4, t: 'int' },
+        { lab: '<code>m[0][0]</code>', a: 1, t: 'int' },
+        { lab: '<code>m[2][3]</code>', a: 12, t: 'int' },
+        { lab: '<code>m[1][2]</code>', a: 7, t: 'int' },
+        { lab: '<code>m[0]</code>', small: 'écrire la liste', a: ['[1,2,3,4]'], alt: ['[1, 2, 3, 4]'], t: 'txt' },
+        { lab: '<code>len(m[0])</code>', a: 4, t: 'int' },
+        { lab: 'Après <code>m[1][2] = 99</code>, que vaut <code>m[1]</code> ?', a: ['[5,6,99,8]'], alt: ['[5, 6, 99, 8]'], t: 'txt' },
+      ] },
+      { type: 'code', consigne: 'Complétez le code qui calcule la somme de tous les éléments d\'une matrice <code>m</code>.', lines: [
+        '<span class="kw">def</span> <span class="fn">somme_mat</span>(m):',
+        '    s = <span class="nb">0</span>',
+        '    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>({{0}}):',
+        '        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>({{1}}):',
+        '            s = s + m[i][{{2}}]',
+        '    <span class="kw">return</span> s' ],
+        blanks: [ { a: 'len(m)', t: 'py' }, { a: 'len(m[i])', t: 'py', alt: ['len(m[0])'] }, { a: 'j', t: 'py' } ] },
+      { type: 'mcq', q: 'Pour créer une matrice 3 × 4 remplie de 0, laquelle de ces écritures est <b>correcte</b> (c\'est-à-dire crée trois lignes <b>indépendantes</b>) ?', opts: ['<code>m = [[0] * 4] * 3</code>', '<code>m = [[0] * 4 for _ in range(3)]</code>', '<code>m = [0] * 12</code>'], ok: 1, expl: 'La première syntaxe fabrique une seule liste <code>[0, 0, 0, 0]</code>, puis en met trois alias côte à côte : modifier <code>m[0][0]</code> changerait aussi <code>m[1][0]</code>. La compréhension <code>for _ in range(3)</code> crée trois listes distinctes.' },
+      { type: 'open', q: 'Écrivez une fonction <code>transposee(m)</code> qui renvoie la transposée d\'une matrice <code>m</code> à <code>l</code> lignes et <code>c</code> colonnes (le résultat aura <code>c</code> lignes et <code>l</code> colonnes).', modele: '<pre class="code" style="margin:0">def transposee(m):\n    l = len(m)\n    c = len(m[0])\n    t = [[0] * l for _ in range(c)]\n    for i in range(l):\n        for j in range(c):\n            t[j][i] = m[i][j]\n    return t</pre>Chaque élément <code>m[i][j]</code> va à la case <code>t[j][i]</code>.' },
+    ] },
+
+    { id: 'ex5', titre: 'Dictionnaires', groupes: [
+      { type: 'rappel', texte: 'Un dictionnaire associe des clés (immuables) à des valeurs. Accès : <code>d[cle]</code>. Ajout/modification : <code>d[cle] = val</code>. Test de présence d\'une clé : <code>cle in d</code>. Parcours des paires : <code>for cle, val in d.items():</code>.' },
+      { type: 'code', consigne: 'On considère :', lines: [
+        'eleve = {',
+        '    <span class="st">"nom"</span>: <span class="st">"Camille"</span>,',
+        '    <span class="st">"age"</span>: <span class="nb">17</span>,',
+        '    <span class="st">"notes"</span>: [<span class="nb">12</span>, <span class="nb">15</span>, <span class="nb">9</span>],',
+        '}' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: '<code>eleve["nom"]</code>', small: 'avec ou sans guillemets', a: ['Camille', '"Camille"', '\'Camille\''], t: 'txt' },
+        { lab: '<code>eleve["age"]</code>', a: 17, t: 'int' },
+        { lab: '<code>len(eleve)</code>', a: 3, t: 'int' },
+        { lab: '<code>"age" in eleve</code>', a: ['True', 'true', 'vrai'], t: 'txt' },
+        { lab: '<code>17 in eleve</code>', small: '<code>in</code> teste les clés, pas les valeurs', a: ['False', 'false', 'faux'], t: 'txt' },
+        { lab: '<code>eleve["notes"][1]</code>', a: 15, t: 'int' },
+        { lab: '<code>sum(eleve["notes"])</code>', a: 36, t: 'int' },
+      ] },
+      { type: 'qs', consigne: 'On exécute, dans l\'ordre, en partant du dictionnaire initial :', items: [
+        { lab: 'Après <code>eleve["age"] = 18</code>, <code>eleve["age"]</code> vaut…', a: 18, t: 'int' },
+        { lab: 'Après <code>eleve["ville"] = "Lyon"</code>, <code>len(eleve)</code> vaut…', a: 4, t: 'int' },
+        { lab: 'Après <code>del eleve["notes"]</code>, <code>len(eleve)</code> vaut…', a: 3, t: 'int' },
+      ] },
+      { type: 'mcq', q: 'Que renvoie <code>eleve["classe"]</code> (clé absente, dictionnaire initial) ?', opts: ['Rien, Python renvoie <code>None</code>', 'Une erreur <code>KeyError</code>', 'Une chaîne vide'], ok: 1, expl: 'Accéder à une clé absente lève <code>KeyError</code>. Pour une valeur par défaut, utiliser <code>eleve.get("classe", "inconnue")</code>.' },
+      { type: 'mcq', q: 'Lequel de ces objets ne peut pas servir de clé de dictionnaire ?', opts: ['Une chaîne de caractères', 'Un entier', 'Un p-uplet d\'entiers', 'Une liste'], ok: 3, expl: 'Les clés doivent être immuables. Chaîne, entier, flottant, booléen, p-uplet (si ses éléments sont immuables) sont autorisés ; liste et dictionnaire ne le sont pas.' },
+      { type: 'code', consigne: 'Complétez la fonction <b>compte_lettres</b> qui renvoie un dictionnaire associant à chaque lettre de la chaîne <code>s</code> son nombre d\'apparitions.', lines: [
+        '<span class="kw">def</span> <span class="fn">compte_lettres</span>(s):',
+        '    d = {{0}}',
+        '    <span class="kw">for</span> c <span class="kw">in</span> s:',
+        '        <span class="kw">if</span> c {{1}} d:',
+        '            d[c] = d[c] + <span class="nb">1</span>',
+        '        <span class="kw">else</span>:',
+        '            d[c] = {{2}}',
+        '    <span class="kw">return</span> d' ],
+        blanks: [ { a: '{}', t: 'py', alt: ['dict()'] }, { a: 'in', t: 'py' }, { a: '1', t: 'py' } ] },
+      { type: 'qs', consigne: 'Avec la fonction précédente :', items: [
+        { lab: '<code>compte_lettres("abba")["a"]</code>', a: 2, t: 'int' },
+        { lab: '<code>compte_lettres("mississippi")["s"]</code>', a: 4, t: 'int' },
+        { lab: '<code>len(compte_lettres("abba"))</code>', small: 'nombre de lettres <i>distinctes</i>', a: 2, t: 'int' },
+      ] },
+      { type: 'open', q: 'Écrivez une fonction <code>cle_max(d)</code> qui prend un dictionnaire associant des chaînes à des entiers, et renvoie la clé dont la valeur est la plus grande.', modele: '<pre class="code" style="margin:0">def cle_max(d):\n    meilleure = None\n    best = -float("inf")\n    for cle, val in d.items():\n        if val > best:\n            best = val\n            meilleure = cle\n    return meilleure</pre>Ou plus court : <code>return max(d, key=lambda c: d[c])</code>.' },
+    ] },
+
+    { id: 'ex6', titre: 'Les tables de données', groupes: [
+      { type: 'rappel', texte: 'Une table est une liste de dictionnaires de mêmes clés. On extrait une colonne par une compréhension, on filtre les lignes avec un <code>if</code>. Les valeurs lues depuis un fichier CSV sont des chaînes : il faut convertir celles qu\'on veut traiter comme des nombres.' },
+      { type: 'consigne', texte: '' },
+      { type: 'raw', html: '<div class="consigne">On considère la table suivante :</div><table class="tbltd"><tr><th>indice</th><th>nom</th><th>age</th><th>ville</th></tr><tr><td>0</td><td>Alice</td><td>17</td><td>Lyon</td></tr><tr><td>1</td><td>Bruno</td><td>16</td><td>Paris</td></tr><tr><td>2</td><td>Chloé</td><td>17</td><td>Lyon</td></tr><tr><td>3</td><td>David</td><td>18</td><td>Rennes</td></tr><tr><td>4</td><td>Éva</td><td>16</td><td>Lyon</td></tr></table>' },
+      { type: 'code', consigne: 'En Python :', lines: [
+        'eleves = [',
+        '    {<span class="st">"nom"</span>: <span class="st">"Alice"</span>, <span class="st">"age"</span>: <span class="nb">17</span>, <span class="st">"ville"</span>: <span class="st">"Lyon"</span>},',
+        '    {<span class="st">"nom"</span>: <span class="st">"Bruno"</span>, <span class="st">"age"</span>: <span class="nb">16</span>, <span class="st">"ville"</span>: <span class="st">"Paris"</span>},',
+        '    {<span class="st">"nom"</span>: <span class="st">"Chloé"</span>, <span class="st">"age"</span>: <span class="nb">17</span>, <span class="st">"ville"</span>: <span class="st">"Lyon"</span>},',
+        '    {<span class="st">"nom"</span>: <span class="st">"David"</span>, <span class="st">"age"</span>: <span class="nb">18</span>, <span class="st">"ville"</span>: <span class="st">"Rennes"</span>},',
+        '    {<span class="st">"nom"</span>: <span class="st">"Éva"</span>,   <span class="st">"age"</span>: <span class="nb">16</span>, <span class="st">"ville"</span>: <span class="st">"Lyon"</span>},',
+        ']' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Nombre de lignes', a: 5, t: 'int' },
+        { lab: 'Nombre de champs (colonnes)', a: 3, t: 'int' },
+        { lab: '<code>eleves[0]["nom"]</code>', a: ['Alice', '"Alice"'], t: 'txt' },
+        { lab: '<code>eleves[2]["age"]</code>', a: 17, t: 'int' },
+        { lab: 'Nombre de Lyonnais (<code>ville == "Lyon"</code>)', a: 3, t: 'int' },
+        { lab: 'Somme des âges', a: 84, t: 'int' },
+        { lab: 'Âge moyen (arrondi au dixième si besoin)', a: [16.8, 16.80], t: 'int' },
+        { lab: 'Nombre d\'élèves ayant 17 ans ou plus', a: 3, t: 'int' },
+      ] },
+      { type: 'code', consigne: 'Complétez : liste des noms des élèves de Lyon.', lines: [
+        'lyonnais = [e[{{0}}] <span class="kw">for</span> e <span class="kw">in</span> eleves <span class="kw">if</span> e[{{1}}] == {{2}}]' ],
+        blanks: [ { a: '"nom"', t: 'py', alt: ["'nom'"] }, { a: '"ville"', t: 'py', alt: ["'ville'"] }, { a: '"Lyon"', t: 'py', alt: ["'Lyon'"] } ] },
+      { type: 'code', consigne: 'Complétez : somme des âges.', lines: [
+        'total = <span class="nb">0</span>',
+        '<span class="kw">for</span> e <span class="kw">in</span> {{0}}:',
+        '    total = total + e[{{1}}]' ],
+        blanks: [ { a: 'eleves', t: 'py' }, { a: '"age"', t: 'py', alt: ["'age'"] } ] },
+      { type: 'mcq', q: 'Après avoir lu un fichier CSV avec <code>csv.DictReader</code>, <code>eleves[0]["age"]</code> vaut la chaîne <code>"17"</code>. Pourquoi ?', opts: ['Parce que Python ne sait pas lire les nombres', 'Parce que le module <code>csv</code> renvoie toujours les valeurs comme des chaînes : c\'est au programme de les convertir', 'Parce qu\'il manque une virgule dans le fichier'], ok: 1, expl: 'Le CSV ne porte aucune information sur les types ; le module <code>csv</code> renvoie donc tout en <code>str</code>. On convertit soi-même : <code>e["age"] = int(e["age"])</code>.' },
+      { type: 'open', q: 'Écrivez une fonction <code>par_ville(eleves)</code> qui renvoie un dictionnaire associant à chaque ville la liste des noms des élèves qui y habitent.', modele: '<pre class="code" style="margin:0">def par_ville(eleves):\n    d = {}\n    for e in eleves:\n        v = e["ville"]\n        if v not in d:\n            d[v] = []\n        d[v].append(e["nom"])\n    return d</pre>Résultat sur la table du TD : <code>{"Lyon": ["Alice", "Chloé", "Éva"], "Paris": ["Bruno"], "Rennes": ["David"]}</code>.' },
+      { type: 'qs', repli: 'Pour s\'entraîner à la maison', consigne: 'Dans un fichier <code>villes.csv</code>, chaque ligne contient : nom, departement, population (en milliers). On charge la table dans <code>villes</code> (liste de dictionnaires, les valeurs sont des chaînes).', items: [
+        { lab: 'Après lecture, de quel type est <code>villes[0]["population"]</code> ?', a: ['str', 'chaîne', 'chaine', 'string', 'une chaîne'], t: 'txt' },
+        { lab: 'Code pour convertir toutes les populations en entiers', small: 'une boucle', a: ['for v in villes: v["population"] = int(v["population"])'], alt: ['for v in villes:\n    v["population"] = int(v["population"])'], t: 'txt' },
+        { lab: 'Compréhension donnant la liste des noms des villes du département 69', a: ['[v["nom"] for v in villes if v["departement"] == "69"]'], alt: ['[v[\'nom\'] for v in villes if v[\'departement\'] == \'69\']'], t: 'txt' },
+      ] },
+    ] },
+  ];
+
+  /* ================= normalisation ================= */
+  function strip(s){ return String(s == null ? '' : s).replace(/ /g, ' ').trim(); }
+  function noAccent(s){ return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s; }
+  function normTxt(s){ return noAccent(strip(s).toLowerCase()).replace(/\s+/g, ' ').replace(/[.!]$/, ''); }
+  function normPy(s){ return strip(s).replace(/\s+/g, '').replace(/"/g, "'"); }
+  function isRight(type, given, answer, alt){
+    var g = strip(given); if (!g) return false;
+    var answers = [].concat(answer).concat(alt || []);
+    switch (type){
+      case 'int': { var v = Number(g.replace(/\s/g, '').replace(',', '.')); return answers.some(function(a){ return v === Number(a); }); }
+      case 'txt': return answers.some(function(a){ return normTxt(g) === normTxt(a); });
+      case 'py': return answers.some(function(a){ return normPy(g) === normPy(String(a)); });
+    }
+    return false;
+  }
+  function showAns(a){ return [].concat(a)[0]; }
+
+  /* ================= state ================= */
+  var fields = [], mcqs = [];
+  var saved = {}; try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+  var saveTimer = null;
+  function persist(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      var o = {};
+      fields.forEach(function(f){ if (f.input.value) o[f.id] = f.input.value; });
+      mcqs.forEach(function(m){ var c = m.box.querySelector('input:checked'); if (c) o[m.id] = c.value; });
+      document.querySelectorAll('textarea[data-id]').forEach(function(t){ if (t.value) o[t.dataset.id] = t.value; });
+      try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) {}
+    }, 300);
+  }
+
+  /* ================= build ================= */
+  function el(tag, cls, html){ var d = document.createElement(tag); if (cls) d.className = cls; if (html != null) d.innerHTML = html; return d; }
+  function makeField(id, item, exo, inline){
+    var wrap = el(inline ? 'span' : 'div', 'fld');
+    var inp = el('input', 'f'); inp.type = 'text'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.setAttribute('aria-label', 'réponse');
+    if (item.t === 'int') inp.inputMode = 'numeric';
+    if (inline) inp.style.width = Math.max(9, String(showAns(item.a)).length + 3) + 'ch';
+    var mark = el('span', 'mark');
+    wrap.appendChild(inp); wrap.appendChild(mark);
+    var f = { id: id, type: item.t, answer: item.a, alt: item.alt, input: inp, mark: mark, exo: exo, state: null };
+    fields.push(f);
+    if (saved[id]) inp.value = saved[id];
+    function check(final){
+      var v = inp.value;
+      if (!strip(v)) { setState(f, null); return; }
+      setState(f, isRight(f.type, v, f.answer, f.alt) ? 'ok' : (final ? 'ko' : (f.state === 'ko' ? 'ko' : null)));
+    }
+    inp.addEventListener('input', function(){ check(false); persist(); });
+    inp.addEventListener('change', function(){ check(true); refresh(); });
+    inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') { check(true); refresh(); } });
+    f.check = function(){ check(true); };
+    return wrap;
+  }
+  function setState(f, st){
+    f.state = st;
+    f.input.classList.toggle('ok', st === 'ok'); f.input.classList.toggle('ko', st === 'ko');
+    f.mark.className = 'mark' + (st ? ' ' + st : ''); f.mark.textContent = st === 'ok' ? '✓' : st === 'ko' ? '✗' : '';
+    refresh();
+  }
+  function makeMcq(id, g, exo){
+    var box = el('div', 'mcq');
+    box.appendChild(el('div', 'qt', g.q));
+    var opts = el('div', 'opts');
+    g.opts.forEach(function(o, i){
+      var lab = el('label', i === g.ok ? 'right' : ''); var r = el('input'); r.type = 'radio'; r.name = id; r.value = i;
+      lab.appendChild(r); var span = el('span', null, o); lab.appendChild(span); opts.appendChild(lab);
+      r.addEventListener('change', function(){ mark(); persist(); refresh(); });
+    });
+    box.appendChild(opts);
+    if (g.expl) box.appendChild(el('div', 'expl', '→ ' + g.expl));
+    var m = { id: id, box: box, ok: g.ok, exo: exo, state: null };
+    function mark(){
+      var c = box.querySelector('input:checked');
+      box.querySelectorAll('label').forEach(function(l){ l.classList.toggle('checked', l.querySelector('input').checked); });
+      m.state = c ? (+c.value === g.ok ? 'ok' : 'ko') : null;
+      box.classList.toggle('ok', m.state === 'ok'); box.classList.toggle('ko', m.state === 'ko');
+    }
+    m.check = mark;
+    if (saved[id] != null) { var r0 = box.querySelector('input[value="' + saved[id] + '"]'); if (r0) r0.checked = true; }
+    mark();
+    mcqs.push(m);
+    return box;
+  }
+  function makeOpen(id, g){
+    var box = el('div', 'open'); box.appendChild(el('div', 'qt', g.q));
+    var ta = el('textarea'); ta.dataset.id = id; if (saved[id]) ta.value = saved[id]; ta.addEventListener('input', persist); box.appendChild(ta);
+    var b = el('button', 'rev', 'Voir une réponse modèle'); b.type = 'button';
+    var mod = el('div', 'modele', g.modele);
+    b.addEventListener('click', function(){ mod.classList.toggle('show'); b.textContent = mod.classList.contains('show') ? 'Masquer la réponse modèle' : 'Voir une réponse modèle'; });
+    box.appendChild(b); box.appendChild(mod); return box;
+  }
+
+  var root = document.getElementById('exos');
+  TD.forEach(function(ex, xi){
+    var sec = el('section', 'exo'); sec.id = ex.id;
+    sec.appendChild(el('h2', null, '<span class="pn">' + (xi + 1) + '</span> ' + ex.titre + ' <span class="cnt"></span>'));
+    ex.groupes.forEach(function(g, gi){
+      var host = sec;
+      if (g.repli) { var d = el('details', 'repli'); d.appendChild(el('summary', null, g.repli)); sec.appendChild(d); host = d; }
+      if (g.type === 'rappel') { host.appendChild(el('div', 'rappel', g.texte)); return; }
+      if (g.type === 'raw') { var w = document.createElement('div'); w.innerHTML = g.html; host.appendChild(w); return; }
+      if (g.consigne) host.appendChild(el('div', 'consigne', g.consigne));
+      if (g.type === 'qs') {
+        var qs = el('div', 'qs');
+        g.items.forEach(function(it, ii){
+          var id = ex.id + '_' + gi + '_' + ii;
+          var row = el('div', 'q');
+          row.appendChild(el('div', 'lab', it.lab + (it.small ? '<small>' + it.small + '</small>' : '')));
+          row.appendChild(makeField(id, it, sec));
+          row.appendChild(el('div', 'sol', '→ ' + showAns(it.a)));
+          qs.appendChild(row);
+        });
+        host.appendChild(qs);
+      } else if (g.type === 'mcq') {
+        host.appendChild(makeMcq(ex.id + '_' + gi, g, sec));
+      } else if (g.type === 'open') {
+        host.appendChild(makeOpen(ex.id + '_' + gi, g));
+      } else if (g.type === 'code') {
+        var pre = el('pre', 'code');
+        g.lines.forEach(function(line, li){
+          var parts = line.split(/\{\{(\d+)\}\}/);
+          for (var k = 0; k < parts.length; k++) {
+            if (k % 2 === 0) pre.appendChild(el('span', null, parts[k]));
+            else {
+              var b = g.blanks[+parts[k]], id2 = ex.id + '_' + gi + '_' + parts[k];
+              pre.appendChild(makeField(id2, b, sec, true));
+              pre.appendChild(el('span', 'csol', ' ← ' + showAns(b.a)));
+            }
+          }
+          if (li < g.lines.length - 1) pre.appendChild(document.createTextNode('\n'));
+        });
+        host.appendChild(pre);
+      }
+    });
+    var foot = el('div', 'exfoot');
+    var b1 = el('button', null, 'Vérifier cet exercice'); b1.type = 'button';
+    b1.addEventListener('click', function(){ fields.filter(function(f){ return f.exo === sec; }).forEach(function(f){ f.check(); }); refresh(); });
+    var b2 = el('button', null, 'Voir les réponses'); b2.type = 'button';
+    b2.addEventListener('click', function(){ sec.classList.toggle('solved'); b2.textContent = sec.classList.contains('solved') ? 'Masquer les réponses' : 'Voir les réponses'; });
+    foot.appendChild(b1); foot.appendChild(b2); sec.appendChild(foot);
+    root.appendChild(sec);
+  });
+
+  function refresh(){
+    var all = fields.concat(mcqs), ok = all.filter(function(f){ return f.state === 'ok'; }).length;
+    document.getElementById('sOk').textContent = ok; document.getElementById('sTot').textContent = all.length;
+    document.getElementById('sBar').style.width = (all.length ? 100 * ok / all.length : 0) + '%';
+    document.querySelectorAll('.exo').forEach(function(sec){
+      var mine = all.filter(function(f){ return f.exo === sec; }), k = mine.filter(function(f){ return f.state === 'ok'; }).length;
+      var c = sec.querySelector('.cnt'); c.textContent = k + ' / ' + mine.length; c.classList.toggle('full', k === mine.length && mine.length > 0);
+    });
+  }
+  document.getElementById('btnCheck').addEventListener('click', function(){ fields.forEach(function(f){ f.check(); }); mcqs.forEach(function(m){ m.check(); }); refresh(); });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if (!confirm('Effacer toutes vos réponses ?')) return;
+    fields.forEach(function(f){ f.input.value = ''; setState(f, null); });
+    mcqs.forEach(function(m){ m.box.querySelectorAll('input').forEach(function(r){ r.checked = false; }); m.check(); });
+    document.querySelectorAll('textarea[data-id]').forEach(function(t){ t.value = ''; });
+    document.querySelectorAll('.exo.solved').forEach(function(s){ s.classList.remove('solved'); });
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    refresh();
+  });
+  fields.forEach(function(f){ if (f.input.value) f.check(); });
+  refresh();
+})();
+</script>
+</body>
+</html>
