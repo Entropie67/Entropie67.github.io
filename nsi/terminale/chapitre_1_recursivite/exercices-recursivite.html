@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TD Récursivité — exercices autocorrigés — Terminale NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --ok-dim:rgba(52,211,153,.13); --bad:#ff5c7a; --bad-dim:rgba(255,92,122,.12);
+         --warn:#ffc53d; --vio:#b57bff; }
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+  .scorebar{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .scorebar-in{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;gap:.7rem;padding:.6rem 1.5rem;flex-wrap:wrap}
+  .scoretxt{font-family:var(--mono);font-size:.88rem;color:var(--text);flex:none} .scoretxt b{color:var(--ok)}
+  .gauge{flex:1 1 90px;height:6px;border-radius:100px;background:var(--bg-card);overflow:hidden;min-width:70px}
+  .gauge i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+  .scorebar button{font-family:inherit;font-size:.8rem;background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.4rem .75rem;cursor:pointer;flex:none}
+  .scorebar button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .scorebar button.primary{background:var(--nsi-dim);color:var(--nsi);border-color:rgba(108,158,255,.35)}
+
+  .exo{scroll-margin-top:118px;margin-bottom:2.8rem}
+  .exo > h2{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;font-size:1.3rem;padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem}
+  .exo > h2 .pn{font-family:var(--mono);font-size:.8rem;color:var(--nsi);background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .exo > h2 .cnt{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--text-muted);font-weight:400;flex:none}
+  .exo > h2 .cnt.full{color:var(--ok)}
+  .consigne{color:#c9cdda;font-size:.93rem;margin:1.1rem 0 .7rem;line-height:1.55}
+  .consigne b{color:var(--text)}
+  .rappel{border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.88rem;color:#c9cdda}
+  .rappel b{color:var(--text)}
+  code,.m{font-family:var(--mono);font-size:.92em}
+
+  .qs{display:grid;gap:.55rem}
+  .q{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:.6rem;align-items:center;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .q:last-child{border-bottom:none}
+  .q .lab{font-size:.9rem;color:#c9cdda} .q .lab small{display:block;font-size:.74rem;color:var(--text-muted);margin-top:.1rem}
+  .fld{position:relative;display:flex;align-items:center;gap:.35rem}
+  input.f{font-family:var(--mono);font-size:.9rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.38rem .55rem;width:100%;min-width:0;transition:.15s}
+  input.f:focus{outline:none;border-color:var(--nsi)}
+  input.f.ok{border-color:var(--ok);background:var(--ok-dim)} input.f.ko{border-color:var(--bad);background:var(--bad-dim)}
+  .fld .mark{font-size:.95rem;width:1em;flex:none;text-align:center} .fld .mark.ok{color:var(--ok)} .fld .mark.ko{color:var(--bad)}
+  .sol{display:none;font-family:var(--mono);font-size:.76rem;color:var(--ok);margin-top:.2rem;word-break:break-all;grid-column:2}
+  .exo.solved .sol{display:block}
+
+  .mcq{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.8rem 1rem;margin:.6rem 0}
+  .mcq .qt{font-size:.92rem;color:var(--text);margin-bottom:.55rem}
+  .mcq label{display:flex;align-items:center;gap:.6rem;padding:.35rem .5rem;border-radius:7px;cursor:pointer;font-size:.88rem;color:#c9cdda;border:1px solid transparent}
+  .mcq label:hover{background:rgba(255,255,255,.04)}
+  .mcq input{accent-color:var(--nsi)}
+  .mcq.ok label.checked{border-color:var(--ok);background:var(--ok-dim)} .mcq.ko label.checked{border-color:var(--bad);background:var(--bad-dim)}
+  .exo.solved .mcq label.right{border-color:var(--ok)}
+  .mcq .expl{display:none;font-size:.84rem;color:#c9cdda;margin-top:.5rem;border-top:1px dashed var(--border);padding-top:.5rem}
+  .exo.solved .mcq .expl{display:block}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.9;background:#0c0e15;border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;margin:.7rem 0;overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c} pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+  pre.code input.f{display:inline-block;width:auto;min-width:9ch;padding:.1rem .45rem;font-size:.84rem;vertical-align:baseline;margin:0 .1rem}
+  pre.code .csol{display:none;color:var(--ok);font-size:.78rem} .exo.solved pre.code .csol{display:inline}
+
+  .open{border:1px solid var(--border);border-left:3px solid var(--vio);border-radius:0 8px 8px 0;background:var(--bg-card);padding:.95rem 1.1rem;margin:1.1rem 0}
+  .open .qt{font-size:.92rem;color:var(--text);margin-bottom:.6rem}
+  .open textarea{width:100%;font-family:inherit;font-size:.88rem;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.5rem .65rem;min-height:4.2rem;resize:vertical}
+  .open textarea:focus{outline:none;border-color:var(--vio)}
+  .open .rev{margin-top:.55rem;font-family:inherit;font-size:.78rem;background:transparent;color:var(--vio);border:1px solid rgba(181,123,255,.35);border-radius:7px;padding:.35rem .7rem;cursor:pointer}
+  .open .rev:hover{background:rgba(181,123,255,.12)}
+  .open .modele{display:none;margin-top:.6rem;font-size:.87rem;color:#c9cdda;line-height:1.55;border-top:1px dashed var(--border);padding-top:.6rem}
+  .open .modele.show{display:block}
+  details.repli{border:1px solid var(--border);border-radius:8px;background:var(--bg-card);padding:.2rem .9rem;margin:1.2rem 0}
+  details.repli > summary{cursor:pointer;padding:.6rem 0;font-size:.9rem;color:var(--nsi);font-weight:600;list-style:none}
+  details.repli > summary::-webkit-details-marker{display:none}
+  details.repli > summary::before{content:"▸ "} details.repli[open] > summary::before{content:"▾ "}
+  .exfoot{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .exfoot button{font-family:inherit;font-size:.78rem;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:7px;padding:.38rem .7rem;cursor:pointer}
+  .exfoot button:hover{border-color:var(--nsi);color:var(--nsi)}
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 10px 10px 0;background:var(--nsi-dim);padding:1.1rem 1.3rem;margin:1rem 0 2rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--nsi);color:#07182f;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+  .cta.anim{border-left-color:var(--vio);background:rgba(181,123,255,.07)} .cta.anim a{background:var(--vio);color:#1b0f2e}
+  @media (max-width:640px){
+    .scorebar-in{padding:.55rem 1rem;gap:.5rem} .scoretxt{font-size:.8rem}
+    .exo > h2{font-size:1.1rem}
+    .q{grid-template-columns:1fr} .sol{grid-column:1}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="scorebar">
+  <div class="scorebar-in">
+    <span class="scoretxt"><b id="sOk">0</b>/<span id="sTot">0</span></span>
+    <span class="gauge"><i id="sBar"></i></span>
+    <button type="button" id="btnCheck" class="primary">Tout vérifier</button>
+    <button type="button" id="btnReset">Effacer</button>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>TD Récursivité <span class="badge badge-nsi">Terminale</span></h1>
+    <p class="subtitle">Trace à la main, écriture de fonctions récursives, pile d'appels, dichotomie, Fibonacci, Hanoï.
+      Tapez votre réponse : elle est corrigée immédiatement. Vos réponses sont conservées dans ce navigateur.</p>
+  </div>
+
+  <div class="cta">
+    <div class="t"><b>Besoin d'un rappel ?</b><span>Les trois ingrédients, la pile d'appels, diviser pour régner, les pièges — tout est dans le cours.</span></div>
+    <a href="cours-recursivite.html">Voir le cours →</a>
+  </div>
+  <div class="cta anim">
+    <div class="t"><b>Pour vérifier une intuition</b><span>Les Tours de Hanoï résolues disque par disque, à n'importe quel nombre.</span></div>
+    <a href="../../animation/tours-de-hanoi.html" target="_blank" rel="noopener">Ouvrir l'animation ↗</a>
+  </div>
+
+  <div id="exos"></div>
+
+  <div class="cta">
+    <div class="t"><b>Le cours du chapitre</b><span>Les trois ingrédients, la pile d'appels, diviser pour régner, Hanoï, pièges.</span></div>
+    <a href="cours-recursivite.html">Voir le cours →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  'use strict';
+  var STORE = 'nsi-td-recursivite-v1';
+
+  /* ================= helpers ================= */
+  function fact(n){ return n <= 0 ? 1 : n * fact(n - 1); }
+  function fib(n){ return n < 2 ? n : fib(n - 1) + fib(n - 2); }
+  function hanoiMoves(n){ return (1 << n) - 1; }
+
+  var TD = [
+    { id: 'ex1', titre: 'Trace à la main', groupes: [
+      { type: 'rappel', texte: 'Pour chaque fonction, déroulez les appels récursifs à la main, en commençant par le cas de base, et remontez. N\'exécutez pas le code dans Python ; c\'est l\'exercice.' },
+      { type: 'code', consigne: 'On considère la fonction <b>f</b> ci-dessous.', lines: [
+        '<span class="kw">def</span> <span class="fn">f</span>(n):',
+        '    <span class="kw">if</span> n == <span class="nb">0</span>:',
+        '        <span class="kw">return</span> <span class="nb">1</span>',
+        '    <span class="kw">return</span> <span class="nb">2</span> * <span class="fn">f</span>(n - <span class="nb">1</span>)' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Que renvoie <code>f(0)</code> ?', a: 1, t: 'int' },
+        { lab: 'Que renvoie <code>f(1)</code> ?', a: 2, t: 'int' },
+        { lab: 'Que renvoie <code>f(3)</code> ?', a: 8, t: 'int' },
+        { lab: 'Que renvoie <code>f(10)</code> ?', a: 1024, t: 'int' },
+        { lab: 'Que calcule <code>f(n)</code> en général ?', small: 'une expression en n', a: ['2**n', '2^n', 'puissance(2,n)', '2n', '2 puissance n'], t: 'txt' },
+      ] },
+      { type: 'code', consigne: 'On considère la fonction <b>g</b>.', lines: [
+        '<span class="kw">def</span> <span class="fn">g</span>(n):',
+        '    <span class="kw">if</span> n &lt;= <span class="nb">1</span>:',
+        '        <span class="kw">return</span> n',
+        '    <span class="kw">return</span> <span class="fn">g</span>(n - <span class="nb">1</span>) + <span class="fn">g</span>(n - <span class="nb">1</span>)' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Que renvoie <code>g(0)</code> ?', a: 0, t: 'int' },
+        { lab: 'Que renvoie <code>g(1)</code> ?', a: 1, t: 'int' },
+        { lab: 'Que renvoie <code>g(3)</code> ?', a: 4, t: 'int' },
+        { lab: 'Que renvoie <code>g(5)</code> ?', a: 16, t: 'int' },
+        { lab: 'Combien d\'appels à <code>g</code> au total pour <code>g(3)</code> ?', small: 'en comptant l\'appel initial, soit 1 + 2 + 4', a: 7, t: 'int' },
+        { lab: 'Que calcule <code>g(n)</code> en général, pour n ≥ 1 ?', small: 'une expression en n', a: ['2**(n-1)', '2^(n-1)', '2**n/2', '2 puissance n-1'], t: 'txt' },
+      ] },
+      { type: 'code', consigne: 'On considère la fonction <b>mystere</b>.', lines: [
+        '<span class="kw">def</span> <span class="fn">mystere</span>(n):',
+        '    <span class="kw">if</span> n &lt; <span class="nb">10</span>:',
+        '        <span class="kw">return</span> n',
+        '    <span class="kw">return</span> <span class="fn">mystere</span>(n // <span class="nb">10</span>) + (n % <span class="nb">10</span>)' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Que renvoie <code>mystere(7)</code> ?', a: 7, t: 'int' },
+        { lab: 'Que renvoie <code>mystere(42)</code> ?', a: 6, t: 'int' },
+        { lab: 'Que renvoie <code>mystere(2026)</code> ?', a: 10, t: 'int' },
+        { lab: 'Que calcule <code>mystere(n)</code> pour un entier n ≥ 0 ?', small: 'en un mot ou deux', a: ['somme des chiffres', 'la somme des chiffres', 'somme chiffres', 'somme_chiffres'], t: 'txt' },
+      ] },
+      { type: 'mcq', q: 'Que se passe-t-il si l\'on appelle <code>mystere(-5)</code> ?', opts: ['Elle renvoie −5 (le cas de base <code>n &lt; 10</code> est vrai)', 'Elle lève <code>RecursionError</code>', 'Elle renvoie 5'], ok: 0, expl: 'La condition <code>n &lt; 10</code> est vraie pour tout entier négatif : la fonction renvoie <code>n</code> directement. Elle n\'a pas été pensée pour n &lt; 0, mais le cas de base « attrape » tout de même la valeur.' },
+    ] },
+
+    { id: 'ex2', titre: 'Les trois ingrédients', groupes: [
+      { type: 'rappel', texte: '<b>Cas de base</b> : une taille minimale où le résultat est direct. <b>Cas récursif</b> : combine un ou plusieurs appels à la fonction. <b>Convergence</b> : chaque appel récursif porte sur un argument strictement plus petit, pour atteindre le cas de base en un nombre fini d\'étapes.' },
+      { type: 'code', consigne: 'La fonction suivante <b>a un problème</b>. Repérez-le.', lines: [
+        '<span class="kw">def</span> <span class="fn">compte</span>(n):',
+        '    <span class="kw">return</span> <span class="nb">1</span> + <span class="fn">compte</span>(n - <span class="nb">1</span>)' ], blanks: [] },
+      { type: 'mcq', q: 'Quel est le défaut de <code>compte</code> ?', opts: ['Le cas récursif est faux', 'Il manque le cas de base : la récursion ne s\'arrête jamais', 'Elle ne converge pas vers le cas de base'], ok: 1, expl: 'Sans test comme <code>if n == 0: return 0</code>, chaque appel en provoque un autre : la pile explose et Python lève <code>RecursionError</code>.' },
+      { type: 'code', consigne: 'Même question pour <b>bizarre</b> :', lines: [
+        '<span class="kw">def</span> <span class="fn">bizarre</span>(n):',
+        '    <span class="kw">if</span> n == <span class="nb">0</span>:',
+        '        <span class="kw">return</span> <span class="nb">0</span>',
+        '    <span class="kw">return</span> <span class="fn">bizarre</span>(n + <span class="nb">1</span>)' ], blanks: [] },
+      { type: 'mcq', q: 'Quel est le défaut de <code>bizarre</code> ?', opts: ['Il manque le cas de base', 'Elle ne converge pas : chaque appel augmente n au lieu de le diminuer', 'Le cas de base devrait être <code>n == 1</code>'], ok: 1, expl: 'Pour tout appel avec <code>n ≥ 1</code>, on s\'éloigne du cas de base. <code>bizarre(0)</code> fonctionne, mais <code>bizarre(1)</code>, <code>bizarre(2)</code>… ne terminent pas.' },
+      { type: 'code', consigne: 'Même question pour <b>longueur</b> :', lines: [
+        '<span class="kw">def</span> <span class="fn">longueur</span>(s):',
+        '    <span class="kw">if</span> s == <span class="st">""</span>:',
+        '        <span class="kw">return</span> <span class="nb">0</span>',
+        '    <span class="fn">longueur</span>(s[<span class="nb">1</span>:])',
+        '    <span class="kw">return</span> <span class="nb">1</span>' ], blanks: [] },
+      { type: 'mcq', q: 'Quel est le défaut de <code>longueur</code> ?', opts: ['La condition <code>s == ""</code> ne marche pas', 'Le résultat de l\'appel récursif est ignoré ; la fonction renvoie toujours 1', 'Elle ne converge pas'], ok: 1, expl: 'L\'appel <code>longueur(s[1:])</code> est exécuté mais sa valeur de retour n\'est pas utilisée. Le bon code est <code>return 1 + longueur(s[1:])</code>.' },
+      { type: 'open', q: 'Pour chacune des trois fonctions ci-dessus, écrivez la version corrigée.', modele: '<pre class="code" style="margin:0">def compte(n):\n    if n == 0:\n        return 0\n    return 1 + compte(n - 1)\n\ndef bizarre(n):\n    if n == 0:\n        return 0\n    return bizarre(n - 1)   # − et non +\n\ndef longueur(s):\n    if s == "":\n        return 0\n    return 1 + longueur(s[1:])</pre>' },
+    ] },
+
+    { id: 'ex3', titre: 'Écrire des fonctions récursives', groupes: [
+      { type: 'rappel', texte: 'La méthode : identifier la taille du problème, écrire le cas de base, puis le cas récursif en supposant la fonction juste sur un argument plus petit.' },
+      { type: 'code', consigne: 'Complétez <b>somme</b>, qui renvoie 1 + 2 + … + n pour n ≥ 0.', lines: [
+        '<span class="kw">def</span> <span class="fn">somme</span>(n):',
+        '    <span class="kw">if</span> n == {{0}}:',
+        '        <span class="kw">return</span> {{1}}',
+        '    <span class="kw">return</span> n + <span class="fn">somme</span>({{2}})' ],
+        blanks: [ { a: '0', t: 'py' }, { a: '0', t: 'py' }, { a: 'n-1', t: 'py', alt: ['n - 1'] } ] },
+      { type: 'code', consigne: 'Complétez <b>puissance</b>, qui renvoie x<sup>n</sup> pour n ≥ 0 (sans utiliser <code>**</code>).', lines: [
+        '<span class="kw">def</span> <span class="fn">puissance</span>(x, n):',
+        '    <span class="kw">if</span> n == <span class="nb">0</span>:',
+        '        <span class="kw">return</span> {{0}}',
+        '    <span class="kw">return</span> x * <span class="fn">puissance</span>({{1}}, {{2}})' ],
+        blanks: [ { a: '1', t: 'py' }, { a: 'x', t: 'py' }, { a: 'n-1', t: 'py', alt: ['n - 1'] } ] },
+      { type: 'code', consigne: 'Complétez <b>maximum</b>, qui renvoie le plus grand élément d\'une liste non vide.', lines: [
+        '<span class="kw">def</span> <span class="fn">maximum</span>(t):',
+        '    <span class="kw">if</span> <span class="fn">len</span>(t) == <span class="nb">1</span>:',
+        '        <span class="kw">return</span> {{0}}',
+        '    m = <span class="fn">maximum</span>({{1}})       <span class="cm"># max du reste</span>',
+        '    <span class="kw">if</span> t[<span class="nb">0</span>] &gt; m:',
+        '        <span class="kw">return</span> {{2}}',
+        '    <span class="kw">return</span> m' ],
+        blanks: [ { a: 't[0]', t: 'py' }, { a: 't[1:]', t: 'py' }, { a: 't[0]', t: 'py' } ] },
+      { type: 'code', consigne: 'Complétez <b>palindrome</b>, qui renvoie True si la chaîne <code>s</code> se lit pareil à l\'endroit et à l\'envers.', lines: [
+        '<span class="kw">def</span> <span class="fn">palindrome</span>(s):',
+        '    <span class="kw">if</span> <span class="fn">len</span>(s) &lt;= <span class="nb">1</span>:',
+        '        <span class="kw">return</span> {{0}}',
+        '    <span class="kw">if</span> s[<span class="nb">0</span>] != s[{{1}}]:',
+        '        <span class="kw">return</span> <span class="kw">False</span>',
+        '    <span class="kw">return</span> <span class="fn">palindrome</span>({{2}})' ],
+        blanks: [ { a: 'True', t: 'py' }, { a: '-1', t: 'py' }, { a: 's[1:-1]', t: 'py' } ] },
+      { type: 'open', q: 'Écrivez une fonction récursive <code>somme_liste(t)</code> qui renvoie la somme des éléments d\'une liste <code>t</code>.', modele: '<pre class="code" style="margin:0">def somme_liste(t):\n    if t == []:\n        return 0\n    return t[0] + somme_liste(t[1:])</pre>Cas de base : la liste vide, somme nulle. Cas récursif : premier élément + somme du reste.' },
+      { type: 'open', q: 'Écrivez une fonction récursive <code>inverse(s)</code> qui renvoie la chaîne <code>s</code> à l\'envers (sans utiliser <code>s[::-1]</code>).', modele: '<pre class="code" style="margin:0">def inverse(s):\n    if s == "":\n        return ""\n    return inverse(s[1:]) + s[0]</pre>Cas de base : la chaîne vide. Cas récursif : on inverse le reste, puis on recolle le premier caractère à la fin.' },
+    ] },
+
+    { id: 'ex4', titre: 'La pile d\'appels', groupes: [
+      { type: 'rappel', texte: 'Chaque appel récursif empile un cadre dans la pile d\'appels. La <b>profondeur</b> est la taille maximale de cette pile pendant le calcul. En Python, la profondeur maximale autorisée est d\'environ 1000.' },
+      { type: 'code', consigne: 'On revient à la factorielle du cours.', lines: [
+        '<span class="kw">def</span> <span class="fn">fact</span>(n):',
+        '    <span class="kw">if</span> n == <span class="nb">0</span>:',
+        '        <span class="kw">return</span> <span class="nb">1</span>',
+        '    <span class="kw">return</span> n * <span class="fn">fact</span>(n - <span class="nb">1</span>)' ], blanks: [] },
+      { type: 'qs', consigne: '', items: [
+        { lab: 'Profondeur maximale de la pile pour <code>fact(0)</code>', a: 1, t: 'int' },
+        { lab: 'Profondeur maximale pour <code>fact(1)</code>', a: 2, t: 'int' },
+        { lab: 'Profondeur maximale pour <code>fact(5)</code>', a: 6, t: 'int' },
+        { lab: 'Profondeur maximale pour <code>fact(n)</code>', small: 'en fonction de n', a: ['n+1', 'n + 1'], t: 'txt' },
+        { lab: 'Nombre total d\'appels à <code>fact</code> pour <code>fact(5)</code>', a: 6, t: 'int' },
+        { lab: 'À partir de quelle valeur de n Python risque-t-il un <code>RecursionError</code> ?', small: 'un ordre de grandeur', a: [1000, 999, 998, 997], t: 'int' },
+      ] },
+      { type: 'mcq', q: 'La pile d\'appels sert à…', opts: ['stocker les variables globales', 'mémoriser, pour chaque fonction en cours, ses variables locales et l\'endroit où reprendre après l\'appel récursif', 'ranger les résultats déjà calculés'], ok: 1, expl: 'La pile mémorise le « contexte » suspendu de chaque appel. Elle est utilisée aussi par les appels non récursifs, mais c\'est en récursif qu\'elle se remplit rapidement.' },
+      { type: 'mcq', q: 'La factorielle itérative <code>fact_iter</code> utilise une pile d\'appels…', opts: ['de même taille', 'de taille constante (une variable r, un indice k)', 'plus grande, à cause de la boucle'], ok: 1, expl: 'La boucle réécrit les variables à chaque tour sans empiler de nouvel appel. L\'économie de mémoire de la version itérative vient de là.' },
+    ] },
+
+    { id: 'ex5', titre: 'Diviser pour régner — dichotomie', groupes: [
+      { type: 'rappel', texte: 'Dichotomie : dans un tableau <b>trié</b>, on cherche <code>x</code> en comparant à l\'élément du milieu, puis en recommençant sur la moitié qui peut encore contenir <code>x</code>. La zone de recherche est divisée par 2 à chaque appel, d\'où un coût en O(log n).' },
+      { type: 'code', consigne: 'La version récursive du cours :', lines: [
+        '<span class="kw">def</span> <span class="fn">dicho</span>(t, x, g, d):',
+        '    <span class="kw">if</span> g &gt; d:',
+        '        <span class="kw">return</span> -<span class="nb">1</span>',
+        '    m = (g + d) // <span class="nb">2</span>',
+        '    <span class="kw">if</span> t[m] == x:',
+        '        <span class="kw">return</span> m',
+        '    <span class="kw">if</span> x &lt; t[m]:',
+        '        <span class="kw">return</span> <span class="fn">dicho</span>(t, x, g, m - <span class="nb">1</span>)',
+        '    <span class="kw">return</span> <span class="fn">dicho</span>(t, x, m + <span class="nb">1</span>, d)' ], blanks: [] },
+      { type: 'qs', consigne: 'On lance <code>dicho(t, x, 0, 10)</code> avec <code>t = [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32]</code>.', items: [
+        { lab: 'Valeur de m au premier appel', a: 5, t: 'int' },
+        { lab: 'Valeur de <code>t[m]</code> au premier appel', a: 17, t: 'int' },
+        { lab: 'Pour <code>x = 11</code> : indice renvoyé', a: 3, t: 'int' },
+        { lab: 'Pour <code>x = 11</code> : nombre d\'appels à <code>dicho</code>', small: 'en comptant l\'appel initial', a: 3, t: 'int' },
+        { lab: 'Pour <code>x = 32</code> : indice renvoyé', a: 10, t: 'int' },
+        { lab: 'Pour <code>x = 32</code> : nombre d\'appels', a: 4, t: 'int' },
+        { lab: 'Pour <code>x = 10</code> (absent) : indice renvoyé', a: -1, t: 'int' },
+        { lab: 'Pour <code>x = 10</code> : nombre d\'appels', a: 5, t: 'int' },
+      ] },
+      { type: 'qs', consigne: 'Comparons avec une recherche séquentielle (parcours du tableau de gauche à droite jusqu\'à trouver la valeur).', items: [
+        { lab: 'Nombre maximal d\'appels de la dichotomie dans un tableau de 1024 éléments', small: 'log₂(1024) + 1', a: [11, 10], t: 'int' },
+        { lab: 'Nombre maximal de comparaisons de la recherche séquentielle, même tableau', a: 1024, t: 'int' },
+        { lab: 'Nombre maximal d\'appels de la dichotomie dans un tableau d\'un million d\'éléments', small: 'log₂(10⁶) ≈ 20', a: [20, 21], t: 'int' },
+      ] },
+      { type: 'mcq', q: 'Pourquoi la dichotomie exige-t-elle un tableau <b>trié</b> ?', opts: ['Pour que l\'indice du milieu existe', 'Parce que, sinon, l\'élément du milieu ne dit rien sur la moitié où se trouve x : on ne peut pas éliminer la moitié non examinée', 'Parce que Python l\'exige'], ok: 1, expl: 'Dans un tableau non trié, savoir que <code>t[m] ≠ x</code> ne permet pas d\'éliminer la moitié gauche ou la moitié droite : x pourrait être n\'importe où.' },
+      { type: 'open', q: 'Expliquez pourquoi la dichotomie est en O(log n) et non en O(n).', modele: 'À chaque appel récursif, la taille de la zone de recherche <code>d − g + 1</code> est au moins divisée par deux (on retire le milieu plus l\'une des deux moitiés). Partant d\'une zone de taille n, après k appels la taille est inférieure à <code>n / 2^k</code>. La récursion s\'arrête quand la zone devient vide (taille 0), c\'est-à-dire quand <code>2^k ≥ n</code>, soit <code>k ≥ log₂(n)</code>. Le nombre d\'appels est donc d\'ordre log₂(n), ce qu\'on note O(log n).' },
+    ] },
+
+    { id: 'ex6', titre: 'Fibonacci et Tours de Hanoï', groupes: [
+      { type: 'rappel', texte: 'Fibonacci : <code>F(0) = 0</code>, <code>F(1) = 1</code>, <code>F(n) = F(n-1) + F(n-2)</code>. Hanoï(n) de A vers C via B : Hanoï(n − 1) de A vers B, un déplacement de A à C, Hanoï(n − 1) de B vers C.' },
+      { type: 'qs', consigne: 'La suite de Fibonacci.', items: [
+        { lab: 'F(2)', a: fib(2), t: 'int' },
+        { lab: 'F(5)', a: fib(5), t: 'int' },
+        { lab: 'F(10)', a: fib(10), t: 'int' },
+        { lab: 'Nombre d\'appels à fib pour calculer fib(4) avec la version récursive naïve', small: '1 pour fib(4), puis fib(3) et fib(2), etc.', a: 9, t: 'int' },
+        { lab: 'Nombre d\'appels à fib pour calculer fib(5)', a: 15, t: 'int' },
+        { lab: 'Nombre d\'appels à fib pour calculer fib(6)', a: 25, t: 'int' },
+      ] },
+      { type: 'mcq', q: 'Pourquoi la version récursive naïve de Fibonacci est-elle très lente dès n ≈ 40 ?', opts: ['Parce que Python est lent avec les fonctions récursives', 'Parce que le même sous-problème (par exemple fib(10)) est recalculé plusieurs fois dans des branches différentes de l\'arbre d\'appels', 'Parce que la factorielle croît trop vite'], ok: 1, expl: 'Le nombre d\'appels est de l\'ordre de φⁿ (nombre d\'or). Pour n = 40 : ≈ 300 millions d\'appels. La mémoïsation (ou l\'itératif) le ramène à n appels distincts.' },
+      { type: 'code', consigne: 'Complétez la version itérative, en O(n) :', lines: [
+        '<span class="kw">def</span> <span class="fn">fib_iter</span>(n):',
+        '    a, b = <span class="nb">0</span>, <span class="nb">1</span>',
+        '    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>({{0}}):',
+        '        a, b = {{1}}, {{2}}',
+        '    <span class="kw">return</span> a' ],
+        blanks: [ { a: 'n', t: 'py' }, { a: 'b', t: 'py' }, { a: 'a+b', t: 'py', alt: ['a + b'] } ] },
+      { type: 'qs', consigne: 'Les Tours de Hanoï : nombre de déplacements à n disques.', items: [
+        { lab: 'Hanoï à 1 disque', a: hanoiMoves(1), t: 'int' },
+        { lab: 'Hanoï à 2 disques', a: hanoiMoves(2), t: 'int' },
+        { lab: 'Hanoï à 3 disques', a: hanoiMoves(3), t: 'int' },
+        { lab: 'Hanoï à 4 disques', a: hanoiMoves(4), t: 'int' },
+        { lab: 'Hanoï à 10 disques', a: hanoiMoves(10), t: 'int' },
+        { lab: 'Hanoï à n disques', small: 'formule générale', a: ['2**n-1', '2^n-1', '2**n - 1', '2 puissance n - 1', '(2**n)-1'], t: 'txt' },
+      ] },
+      { type: 'open', q: 'Expliquez pourquoi le nombre H(n) de déplacements des Tours de Hanoï vérifie H(n) = 2·H(n−1) + 1. En déduire H(n) = 2ⁿ − 1.', modele: 'L\'algorithme fait : <b>H(n−1)</b> déplacements pour amener la tour de n−1 disques vers la tige intermédiaire, puis <b>1</b> déplacement pour le plus grand disque, puis à nouveau <b>H(n−1)</b> déplacements pour poser la tour de n−1 disques sur le plus grand. Soit <code>H(n) = 2·H(n−1) + 1</code>, avec <code>H(0) = 0</code>. On vérifie par récurrence que H(n) = 2ⁿ − 1 : H(0) = 0 = 2⁰ − 1 ; si H(n−1) = 2^(n−1) − 1, alors H(n) = 2(2^(n−1) − 1) + 1 = 2ⁿ − 2 + 1 = 2ⁿ − 1.' },
+      { type: 'qs', repli: 'Pour s\'entraîner à la maison', consigne: 'Autour de la récursivité.', items: [
+        { lab: 'Nombre d\'appels à <code>f(n) = f(n/2) + 1</code>, cas de base <code>f(1) = 0</code>, pour <code>f(32)</code>', a: 6, t: 'int' },
+        { lab: 'Que renvoie <code>f(32)</code> ?', a: 5, t: 'int' },
+        { lab: '<code>factorielle(10)</code> vaut…', a: fact(10), t: 'int' },
+        { lab: 'Profondeur maximale de la pile pour <code>hanoi(5)</code>', small: 'une tour de 5 disques', a: [6, 5], t: 'int' },
+      ] },
+    ] },
+  ];
+
+  /* ================= normalisation ================= */
+  function strip(s){ return String(s == null ? '' : s).replace(/ /g, ' ').trim(); }
+  function noAccent(s){ return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s; }
+  function normTxt(s){ return noAccent(strip(s).toLowerCase()).replace(/\s+/g, ' ').replace(/[.!]$/, ''); }
+  function normPy(s){ return strip(s).replace(/\s+/g, '').replace(/"/g, "'"); }
+  function isRight(type, given, answer, alt){
+    var g = strip(given); if (!g) return false;
+    var answers = [].concat(answer).concat(alt || []);
+    switch (type){
+      case 'int': { var v = Number(g.replace(/\s/g, '').replace(',', '.')); return answers.some(function(a){ return v === Number(a); }); }
+      case 'txt': return answers.some(function(a){ return normTxt(g) === normTxt(a); });
+      case 'py': return answers.some(function(a){ return normPy(g) === normPy(String(a)); });
+    }
+    return false;
+  }
+  function showAns(a){ return [].concat(a)[0]; }
+
+  /* ================= state ================= */
+  var fields = [], mcqs = [];
+  var saved = {}; try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { saved = {}; }
+  var saveTimer = null;
+  function persist(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      var o = {};
+      fields.forEach(function(f){ if (f.input.value) o[f.id] = f.input.value; });
+      mcqs.forEach(function(m){ var c = m.box.querySelector('input:checked'); if (c) o[m.id] = c.value; });
+      document.querySelectorAll('textarea[data-id]').forEach(function(t){ if (t.value) o[t.dataset.id] = t.value; });
+      try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) {}
+    }, 300);
+  }
+
+  /* ================= build ================= */
+  function el(tag, cls, html){ var d = document.createElement(tag); if (cls) d.className = cls; if (html != null) d.innerHTML = html; return d; }
+  function makeField(id, item, exo, inline){
+    var wrap = el(inline ? 'span' : 'div', 'fld');
+    var inp = el('input', 'f'); inp.type = 'text'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.setAttribute('aria-label', 'réponse');
+    if (item.t === 'int') inp.inputMode = 'numeric';
+    if (inline) inp.style.width = Math.max(9, String(showAns(item.a)).length + 3) + 'ch';
+    var mark = el('span', 'mark');
+    wrap.appendChild(inp); wrap.appendChild(mark);
+    var f = { id: id, type: item.t, answer: item.a, alt: item.alt, input: inp, mark: mark, exo: exo, state: null };
+    fields.push(f);
+    if (saved[id]) inp.value = saved[id];
+    function check(final){
+      var v = inp.value;
+      if (!strip(v)) { setState(f, null); return; }
+      setState(f, isRight(f.type, v, f.answer, f.alt) ? 'ok' : (final ? 'ko' : (f.state === 'ko' ? 'ko' : null)));
+    }
+    inp.addEventListener('input', function(){ check(false); persist(); });
+    inp.addEventListener('change', function(){ check(true); refresh(); });
+    inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') { check(true); refresh(); } });
+    f.check = function(){ check(true); };
+    return wrap;
+  }
+  function setState(f, st){
+    f.state = st;
+    f.input.classList.toggle('ok', st === 'ok'); f.input.classList.toggle('ko', st === 'ko');
+    f.mark.className = 'mark' + (st ? ' ' + st : ''); f.mark.textContent = st === 'ok' ? '✓' : st === 'ko' ? '✗' : '';
+    refresh();
+  }
+  function makeMcq(id, g, exo){
+    var box = el('div', 'mcq');
+    box.appendChild(el('div', 'qt', g.q));
+    var opts = el('div', 'opts');
+    g.opts.forEach(function(o, i){
+      var lab = el('label', i === g.ok ? 'right' : ''); var r = el('input'); r.type = 'radio'; r.name = id; r.value = i;
+      lab.appendChild(r); var span = el('span', null, o); lab.appendChild(span); opts.appendChild(lab);
+      r.addEventListener('change', function(){ mark(); persist(); refresh(); });
+    });
+    box.appendChild(opts);
+    if (g.expl) box.appendChild(el('div', 'expl', '→ ' + g.expl));
+    var m = { id: id, box: box, ok: g.ok, exo: exo, state: null };
+    function mark(){
+      var c = box.querySelector('input:checked');
+      box.querySelectorAll('label').forEach(function(l){ l.classList.toggle('checked', l.querySelector('input').checked); });
+      m.state = c ? (+c.value === g.ok ? 'ok' : 'ko') : null;
+      box.classList.toggle('ok', m.state === 'ok'); box.classList.toggle('ko', m.state === 'ko');
+    }
+    m.check = mark;
+    if (saved[id] != null) { var r0 = box.querySelector('input[value="' + saved[id] + '"]'); if (r0) r0.checked = true; }
+    mark();
+    mcqs.push(m);
+    return box;
+  }
+  function makeOpen(id, g){
+    var box = el('div', 'open'); box.appendChild(el('div', 'qt', g.q));
+    var ta = el('textarea'); ta.dataset.id = id; if (saved[id]) ta.value = saved[id]; ta.addEventListener('input', persist); box.appendChild(ta);
+    var b = el('button', 'rev', 'Voir une réponse modèle'); b.type = 'button';
+    var mod = el('div', 'modele', g.modele);
+    b.addEventListener('click', function(){ mod.classList.toggle('show'); b.textContent = mod.classList.contains('show') ? 'Masquer la réponse modèle' : 'Voir une réponse modèle'; });
+    box.appendChild(b); box.appendChild(mod); return box;
+  }
+
+  var root = document.getElementById('exos');
+  TD.forEach(function(ex, xi){
+    var sec = el('section', 'exo'); sec.id = ex.id;
+    sec.appendChild(el('h2', null, '<span class="pn">' + (xi + 1) + '</span> ' + ex.titre + ' <span class="cnt"></span>'));
+    ex.groupes.forEach(function(g, gi){
+      var host = sec;
+      if (g.repli) { var d = el('details', 'repli'); d.appendChild(el('summary', null, g.repli)); sec.appendChild(d); host = d; }
+      if (g.type === 'rappel') { host.appendChild(el('div', 'rappel', g.texte)); return; }
+      if (g.consigne) host.appendChild(el('div', 'consigne', g.consigne));
+      if (g.type === 'qs') {
+        var qs = el('div', 'qs');
+        g.items.forEach(function(it, ii){
+          var id = ex.id + '_' + gi + '_' + ii;
+          var row = el('div', 'q');
+          row.appendChild(el('div', 'lab', it.lab + (it.small ? '<small>' + it.small + '</small>' : '')));
+          row.appendChild(makeField(id, it, sec));
+          row.appendChild(el('div', 'sol', '→ ' + showAns(it.a)));
+          qs.appendChild(row);
+        });
+        host.appendChild(qs);
+      } else if (g.type === 'mcq') {
+        host.appendChild(makeMcq(ex.id + '_' + gi, g, sec));
+      } else if (g.type === 'open') {
+        host.appendChild(makeOpen(ex.id + '_' + gi, g));
+      } else if (g.type === 'code') {
+        var pre = el('pre', 'code');
+        g.lines.forEach(function(line, li){
+          var parts = line.split(/\{\{(\d+)\}\}/);
+          for (var k = 0; k < parts.length; k++) {
+            if (k % 2 === 0) pre.appendChild(el('span', null, parts[k]));
+            else {
+              var b = g.blanks[+parts[k]], id2 = ex.id + '_' + gi + '_' + parts[k];
+              pre.appendChild(makeField(id2, b, sec, true));
+              pre.appendChild(el('span', 'csol', ' ← ' + showAns(b.a)));
+            }
+          }
+          if (li < g.lines.length - 1) pre.appendChild(document.createTextNode('\n'));
+        });
+        host.appendChild(pre);
+      }
+    });
+    var foot = el('div', 'exfoot');
+    var b1 = el('button', null, 'Vérifier cet exercice'); b1.type = 'button';
+    b1.addEventListener('click', function(){ fields.filter(function(f){ return f.exo === sec; }).forEach(function(f){ f.check(); }); refresh(); });
+    var b2 = el('button', null, 'Voir les réponses'); b2.type = 'button';
+    b2.addEventListener('click', function(){ sec.classList.toggle('solved'); b2.textContent = sec.classList.contains('solved') ? 'Masquer les réponses' : 'Voir les réponses'; });
+    foot.appendChild(b1); foot.appendChild(b2); sec.appendChild(foot);
+    root.appendChild(sec);
+  });
+
+  function refresh(){
+    var all = fields.concat(mcqs), ok = all.filter(function(f){ return f.state === 'ok'; }).length;
+    document.getElementById('sOk').textContent = ok; document.getElementById('sTot').textContent = all.length;
+    document.getElementById('sBar').style.width = (all.length ? 100 * ok / all.length : 0) + '%';
+    document.querySelectorAll('.exo').forEach(function(sec){
+      var mine = all.filter(function(f){ return f.exo === sec; }), k = mine.filter(function(f){ return f.state === 'ok'; }).length;
+      var c = sec.querySelector('.cnt'); c.textContent = k + ' / ' + mine.length; c.classList.toggle('full', k === mine.length && mine.length > 0);
+    });
+  }
+  document.getElementById('btnCheck').addEventListener('click', function(){ fields.forEach(function(f){ f.check(); }); mcqs.forEach(function(m){ m.check(); }); refresh(); });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if (!confirm('Effacer toutes vos réponses ?')) return;
+    fields.forEach(function(f){ f.input.value = ''; setState(f, null); });
+    mcqs.forEach(function(m){ m.box.querySelectorAll('input').forEach(function(r){ r.checked = false; }); m.check(); });
+    document.querySelectorAll('textarea[data-id]').forEach(function(t){ t.value = ''; });
+    document.querySelectorAll('.exo.solved').forEach(function(s){ s.classList.remove('solved'); });
+    try { localStorage.removeItem(STORE); } catch (e) {}
+    refresh();
+  });
+  fields.forEach(function(f){ if (f.input.value) f.check(); });
+  refresh();
+})();
+</script>
+</body>
+</html>

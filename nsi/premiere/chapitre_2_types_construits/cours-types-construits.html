@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Représentation des données — types construits — Première NSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../../../logo.png">
+<link rel="stylesheet" href="../../../css/style.css">
+<style>
+  :root{ --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+         --nsi:var(--accent-nsi); --nsi-dim:var(--accent-nsi-dim);
+         --ok:#34d399; --warn:#ffc53d; --bad:#ff5c7a; --vio:#b57bff; --pink:#ff4fa3; }
+
+  .chapnav{position:sticky;top:56px;z-index:90;background:rgba(15,17,23,.92);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .chapnav-in{max-width:var(--max-w);margin:0 auto;display:flex;gap:.4rem;overflow-x:auto;
+    padding:.55rem 1.5rem;scrollbar-width:none}
+  .chapnav-in::-webkit-scrollbar{display:none}
+  .chapnav a{flex:none;text-decoration:none;color:var(--text-muted);font-size:.82rem;font-weight:500;
+    padding:.35rem .7rem;border-radius:100px;border:1px solid transparent;white-space:nowrap;transition:.18s}
+  .chapnav a:hover{color:var(--text);background:var(--bg-card)}
+  .chapnav a.on{color:var(--nsi);background:var(--nsi-dim);border-color:rgba(108,158,255,.3)}
+  .backlink{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);
+    text-decoration:none;font-size:.85rem;margin-bottom:1.2rem}
+  .backlink:hover{color:var(--nsi)}
+
+  .part{scroll-margin-top:110px;margin-bottom:3.2rem}
+  .part > h2{display:flex;align-items:baseline;gap:.7rem;font-size:1.45rem;
+    padding-bottom:.55rem;border-bottom:1px solid var(--border);margin-bottom:1.3rem}
+  .part > h2 .pn{font-family:var(--mono);font-size:.85rem;color:var(--nsi);
+    background:var(--nsi-dim);padding:.2rem .55rem;border-radius:6px;flex:none}
+  .part h3{font-size:1.02rem;color:var(--nsi);margin:1.6rem 0 .5rem}
+  .part p{margin-bottom:.85rem;color:#c9cdda}
+  .part ul,.part ol{margin:0 0 .9rem 1.2rem;color:#c9cdda}
+  .part li{margin-bottom:.35rem}
+  .part b,.part strong{color:var(--text);font-weight:600}
+  code,.m{font-family:var(--mono);font-size:.92em}
+  .m{color:var(--nsi);background:rgba(108,158,255,.09);padding:.08em .35em;border-radius:4px;white-space:nowrap}
+  .m.v{color:var(--vio);background:rgba(181,123,255,.11)}
+  .m.o{color:var(--warn);background:rgba(255,197,61,.11)}
+  .m.g{color:var(--ok);background:rgba(52,211,153,.11)}
+  sub,sup{font-size:.72em}
+
+  .box{border:1px solid var(--border);border-left:3px solid var(--nsi);border-radius:0 8px 8px 0;
+    background:var(--bg-card);padding:1rem 1.2rem;margin:1.1rem 0}
+  .box .lbl{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--nsi);display:block;margin-bottom:.5rem}
+  .box.meth{border-left-color:var(--vio)} .box.meth .lbl{color:var(--vio)}
+  .box.warn{border-left-color:var(--warn)} .box.warn .lbl{color:var(--warn)}
+  .box.key{border-left-color:var(--ok);background:rgba(52,211,153,.06)} .box.key .lbl{color:var(--ok)}
+  .box.def{border-left-color:var(--pink)} .box.def .lbl{color:var(--pink)}
+  .box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+
+  .tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.88rem}
+  .tbl th,.tbl td{border:1px solid var(--border);padding:.45rem .6rem;text-align:center}
+  .tbl th{background:var(--bg-card);color:var(--nsi);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+  .tbl td{color:#c9cdda}
+  .tbl td.mono{font-family:var(--mono)}
+  .tbl td.l{text-align:left}
+  .tbl tr:nth-child(even) td{background:rgba(255,255,255,.017)}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1rem 0}
+  .scrollx .tbl{margin:0;min-width:480px}
+
+  pre.code{font-family:var(--mono);font-size:.84rem;line-height:1.6;background:#0c0e15;
+    border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;
+    overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none}
+  pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+  pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic} pre.code .hl{background:rgba(108,158,255,.16);display:inline-block;width:100%}
+
+  /* "boîte" représentant une case de tableau */
+  .cells{display:flex;gap:.3rem;margin:1rem 0;overflow-x:auto;padding-bottom:.4rem;justify-content:center}
+  .cells .cell{min-width:48px;text-align:center;border:1px solid var(--border);border-radius:7px;
+    padding:.4rem .3rem;background:var(--bg-card);font-family:var(--mono)}
+  .cells .cell .idx{font-size:.7rem;color:var(--text-muted);margin-bottom:.15rem}
+  .cells .cell .val{font-size:.95rem;color:var(--nsi);font-weight:600}
+  .cells .cell.neg .idx{color:var(--warn)}
+  .cells .cell.hi{border-color:var(--nsi);background:var(--nsi-dim)}
+  .cells .cell.base{border-color:var(--ok)} .cells .cell.base .val{color:var(--ok)}
+
+  /* matrice */
+  .mat{display:inline-grid;gap:.25rem;padding:.5rem;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);margin:.6rem 0}
+  .mat .mc{min-width:38px;text-align:center;font-family:var(--mono);font-size:.9rem;padding:.3rem;border:1px solid var(--border);border-radius:5px;background:var(--bg)}
+  .mat .mc.h{background:var(--nsi-dim);border-color:var(--nsi);color:var(--nsi)}
+
+  /* références */
+  .refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1rem 0}
+  .refs .ref{border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:.9rem}
+  .refs .ref h4{font-size:.78rem;color:var(--nsi);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.6rem}
+  .refs .ref svg{width:100%;height:auto}
+  svg .box-ref{fill:#1a1f2e;stroke:rgba(255,255,255,.4);stroke-width:1.5}
+  svg .box-ref.var{fill:var(--nsi-dim);stroke:var(--nsi)}
+  svg .box-ref.list{fill:#2a1d3f;stroke:var(--vio)}
+  svg .arr-ref{stroke:var(--vio);stroke-width:1.6;fill:none;marker-end:url(#rmk)}
+  svg text{fill:#fff;font-family:'JetBrains Mono', monospace;font-size:12px}
+  svg text.lab{fill:var(--text-muted);font-size:10px}
+  svg text.varlab{fill:var(--nsi);font-weight:700}
+
+  .cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border:1px solid var(--border);
+    border-left:3px solid var(--ok);border-radius:0 10px 10px 0;background:rgba(52,211,153,.06);
+    padding:1.1rem 1.3rem;margin:2.5rem 0 1rem}
+  .cta .t{flex:1 1 240px} .cta .t b{display:block;margin-bottom:.2rem} .cta .t span{font-size:.85rem;color:var(--text-muted)}
+  .cta a{flex:none;text-decoration:none;background:var(--ok);color:#06281c;font-weight:600;font-size:.88rem;padding:.6rem 1.1rem;border-radius:8px}
+  .cta a:hover{filter:brightness(1.08)}
+
+  .recap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem;margin:1rem 0}
+  .recap div{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:.7rem .85rem;font-size:.86rem;color:#c9cdda}
+  .recap div b{display:block;color:var(--ok);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem}
+
+  .choose{overflow-x:auto}
+  .choose table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:560px}
+  .choose th,.choose td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left;vertical-align:top}
+  .choose th{background:var(--bg-card);color:var(--nsi);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+  .choose td.t{color:var(--text);font-family:var(--mono);white-space:nowrap}
+
+  @media (max-width:640px){
+    .chapnav-in{padding:.5rem 1rem}
+    .part > h2{font-size:1.2rem}
+    pre.code{font-size:.76rem}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../../../index.html" class="nav-home">Sciences</a>
+    <a href="../../../snt/index.html">SNT</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../nsi/index.html" class="active-nsi">NSI</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../maths-expertes/index.html">Maths expertes</a>
+    <span class="nav-sep">|</span>
+    <a href="../../../physique/index.html">Physique</a>
+  </nav>
+</header>
+
+<div class="chapnav">
+  <div class="chapnav-in" id="chapnav">
+    <a href="#p1">1 · Pourquoi des types construits</a>
+    <a href="#p2">2 · Les p-uplets</a>
+    <a href="#p3">3 · Les tableaux</a>
+    <a href="#p4">4 · Alias et copies</a>
+    <a href="#p5">5 · Tableaux de tableaux</a>
+    <a href="#p6">6 · Les dictionnaires</a>
+    <a href="#p7">7 · Tables de données</a>
+    <a href="#p8">8 · Choisir le bon type</a>
+    <a href="#p9">9 · À retenir</a>
+  </div>
+</div>
+
+<main>
+  <a href="../../index.html" class="backlink">← NSI</a>
+
+  <div class="section-header">
+    <h1>Représentation des données <span class="badge badge-nsi">Première</span></h1>
+    <p class="subtitle">Les <b>types construits</b> permettent de regrouper plusieurs valeurs sous un seul nom :
+      p-uplets, tableaux (listes Python), dictionnaires, et les tables de données qu'ils forment ensemble.
+      Le chapitre présente chacun avec ses opérations et le moment où le choisir.</p>
+  </div>
+
+  <!-- ══════════════════ 1 ══════════════════ -->
+  <section class="part" id="p1">
+    <h2><span class="pn">1</span> Pourquoi des types construits ?</h2>
+    <p>Jusqu'ici, les variables de nos programmes contenaient une seule valeur : un entier, un flottant, une chaîne, un booléen.
+      Ce sont les <b>types simples</b>. Mais la plupart des données du monde réel sont composées de <b>plusieurs</b> valeurs
+      qui n'ont de sens qu'ensemble :</p>
+    <ul>
+      <li>Un <b>point</b> dans le plan, c'est <i>deux</i> coordonnées <span class="m">(x, y)</span>.</li>
+      <li>Une <b>date</b>, c'est trois nombres : jour, mois, année.</li>
+      <li>Les <b>notes</b> d'une classe, c'est 35 valeurs à l'affilée.</li>
+      <li>Une <b>fiche d'élève</b>, c'est un nom, un prénom, une classe, une adresse, une liste de notes…</li>
+      <li>Une <b>image</b>, c'est une grille de pixels, chacun composé de trois intensités (rouge, vert, bleu).</li>
+    </ul>
+    <p>Les <b>types construits</b> fabriquent, à partir des types simples, de nouveaux types qui mettent plusieurs valeurs
+      ensemble. Python en offre trois principaux, étudiés dans ce chapitre :</p>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Type</th><th>Syntaxe</th><th>Idée</th><th>Modifiable ?</th></tr>
+      <tr><td class="l"><b>p-uplet</b> (tuple)</td><td class="mono">(1, 2, 3)</td><td class="l">Un nombre fixé de valeurs ordonnées.</td><td>Non</td></tr>
+      <tr><td class="l"><b>tableau</b> (list)</td><td class="mono">[1, 2, 3]</td><td class="l">Une suite de valeurs, de longueur variable.</td><td>Oui</td></tr>
+      <tr><td class="l"><b>dictionnaire</b> (dict)</td><td class="mono">{"a": 1, "b": 2}</td><td class="l">Un répertoire clé → valeur.</td><td>Oui</td></tr>
+    </table></div>
+    <p>Un même programme utilise souvent les trois : un dictionnaire par élève, dont la clé <code>"notes"</code> renvoie
+      un tableau de p-uplets <code>(matière, note)</code>, par exemple.</p>
+
+    <div class="box key">
+      <span class="lbl">À quoi ça sert</span>
+      <p>Nommer <b>une seule</b> variable au lieu de dix, parcourir ses éléments avec une boucle, passer tout un « paquet »
+        de données à une fonction en un seul argument — et, pour les dictionnaires et les listes, modifier ou agrandir le
+        paquet pendant l'exécution.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 2 ══════════════════ -->
+  <section class="part" id="p2">
+    <h2><span class="pn">2</span> Les p-uplets (tuples)</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Un <b>p-uplet</b> est une suite <b>ordonnée</b> et <b>de longueur fixée</b> de valeurs, écrite entre parenthèses et
+        séparée par des virgules. Un p-uplet est <b>immuable</b> : une fois créé, on ne peut ni ajouter, ni retirer, ni
+        remplacer un élément.</p>
+    </div>
+
+<pre class="code">point = (<span class="nb">3</span>, <span class="nb">4</span>)                 <span class="cm"># un couple (x, y)</span>
+date = (<span class="nb">7</span>, <span class="nb">10</span>, <span class="nb">2026</span>)            <span class="cm"># un triplet (jour, mois, année)</span>
+rouge = (<span class="nb">255</span>, <span class="nb">0</span>, <span class="nb">0</span>)             <span class="cm"># un pixel RGB</span>
+vide = ()                        <span class="cm"># p-uplet vide</span>
+singleton = (<span class="nb">5</span>,)              <span class="cm"># un p-uplet d'UN élément — la virgule est obligatoire !</span></pre>
+
+    <p>On accède à un élément par son <b>indice</b>, numéroté <b>à partir de 0</b> :</p>
+<pre class="code">point[<span class="nb">0</span>]        <span class="cm"># → 3   (le premier élément : l'abscisse)</span>
+point[<span class="nb">1</span>]        <span class="cm"># → 4   (le deuxième : l'ordonnée)</span>
+date[<span class="nb">2</span>]         <span class="cm"># → 2026</span>
+<span class="fn">len</span>(date)      <span class="cm"># → 3   (longueur du p-uplet)</span></pre>
+
+    <div class="box warn">
+      <span class="lbl">Immuable</span>
+      <p>Un p-uplet ne se modifie pas. L'instruction <code>point[0] = 5</code> provoque
+        <code>TypeError: 'tuple' object does not support item assignment</code>. Pour « changer » un point, il faut en
+        <b>recréer</b> un nouveau : <code>point = (5, point[1])</code>.</p>
+    </div>
+
+    <h3>Deux usages très fréquents</h3>
+    <p>1. <b>Renvoyer plusieurs valeurs d'une fonction</b> : il suffit de renvoyer un p-uplet, et l'appelant peut
+      récupérer chaque composante.</p>
+<pre class="code"><span class="kw">def</span> <span class="fn">min_max</span>(t):
+    <span class="kw">return</span> <span class="fn">min</span>(t), <span class="fn">max</span>(t)         <span class="cm"># les parenthèses sont implicites</span>
+
+mini, maxi = <span class="fn">min_max</span>([<span class="nb">7</span>, <span class="nb">3</span>, <span class="nb">9</span>, <span class="nb">1</span>])   <span class="cm"># mini vaut 1, maxi vaut 9</span></pre>
+
+    <p>2. <b>Échanger deux variables</b> en une seule ligne, grâce à l'affectation parallèle :</p>
+<pre class="code">a, b = <span class="nb">10</span>, <span class="nb">20</span>
+a, b = b, a           <span class="cm"># a vaut maintenant 20, b vaut 10</span></pre>
+
+    <h3>Opérations utiles</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Opération</th><th>Exemple</th><th>Résultat</th></tr>
+      <tr><td class="l">Longueur</td><td class="mono">len((1, 2, 3))</td><td>3</td></tr>
+      <tr><td class="l">Accès</td><td class="mono">(10, 20, 30)[1]</td><td>20</td></tr>
+      <tr><td class="l">Appartenance</td><td class="mono">4 in (3, 4, 5)</td><td>True</td></tr>
+      <tr><td class="l">Concaténation</td><td class="mono">(1, 2) + (3, 4)</td><td>(1, 2, 3, 4)</td></tr>
+      <tr><td class="l">Déballage</td><td class="mono">x, y, z = (7, 8, 9)</td><td>x=7, y=8, z=9</td></tr>
+    </table></div>
+  </section>
+
+  <!-- ══════════════════ 3 ══════════════════ -->
+  <section class="part" id="p3">
+    <h2><span class="pn">3</span> Les tableaux (listes Python)</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Un <b>tableau</b> est une suite ordonnée de valeurs, écrite entre crochets et séparée par des virgules. En Python,
+        on l'appelle <b>liste</b> (type <code>list</code>). À la différence d'un p-uplet, un tableau est <b>modifiable</b> :
+        on peut changer un élément, en ajouter, en retirer, et sa longueur peut évoluer.</p>
+    </div>
+
+<pre class="code">notes = [<span class="nb">12</span>, <span class="nb">15</span>, <span class="nb">9</span>, <span class="nb">18</span>, <span class="nb">7</span>]
+vide = []                          <span class="cm"># tableau vide</span>
+melange = [<span class="st">"Alice"</span>, <span class="nb">17</span>, <span class="kw">True</span>, <span class="nb">3.14</span>]  <span class="cm"># on peut mélanger les types</span>
+<span class="fn">len</span>(notes)                        <span class="cm"># → 5</span></pre>
+
+    <h3>Accès par indice</h3>
+    <p>Les cases sont numérotées à partir de <b>0</b>. Un indice négatif compte à partir de la fin : <code>-1</code> désigne
+      le dernier élément, <code>-2</code> l'avant-dernier…</p>
+
+    <div class="cells">
+      <div class="cell"><div class="idx">0</div><div class="val">12</div></div>
+      <div class="cell"><div class="idx">1</div><div class="val">15</div></div>
+      <div class="cell"><div class="idx">2</div><div class="val">9</div></div>
+      <div class="cell"><div class="idx">3</div><div class="val">18</div></div>
+      <div class="cell"><div class="idx">4</div><div class="val">7</div></div>
+    </div>
+    <div class="cells">
+      <div class="cell neg"><div class="idx">−5</div><div class="val">12</div></div>
+      <div class="cell neg"><div class="idx">−4</div><div class="val">15</div></div>
+      <div class="cell neg"><div class="idx">−3</div><div class="val">9</div></div>
+      <div class="cell neg"><div class="idx">−2</div><div class="val">18</div></div>
+      <div class="cell neg"><div class="idx">−1</div><div class="val">7</div></div>
+    </div>
+
+<pre class="code">notes[<span class="nb">0</span>]            <span class="cm"># → 12  (premier)</span>
+notes[<span class="nb">4</span>]            <span class="cm"># → 7   (dernier)</span>
+notes[-<span class="nb">1</span>]           <span class="cm"># → 7   (le dernier, plus lisible)</span>
+notes[<span class="nb">10</span>]           <span class="cm"># IndexError : hors de la liste</span></pre>
+
+    <h3>Modifier un élément</h3>
+<pre class="code">notes[<span class="nb">2</span>] = <span class="nb">11</span>        <span class="cm"># notes vaut maintenant [12, 15, 11, 18, 7]</span></pre>
+
+    <h3>Ajouter, insérer, retirer</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Méthode</th><th>Rôle</th><th>Exemple</th></tr>
+      <tr><td class="l mono">t.append(x)</td><td class="l">Ajoute <code>x</code> à la fin.</td><td class="mono">[1,2,3].append(4) → [1,2,3,4]</td></tr>
+      <tr><td class="l mono">t.insert(i, x)</td><td class="l">Insère <code>x</code> à l'indice <code>i</code>, décale les suivants.</td><td class="mono">[1,2,3].insert(1, 9) → [1,9,2,3]</td></tr>
+      <tr><td class="l mono">t.pop()</td><td class="l">Retire et <b>renvoie</b> le dernier élément.</td><td class="mono">[1,2,3].pop() → 3, liste [1,2]</td></tr>
+      <tr><td class="l mono">t.pop(i)</td><td class="l">Retire et renvoie l'élément d'indice <code>i</code>.</td><td class="mono">[1,2,3].pop(0) → 1, liste [2,3]</td></tr>
+      <tr><td class="l mono">t.remove(x)</td><td class="l">Retire la <b>première</b> occurrence de la valeur <code>x</code>.</td><td class="mono">[1,2,3,2].remove(2) → [1,3,2]</td></tr>
+      <tr><td class="l mono">del t[i]</td><td class="l">Supprime l'élément d'indice <code>i</code>.</td><td class="mono">del [1,2,3][1] → [1,3]</td></tr>
+    </table></div>
+
+    <div class="box warn">
+      <span class="lbl">Attention — ces méthodes modifient la liste en place</span>
+      <p><code>t.append(4)</code> ne renvoie rien ; c'est la liste <code>t</code> qui a changé. Écrire
+        <code>t = t.append(4)</code> est une erreur courante : <code>t</code> devient alors <code>None</code> !</p>
+    </div>
+
+    <h3>Parcourir une liste</h3>
+    <p>Deux styles, utilisés selon ce dont on a besoin :</p>
+<pre class="code"><span class="cm"># Parcours par VALEUR : « pour chaque note dans notes »</span>
+<span class="kw">for</span> note <span class="kw">in</span> notes:
+    <span class="fn">print</span>(note)
+
+<span class="cm"># Parcours par INDICE : utile si l'on doit modifier la liste, ou connaître la position</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(notes)):
+    <span class="fn">print</span>(<span class="st">"La note numéro"</span>, i, <span class="st">"est"</span>, notes[i])</pre>
+
+    <h3>Construire une liste à la volée</h3>
+<pre class="code"><span class="cm"># Les 10 premiers carrés, avec une boucle</span>
+carres = []
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">10</span>):
+    carres.append(i * i)         <span class="cm"># [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]</span>
+
+<span class="cm"># Même chose, en « compréhension » (une ligne)</span>
+carres = [i * i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">10</span>)]</pre>
+
+    <h3>Quelques fonctions pratiques</h3>
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Fonction</th><th>Exemple</th><th>Résultat</th></tr>
+      <tr><td class="l mono">len(t)</td><td class="mono">len([1, 2, 3])</td><td>3</td></tr>
+      <tr><td class="l mono">sum(t)</td><td class="mono">sum([3, 1, 4])</td><td>8</td></tr>
+      <tr><td class="l mono">min(t) / max(t)</td><td class="mono">max([3, 1, 4])</td><td>4</td></tr>
+      <tr><td class="l mono">sorted(t)</td><td class="l">Renvoie une nouvelle liste triée, sans toucher à <code>t</code>.</td><td class="mono">sorted([3,1,4]) → [1,3,4]</td></tr>
+      <tr><td class="l mono">t.sort()</td><td class="l">Trie <code>t</code> en place.</td><td>Modifie t, ne renvoie rien</td></tr>
+      <tr><td class="l mono">x in t</td><td class="mono">4 in [3, 1, 4]</td><td>True</td></tr>
+    </table></div>
+  </section>
+
+  <!-- ══════════════════ 4 ══════════════════ -->
+  <section class="part" id="p4">
+    <h2><span class="pn">4</span> Alias et copies : un piège à comprendre tôt</h2>
+    <p>Une variable qui désigne une liste ne « contient » pas vraiment la liste : elle en désigne l'<b>emplacement</b> en
+      mémoire. Deux variables peuvent donc désigner la <b>même liste</b> — on parle d'<b>alias</b>.</p>
+
+<pre class="code">a = [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>]
+b = a                 <span class="cm"># b et a désignent la MÊME liste</span>
+b.append(<span class="nb">4</span>)
+<span class="fn">print</span>(a)              <span class="cm"># → [1, 2, 3, 4]  <<-- a a changé aussi !</span></pre>
+
+    <div class="refs">
+      <div class="ref">
+        <h4>Après <code>b = a</code> : une seule liste, deux noms</h4>
+        <svg viewBox="0 0 240 110">
+          <defs><marker id="rmk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b57bff"/></marker></defs>
+          <rect class="box-ref var" x="10" y="20" width="40" height="24" rx="4"/>
+          <text class="varlab" x="30" y="36" text-anchor="middle">a</text>
+          <rect class="box-ref var" x="10" y="56" width="40" height="24" rx="4"/>
+          <text class="varlab" x="30" y="72" text-anchor="middle">b</text>
+          <rect class="box-ref list" x="130" y="30" width="100" height="40" rx="5"/>
+          <text x="180" y="54" text-anchor="middle">[1, 2, 3]</text>
+          <path class="arr-ref" d="M 54 32 Q 90 32 128 42"/>
+          <path class="arr-ref" d="M 54 68 Q 90 68 128 58"/>
+          <text class="lab" x="180" y="22" text-anchor="middle">liste en mémoire</text>
+        </svg>
+      </div>
+      <div class="ref">
+        <h4>Avec <code>b = a.copy()</code> : deux listes distinctes</h4>
+        <svg viewBox="0 0 240 110">
+          <rect class="box-ref var" x="10" y="20" width="40" height="24" rx="4"/>
+          <text class="varlab" x="30" y="36" text-anchor="middle">a</text>
+          <rect class="box-ref var" x="10" y="56" width="40" height="24" rx="4"/>
+          <text class="varlab" x="30" y="72" text-anchor="middle">b</text>
+          <rect class="box-ref list" x="130" y="10" width="100" height="24" rx="5"/>
+          <text x="180" y="27" text-anchor="middle">[1, 2, 3]</text>
+          <rect class="box-ref list" x="130" y="65" width="100" height="24" rx="5"/>
+          <text x="180" y="82" text-anchor="middle">[1, 2, 3]</text>
+          <path class="arr-ref" d="M 54 32 L 128 22"/>
+          <path class="arr-ref" d="M 54 68 L 128 78"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — vraiment copier une liste</span>
+      <ul>
+        <li><code>b = a.copy()</code> ou <code>b = list(a)</code> ou <code>b = a[:]</code> : trois façons équivalentes.</li>
+        <li>Pour une liste de listes, <code>copy()</code> copie la liste « extérieure » mais pas celles qu'elle contient : les sous-listes sont encore partagées. Pour tout dupliquer, il faut la fonction <code>deepcopy</code> du module <code>copy</code>.</li>
+      </ul>
+    </div>
+
+    <p>Les p-uplets ne connaissent pas ce piège : étant immuables, aucun code ne peut les changer après coup, donc partager
+      ou copier revient au même. C'est l'un de leurs avantages — en particulier quand on veut utiliser une suite de valeurs
+      comme <b>clé</b> d'un dictionnaire (voir partie 6).</p>
+  </section>
+
+  <!-- ══════════════════ 5 ══════════════════ -->
+  <section class="part" id="p5">
+    <h2><span class="pn">5</span> Les tableaux de tableaux (matrices)</h2>
+    <p>Les éléments d'un tableau peuvent eux-mêmes être des tableaux. On obtient alors une <b>matrice</b> — une grille à
+      deux dimensions, qui sert à représenter un plateau de jeu, une image en niveaux de gris, un terrain, un emploi du
+      temps…</p>
+
+<pre class="code">grille = [
+    [<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>],       <span class="cm"># ligne 0</span>
+    [<span class="nb">4</span>, <span class="nb">5</span>, <span class="nb">6</span>],       <span class="cm"># ligne 1</span>
+    [<span class="nb">7</span>, <span class="nb">8</span>, <span class="nb">9</span>],       <span class="cm"># ligne 2</span>
+]
+grille[<span class="nb">1</span>]            <span class="cm"># → [4, 5, 6]  : la ligne 1</span>
+grille[<span class="nb">1</span>][<span class="nb">2</span>]         <span class="cm"># → 6         : ligne 1, colonne 2</span>
+grille[<span class="nb">0</span>][<span class="nb">0</span>] = <span class="nb">99</span>     <span class="cm"># modifie une case</span></pre>
+
+    <div style="text-align:center">
+      <div class="mat" style="grid-template-columns:repeat(3, auto)">
+        <div class="mc">1</div><div class="mc">2</div><div class="mc">3</div>
+        <div class="mc">4</div><div class="mc h">5</div><div class="mc">6</div>
+        <div class="mc">7</div><div class="mc">8</div><div class="mc">9</div>
+      </div>
+      <div style="font-size:.78rem;color:var(--text-muted);margin-top:.3rem">La case <code>grille[1][1]</code> est en surbrillance.</div>
+    </div>
+
+    <h3>Parcourir une matrice</h3>
+<pre class="code"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(grille)):           <span class="cm"># pour chaque ligne…</span>
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(grille[i])):    <span class="cm"># …pour chaque colonne de cette ligne…</span>
+        <span class="fn">print</span>(grille[i][j], end=<span class="st">" "</span>)
+    <span class="fn">print</span>()</pre>
+
+    <h3>Créer une matrice remplie</h3>
+<pre class="code"><span class="cm"># Une grille 3×4 remplie de 0 — par compréhension (correct) :</span>
+m = [[<span class="nb">0</span>] * <span class="nb">4</span> <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">3</span>)]
+
+<span class="cm"># ✗ ERREUR CLASSIQUE : les trois lignes seraient la MÊME liste (alias !)</span>
+<span class="cm"># m = [[0] * 4] * 3   # modifier m[0][0] changerait m[1][0] et m[2][0] aussi</span></pre>
+
+    <div class="box warn">
+      <span class="lbl">Attention — l'alias dans les matrices</span>
+      <p>Le piège de la partie 4 revient : <code>[[0] * 4] * 3</code> crée <b>une seule</b> ligne, répétée trois fois en
+        mémoire. La compréhension <code>[... for _ in range(3)]</code> en crée trois distinctes.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 6 ══════════════════ -->
+  <section class="part" id="p6">
+    <h2><span class="pn">6</span> Les dictionnaires</h2>
+
+    <div class="box def">
+      <span class="lbl">Définition</span>
+      <p>Un <b>dictionnaire</b> (type <code>dict</code>) associe des <b>clés</b> à des <b>valeurs</b>. On y accède à une valeur
+        par sa clé, et non par un indice numérique. Il s'écrit entre accolades, chaque paire sous la forme
+        <code>clé: valeur</code>.</p>
+    </div>
+
+<pre class="code">eleve = {
+    <span class="st">"nom"</span>: <span class="st">"Camille"</span>,
+    <span class="st">"age"</span>: <span class="nb">17</span>,
+    <span class="st">"classe"</span>: <span class="st">"1ère NSI"</span>,
+    <span class="st">"notes"</span>: [<span class="nb">12</span>, <span class="nb">15</span>, <span class="nb">9</span>],
+}
+
+eleve[<span class="st">"nom"</span>]              <span class="cm"># → "Camille"</span>
+eleve[<span class="st">"age"</span>] = <span class="nb">18</span>           <span class="cm"># modification</span>
+eleve[<span class="st">"email"</span>] = <span class="st">"c@…"</span>      <span class="cm"># ajout : une nouvelle paire clé/valeur</span>
+<span class="kw">del</span> eleve[<span class="st">"classe"</span>]       <span class="cm"># suppression</span>
+
+<span class="st">"nom"</span> <span class="kw">in</span> eleve             <span class="cm"># → True   (test d'appartenance d'une CLÉ)</span>
+<span class="fn">len</span>(eleve)                <span class="cm"># → 4      (nombre de paires)</span></pre>
+
+    <div class="box warn">
+      <span class="lbl">Clé absente</span>
+      <p>Accéder à une clé qui n'existe pas lève <code>KeyError</code>. Pour tester poliment, on écrit
+        <code>if "age" in eleve:</code>, ou on utilise <code>eleve.get("age", 0)</code> qui renvoie <code>0</code> si
+        la clé n'est pas là.</p>
+    </div>
+
+    <h3>Parcourir un dictionnaire</h3>
+<pre class="code"><span class="cm"># Par CLÉ (le plus courant)</span>
+<span class="kw">for</span> cle <span class="kw">in</span> eleve:
+    <span class="fn">print</span>(cle, <span class="st">":"</span>, eleve[cle])
+
+<span class="cm"># Par paire (clé, valeur) — plus pratique si on utilise les deux</span>
+<span class="kw">for</span> cle, valeur <span class="kw">in</span> eleve.items():
+    <span class="fn">print</span>(cle, <span class="st">"→"</span>, valeur)
+
+<span class="cm"># Les clés seules, les valeurs seules</span>
+<span class="fn">list</span>(eleve.keys())        <span class="cm"># ["nom", "age", "classe", "notes"]</span>
+<span class="fn">list</span>(eleve.values())      <span class="cm"># ["Camille", 17, "1ère NSI", [12, 15, 9]]</span></pre>
+
+    <h3>Les clés : des « étiquettes immuables »</h3>
+    <p>Toute valeur <b>immuable</b> peut servir de clé : un entier, un flottant, une chaîne, un booléen, un p-uplet
+      (dont les éléments sont eux-mêmes immuables). <b>Pas une liste</b>, pas un dictionnaire. Chaque clé est unique :
+      réaffecter <code>d["a"] = 2</code> alors que <code>d["a"]</code> existait déjà remplace la valeur, sans doubler
+      la clé.</p>
+
+    <h3>Deux usages typiques</h3>
+    <p><b>Compter des occurrences</b> — par exemple, compter les lettres d'un mot :</p>
+<pre class="code">mot = <span class="st">"anticonstitutionnellement"</span>
+compte = {}
+<span class="kw">for</span> c <span class="kw">in</span> mot:
+    <span class="kw">if</span> c <span class="kw">in</span> compte:
+        compte[c] += <span class="nb">1</span>
+    <span class="kw">else</span>:
+        compte[c] = <span class="nb">1</span>
+<span class="fn">print</span>(compte)                 <span class="cm"># {'a': 1, 'n': 5, 't': 5, 'i': 4, ...}</span></pre>
+
+    <p><b>Décrire un objet par ses propriétés</b> : chaque champ est nommé, l'ordre importe peu, on retrouve une valeur en
+      une étape. C'est la représentation la plus souple pour un enregistrement — bien plus que « le troisième élément
+      d'un p-uplet, c'est l'âge ».</p>
+  </section>
+
+  <!-- ══════════════════ 7 ══════════════════ -->
+  <section class="part" id="p7">
+    <h2><span class="pn">7</span> Les tables de données</h2>
+    <p>En réunissant tableaux et dictionnaires, on fabrique le type de données le plus utilisé en pratique : une <b>table</b>,
+      c'est-à-dire une liste de lignes, chaque ligne étant un enregistrement avec les mêmes champs.</p>
+
+<pre class="code">eleves = [
+    {<span class="st">"nom"</span>: <span class="st">"Alice"</span>,   <span class="st">"age"</span>: <span class="nb">17</span>, <span class="st">"ville"</span>: <span class="st">"Lyon"</span>},
+    {<span class="st">"nom"</span>: <span class="st">"Bruno"</span>,   <span class="st">"age"</span>: <span class="nb">16</span>, <span class="st">"ville"</span>: <span class="st">"Paris"</span>},
+    {<span class="st">"nom"</span>: <span class="st">"Chloé"</span>,   <span class="st">"age"</span>: <span class="nb">17</span>, <span class="st">"ville"</span>: <span class="st">"Lyon"</span>},
+    {<span class="st">"nom"</span>: <span class="st">"David"</span>,   <span class="st">"age"</span>: <span class="nb">18</span>, <span class="st">"ville"</span>: <span class="st">"Rennes"</span>},
+]</pre>
+
+    <div class="scrollx"><table class="tbl">
+      <tr><th>Indice</th><th>nom</th><th>age</th><th>ville</th></tr>
+      <tr><td class="mono">0</td><td class="mono">Alice</td><td class="mono">17</td><td class="mono">Lyon</td></tr>
+      <tr><td class="mono">1</td><td class="mono">Bruno</td><td class="mono">16</td><td class="mono">Paris</td></tr>
+      <tr><td class="mono">2</td><td class="mono">Chloé</td><td class="mono">17</td><td class="mono">Lyon</td></tr>
+      <tr><td class="mono">3</td><td class="mono">David</td><td class="mono">18</td><td class="mono">Rennes</td></tr>
+    </table></div>
+
+    <h3>Les trois opérations élémentaires</h3>
+<pre class="code"><span class="cm"># 1. Extraire une colonne (ici les âges)</span>
+ages = [e[<span class="st">"age"</span>] <span class="kw">for</span> e <span class="kw">in</span> eleves]            <span class="cm"># [17, 16, 17, 18]</span>
+
+<span class="cm"># 2. Filtrer les lignes (ici les Lyonnais)</span>
+lyonnais = [e <span class="kw">for</span> e <span class="kw">in</span> eleves <span class="kw">if</span> e[<span class="st">"ville"</span>] == <span class="st">"Lyon"</span>]
+
+<span class="cm"># 3. Calculer sur une colonne</span>
+age_moyen = <span class="fn">sum</span>(e[<span class="st">"age"</span>] <span class="kw">for</span> e <span class="kw">in</span> eleves) / <span class="fn">len</span>(eleves)</pre>
+
+    <h3>Lire une table depuis un fichier CSV</h3>
+    <p>Un fichier <b>CSV</b> (<i>comma-separated values</i>) est un tableur « nu » : une ligne de titres, puis une ligne par
+      enregistrement, les champs séparés par des virgules (ou des points-virgules). Le module <code>csv</code> de la
+      bibliothèque standard sait les lire :</p>
+
+<pre class="code"><span class="kw">import</span> csv
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"eleves.csv"</span>, encoding=<span class="st">"utf-8"</span>) <span class="kw">as</span> f:
+    lecteur = csv.<span class="fn">DictReader</span>(f)
+    eleves = [ligne <span class="kw">for</span> ligne <span class="kw">in</span> lecteur]      <span class="cm"># liste de dictionnaires</span>
+
+<span class="fn">print</span>(eleves[<span class="nb">0</span>][<span class="st">"nom"</span>])
+<span class="fn">print</span>(<span class="fn">len</span>(eleves), <span class="st">"élèves chargés"</span>)</pre>
+
+    <p>Un détail important : les valeurs lues depuis un fichier CSV sont <b>toujours des chaînes de caractères</b>. Si l'on
+      veut en faire des entiers ou des flottants, il faut les convertir soi-même :</p>
+<pre class="code"><span class="kw">for</span> e <span class="kw">in</span> eleves:
+    e[<span class="st">"age"</span>] = <span class="fn">int</span>(e[<span class="st">"age"</span>])            <span class="cm"># "17" → 17</span></pre>
+
+    <div class="box key">
+      <span class="lbl">Une représentation universelle</span>
+      <p>La plupart des jeux de données que l'on utilisera cette année (notes d'élèves, villes de France, titres musicaux,
+        statistiques sportives…) sont présentés comme des tables de ce type. Le chapitre suivant leur consacrera des
+        opérations plus avancées : recherche, tri, fusion.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 8 ══════════════════ -->
+  <section class="part" id="p8">
+    <h2><span class="pn">8</span> Choisir le bon type construit</h2>
+    <p>Un bon choix de type construit rend le code plus court, plus lisible et plus rapide. Quelques questions à se poser :</p>
+
+    <div class="choose"><table>
+      <tr><th>Question</th><th>Le bon type</th></tr>
+      <tr><td>Combien de valeurs ? <b>Un petit nombre fixé</b>, chacune avec un rôle précis (x et y, jour mois année).</td><td class="t">p-uplet</td></tr>
+      <tr><td>Une collection qui va <b>grossir ou rétrécir</b> au fil du programme ; l'ordre compte.</td><td class="t">liste</td></tr>
+      <tr><td>On accède aux éléments par leur <b>position</b> (le 3<sup>e</sup>, le dernier…).</td><td class="t">liste ou p-uplet</td></tr>
+      <tr><td>On accède aux éléments par un <b>identifiant</b> non numérique (un nom, un code, une étiquette).</td><td class="t">dictionnaire</td></tr>
+      <tr><td>Les données doivent <b>rester intactes</b> (pour servir de clé, par exemple).</td><td class="t">p-uplet</td></tr>
+      <tr><td>Un enregistrement avec plusieurs <b>champs nommés</b> (nom, âge, ville…).</td><td class="t">dictionnaire</td></tr>
+      <tr><td>Beaucoup d'enregistrements du même type → une table.</td><td class="t">liste de dictionnaires</td></tr>
+      <tr><td>Une grille à deux dimensions (image, plateau, carte).</td><td class="t">liste de listes</td></tr>
+    </table></div>
+
+    <div class="box meth">
+      <span class="lbl">Méthode — s'arrêter avant de coder</span>
+      <p>Avant d'écrire une seule ligne, posez cette question : <i>sur quoi je vais faire mes <b>accès</b> ?</i> Si c'est
+        un numéro de ligne, une liste suffit. Si c'est un nom, un code, une date, un dictionnaire sera bien plus naturel.
+        Un bon type construit évite les boucles inutiles pour « retrouver » une donnée que l'on aurait pu désigner
+        directement.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════ 9 ══════════════════ -->
+  <section class="part" id="p9">
+    <h2><span class="pn">9</span> Ce qu'il faut retenir</h2>
+    <div class="recap">
+      <div><b>Type construit</b>Il met plusieurs valeurs sous un seul nom. Trois types au programme : p-uplet, liste, dictionnaire.</div>
+      <div><b>p-uplet</b>(1, 2, 3) — ordonné, longueur fixée, immuable. Accès par indice. Pour renvoyer plusieurs valeurs, pour échanger.</div>
+      <div><b>liste</b>[1, 2, 3] — ordonnée, modifiable, longueur variable. append, pop, insert, remove. Parcourable par valeur ou par indice.</div>
+      <div><b>Indices</b>Numérotés à partir de 0 ; indices négatifs à partir de la fin (−1 = dernier).</div>
+      <div><b>Alias</b>b = a fait désigner la même liste. Pour copier : a.copy(), list(a), a[:].</div>
+      <div><b>Matrice</b>Liste de listes. Accès par m[i][j]. Création : <code>[[0]*c for _ in range(l)]</code>.</div>
+      <div><b>dictionnaire</b>{clé: valeur}. Accès par d[clé], ajout par d[clé] = v. Clés immuables, uniques. Parcours par .items().</div>
+      <div><b>Table</b>Liste de dictionnaires de mêmes clés. Idéale pour les CSV, qu'on lit avec csv.DictReader.</div>
+      <div><b>Choisir</b>Position → liste. Identifiant → dictionnaire. Nombre fixé de valeurs à rôles précis → p-uplet.</div>
+    </div>
+    <div class="box key">
+      <span class="lbl">Ce qu'il faut savoir faire</span>
+      <p>Créer et accéder à un p-uplet ; créer une liste, la parcourir, modifier un élément, ajouter/retirer ; distinguer
+        alias et copie ; manipuler une matrice ; créer et parcourir un dictionnaire ; charger un fichier CSV en liste
+        de dictionnaires.</p>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div class="t">
+      <b>Le TD autocorrigé</b>
+      <span>p-uplets, listes, dictionnaires, matrices, traitement d'une table : chaque réponse est corrigée immédiatement.</span>
+    </div>
+    <a href="exercices-types-construits.html">Faire le TD →</a>
+  </div>
+</main>
+
+<footer>Ressources pédagogiques — Lycée</footer>
+
+<script>
+(function(){
+  var links = [].slice.call(document.querySelectorAll('#chapnav a'));
+  var parts = links.map(function(l){ return document.querySelector(l.getAttribute('href')); });
+  function onScroll(){
+    var y = window.scrollY + 140, k = 0;
+    parts.forEach(function(p, i){ if (p && p.offsetTop <= y) k = i; });
+    links.forEach(function(l, i){ l.classList.toggle('on', i === k); });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>
