@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divisibilité dans ℤ · Terminale maths expertes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{
+  --indigo:#1E1B3A; --ink:#2D2A45; --violet:#7C4DFF; --violet-soft:#B79CFF;
+  --amber:#F0A202; --paper:#FAF8FF; --paper-dim:#EDE9F7; --muted:#9B95C4;
+  --line:rgba(183,156,255,.22); --green:#3ECF8E; --rose:#FF8CB4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--indigo);color:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
+
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5.5vh 8vw;opacity:0;transition:opacity .4s ease}
+.slide.active{display:flex;opacity:1}
+.slide.scroll{justify-content:flex-start;overflow-y:auto}
+
+.slide.section{justify-content:center}
+.slide.section .num-big{font-family:'Fraunces';font-size:clamp(4rem,12vw,10rem);color:rgba(183,156,255,.18);line-height:.8;font-weight:600}
+.slide.section h1{margin-top:-2rem}
+
+.eyebrow{font-size:clamp(.7rem,1.05vw,.92rem);font-weight:600;color:var(--violet-soft);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.eyebrow .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--amber)}
+.eyebrow.tp .dot{background:var(--green)}
+
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.2rem,5.5vw,4.6rem);line-height:1.02;letter-spacing:-.015em}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.3vw,2.7rem);line-height:1.1;margin-bottom:1.3rem;letter-spacing:-.01em}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.1rem,1.7vw,1.35rem);margin:0 0 .5rem;color:var(--violet-soft)}
+.lead{font-size:clamp(.95rem,1.45vw,1.28rem);line-height:1.55;max-width:64ch}
+.sm{font-size:clamp(.85rem,1.2vw,1.05rem);line-height:1.5}
+.muted{color:var(--muted)}
+.result{color:var(--amber);font-weight:600}
+.imag{color:var(--violet-soft);font-weight:600}
+.ok{color:var(--green);font-weight:600}
+
+.card{background:rgba(124,77,255,.08);border-left:3px solid var(--violet);border-radius:0 14px 14px 0;padding:1.3rem 1.6rem;max-width:66ch}
+.card.amber{background:rgba(240,162,2,.09);border-left-color:var(--amber)}
+.card.demo{background:rgba(255,255,255,.03);border-left-color:var(--muted)}
+.card.green{background:rgba(62,207,142,.08);border-left-color:var(--green)}
+.card.rose{background:rgba(255,140,180,.08);border-left-color:var(--rose)}
+.card + .card{margin-top:.9rem}
+.tag{font-size:.75rem;font-weight:600;letter-spacing:.04em;color:var(--violet-soft);text-transform:uppercase;display:block;margin-bottom:.45rem}
+.card.amber .tag{color:var(--amber)}
+.card.demo .tag{color:var(--muted)}
+.card.green .tag{color:var(--green)}
+.card.rose .tag{color:var(--rose)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}
+.two-col.top{align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+
+.katex{font-size:1.04em}
+[data-tex-display]{margin:.5rem 0}
+.ex{font-size:clamp(.95rem,1.4vw,1.22rem);line-height:1.9}
+ul.props,ul.list{padding:0;margin-top:.5rem}
+ul.props li,ul.list li{margin:.35rem 0;list-style:none}
+ul.props li::before{content:"• ";color:var(--violet-soft)}
+
+/* exemples row */
+.exrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem;margin:.9rem 0}
+.exrow > div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font-size:.88rem}
+.exrow > div .lb{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;display:block}
+.exrow > div .vl{font-family:'JetBrains Mono', monospace;color:var(--paper);font-size:.95rem}
+.exrow > div.hi{border-color:var(--amber)}
+.exrow > div.hi .vl{color:var(--amber)}
+
+/* code pour TP */
+pre.code{font-family:'JetBrains Mono', monospace;font-size:.84rem;line-height:1.6;background:#0c0e15;
+    border:1px solid var(--line);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0;
+    overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none;max-width:70ch}
+pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+
+.tp-badge{display:inline-block;background:rgba(62,207,142,.14);border:1px solid rgba(62,207,142,.4);color:var(--green);font-size:.72rem;font-weight:700;letter-spacing:.07em;padding:.25rem .55rem;border-radius:5px;text-transform:uppercase;margin-bottom:.8rem}
+
+/* table de calculs posés */
+.calc{font-family:'JetBrains Mono', monospace;font-size:.95rem;line-height:1.7;background:var(--ink);border-radius:10px;padding:.9rem 1.2rem;color:var(--paper);display:inline-block}
+.calc .hl{color:var(--amber);font-weight:600}
+
+.controls{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;align-items:center;background:rgba(45,42,69,.85);backdrop-filter:blur(10px);padding:.45rem .6rem;border-radius:100px;border:1px solid var(--line);z-index:50;font-size:.85rem}
+.controls button{font-family:inherit;font-size:.85rem;background:transparent;color:var(--paper);border:none;cursor:pointer;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.controls button:hover{background:rgba(124,77,255,.25)}
+.controls .num{color:var(--muted);min-width:3.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.controls .sep{width:1px;height:1.3rem;background:var(--line)}
+.toggle{display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.toggle:hover{background:rgba(124,77,255,.25)}
+.toggle input{display:none}
+.toggle .track{width:32px;height:17px;border-radius:100px;background:rgba(255,255,255,.2);position:relative;transition:background .2s}
+.toggle .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--paper);transition:transform .2s}
+.toggle input:checked + .track{background:var(--amber)}
+.toggle input:checked + .track::after{transform:translateX(15px)}
+
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--violet);z-index:60;transition:width .3s}
+
+@media print{
+  @page{size:A4 portrait;margin:15mm 14mm}
+  html,body{height:auto;overflow:visible;background:#fff;color:var(--ink)}
+  .controls,.progress{display:none !important}
+  .deck{position:static}
+  .slide{position:static;display:block !important;opacity:1 !important;padding:0;margin:0 0 6mm;break-inside:avoid}
+  .slide.section{margin:8mm 0 4mm;border-bottom:2px solid var(--violet);padding-bottom:2mm;break-before:page}
+  .slide.section:first-of-type{break-before:avoid}
+  .slide.section .num-big{font-size:20pt;color:var(--violet);display:inline;margin-right:3mm}
+  .slide.section h1{display:inline;font-size:19pt;margin:0}
+  .slide.cover{border-bottom:2px solid var(--violet);padding-bottom:4mm;margin-bottom:6mm;break-after:avoid;break-before:avoid}
+  .eyebrow{color:var(--violet);margin-bottom:.25rem;font-size:8pt}
+  h1{font-size:22pt;color:var(--ink)} h2{font-size:14pt;color:var(--violet);margin:0 0 2.5mm} h3{font-size:11pt;color:var(--violet)}
+  .lead,.sm,.ex{font-size:10pt;color:var(--ink);max-width:none;line-height:1.5}
+  .two-col,.grid2,.grid3{grid-template-columns:1fr;gap:0}
+  .card{background:#F4F0FF;border-left:3px solid var(--violet);color:var(--ink);max-width:none;padding:2.5mm 4mm;border-radius:0 5px 5px 0;margin-bottom:2mm}
+  .card.amber{background:#FDF6E7;border-left-color:var(--amber)}
+  .card.demo{background:#F6F6FA;border-left-color:#999}
+  .card.green{background:#E8F7F0;border-left-color:var(--green)}
+  .card.rose{background:#FDE8F0;border-left-color:var(--rose)}
+  .tag{color:var(--violet)} .card.amber .tag{color:#B8730C} .card.green .tag{color:#1F8A70} .card.rose .tag{color:#B23A48}
+  .result{color:#B8730C}
+  pre.code{background:#1a1c25;color:#f0f0f0;padding:3mm;font-size:8pt}
+  .tp-badge{background:#E8F7F0;color:#1F8A70;border:1px solid #1F8A70}
+  .exrow > div{background:#f8f8fc;border:1px solid #ddd;color:var(--ink)}
+  .exrow > div .lb{color:#777}
+  .calc{background:#f0f0f0;color:#333}
+}
+
+.toc-back{position:fixed;inset:0;background:rgba(20,18,40,.62);backdrop-filter:blur(3px);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+.toc-back.open{opacity:1;pointer-events:auto}
+.toc{position:fixed;z-index:71;left:50%;top:50%;transform:translate(-50%,-46%) scale(.97);width:min(430px,92vw);max-height:76vh;overflow-y:auto;
+     background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1.1rem 1.2rem;
+     opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.toc.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.toc h4{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--violet-soft);margin-bottom:.6rem;padding-left:.5rem}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc button{width:100%;display:flex;gap:.75rem;align-items:baseline;text-align:left;background:transparent;border:none;cursor:pointer;
+            font-family:inherit;font-size:.97rem;line-height:1.35;color:var(--paper);padding:.62rem .55rem;border-radius:9px;transition:background .18s}
+.toc button:hover,.toc button:focus-visible{background:rgba(124,77,255,.22);outline:none}
+.toc .tnum{color:var(--violet-soft);font-weight:600;font-size:.8rem;min-width:1.1rem;flex:none}
+
+body.mobile{overflow:visible;height:auto;min-height:100%;-webkit-text-size-adjust:100%}
+body.mobile .deck{position:static;inset:auto}
+body.mobile .slide{position:static;inset:auto;display:flex !important;opacity:1 !important;overflow:visible;
+                   justify-content:flex-start;padding:1.7rem 1.15rem 1.9rem;border-bottom:1px solid var(--line);scroll-margin-top:0}
+body.mobile .slide:last-of-type{border-bottom:none;padding-bottom:6.5rem}
+body.mobile .slide.cover{padding-top:3rem;padding-bottom:2.6rem}
+body.mobile .slide.section{background:rgba(124,77,255,.09);border-bottom:none;padding:2.2rem 1.15rem 1.6rem;align-items:flex-start}
+body.mobile .slide.section .num-big{font-size:3.4rem;line-height:.8;margin-bottom:.3rem}
+body.mobile .slide.section h1{margin-top:0}
+body.mobile h1{font-size:1.95rem;line-height:1.12}
+body.mobile .slide.cover h1{font-size:2.25rem}
+body.mobile h2{font-size:1.42rem;margin-bottom:.85rem}
+body.mobile h3{font-size:1.05rem}
+body.mobile .lead{font-size:1.02rem;line-height:1.6;max-width:none}
+body.mobile .sm{font-size:.95rem;line-height:1.55}
+body.mobile .ex{font-size:1rem;line-height:1.8}
+body.mobile .eyebrow{font-size:.78rem;margin-bottom:.7rem}
+body.mobile .two-col,body.mobile .grid2,body.mobile .grid3{grid-template-columns:1fr;gap:1.3rem}
+body.mobile .card{max-width:none}
+body.mobile pre.code{max-width:none;font-size:.78rem}
+</style>
+</head>
+
+<body>
+<div class="progress" id="prog"></div>
+
+<div class="deck">
+
+<!-- COUVERTURE -->
+<section class="slide cover active">
+  <div class="eyebrow"><span class="dot"></span>Chapitre 3 · Maths expertes · Terminale</div>
+  <h1>Divisibilité<br>dans ℤ</h1>
+  <p class="lead" style="margin-top:1rem">Trois notions qui s'enchaînent et préparent toute l'arithmétique de l'année :
+    la <b>relation de divisibilité</b> dans ℤ, la <b>division euclidienne</b> et sa décomposition unique, les
+    <b>congruences</b> comme arithmétique « enroulée » modulo un entier. Deux TP Python en fin de chapitre : changement
+    de base et conjecture de Syracuse.</p>
+</section>
+
+<!-- ============ §1 DIVISIBILITÉ ============ -->
+<section class="slide section">
+  <div class="num-big">1</div>
+  <h1>Relation<br>de divisibilité</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Définition</div>
+  <h2>Quand un entier<br>en divise un autre</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Soient <span data-tex>a</span> et <span data-tex>b</span> deux entiers relatifs. On dit que <b><span data-tex>a</span> divise <span data-tex>b</span></b> (ou que <span data-tex>b</span> est un <b>multiple</b> de <span data-tex>a</span>), et l'on note <span data-tex>a \mid b</span>, lorsqu'il existe un entier relatif <span data-tex>k</span> tel que :</p>
+    <div data-tex-display>b = k\,a</div>
+    <p class="sm">On note <span data-tex>a \nmid b</span> quand ce n'est pas le cas.</p>
+  </div>
+  <div class="exrow">
+    <div><span class="lb">Divise</span><span class="vl">3 | 12</span>&nbsp;<span class="muted">car 12 = 4×3</span></div>
+    <div><span class="lb">Divise</span><span class="vl">−5 | 30</span>&nbsp;<span class="muted">car 30 = −6×(−5)</span></div>
+    <div><span class="lb">Divise</span><span class="vl">7 | 0</span>&nbsp;<span class="muted">car 0 = 0×7</span></div>
+    <div class="hi"><span class="lb">Ne divise pas</span><span class="vl">4 ∤ 10</span>&nbsp;<span class="muted">pas de k entier</span></div>
+  </div>
+  <div class="card amber" style="margin-top:.5rem">
+    <span class="tag">Attention — cas particuliers</span>
+    <ul class="props sm">
+      <li>Tout entier divise <b>zéro</b> : pour tout <span data-tex>a\in\mathbb{Z}</span>, <span data-tex>a \mid 0</span> (prendre <span data-tex>k=0</span>).</li>
+      <li>Les seuls entiers divisés par <b>n'importe quel</b> entier sont 0.</li>
+      <li>Seul <b>1</b> et <b>−1</b> divisent tous les entiers.</li>
+      <li>Pour <span data-tex>a\neq 0</span>, les diviseurs de <span data-tex>a</span> sont <b>en nombre fini</b>, et <span data-tex>|a|</span> est le plus grand.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Propriétés</div>
+  <h2>Les règles du jeu</h2>
+  <div class="card">
+    <span class="tag">Propriétés — à savoir manipuler</span>
+    <ul class="props sm">
+      <li><b>Réflexivité</b> : <span data-tex>a \mid a</span>.</li>
+      <li><b>Transitivité</b> : si <span data-tex>a \mid b</span> et <span data-tex>b \mid c</span>, alors <span data-tex>a \mid c</span>.</li>
+      <li><b>Combinaison linéaire</b> : si <span data-tex>a \mid b</span> et <span data-tex>a \mid c</span>, alors pour tous entiers <span data-tex>u,v</span>, <span data-tex>a \mid (u b + v c)</span>.</li>
+      <li><b>Produit</b> : si <span data-tex>a \mid b</span>, alors pour tout <span data-tex>c\in\mathbb{Z}</span>, <span data-tex>a \mid bc</span>.</li>
+      <li><b>Antisymétrie partielle</b> : si <span data-tex>a \mid b</span> et <span data-tex>b \mid a</span>, alors <span data-tex>a = b</span> ou <span data-tex>a = -b</span>.</li>
+    </ul>
+  </div>
+  <div class="card demo" style="margin-top:.9rem">
+    <span class="tag">Démonstration — combinaison linéaire</span>
+    <p class="sm">Si <span data-tex>a \mid b</span> et <span data-tex>a \mid c</span>, il existe <span data-tex>k,k'\in\mathbb{Z}</span> tels que <span data-tex>b=ka</span> et <span data-tex>c=k'a</span>. Alors <span data-tex>ub+vc = uka + vk'a = (uk+vk')\,a</span>. Comme <span data-tex>uk+vk'\in\mathbb{Z}</span>, on obtient <span data-tex>a\mid(ub+vc)</span>.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application</div>
+  <h2>Un exemple-type d'arithmétique</h2>
+  <div class="card amber">
+    <span class="tag">Exemple</span>
+    <p class="sm">Montrons que, pour tout entier <span data-tex>n</span>, <b>3 divise <span data-tex>n^3 + 2n</span></b>.</p>
+    <p class="sm" style="margin-top:.5rem">On factorise : <span data-tex>n^3 + 2n = n(n^2+2) = n(n-1)(n+1) + 3n</span>.</p>
+    <ul class="props sm" style="margin-top:.4rem">
+      <li><span data-tex>n(n-1)(n+1)</span> est le produit de <b>trois entiers consécutifs</b> : l'un d'eux est divisible par 3. Donc 3 divise ce produit.</li>
+      <li>3 divise évidemment <span data-tex>3n</span>.</li>
+      <li>Par combinaison linéaire : 3 divise la somme <span data-tex>n^3+2n</span>. ■</li>
+    </ul>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Autre exemple</span>
+    <p class="sm">Si <span data-tex>a \mid 15</span> et <span data-tex>a \mid 21</span>, que peut-on dire de <span data-tex>a</span> ? Par combinaison : <span data-tex>a \mid (21 - 15) = 6</span>, puis <span data-tex>a \mid (15 - 2\cdot 6) = 3</span>. Donc <span data-tex>a \in \{\pm 1, \pm 3\}</span>. On retrouve que <span data-tex>a</span> divise le PGCD de 15 et 21 — l'algorithme d'Euclide (ch. 4) formalisera cette technique.</p>
+  </div>
+</section>
+
+<!-- ============ §2 DIVISION EUCLIDIENNE ============ -->
+<section class="slide section">
+  <div class="num-big">2</div>
+  <h1>Division<br>euclidienne</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Théorème fondamental</div>
+  <h2>Un quotient, un reste,<br>uniques</h2>
+  <div class="card">
+    <span class="tag">Théorème</span>
+    <p class="sm">Soient <span data-tex>a\in\mathbb{Z}</span> et <span data-tex>b\in\mathbb{Z}^*</span> (<span data-tex>b\neq 0</span>). Il existe un <b>unique couple</b> <span data-tex>(q,r)\in\mathbb{Z}\times\mathbb{N}</span> tel que :</p>
+    <div data-tex-display>a = b\,q + r \quad \text{avec} \quad 0 \leq r &lt; |b|</div>
+    <p class="sm"><span data-tex>q</span> est le <b>quotient</b>, <span data-tex>r</span> le <b>reste</b> de la division euclidienne de <span data-tex>a</span> (le dividende) par <span data-tex>b</span> (le diviseur).</p>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Lecture</span>
+    <ul class="props sm">
+      <li><span data-tex>b \mid a</span> si et seulement si <span data-tex>r = 0</span>.</li>
+      <li>En Python : <code>q = a // b</code> et <code>r = a % b</code> — à condition que <code>b &gt; 0</code>.</li>
+      <li>Le reste est toujours <b>positif</b>, même pour <span data-tex>a&lt;0</span>.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Exemples</div>
+  <h2>Quatre divisions à savoir poser</h2>
+  <div class="exrow">
+    <div><span class="lb">17 ÷ 5</span><span class="vl">17 = 5×3 + 2</span><span class="muted">q=3, r=2</span></div>
+    <div><span class="lb">100 ÷ 7</span><span class="vl">100 = 7×14 + 2</span><span class="muted">q=14, r=2</span></div>
+    <div><span class="lb">35 ÷ 5</span><span class="vl">35 = 5×7 + 0</span><span class="muted">q=7, r=0 → 5 | 35</span></div>
+    <div class="hi"><span class="lb">−17 ÷ 5</span><span class="vl">−17 = 5×(−4) + 3</span><span class="muted">q=−4, r=3</span></div>
+  </div>
+  <div class="card demo" style="margin-top:.5rem">
+    <span class="tag">Attention — reste positif</span>
+    <p class="sm">Pour <span data-tex>-17 \div 5</span>, on peut être tenté d'écrire <span data-tex>-17 = 5\times(-3) + (-2)</span>. Mais la définition impose <span data-tex>r \geq 0</span>. On ajuste donc : <span data-tex>-17 = 5\times(-4) + 3</span>, et c'est bien cette écriture, unique, qu'il faut retenir.</p>
+  </div>
+  <div class="card demo" style="margin-top:.5rem">
+    <span class="tag">Démonstration — unicité</span>
+    <p class="sm">Supposons <span data-tex>a = bq+r = bq'+r'</span> avec <span data-tex>0\leq r,r'&lt;|b|</span>. Alors <span data-tex>b(q-q') = r'-r</span>, et donc <span data-tex>|b| \mid |r'-r|</span>. Or <span data-tex>|r'-r|&lt;|b|</span>, ce qui force <span data-tex>r' = r</span>, puis <span data-tex>q' = q</span>. ■</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application</div>
+  <h2>Divisibilité par 2, 3, 5, 9</h2>
+  <div class="card">
+    <span class="tag">Critères classiques</span>
+    <ul class="props sm">
+      <li><b>Divisibilité par 2</b> : le dernier chiffre est pair.</li>
+      <li><b>Divisibilité par 5</b> : le dernier chiffre est 0 ou 5.</li>
+      <li><b>Divisibilité par 10</b> : le dernier chiffre est 0.</li>
+      <li><b>Divisibilité par 3</b> : la somme des chiffres est divisible par 3.</li>
+      <li><b>Divisibilité par 9</b> : la somme des chiffres est divisible par 9.</li>
+      <li><b>Divisibilité par 11</b> : la somme alternée des chiffres (chiffre des unités − dizaines + centaines − …) est divisible par 11.</li>
+    </ul>
+  </div>
+  <div class="card green" style="margin-top:.9rem">
+    <span class="tag">Exemple</span>
+    <p class="sm"><b>12 345</b> est-il divisible par 3 ou par 9 ? La somme des chiffres est <span data-tex>1+2+3+4+5=15</span>. 15 est divisible par 3 mais pas par 9 : donc 12 345 est divisible par 3 (= 4 115 × 3), pas par 9.</p>
+    <p class="sm" style="margin-top:.4rem">Les justifications complètes de ces critères s'écrivent naturellement avec les <b>congruences</b> (section suivante).</p>
+  </div>
+</section>
+
+<!-- ============ §3 CONGRUENCES ============ -->
+<section class="slide section">
+  <div class="num-big">3</div>
+  <h1>Congruences<br>modulo n</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Définition</div>
+  <h2>Deux entiers « équivalents »<br>à n près</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Soit <span data-tex>n\in\mathbb{N}^*</span>. On dit que deux entiers <span data-tex>a</span> et <span data-tex>b</span> sont <b>congrus modulo <span data-tex>n</span></b>, et on note :</p>
+    <div data-tex-display>a \equiv b \pmod{n}</div>
+    <p class="sm">lorsque <span data-tex>n \mid (a - b)</span>, autrement dit lorsqu'<b>ils ont le même reste</b> dans la division euclidienne par <span data-tex>n</span>.</p>
+  </div>
+  <div class="exrow">
+    <div><span class="lb">mod 7</span><span class="vl">17 ≡ 3 (7)</span><span class="muted">17 − 3 = 14 = 2×7</span></div>
+    <div><span class="lb">mod 7</span><span class="vl">17 ≡ 10 (7)</span><span class="muted">même reste 3</span></div>
+    <div><span class="lb">mod 5</span><span class="vl">−3 ≡ 2 (5)</span><span class="muted">même reste 2</span></div>
+    <div><span class="lb">mod 12</span><span class="vl">14 ≡ 2 (12)</span><span class="muted">heure sur un cadran</span></div>
+  </div>
+  <div class="card amber" style="margin-top:.5rem">
+    <span class="tag">Intuition — l'horloge</span>
+    <p class="sm">Modulo 12, les entiers « s'enroulent » comme sur un cadran : 13 revient à 1, 14 à 2, 25 à 1, et <span data-tex>-1 \equiv 11 \pmod{12}</span>. C'est l'arithmétique du <b>temps cyclique</b> — jours, semaines, mois…</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Propriétés essentielles</div>
+  <h2>La congruence se transporte<br>par les opérations</h2>
+  <div class="card">
+    <span class="tag">Propriétés</span>
+    <p class="sm">Si <span data-tex>a \equiv a' \pmod{n}</span> et <span data-tex>b \equiv b' \pmod{n}</span>, alors :</p>
+    <div data-tex-display>a + b \equiv a' + b' \pmod{n}</div>
+    <div data-tex-display>a - b \equiv a' - b' \pmod{n}</div>
+    <div data-tex-display>a \times b \equiv a' \times b' \pmod{n}</div>
+    <p class="sm">Et pour tout <span data-tex>k\in\mathbb{N}</span> : <span data-tex>a^k \equiv (a')^k \pmod{n}</span>.</p>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Attention — on ne divise pas comme ça</span>
+    <p class="sm">La division par un entier modulo <span data-tex>n</span> n'est pas toujours autorisée : par exemple, <span data-tex>2\times 3 \equiv 2\times 0 \pmod{6}</span>, mais <span data-tex>3 \not\equiv 0 \pmod{6}</span>. L'inverse modulaire existe seulement sous certaines conditions (voir chapitre 4 sur Bézout).</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Exemple incontournable</div>
+  <h2>Les restes des puissances</h2>
+  <div class="card">
+    <span class="tag">Calcul</span>
+    <p class="sm">Déterminons le reste de <span data-tex>7^{2024}</span> dans la division par 5.</p>
+    <ul class="props sm" style="margin-top:.4rem">
+      <li><span data-tex>7 \equiv 2 \pmod 5</span>, donc <span data-tex>7^{2024} \equiv 2^{2024} \pmod 5</span>.</li>
+      <li>Calculons les premières puissances de 2 modulo 5 :
+        <div class="exrow" style="margin:.4rem 0">
+          <div><span class="lb">2¹</span><span class="vl">2</span></div>
+          <div><span class="lb">2²</span><span class="vl">4</span></div>
+          <div><span class="lb">2³</span><span class="vl">3</span></div>
+          <div><span class="lb">2⁴</span><span class="vl">1</span></div>
+          <div class="hi"><span class="lb">cycle</span><span class="vl">2,4,3,1</span></div>
+        </div>
+      </li>
+      <li>Le cycle est de longueur 4. Et <span data-tex>2024 = 4 \times 506</span>, donc <span data-tex>2^{2024} = (2^4)^{506} \equiv 1^{506} \equiv 1 \pmod 5</span>.</li>
+      <li><b>Conclusion</b> : <span data-tex>7^{2024}</span> a pour reste <span class="result">1</span> dans la division par 5.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Justification</div>
+  <h2>Le critère par 3 et par 9,<br>enfin démontrés</h2>
+  <div class="card">
+    <span class="tag">Preuve du critère par 9</span>
+    <p class="sm">Écrivons un entier <span data-tex>N</span> en base 10 : <span data-tex>N = \sum_{k=0}^{p} c_k\,10^k</span>, où <span data-tex>c_k</span> sont ses chiffres.</p>
+    <p class="sm" style="margin-top:.4rem">Puisque <span data-tex>10 \equiv 1 \pmod 9</span>, on a <span data-tex>10^k \equiv 1^k = 1 \pmod 9</span> pour tout <span data-tex>k</span>. Donc :</p>
+    <div data-tex-display>N \equiv \sum_{k=0}^{p} c_k \cdot 1 = c_0 + c_1 + \cdots + c_p \pmod 9</div>
+    <p class="sm"><span data-tex>N</span> est divisible par 9 si et seulement si la somme de ses chiffres l'est. Pour <b>3</b> : même preuve, car <span data-tex>10 \equiv 1 \pmod 3</span>. Pour <b>11</b> : <span data-tex>10 \equiv -1 \pmod{11}</span>, d'où la somme <b>alternée</b> des chiffres. ■</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Table des restes</div>
+  <h2>Un outil systématique</h2>
+  <div class="card amber">
+    <span class="tag">Méthode — étudier les restes modulo n</span>
+    <p class="sm">Pour prouver un énoncé « <b>pour tout entier n, telle propriété est vraie</b> », il suffit souvent de dresser le tableau des restes possibles modulo un petit entier bien choisi.</p>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Exemple</span>
+    <p class="sm">Montrons que <span data-tex>n^2 + n</span> est toujours divisible par 2.</p>
+    <p class="sm" style="margin-top:.4rem">Tout entier <span data-tex>n</span> est congru à 0 ou 1 modulo 2.</p>
+    <ul class="props sm">
+      <li>Si <span data-tex>n \equiv 0 \pmod 2</span> : <span data-tex>n^2 + n \equiv 0 + 0 = 0 \pmod 2</span>. ✓</li>
+      <li>Si <span data-tex>n \equiv 1 \pmod 2</span> : <span data-tex>n^2 + n \equiv 1 + 1 = 2 \equiv 0 \pmod 2</span>. ✓</li>
+    </ul>
+    <p class="sm">Dans les deux cas, <span data-tex>n^2 + n \equiv 0 \pmod 2</span>. Donc <span data-tex>2 \mid n^2 + n</span>. ■</p>
+  </div>
+</section>
+
+<!-- ============ §4 TP ============ -->
+<section class="slide section">
+  <div class="num-big">4</div>
+  <h1>TP Python</h1>
+</section>
+
+<section class="slide scroll">
+  <div class="tp-badge">TP 1</div>
+  <h2>Changement de base</h2>
+  <p class="sm" style="max-width:70ch;margin-bottom:.8rem">Un entier naturel <span data-tex>N</span> s'écrit, en base <span data-tex>b \geq 2</span>, comme <span data-tex>N = \sum c_k b^k</span>. Pour trouver ses chiffres, on effectue des divisions euclidiennes successives : <b>le reste donne le chiffre</b>, le quotient devient le nouveau nombre à diviser.</p>
+
+  <h3 style="margin-top:1rem">1. De la base 10 vers une base b</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">base_10_vers_b</span>(n, b):
+    <span class="st">"""Renvoie la liste des chiffres de n écrit en base b,
+    du poids faible vers le poids fort."""</span>
+    <span class="kw">assert</span> n &gt;= <span class="nb">0</span> <span class="kw">and</span> b &gt;= <span class="nb">2</span>
+    <span class="kw">if</span> n == <span class="nb">0</span>:
+        <span class="kw">return</span> [<span class="nb">0</span>]
+    chiffres = []
+    <span class="kw">while</span> n &gt; <span class="nb">0</span>:
+        chiffres.append(n % b)   <span class="cm"># le chiffre de poids faible</span>
+        n = n // b                <span class="cm"># on continue avec le quotient</span>
+    <span class="kw">return</span> chiffres
+
+<span class="cm"># Exemples</span>
+<span class="fn">base_10_vers_b</span>(<span class="nb">13</span>, <span class="nb">2</span>)     <span class="cm"># → [1, 0, 1, 1]  → 1101 en base 2</span>
+<span class="fn">base_10_vers_b</span>(<span class="nb">255</span>, <span class="nb">16</span>)   <span class="cm"># → [15, 15]      → FF en base 16</span>
+<span class="fn">base_10_vers_b</span>(<span class="nb">100</span>, <span class="nb">7</span>)    <span class="cm"># → [2, 2, 2]     → 222 en base 7</span></pre>
+
+  <h3>2. Formatage avec les symboles 0–9, A–F…</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">en_base</span>(n, b):
+    <span class="st">"""Renvoie une chaîne : la représentation de n en base b (2 ≤ b ≤ 16)."""</span>
+    symboles = <span class="st">"0123456789ABCDEF"</span>
+    <span class="kw">if</span> n == <span class="nb">0</span>:
+        <span class="kw">return</span> <span class="st">"0"</span>
+    chaine = <span class="st">""</span>
+    <span class="kw">while</span> n &gt; <span class="nb">0</span>:
+        chaine = symboles[n % b] + chaine   <span class="cm"># on insère EN TÊTE</span>
+        n = n // b
+    <span class="kw">return</span> chaine
+
+<span class="fn">en_base</span>(<span class="nb">42</span>, <span class="nb">2</span>)      <span class="cm"># → "101010"</span>
+<span class="fn">en_base</span>(<span class="nb">2026</span>, <span class="nb">16</span>)   <span class="cm"># → "7EA"</span>
+<span class="fn">en_base</span>(<span class="nb">1000</span>, <span class="nb">7</span>)    <span class="cm"># → "2626"</span></pre>
+
+  <h3>3. L'inverse : de la base b vers la base 10</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">base_b_vers_10</span>(chaine, b):
+    <span class="st">"""Décode une chaîne écrite en base b (2 ≤ b ≤ 16) en entier décimal."""</span>
+    symboles = <span class="st">"0123456789ABCDEF"</span>
+    n = <span class="nb">0</span>
+    <span class="kw">for</span> c <span class="kw">in</span> chaine:
+        n = n * b + symboles.<span class="fn">index</span>(c)   <span class="cm"># schéma de Horner</span>
+    <span class="kw">return</span> n
+
+<span class="fn">base_b_vers_10</span>(<span class="st">"101010"</span>, <span class="nb">2</span>)   <span class="cm"># → 42</span>
+<span class="fn">base_b_vers_10</span>(<span class="st">"7EA"</span>, <span class="nb">16</span>)       <span class="cm"># → 2026</span>
+<span class="fn">base_b_vers_10</span>(<span class="st">"FF"</span>, <span class="nb">16</span>)        <span class="cm"># → 255</span></pre>
+
+  <div class="card green" style="margin-top:1rem">
+    <span class="tag">À essayer</span>
+    <p class="sm">Vérifier que <code>base_b_vers_10(en_base(n, b), b) == n</code> pour tout <span data-tex>n \geq 0</span> et <span data-tex>2 \leq b \leq 16</span>. C'est un bon test unitaire : les deux fonctions sont inverses l'une de l'autre.</p>
+  </div>
+</section>
+
+<section class="slide scroll">
+  <div class="tp-badge">TP 2</div>
+  <h2>La conjecture de Syracuse</h2>
+  <p class="sm" style="max-width:70ch;margin-bottom:.8rem">Partons d'un entier <span data-tex>n &gt; 0</span>. On lui applique la règle suivante :</p>
+  <div class="card amber" style="max-width:66ch">
+    <span class="tag">Règle</span>
+    <ul class="props sm">
+      <li>si <span data-tex>n</span> est <b>pair</b>, on le remplace par <span data-tex>n/2</span> ;</li>
+      <li>si <span data-tex>n</span> est <b>impair</b>, on le remplace par <span data-tex>3n+1</span>.</li>
+    </ul>
+    <p class="sm" style="margin-top:.4rem">On répète. La <b>conjecture de Syracuse</b> (ou de Collatz, 1937) affirme : <b>quel que soit n &gt; 0, la suite finit toujours par atteindre 1</b>.</p>
+    <p class="sm">La conjecture est vérifiée pour tous les entiers jusqu'à environ <span data-tex>10^{20}</span>, mais aucune preuve générale n'est connue — un des grands problèmes ouverts des mathématiques.</p>
+  </div>
+
+  <h3 style="margin-top:1rem">1. La fonction de Syracuse</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">syracuse</span>(n):
+    <span class="kw">if</span> n % <span class="nb">2</span> == <span class="nb">0</span>:
+        <span class="kw">return</span> n // <span class="nb">2</span>
+    <span class="kw">return</span> <span class="nb">3</span> * n + <span class="nb">1</span>
+
+<span class="fn">syracuse</span>(<span class="nb">6</span>)   <span class="cm"># → 3   (pair)</span>
+<span class="fn">syracuse</span>(<span class="nb">7</span>)   <span class="cm"># → 22  (impair)</span></pre>
+
+  <h3>2. La trajectoire d'un entier</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">trajectoire</span>(n):
+    <span class="st">"""Renvoie la liste des termes de la suite de Syracuse partant de n,
+    jusqu'à atteindre 1."""</span>
+    traj = [n]
+    <span class="kw">while</span> n != <span class="nb">1</span>:
+        n = <span class="fn">syracuse</span>(n)
+        traj.append(n)
+    <span class="kw">return</span> traj
+
+<span class="fn">trajectoire</span>(<span class="nb">6</span>)
+<span class="cm"># → [6, 3, 10, 5, 16, 8, 4, 2, 1]</span>
+
+<span class="fn">trajectoire</span>(<span class="nb">27</span>)
+<span class="cm"># → [27, 82, 41, 124, …, 9232, …, 1]  (111 étapes, max = 9232)</span></pre>
+
+  <h3>3. Temps de vol et altitude maximale</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">temps_de_vol</span>(n):
+    <span class="st">"""Nombre d'étapes pour atteindre 1 (temps de vol)."""</span>
+    <span class="kw">return</span> <span class="fn">len</span>(<span class="fn">trajectoire</span>(n)) - <span class="nb">1</span>
+
+<span class="kw">def</span> <span class="fn">altitude_max</span>(n):
+    <span class="st">"""Plus grande valeur atteinte dans la trajectoire."""</span>
+    <span class="kw">return</span> <span class="fn">max</span>(<span class="fn">trajectoire</span>(n))
+
+<span class="fn">temps_de_vol</span>(<span class="nb">27</span>)     <span class="cm"># → 111</span>
+<span class="fn">altitude_max</span>(<span class="nb">27</span>)     <span class="cm"># → 9232</span>
+
+<span class="cm"># Record parmi les 100 premiers entiers</span>
+<span class="fn">max</span>((<span class="fn">temps_de_vol</span>(n), n) <span class="kw">for</span> n <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1</span>, <span class="nb">101</span>))
+<span class="cm"># → (118, 97)   97 détient le record sur [1 ; 100]</span></pre>
+
+  <div class="card green" style="margin-top:1rem">
+    <span class="tag">À tester</span>
+    <p class="sm">La trajectoire de <b>27</b> est le cas d'école : elle grimpe jusqu'à 9232 avant de redescendre. Essayez aussi <b>871</b> (178 étapes) ou <b>6171</b> (261 étapes). Tracez la trajectoire avec <code>matplotlib.pyplot.plot(trajectoire(n))</code> pour voir « l'altitude » de l'avion de Syracuse.</p>
+  </div>
+</section>
+
+<!-- ============ L'ESSENTIEL ============ -->
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Fiche de révision</div>
+  <h2>L'essentiel du chapitre</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Divisibilité</span>
+      <p class="sm"><span data-tex>a \mid b</span> ⟺ il existe <span data-tex>k\in\mathbb{Z}</span> tel que <span data-tex>b=ka</span>. Réflexive, transitive, stable par combinaison linéaire.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Division euclidienne</span>
+      <p class="sm">Pour <span data-tex>b\neq 0</span>, unique <span data-tex>(q,r)</span> avec <span data-tex>a = bq + r</span> et <span data-tex>0\leq r &lt;|b|</span>. En Python : <code>a // b</code> et <code>a % b</code>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Congruence</span>
+      <p class="sm"><span data-tex>a \equiv b \pmod n</span> ⟺ <span data-tex>n\mid(a-b)</span> ⟺ même reste par <span data-tex>n</span>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Propriétés</span>
+      <p class="sm">Compatible avec <span data-tex>+</span>, <span data-tex>-</span>, <span data-tex>\times</span> et les puissances. <b>Pas</b> directement avec la division.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Critères</span>
+      <p class="sm">Divisible par 3 ou 9 : somme des chiffres. Par 11 : somme alternée. Preuve via <span data-tex>10\equiv 1\pmod 3</span> et <span data-tex>10\equiv -1\pmod{11}</span>.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">TP Python</span>
+      <p class="sm">Changement de base avec <code>n % b</code> et <code>n // b</code>. Suite de Syracuse : <code>n//2</code> ou <code>3*n+1</code>, jusqu'à atteindre 1.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="controls">
+  <button id="prev">‹</button>
+  <span class="num"><span id="cur">1</span>/<span id="tot">1</span></span>
+  <button id="next">›</button>
+  <span class="sep"></span>
+  <button id="tocBtn" title="Aller à une partie">Sommaire</button>
+  <span class="sep"></span>
+  <label class="toggle" title="Affichage optimisé pour smartphone"><input type="checkbox" id="mobileToggle"><span class="track"></span><span>Mode portable</span></label>
+  <span class="sep"></span>
+  <button id="printBtn" title="Imprimer en PDF A4">Imprimer PDF</button>
+</div>
+
+<div class="toc-back" id="tocBack"></div>
+<nav class="toc" id="toc" aria-label="Sommaire du chapitre" aria-hidden="true">
+  <h4>Sommaire</h4>
+  <ol id="tocList"></ol>
+</nav>
+
+<script>
+function renderMath(){
+  document.querySelectorAll('[data-tex]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+  document.querySelectorAll('[data-tex-display]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{displayMode:true,throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+}
+window.addEventListener('load',()=>setTimeout(renderMath,150));
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+const cur=document.getElementById('cur'),tot=document.getElementById('tot'),prog=document.getElementById('prog');
+tot.textContent=slides.length;
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));cur.textContent=i+1;prog.style.width=((i+1)/slides.length*100)+'%';if(slides[i].scrollTop!==undefined)slides[i].scrollTop=0;}
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('prev').onclick=()=>show(i-1);
+document.addEventListener('keydown',e=>{if(document.body.classList.contains('mobile'))return;if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
+document.getElementById('printBtn').onclick=()=>window.print();
+const toc=document.getElementById('toc'),tocBack=document.getElementById('tocBack'),tocList=document.getElementById('tocList');
+function titleOf(h){if(!h)return'Partie';const c=h.cloneNode(true);c.querySelectorAll('br').forEach(b=>b.replaceWith(document.createTextNode(' ')));return c.textContent.replace(/\s+/g,' ').trim();}
+(function buildToc(){
+  const entries=[{n:'↑',t:'Début',k:0}];
+  slides.forEach((s,k)=>{if(!s.classList.contains('section'))return;const num=s.querySelector('.num-big');entries.push({n:num?num.textContent.trim():'',t:titleOf(s.querySelector('h1')),k});});
+  entries.forEach(e=>{const li=document.createElement('li'),b=document.createElement('button');b.dataset.i=e.k;const sp=document.createElement('span');sp.className='tnum';sp.textContent=e.n;b.append(sp,document.createTextNode(e.t));li.append(b);tocList.append(li);});
+})();
+function openToc(o){toc.classList.toggle('open',o);tocBack.classList.toggle('open',o);toc.setAttribute('aria-hidden',String(!o));}
+document.getElementById('tocBtn').onclick=()=>openToc(!toc.classList.contains('open'));
+tocBack.onclick=()=>openToc(false);
+tocList.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const n=+b.dataset.i;openToc(false);if(document.body.classList.contains('mobile')){if(n===0)window.scrollTo({top:0,behavior:'smooth'});else slides[n].scrollIntoView({behavior:'smooth',block:'start'});}else show(n);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')openToc(false)});
+const mobileToggle=document.getElementById('mobileToggle');
+const mq=window.matchMedia('(max-width: 820px)');let manual=false;
+function scrollProg(){const h=document.documentElement,max=h.scrollHeight-h.clientHeight;prog.style.width=(max>4?Math.min(100,h.scrollTop/max*100):100)+'%';}
+function setMobile(on){document.body.classList.toggle('mobile',on);mobileToggle.checked=on;openToc(false);if(on){requestAnimationFrame(()=>{if(i>0)slides[i].scrollIntoView({block:'start'});scrollProg();});}else{window.scrollTo(0,0);show(i);}}
+mobileToggle.addEventListener('change',e=>{manual=true;setMobile(e.target.checked)});
+mq.addEventListener('change',e=>{if(!manual)setMobile(e.matches)});
+window.addEventListener('scroll',()=>{if(document.body.classList.contains('mobile'))scrollProg()},{passive:true});
+show(0);setMobile(mq.matches);
+</script>
+</body>
+</html>

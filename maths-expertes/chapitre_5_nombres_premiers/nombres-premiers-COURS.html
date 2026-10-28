@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nombres premiers · Terminale maths expertes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{
+  --indigo:#1E1B3A; --ink:#2D2A45; --violet:#7C4DFF; --violet-soft:#B79CFF;
+  --amber:#F0A202; --paper:#FAF8FF; --paper-dim:#EDE9F7; --muted:#9B95C4;
+  --line:rgba(183,156,255,.22); --green:#3ECF8E; --rose:#FF8CB4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--indigo);color:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5.5vh 8vw;opacity:0;transition:opacity .4s ease}
+.slide.active{display:flex;opacity:1}
+.slide.scroll{justify-content:flex-start;overflow-y:auto}
+.slide.section{justify-content:center}
+.slide.section .num-big{font-family:'Fraunces';font-size:clamp(4rem,12vw,10rem);color:rgba(183,156,255,.18);line-height:.8;font-weight:600}
+.slide.section h1{margin-top:-2rem}
+.eyebrow{font-size:clamp(.7rem,1.05vw,.92rem);font-weight:600;color:var(--violet-soft);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.eyebrow .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--amber)}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.2rem,5.5vw,4.6rem);line-height:1.02;letter-spacing:-.015em}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.3vw,2.7rem);line-height:1.1;margin-bottom:1.3rem;letter-spacing:-.01em}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.1rem,1.7vw,1.35rem);margin:0 0 .5rem;color:var(--violet-soft)}
+.lead{font-size:clamp(.95rem,1.45vw,1.28rem);line-height:1.55;max-width:64ch}
+.sm{font-size:clamp(.85rem,1.2vw,1.05rem);line-height:1.5}
+.muted{color:var(--muted)}
+.result{color:var(--amber);font-weight:600}
+.ok{color:var(--green);font-weight:600}
+.card{background:rgba(124,77,255,.08);border-left:3px solid var(--violet);border-radius:0 14px 14px 0;padding:1.3rem 1.6rem;max-width:66ch}
+.card.amber{background:rgba(240,162,2,.09);border-left-color:var(--amber)}
+.card.demo{background:rgba(255,255,255,.03);border-left-color:var(--muted)}
+.card.green{background:rgba(62,207,142,.08);border-left-color:var(--green)}
+.card.rose{background:rgba(255,140,180,.08);border-left-color:var(--rose)}
+.card + .card{margin-top:.9rem}
+.tag{font-size:.75rem;font-weight:600;letter-spacing:.04em;color:var(--violet-soft);text-transform:uppercase;display:block;margin-bottom:.45rem}
+.card.amber .tag{color:var(--amber)}
+.card.demo .tag{color:var(--muted)}
+.card.green .tag{color:var(--green)}
+.card.rose .tag{color:var(--rose)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}
+.two-col.top{align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.katex{font-size:1.04em}
+[data-tex-display]{margin:.5rem 0}
+.ex{font-size:clamp(.95rem,1.4vw,1.22rem);line-height:1.9}
+ul.props,ul.list{padding:0;margin-top:.5rem}
+ul.props li,ul.list li{margin:.35rem 0;list-style:none}
+ul.props li::before{content:"• ";color:var(--violet-soft)}
+.exrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem;margin:.9rem 0}
+.exrow > div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font-size:.88rem}
+.exrow > div .lb{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;display:block}
+.exrow > div .vl{font-family:'JetBrains Mono', monospace;color:var(--paper);font-size:.95rem}
+.exrow > div.hi{border-color:var(--amber)}
+.exrow > div.hi .vl{color:var(--amber)}
+pre.code{font-family:'JetBrains Mono', monospace;font-size:.84rem;line-height:1.6;background:#0c0e15;border:1px solid var(--line);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0;overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none;max-width:70ch}
+pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+.tp-badge{display:inline-block;background:rgba(62,207,142,.14);border:1px solid rgba(62,207,142,.4);color:var(--green);font-size:.72rem;font-weight:700;letter-spacing:.07em;padding:.25rem .55rem;border-radius:5px;text-transform:uppercase;margin-bottom:.8rem}
+
+/* Crible visuel */
+.crible{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;max-width:350px;margin:1rem 0}
+.crible .n{background:var(--ink);color:var(--paper);padding:.3rem;text-align:center;border-radius:4px;font-family:'JetBrains Mono', monospace;font-size:.8rem}
+.crible .n.p{background:#B23A48;color:#fff;font-weight:700}
+.crible .n.c{color:var(--muted);text-decoration:line-through}
+.crible .n.one{background:transparent;color:var(--muted)}
+
+.controls{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;align-items:center;background:rgba(45,42,69,.85);backdrop-filter:blur(10px);padding:.45rem .6rem;border-radius:100px;border:1px solid var(--line);z-index:50;font-size:.85rem}
+.controls button{font-family:inherit;font-size:.85rem;background:transparent;color:var(--paper);border:none;cursor:pointer;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.controls button:hover{background:rgba(124,77,255,.25)}
+.controls .num{color:var(--muted);min-width:3.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.controls .sep{width:1px;height:1.3rem;background:var(--line)}
+.toggle{display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.toggle:hover{background:rgba(124,77,255,.25)}
+.toggle input{display:none}
+.toggle .track{width:32px;height:17px;border-radius:100px;background:rgba(255,255,255,.2);position:relative;transition:background .2s}
+.toggle .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--paper);transition:transform .2s}
+.toggle input:checked + .track{background:var(--amber)}
+.toggle input:checked + .track::after{transform:translateX(15px)}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--violet);z-index:60;transition:width .3s}
+@media print{
+  @page{size:A4 portrait;margin:15mm 14mm}
+  html,body{height:auto;overflow:visible;background:#fff;color:var(--ink)}
+  .controls,.progress{display:none !important}
+  .deck{position:static}
+  .slide{position:static;display:block !important;opacity:1 !important;padding:0;margin:0 0 6mm;break-inside:avoid}
+  .slide.section{margin:8mm 0 4mm;border-bottom:2px solid var(--violet);padding-bottom:2mm;break-before:page}
+  .slide.section:first-of-type{break-before:avoid}
+  .slide.section .num-big{font-size:20pt;color:var(--violet);display:inline;margin-right:3mm}
+  .slide.section h1{display:inline;font-size:19pt;margin:0}
+  .slide.cover{border-bottom:2px solid var(--violet);padding-bottom:4mm;margin-bottom:6mm}
+  .eyebrow{color:var(--violet);margin-bottom:.25rem;font-size:8pt}
+  h1{font-size:22pt;color:var(--ink)} h2{font-size:14pt;color:var(--violet);margin:0 0 2.5mm} h3{font-size:11pt;color:var(--violet)}
+  .lead,.sm,.ex{font-size:10pt;color:var(--ink);max-width:none;line-height:1.5}
+  .two-col,.grid2{grid-template-columns:1fr;gap:0}
+  .card{background:#F4F0FF;border-left:3px solid var(--violet);color:var(--ink);max-width:none;padding:2.5mm 4mm;border-radius:0 5px 5px 0;margin-bottom:2mm}
+  .card.amber{background:#FDF6E7;border-left-color:var(--amber)}
+  .card.green{background:#E8F7F0;border-left-color:var(--green)}
+  .card.demo{background:#F6F6FA;border-left-color:#999}
+  .card.rose{background:#FDE8F0;border-left-color:var(--rose)}
+  .tag{color:var(--violet)}
+  pre.code{background:#1a1c25;color:#f0f0f0;padding:3mm;font-size:8pt}
+  .tp-badge{background:#E8F7F0;color:#1F8A70;border:1px solid #1F8A70}
+  .exrow > div{background:#f8f8fc;border:1px solid #ddd;color:var(--ink)}
+  .crible .n{background:#eee;color:#333}
+  .crible .n.p{background:#B23A48;color:#fff}
+}
+.toc-back{position:fixed;inset:0;background:rgba(20,18,40,.62);backdrop-filter:blur(3px);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+.toc-back.open{opacity:1;pointer-events:auto}
+.toc{position:fixed;z-index:71;left:50%;top:50%;transform:translate(-50%,-46%) scale(.97);width:min(430px,92vw);max-height:76vh;overflow-y:auto;background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1.1rem 1.2rem;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.toc.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.toc h4{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--violet-soft);margin-bottom:.6rem;padding-left:.5rem}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc button{width:100%;display:flex;gap:.75rem;align-items:baseline;text-align:left;background:transparent;border:none;cursor:pointer;font-family:inherit;font-size:.97rem;line-height:1.35;color:var(--paper);padding:.62rem .55rem;border-radius:9px;transition:background .18s}
+.toc button:hover,.toc button:focus-visible{background:rgba(124,77,255,.22);outline:none}
+.toc .tnum{color:var(--violet-soft);font-weight:600;font-size:.8rem;min-width:1.1rem;flex:none}
+body.mobile{overflow:visible;height:auto;min-height:100%;-webkit-text-size-adjust:100%}
+body.mobile .deck{position:static;inset:auto}
+body.mobile .slide{position:static;inset:auto;display:flex !important;opacity:1 !important;overflow:visible;justify-content:flex-start;padding:1.7rem 1.15rem 1.9rem;border-bottom:1px solid var(--line);scroll-margin-top:0}
+body.mobile .slide:last-of-type{border-bottom:none;padding-bottom:6.5rem}
+body.mobile .slide.cover{padding-top:3rem;padding-bottom:2.6rem}
+body.mobile .slide.section{background:rgba(124,77,255,.09);border-bottom:none;padding:2.2rem 1.15rem 1.6rem;align-items:flex-start}
+body.mobile .slide.section .num-big{font-size:3.4rem;line-height:.8;margin-bottom:.3rem}
+body.mobile .slide.section h1{margin-top:0}
+body.mobile h1{font-size:1.95rem;line-height:1.12}
+body.mobile .slide.cover h1{font-size:2.25rem}
+body.mobile h2{font-size:1.42rem;margin-bottom:.85rem}
+body.mobile h3{font-size:1.05rem}
+body.mobile .lead{font-size:1.02rem;line-height:1.6;max-width:none}
+body.mobile .sm{font-size:.95rem;line-height:1.55}
+body.mobile .ex{font-size:1rem;line-height:1.8}
+body.mobile .eyebrow{font-size:.78rem;margin-bottom:.7rem}
+body.mobile .two-col,body.mobile .grid2{grid-template-columns:1fr;gap:1.3rem}
+body.mobile .card{max-width:none}
+body.mobile pre.code{max-width:none;font-size:.78rem}
+</style>
+</head>
+
+<body>
+<div class="progress" id="prog"></div>
+<div class="deck">
+
+<section class="slide cover active">
+  <div class="eyebrow"><span class="dot"></span>Chapitre 5 · Maths expertes · Terminale</div>
+  <h1>Nombres<br>premiers</h1>
+  <p class="lead" style="margin-top:1rem">Les <b>briques élémentaires</b> des entiers : définition, infinité, crible d'Ératosthène ; <b>décomposition</b> unique en facteurs premiers ; <b>petit théorème de Fermat</b> et ses conséquences. Deux TP Python en fin de chapitre : test de primalité probabiliste et chiffrement RSA complet.</p>
+</section>
+
+<!-- ============ §1 ENSEMBLE DES PREMIERS ============ -->
+<section class="slide section">
+  <div class="num-big">1</div>
+  <h1>L'ensemble<br>des nombres premiers</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Définition</div>
+  <h2>Deux diviseurs,<br>pas un de plus</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Un entier <span data-tex>p\in\mathbb{N}</span> est <b>premier</b> lorsque <span data-tex>p \geq 2</span> et que ses seuls diviseurs positifs sont <b>1</b> et <b>lui-même</b>.</p>
+    <p class="sm" style="margin-top:.4rem">Les entiers <span data-tex>n \geq 2</span> non premiers sont dits <b>composés</b>. 1 n'est ni premier, ni composé.</p>
+  </div>
+  <div class="exrow">
+    <div class="hi"><span class="lb">premiers</span><span class="vl">2, 3, 5, 7, 11</span></div>
+    <div class="hi"><span class="lb">suivants</span><span class="vl">13, 17, 19, 23, 29</span></div>
+    <div><span class="lb">composés</span><span class="vl">4=2², 6=2·3, 9=3²</span></div>
+    <div><span class="lb">particulier</span><span class="vl">2 est le seul pair</span></div>
+  </div>
+  <div class="card amber" style="margin-top:.5rem">
+    <span class="tag">Un détail important</span>
+    <p class="sm">La convention « 1 n'est pas premier » n'est pas arbitraire : elle garantit l'<b>unicité</b> de la décomposition en facteurs premiers (section 2). Sans elle, on écrirait tantôt <span data-tex>6 = 2\times 3</span>, tantôt <span data-tex>6 = 1\times 2\times 3</span>, tantôt <span data-tex>6 = 1\times 1\times 2\times 3</span>…</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Trouver les premiers</h2>
+  <h2>Le crible d'Ératosthène</h2>
+  <p class="sm" style="max-width:62ch">Pour trouver tous les premiers jusqu'à <span data-tex>N</span> : on écrit tous les entiers de 2 à <span data-tex>N</span>. On entoure 2, on raye tous ses multiples (sauf lui). On entoure le plus petit non rayé (3), on raye ses multiples. Et ainsi de suite jusqu'à <span data-tex>\sqrt{N}</span>.</p>
+  <div class="crible">
+    <div class="n one">1</div>
+    <div class="n p">2</div>
+    <div class="n p">3</div>
+    <div class="n c">4</div>
+    <div class="n p">5</div>
+    <div class="n c">6</div>
+    <div class="n p">7</div>
+    <div class="n c">8</div>
+    <div class="n c">9</div>
+    <div class="n c">10</div>
+    <div class="n p">11</div>
+    <div class="n c">12</div>
+    <div class="n p">13</div>
+    <div class="n c">14</div>
+    <div class="n c">15</div>
+    <div class="n c">16</div>
+    <div class="n p">17</div>
+    <div class="n c">18</div>
+    <div class="n p">19</div>
+    <div class="n c">20</div>
+    <div class="n c">21</div>
+    <div class="n c">22</div>
+    <div class="n p">23</div>
+    <div class="n c">24</div>
+    <div class="n c">25</div>
+    <div class="n c">26</div>
+    <div class="n c">27</div>
+    <div class="n c">28</div>
+    <div class="n p">29</div>
+    <div class="n c">30</div>
+  </div>
+  <p class="sm" style="color:var(--muted);margin-top:.4rem">En rouge : les 10 nombres premiers inférieurs à 30. Rayés : les multiples propres de 2, 3, 5.</p>
+  <div class="card amber" style="margin-top:.7rem">
+    <span class="tag">Astuce clé</span>
+    <p class="sm">Pour tester si <span data-tex>n</span> est premier, il suffit d'essayer les diviseurs <b>jusqu'à <span data-tex>\sqrt{n}</span></b>. Si <span data-tex>n = ab</span> avec <span data-tex>1 &lt; a \leq b</span>, alors <span data-tex>a^2 \leq ab = n</span>, donc <span data-tex>a \leq \sqrt n</span>.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Théorème d'Euclide</div>
+  <h2>Les nombres premiers<br>sont en nombre infini</h2>
+  <div class="card">
+    <span class="tag">Théorème (Euclide, 300 av. J.-C.)</span>
+    <p class="sm">Il existe <b>une infinité</b> de nombres premiers.</p>
+  </div>
+  <div class="card demo" style="margin-top:.9rem">
+    <span class="tag">Démonstration par l'absurde</span>
+    <p class="sm">Supposons qu'il n'y ait qu'un nombre <b>fini</b> de nombres premiers : <span data-tex>p_1, p_2, \ldots, p_n</span>. Considérons le nombre :</p>
+    <div data-tex-display>N = p_1 \times p_2 \times \cdots \times p_n + 1</div>
+    <p class="sm"><span data-tex>N</span> est entier et <span data-tex>N \geq 2</span>. Il admet donc un diviseur premier <span data-tex>p</span> (voir slide suivante). Mais <span data-tex>p</span> ne peut être aucun des <span data-tex>p_i</span> : si <span data-tex>p = p_i</span>, alors <span data-tex>p</span> divise le produit <span data-tex>p_1\cdots p_n</span>, et comme il divise aussi <span data-tex>N</span>, par soustraction il divise <span data-tex>1</span> — absurde. Donc <span data-tex>p</span> est un nombre premier qui n'était pas dans notre liste. ■</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Lemme utile</div>
+  <h2>Tout entier a un diviseur premier</h2>
+  <div class="card">
+    <span class="tag">Propriété</span>
+    <p class="sm">Tout entier <span data-tex>n \geq 2</span> admet au moins un <b>diviseur premier</b>.</p>
+  </div>
+  <div class="card demo" style="margin-top:.9rem">
+    <span class="tag">Démonstration</span>
+    <p class="sm">Soit <span data-tex>n \geq 2</span>. L'ensemble des diviseurs de <span data-tex>n</span> supérieurs ou égaux à 2 est non vide (il contient <span data-tex>n</span>) et est une partie non vide de <span data-tex>\mathbb{N}</span> : il admet un <b>plus petit élément</b>, notons-le <span data-tex>p</span>.</p>
+    <p class="sm" style="margin-top:.4rem">Montrons que <span data-tex>p</span> est premier. Si <span data-tex>p</span> admettait un diviseur <span data-tex>d</span> avec <span data-tex>1 &lt; d &lt; p</span>, alors <span data-tex>d</span> serait aussi un diviseur de <span data-tex>n</span> (par transitivité) supérieur ou égal à 2, et strictement plus petit que <span data-tex>p</span> — ce qui contredit la minimalité de <span data-tex>p</span>. Donc <span data-tex>p</span> n'a aucun diviseur autre que 1 et lui-même : <span data-tex>p</span> est premier. ■</p>
+  </div>
+</section>
+
+<!-- ============ §2 DÉCOMPOSITION ============ -->
+<section class="slide section">
+  <div class="num-big">2</div>
+  <h1>Décomposition<br>en facteurs premiers</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Théorème fondamental</div>
+  <h2>Chaque entier a une unique<br>« carte d'identité » première</h2>
+  <div class="card">
+    <span class="tag">Théorème fondamental de l'arithmétique</span>
+    <p class="sm">Tout entier <span data-tex>n \geq 2</span> se décompose de manière <b>unique</b>, à l'ordre près des facteurs, comme un produit de nombres premiers :</p>
+    <div data-tex-display>n = p_1^{\alpha_1} \times p_2^{\alpha_2} \times \cdots \times p_k^{\alpha_k}</div>
+    <p class="sm">où <span data-tex>p_1 &lt; p_2 &lt; \cdots &lt; p_k</span> sont des nombres premiers distincts et <span data-tex>\alpha_i \in \mathbb{N}^*</span>.</p>
+  </div>
+  <div class="exrow">
+    <div><span class="lb">60</span><span class="vl">2² × 3 × 5</span></div>
+    <div><span class="lb">360</span><span class="vl">2³ × 3² × 5</span></div>
+    <div><span class="lb">1000</span><span class="vl">2³ × 5³</span></div>
+    <div><span class="lb">2026</span><span class="vl">2 × 1013</span></div>
+    <div class="hi"><span class="lb">997</span><span class="vl">997 (premier)</span></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>En pratique</div>
+  <h2>Comment décomposer<br>à la main</h2>
+  <div class="card amber">
+    <span class="tag">Méthode</span>
+    <p class="sm">On divise <span data-tex>n</span> successivement par les nombres premiers, dans l'ordre croissant, tant que c'est possible. Dès qu'un premier <span data-tex>p</span> ne divise plus, on passe au suivant.</p>
+  </div>
+  <div style="text-align:center;margin:1rem 0">
+<pre class="code" style="margin:0 auto;text-align:left;max-width:260px">360 ÷ 2 = 180
+180 ÷ 2 = 90
+ 90 ÷ 2 = 45
+ 45 ÷ 3 = 15
+ 15 ÷ 3 = 5
+  5 ÷ 5 = 1
+──────────────
+360 = 2³ × 3² × 5</pre>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Applications immédiates</span>
+    <ul class="props sm">
+      <li>Le <b>nombre de diviseurs</b> de <span data-tex>n = p_1^{\alpha_1}\cdots p_k^{\alpha_k}</span> est <span data-tex>(\alpha_1 + 1)(\alpha_2+1)\cdots(\alpha_k+1)</span>. Pour <span data-tex>360 = 2^3\cdot 3^2\cdot 5</span> : <span data-tex>4\times 3\times 2 = 24</span> diviseurs.</li>
+      <li>Le <b>PGCD</b> de deux entiers décomposés est le produit des facteurs communs avec le plus petit exposant ; le <b>PPCM</b> avec le plus grand.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application</div>
+  <h2>PGCD par décomposition</h2>
+  <div class="card">
+    <span class="tag">Exemple</span>
+    <p class="sm">Calculons le PGCD de <span data-tex>360</span> et <span data-tex>756</span>.</p>
+    <p class="sm" style="margin-top:.4rem"><span data-tex>360 = 2^3 \times 3^2 \times 5</span></p>
+    <p class="sm"><span data-tex>756 = 2^2 \times 3^3 \times 7</span></p>
+    <p class="sm" style="margin-top:.4rem">Pour chaque premier, on prend le <b>plus petit exposant</b> :</p>
+    <ul class="props sm">
+      <li>pour 2 : min(3, 2) = 2 → <span data-tex>2^2</span></li>
+      <li>pour 3 : min(2, 3) = 2 → <span data-tex>3^2</span></li>
+      <li>5 et 7 n'apparaissent pas dans les deux</li>
+    </ul>
+    <p class="sm" style="margin-top:.4rem">D'où <span data-tex>\mathrm{pgcd}(360, 756) = 2^2 \times 3^2 = 36</span>.</p>
+    <p class="sm" style="margin-top:.4rem"><span class="muted">Vérification Euclide : 756 = 360×2 + 36, 360 = 36×10 + 0. Pgcd = 36. ✓</span></p>
+  </div>
+</section>
+
+<!-- ============ §3 FERMAT ============ -->
+<section class="slide section">
+  <div class="num-big">3</div>
+  <h1>Petit théorème<br>de Fermat</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Énoncé</div>
+  <h2>Une congruence qui ne dépend que du premier p</h2>
+  <div class="card">
+    <span class="tag">Théorème — Fermat (1640)</span>
+    <p class="sm">Soit <span data-tex>p</span> un nombre premier et <span data-tex>a</span> un entier. Alors :</p>
+    <div data-tex-display>a^{p} \equiv a \pmod{p}</div>
+    <p class="sm">Si de plus <span data-tex>a</span> n'est pas divisible par <span data-tex>p</span> (c'est-à-dire <span data-tex>\mathrm{pgcd}(a,p)=1</span>), on peut simplifier par <span data-tex>a</span> :</p>
+    <div data-tex-display>a^{p-1} \equiv 1 \pmod{p}</div>
+  </div>
+  <div class="exrow">
+    <div><span class="lb">p=5, a=2</span><span class="vl">2⁵ = 32 ≡ 2 (5)</span><span class="muted">2⁴ = 16 ≡ 1 (5)</span></div>
+    <div><span class="lb">p=7, a=3</span><span class="vl">3⁶ = 729 ≡ 1 (7)</span><span class="muted">729 = 104×7 + 1</span></div>
+    <div><span class="lb">p=11, a=5</span><span class="vl">5¹⁰ ≡ 1 (11)</span></div>
+    <div class="hi"><span class="lb">attention</span><span class="vl">4 non premier</span><span class="muted">3⁴ = 81 ≡ 1 (4) mais ce n'est pas Fermat</span></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application</div>
+  <h2>Puissances modulo un premier</h2>
+  <div class="card green">
+    <span class="tag">Exemple</span>
+    <p class="sm">Calculons <span data-tex>2^{100} \bmod 13</span>. 13 est premier et <span data-tex>\mathrm{pgcd}(2,13)=1</span>, donc par Fermat :</p>
+    <div data-tex-display>2^{12} \equiv 1 \pmod{13}</div>
+    <p class="sm" style="margin-top:.4rem">On divise 100 par 12 : <span data-tex>100 = 12\times 8 + 4</span>. D'où :</p>
+    <div data-tex-display>2^{100} = (2^{12})^{8} \times 2^{4} \equiv 1^{8}\times 16 \equiv 16 \equiv 3 \pmod{13}</div>
+    <p class="sm">Donc <span data-tex>2^{100}</span> a pour reste <span class="result">3</span> dans la division par 13. Sans Fermat, il aurait fallu calculer <span data-tex>2^{100} \approx 10^{30}</span> puis le réduire.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Démonstration</div>
+  <h2>Un argument par bijection</h2>
+  <div class="card demo">
+    <span class="tag">Preuve (cas <span data-tex>a \wedge p = 1</span>)</span>
+    <p class="sm">Considérons les <span data-tex>p-1</span> entiers <span data-tex>a, 2a, 3a, \ldots, (p-1)a</span>, pris modulo <span data-tex>p</span>.</p>
+    <ul class="props sm">
+      <li>Aucun n'est <span data-tex>\equiv 0 \pmod p</span> (sinon <span data-tex>p \mid ka</span>, puis par Gauss <span data-tex>p \mid k</span>, impossible pour <span data-tex>1 \leq k \leq p-1</span>).</li>
+      <li>Deux à deux distincts modulo <span data-tex>p</span> : si <span data-tex>i a \equiv j a</span>, alors (par Gauss, car <span data-tex>a\wedge p = 1</span>) <span data-tex>i\equiv j \pmod p</span>, donc <span data-tex>i = j</span>.</li>
+    </ul>
+    <p class="sm" style="margin-top:.4rem">Ces <span data-tex>p-1</span> entiers forment donc une permutation de <span data-tex>\{1, 2, \ldots, p-1\}</span> modulo <span data-tex>p</span>. Leur produit vaut :</p>
+    <div data-tex-display>a \cdot 2a \cdots (p-1)a = a^{p-1} \cdot (p-1)! \equiv 1 \cdot 2 \cdots (p-1) = (p-1)! \pmod p</div>
+    <p class="sm">Comme <span data-tex>(p-1)!</span> est premier avec <span data-tex>p</span>, on simplifie : <span data-tex>a^{p-1} \equiv 1 \pmod p</span>. ■</p>
+  </div>
+</section>
+
+<!-- ============ §4 TP ============ -->
+<section class="slide section">
+  <div class="num-big">4</div>
+  <h1>TP Python</h1>
+</section>
+
+<section class="slide scroll">
+  <div class="tp-badge">TP 1</div>
+  <h2>Test de primalité</h2>
+  <p class="sm" style="max-width:70ch;margin-bottom:.8rem">Deux approches : un test <b>exact</b> par divisions successives, et un test <b>probabiliste</b> appuyé sur le petit théorème de Fermat.</p>
+
+  <h3 style="margin-top:1rem">1. Test exact — divisions jusqu'à √n</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">est_premier</span>(n):
+    <span class="st">"""Renvoie True si n est premier (n >= 2)."""</span>
+    <span class="kw">if</span> n &lt; <span class="nb">2</span>:
+        <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">if</span> n == <span class="nb">2</span>:
+        <span class="kw">return</span> <span class="kw">True</span>
+    <span class="kw">if</span> n % <span class="nb">2</span> == <span class="nb">0</span>:
+        <span class="kw">return</span> <span class="kw">False</span>
+    k = <span class="nb">3</span>
+    <span class="kw">while</span> k * k &lt;= n:              <span class="cm"># on s'arrête à sqrt(n)</span>
+        <span class="kw">if</span> n % k == <span class="nb">0</span>:
+            <span class="kw">return</span> <span class="kw">False</span>
+        k += <span class="nb">2</span>                     <span class="cm"># on saute les pairs</span>
+    <span class="kw">return</span> <span class="kw">True</span>
+
+<span class="fn">est_premier</span>(<span class="nb">2</span>)        <span class="cm"># → True</span>
+<span class="fn">est_premier</span>(<span class="nb">15</span>)       <span class="cm"># → False (15 = 3×5)</span>
+<span class="fn">est_premier</span>(<span class="nb">997</span>)      <span class="cm"># → True</span>
+<span class="fn">est_premier</span>(<span class="nb">1000003</span>)  <span class="cm"># → True  (environ 1 ms)</span></pre>
+
+  <h3>2. Décomposition en facteurs premiers</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">decomposition</span>(n):
+    <span class="st">"""Renvoie la liste des facteurs premiers de n, avec répétitions."""</span>
+    facteurs = []
+    d = <span class="nb">2</span>
+    <span class="kw">while</span> d * d &lt;= n:
+        <span class="kw">while</span> n % d == <span class="nb">0</span>:
+            facteurs.append(d)
+            n //= d
+        d += <span class="nb">1</span>
+    <span class="kw">if</span> n &gt; <span class="nb">1</span>:
+        facteurs.append(n)
+    <span class="kw">return</span> facteurs
+
+<span class="fn">decomposition</span>(<span class="nb">60</span>)     <span class="cm"># → [2, 2, 3, 5]</span>
+<span class="fn">decomposition</span>(<span class="nb">360</span>)    <span class="cm"># → [2, 2, 2, 3, 3, 5]</span>
+<span class="fn">decomposition</span>(<span class="nb">997</span>)    <span class="cm"># → [997]</span>
+<span class="fn">decomposition</span>(<span class="nb">2026</span>)   <span class="cm"># → [2, 1013]</span></pre>
+
+  <h3>3. Test probabiliste de Fermat</h3>
+<pre class="code"><span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">test_fermat</span>(n, k=<span class="nb">10</span>):
+    <span class="st">"""Teste la primalité de n en répétant k fois le petit théorème de Fermat.
+    Renvoie True (probablement premier) ou False (certainement composé)."""</span>
+    <span class="kw">if</span> n &lt; <span class="nb">4</span>:
+        <span class="kw">return</span> n == <span class="nb">2</span> <span class="kw">or</span> n == <span class="nb">3</span>
+    <span class="kw">if</span> n % <span class="nb">2</span> == <span class="nb">0</span>:
+        <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(k):
+        a = random.<span class="fn">randint</span>(<span class="nb">2</span>, n - <span class="nb">2</span>)
+        <span class="kw">if</span> <span class="fn">pow</span>(a, n - <span class="nb">1</span>, n) != <span class="nb">1</span>:   <span class="cm"># Fermat violé → composé</span>
+            <span class="kw">return</span> <span class="kw">False</span>
+    <span class="kw">return</span> <span class="kw">True</span>
+
+<span class="fn">test_fermat</span>(<span class="nb">1_000_003</span>)         <span class="cm"># → True</span>
+<span class="fn">test_fermat</span>(<span class="nb">10</span>**<span class="nb">20</span> + <span class="nb">39</span>)     <span class="cm"># → True (grand premier)</span>
+<span class="fn">test_fermat</span>(<span class="nb">10</span>**<span class="nb">20</span>)          <span class="cm"># → False (évidemment composé)</span></pre>
+
+  <div class="card amber" style="margin-top:1rem">
+    <span class="tag">À savoir</span>
+    <p class="sm">La fonction <code>pow(a, n-1, n)</code> calcule <span data-tex>a^{n-1} \bmod n</span> en <b>temps logarithmique</b> grâce à l'exponentiation rapide — essentiel pour tester des nombres de 100 ou 1000 chiffres.</p>
+  </div>
+  <div class="card rose" style="margin-top:.8rem">
+    <span class="tag">Limite — les nombres de Carmichael</span>
+    <p class="sm">Certains entiers composés passent le test de Fermat <b>pour tout <span data-tex>a</span> premier avec eux</b> : par exemple 561 = 3×11×17. Ces nombres (de Carmichael) sont rares, mais pour un test vraiment sûr sur de grands nombres, on utilise un raffinement : le test de <b>Miller-Rabin</b>.</p>
+  </div>
+</section>
+
+<section class="slide scroll">
+  <div class="tp-badge">TP 2</div>
+  <h2>Chiffrement RSA</h2>
+  <p class="sm" style="max-width:70ch;margin-bottom:.8rem">RSA (Rivest–Shamir–Adleman, 1977) est un système de <b>cryptographie à clé publique</b> : on peut envoyer un message chiffré à quelqu'un sans qu'il ait fallu partager une clé secrète au préalable. Il repose entièrement sur le petit théorème de Fermat et sur un fait expérimental : <b>factoriser un grand entier est très difficile</b>, alors que le multiplier est facile.</p>
+
+  <h3 style="margin-top:1rem">1. Principe</h3>
+  <div class="card">
+    <span class="tag">Les trois clés</span>
+    <ol class="props sm">
+      <li>Choisir deux grands nombres premiers <span data-tex>p</span> et <span data-tex>q</span>, calculer <span data-tex>n = p \times q</span>.</li>
+      <li>Calculer <span data-tex>\varphi(n) = (p-1)(q-1)</span> (indicatrice d'Euler : nombre d'entiers premiers avec <span data-tex>n</span>).</li>
+      <li>Choisir un entier <span data-tex>e</span> premier avec <span data-tex>\varphi(n)</span> (clé publique de chiffrement).</li>
+      <li>Calculer <span data-tex>d</span>, l'inverse de <span data-tex>e</span> modulo <span data-tex>\varphi(n)</span>, par Bézout (clé privée de déchiffrement).</li>
+    </ol>
+    <p class="sm" style="margin-top:.4rem"><b>Clé publique</b> : <span data-tex>(n, e)</span>, partagée au monde entier. <b>Clé privée</b> : <span data-tex>d</span>, gardée secrète.</p>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Chiffrer / déchiffrer</span>
+    <p class="sm">Pour chiffrer un message <span data-tex>m</span> (converti en entier <span data-tex>0 \leq m &lt; n</span>) : on calcule <span data-tex>c = m^e \bmod n</span>.</p>
+    <p class="sm">Pour déchiffrer : on calcule <span data-tex>m = c^d \bmod n</span>. La correction du système vient de Fermat : <span data-tex>m^{ed} \equiv m \pmod n</span>.</p>
+  </div>
+
+  <h3 style="margin-top:1rem">2. Les briques Python</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">pgcd</span>(a, b):
+    <span class="kw">while</span> b != <span class="nb">0</span>:
+        a, b = b, a % b
+    <span class="kw">return</span> a
+
+<span class="kw">def</span> <span class="fn">euclide_etendu</span>(a, b):
+    <span class="st">"""Renvoie (d, u, v) tels que a*u + b*v = d = pgcd(a, b)."""</span>
+    <span class="kw">if</span> b == <span class="nb">0</span>:
+        <span class="kw">return</span> a, <span class="nb">1</span>, <span class="nb">0</span>
+    d, u1, v1 = <span class="fn">euclide_etendu</span>(b, a % b)
+    <span class="kw">return</span> d, v1, u1 - (a // b) * v1
+
+<span class="kw">def</span> <span class="fn">inverse_mod</span>(e, phi):
+    <span class="st">"""Renvoie d tel que e*d ≡ 1 (mod phi)."""</span>
+    _, u, _ = <span class="fn">euclide_etendu</span>(e, phi)
+    <span class="kw">return</span> u % phi</pre>
+
+  <h3>3. Génération des clés et chiffrement</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">genere_cles</span>(p, q, e=<span class="nb">65537</span>):
+    <span class="st">"""Génère une paire de clés RSA à partir de deux premiers p et q."""</span>
+    n = p * q
+    phi = (p - <span class="nb">1</span>) * (q - <span class="nb">1</span>)
+    <span class="kw">assert</span> <span class="fn">pgcd</span>(e, phi) == <span class="nb">1</span>, <span class="st">"e doit être premier avec phi(n)"</span>
+    d = <span class="fn">inverse_mod</span>(e, phi)
+    <span class="kw">return</span> (n, e), (n, d)         <span class="cm"># (publique, privée)</span>
+
+<span class="kw">def</span> <span class="fn">chiffrer</span>(m, cle_pub):
+    n, e = cle_pub
+    <span class="kw">return</span> <span class="fn">pow</span>(m, e, n)         <span class="cm"># exponentiation rapide</span>
+
+<span class="kw">def</span> <span class="fn">dechiffrer</span>(c, cle_priv):
+    n, d = cle_priv
+    <span class="kw">return</span> <span class="fn">pow</span>(c, d, n)</pre>
+
+  <h3>4. Exemple complet avec des petits premiers</h3>
+<pre class="code"><span class="cm"># Alice choisit deux premiers (petits, pour l'exemple)</span>
+p, q = <span class="nb">61</span>, <span class="nb">53</span>
+pub, priv = <span class="fn">genere_cles</span>(p, q, e=<span class="nb">17</span>)
+pub        <span class="cm"># → (3233, 17)   publié par Alice</span>
+priv       <span class="cm"># → (3233, 2753) gardé secret par Alice</span>
+
+<span class="cm"># Bob chiffre le message m = 65 pour Alice (il n'a que la clé publique)</span>
+c = <span class="fn">chiffrer</span>(<span class="nb">65</span>, pub)
+c          <span class="cm"># → 2790</span>
+
+<span class="cm"># Alice déchiffre avec sa clé privée</span>
+m = <span class="fn">dechiffrer</span>(c, priv)
+m          <span class="cm"># → 65  ✓</span></pre>
+
+  <h3>5. Toutes les étapes à la main sur l'exemple</h3>
+  <div class="card green">
+    <span class="tag">Déroulé pédagogique</span>
+    <ul class="props sm">
+      <li><b>p = 61, q = 53</b> → <span data-tex>n = 3233</span>, <span data-tex>\varphi(n) = 60 \times 52 = 3120</span>.</li>
+      <li><b>e = 17</b> → on vérifie <span data-tex>\mathrm{pgcd}(17, 3120) = 1</span> ✓ (17 est premier et ne divise pas 3120).</li>
+      <li>Bézout (Euclide étendu) : <span data-tex>17 \times 2753 - 3120 \times 15 = 1</span>, donc <span data-tex>d = 2753</span>.</li>
+      <li>Chiffrement de 65 : <span data-tex>65^{17} \bmod 3233 = 2790</span>.</li>
+      <li>Déchiffrement : <span data-tex>2790^{2753} \bmod 3233 = 65</span>. ✓</li>
+    </ul>
+  </div>
+
+  <div class="card rose" style="margin-top:1rem">
+    <span class="tag">Pourquoi c'est sûr</span>
+    <p class="sm">Pour casser RSA, un attaquant qui connaît <span data-tex>(n, e)</span> doit retrouver <span data-tex>d</span>. Pour cela, il lui faut <span data-tex>\varphi(n) = (p-1)(q-1)</span>, donc <span data-tex>p</span> et <span data-tex>q</span> : il doit <b>factoriser <span data-tex>n</span></b>. Avec <span data-tex>n</span> de 2048 bits (environ 617 chiffres), aucun algorithme connu ne sait factoriser en temps raisonnable, même sur un supercalculateur. Toute la sécurité d'HTTPS, des cartes bancaires, des signatures numériques repose là-dessus.</p>
+  </div>
+</section>
+
+<!-- ============ L'ESSENTIEL ============ -->
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Fiche de révision</div>
+  <h2>L'essentiel du chapitre</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Nombre premier</span>
+      <p class="sm"><span data-tex>p \geq 2</span>, ses seuls diviseurs sont 1 et <span data-tex>p</span>. L'ensemble des nombres premiers est <b>infini</b> (Euclide).</p>
+    </div>
+    <div class="card">
+      <span class="tag">Test</span>
+      <p class="sm">Pour tester si <span data-tex>n</span> est premier, essayer les diviseurs jusqu'à <span data-tex>\sqrt n</span>. Au-delà, Fermat ou Miller-Rabin.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Décomposition</span>
+      <p class="sm">Tout <span data-tex>n\geq 2</span> s'écrit <b>uniquement</b> <span data-tex>p_1^{\alpha_1}\cdots p_k^{\alpha_k}</span>. Donne le nombre de diviseurs, le PGCD, le PPCM.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Fermat</span>
+      <p class="sm">Pour <span data-tex>p</span> premier : <span data-tex>a^p \equiv a \pmod p</span>. Si <span data-tex>a \wedge p = 1</span> : <span data-tex>a^{p-1} \equiv 1 \pmod p</span>.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">TP Python</span>
+      <p class="sm">Test exact par divisions jusqu'à <span data-tex>\sqrt n</span>. Décomposition en facteurs premiers. Test probabiliste de Fermat avec <code>pow(a, n-1, n)</code>.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">RSA</span>
+      <p class="sm">Clé publique <span data-tex>(n, e)</span>, privée <span data-tex>d</span> avec <span data-tex>ed \equiv 1 \pmod{\varphi(n)}</span>. Chiffrer <span data-tex>c = m^e \bmod n</span>, déchiffrer <span data-tex>m = c^d \bmod n</span>.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="controls">
+  <button id="prev">‹</button>
+  <span class="num"><span id="cur">1</span>/<span id="tot">1</span></span>
+  <button id="next">›</button>
+  <span class="sep"></span>
+  <button id="tocBtn">Sommaire</button>
+  <span class="sep"></span>
+  <label class="toggle"><input type="checkbox" id="mobileToggle"><span class="track"></span><span>Mode portable</span></label>
+  <span class="sep"></span>
+  <button id="printBtn">Imprimer PDF</button>
+</div>
+
+<div class="toc-back" id="tocBack"></div>
+<nav class="toc" id="toc" aria-hidden="true">
+  <h4>Sommaire</h4>
+  <ol id="tocList"></ol>
+</nav>
+
+<script>
+function renderMath(){
+  document.querySelectorAll('[data-tex]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+  document.querySelectorAll('[data-tex-display]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{displayMode:true,throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+}
+window.addEventListener('load',()=>setTimeout(renderMath,150));
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+const cur=document.getElementById('cur'),tot=document.getElementById('tot'),prog=document.getElementById('prog');
+tot.textContent=slides.length;
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));cur.textContent=i+1;prog.style.width=((i+1)/slides.length*100)+'%';if(slides[i].scrollTop!==undefined)slides[i].scrollTop=0;}
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('prev').onclick=()=>show(i-1);
+document.addEventListener('keydown',e=>{if(document.body.classList.contains('mobile'))return;if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
+document.getElementById('printBtn').onclick=()=>window.print();
+const toc=document.getElementById('toc'),tocBack=document.getElementById('tocBack'),tocList=document.getElementById('tocList');
+function titleOf(h){if(!h)return'Partie';const c=h.cloneNode(true);c.querySelectorAll('br').forEach(b=>b.replaceWith(document.createTextNode(' ')));return c.textContent.replace(/\s+/g,' ').trim();}
+(function buildToc(){
+  const entries=[{n:'↑',t:'Début',k:0}];
+  slides.forEach((s,k)=>{if(!s.classList.contains('section'))return;const num=s.querySelector('.num-big');entries.push({n:num?num.textContent.trim():'',t:titleOf(s.querySelector('h1')),k});});
+  entries.forEach(e=>{const li=document.createElement('li'),b=document.createElement('button');b.dataset.i=e.k;const sp=document.createElement('span');sp.className='tnum';sp.textContent=e.n;b.append(sp,document.createTextNode(e.t));li.append(b);tocList.append(li);});
+})();
+function openToc(o){toc.classList.toggle('open',o);tocBack.classList.toggle('open',o);toc.setAttribute('aria-hidden',String(!o));}
+document.getElementById('tocBtn').onclick=()=>openToc(!toc.classList.contains('open'));
+tocBack.onclick=()=>openToc(false);
+tocList.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const n=+b.dataset.i;openToc(false);if(document.body.classList.contains('mobile')){if(n===0)window.scrollTo({top:0,behavior:'smooth'});else slides[n].scrollIntoView({behavior:'smooth',block:'start'});}else show(n);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')openToc(false)});
+const mobileToggle=document.getElementById('mobileToggle');
+const mq=window.matchMedia('(max-width: 820px)');let manual=false;
+function scrollProg(){const h=document.documentElement,max=h.scrollHeight-h.clientHeight;prog.style.width=(max>4?Math.min(100,h.scrollTop/max*100):100)+'%';}
+function setMobile(on){document.body.classList.toggle('mobile',on);mobileToggle.checked=on;openToc(false);if(on){requestAnimationFrame(()=>{if(i>0)slides[i].scrollIntoView({block:'start'});scrollProg();});}else{window.scrollTo(0,0);show(i);}}
+mobileToggle.addEventListener('change',e=>{manual=true;setMobile(e.target.checked)});
+mq.addEventListener('change',e=>{if(!manual)setMobile(e.matches)});
+window.addEventListener('scroll',()=>{if(document.body.classList.contains('mobile'))scrollProg()},{passive:true});
+show(0);setMobile(mq.matches);
+</script>
+</body>
+</html>
