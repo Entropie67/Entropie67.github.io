@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PGCD et applications · Terminale maths expertes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{
+  --indigo:#1E1B3A; --ink:#2D2A45; --violet:#7C4DFF; --violet-soft:#B79CFF;
+  --amber:#F0A202; --paper:#FAF8FF; --paper-dim:#EDE9F7; --muted:#9B95C4;
+  --line:rgba(183,156,255,.22); --green:#3ECF8E; --rose:#FF8CB4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--indigo);color:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5.5vh 8vw;opacity:0;transition:opacity .4s ease}
+.slide.active{display:flex;opacity:1}
+.slide.scroll{justify-content:flex-start;overflow-y:auto}
+.slide.section{justify-content:center}
+.slide.section .num-big{font-family:'Fraunces';font-size:clamp(4rem,12vw,10rem);color:rgba(183,156,255,.18);line-height:.8;font-weight:600}
+.slide.section h1{margin-top:-2rem}
+.eyebrow{font-size:clamp(.7rem,1.05vw,.92rem);font-weight:600;color:var(--violet-soft);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.eyebrow .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--amber)}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.2rem,5.5vw,4.6rem);line-height:1.02;letter-spacing:-.015em}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.3vw,2.7rem);line-height:1.1;margin-bottom:1.3rem;letter-spacing:-.01em}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.1rem,1.7vw,1.35rem);margin:0 0 .5rem;color:var(--violet-soft)}
+.lead{font-size:clamp(.95rem,1.45vw,1.28rem);line-height:1.55;max-width:64ch}
+.sm{font-size:clamp(.85rem,1.2vw,1.05rem);line-height:1.5}
+.muted{color:var(--muted)}
+.result{color:var(--amber);font-weight:600}
+.ok{color:var(--green);font-weight:600}
+.card{background:rgba(124,77,255,.08);border-left:3px solid var(--violet);border-radius:0 14px 14px 0;padding:1.3rem 1.6rem;max-width:66ch}
+.card.amber{background:rgba(240,162,2,.09);border-left-color:var(--amber)}
+.card.demo{background:rgba(255,255,255,.03);border-left-color:var(--muted)}
+.card.green{background:rgba(62,207,142,.08);border-left-color:var(--green)}
+.card.rose{background:rgba(255,140,180,.08);border-left-color:var(--rose)}
+.card + .card{margin-top:.9rem}
+.tag{font-size:.75rem;font-weight:600;letter-spacing:.04em;color:var(--violet-soft);text-transform:uppercase;display:block;margin-bottom:.45rem}
+.card.amber .tag{color:var(--amber)}
+.card.demo .tag{color:var(--muted)}
+.card.green .tag{color:var(--green)}
+.card.rose .tag{color:var(--rose)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}
+.two-col.top{align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.katex{font-size:1.04em}
+[data-tex-display]{margin:.5rem 0}
+.ex{font-size:clamp(.95rem,1.4vw,1.22rem);line-height:1.9}
+ul.props,ul.list{padding:0;margin-top:.5rem}
+ul.props li,ul.list li{margin:.35rem 0;list-style:none}
+ul.props li::before{content:"• ";color:var(--violet-soft)}
+.exrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem;margin:.9rem 0}
+.exrow > div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font-size:.88rem}
+.exrow > div .lb{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;display:block}
+.exrow > div .vl{font-family:'JetBrains Mono', monospace;color:var(--paper);font-size:.95rem}
+.exrow > div.hi{border-color:var(--amber)}
+.exrow > div.hi .vl{color:var(--amber)}
+pre.code{font-family:'JetBrains Mono', monospace;font-size:.84rem;line-height:1.6;background:#0c0e15;border:1px solid var(--line);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0;overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none;max-width:70ch}
+pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+.tp-badge{display:inline-block;background:rgba(62,207,142,.14);border:1px solid rgba(62,207,142,.4);color:var(--green);font-size:.72rem;font-weight:700;letter-spacing:.07em;padding:.25rem .55rem;border-radius:5px;text-transform:uppercase;margin-bottom:.8rem}
+.euclid{font-family:'JetBrains Mono', monospace;font-size:.95rem;background:var(--ink);border-radius:10px;padding:.9rem 1.2rem;color:var(--paper);display:inline-block;line-height:1.7}
+.euclid .hl{color:var(--amber);font-weight:600}
+.euclid .gr{color:var(--green);font-weight:600}
+.controls{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;align-items:center;background:rgba(45,42,69,.85);backdrop-filter:blur(10px);padding:.45rem .6rem;border-radius:100px;border:1px solid var(--line);z-index:50;font-size:.85rem}
+.controls button{font-family:inherit;font-size:.85rem;background:transparent;color:var(--paper);border:none;cursor:pointer;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.controls button:hover{background:rgba(124,77,255,.25)}
+.controls .num{color:var(--muted);min-width:3.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.controls .sep{width:1px;height:1.3rem;background:var(--line)}
+.toggle{display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.toggle:hover{background:rgba(124,77,255,.25)}
+.toggle input{display:none}
+.toggle .track{width:32px;height:17px;border-radius:100px;background:rgba(255,255,255,.2);position:relative;transition:background .2s}
+.toggle .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--paper);transition:transform .2s}
+.toggle input:checked + .track{background:var(--amber)}
+.toggle input:checked + .track::after{transform:translateX(15px)}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--violet);z-index:60;transition:width .3s}
+@media print{
+  @page{size:A4 portrait;margin:15mm 14mm}
+  html,body{height:auto;overflow:visible;background:#fff;color:var(--ink)}
+  .controls,.progress{display:none !important}
+  .deck{position:static}
+  .slide{position:static;display:block !important;opacity:1 !important;padding:0;margin:0 0 6mm;break-inside:avoid}
+  .slide.section{margin:8mm 0 4mm;border-bottom:2px solid var(--violet);padding-bottom:2mm;break-before:page}
+  .slide.section:first-of-type{break-before:avoid}
+  .slide.section .num-big{font-size:20pt;color:var(--violet);display:inline;margin-right:3mm}
+  .slide.section h1{display:inline;font-size:19pt;margin:0}
+  .slide.cover{border-bottom:2px solid var(--violet);padding-bottom:4mm;margin-bottom:6mm}
+  .eyebrow{color:var(--violet);margin-bottom:.25rem;font-size:8pt}
+  h1{font-size:22pt;color:var(--ink)} h2{font-size:14pt;color:var(--violet);margin:0 0 2.5mm} h3{font-size:11pt;color:var(--violet)}
+  .lead,.sm,.ex{font-size:10pt;color:var(--ink);max-width:none;line-height:1.5}
+  .two-col,.grid2{grid-template-columns:1fr;gap:0}
+  .card{background:#F4F0FF;border-left:3px solid var(--violet);color:var(--ink);max-width:none;padding:2.5mm 4mm;border-radius:0 5px 5px 0;margin-bottom:2mm}
+  .card.amber{background:#FDF6E7;border-left-color:var(--amber)}
+  .card.green{background:#E8F7F0;border-left-color:var(--green)}
+  .card.demo{background:#F6F6FA;border-left-color:#999}
+  .card.rose{background:#FDE8F0;border-left-color:var(--rose)}
+  .tag{color:var(--violet)} .card.amber .tag{color:#B8730C} .card.green .tag{color:#1F8A70}
+  pre.code{background:#1a1c25;color:#f0f0f0;padding:3mm;font-size:8pt}
+  .tp-badge{background:#E8F7F0;color:#1F8A70;border:1px solid #1F8A70}
+  .exrow > div{background:#f8f8fc;border:1px solid #ddd;color:var(--ink)}
+  .exrow > div .lb{color:#777}
+  .euclid{background:#f0f0f0;color:#333}
+}
+.toc-back{position:fixed;inset:0;background:rgba(20,18,40,.62);backdrop-filter:blur(3px);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+.toc-back.open{opacity:1;pointer-events:auto}
+.toc{position:fixed;z-index:71;left:50%;top:50%;transform:translate(-50%,-46%) scale(.97);width:min(430px,92vw);max-height:76vh;overflow-y:auto;background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1.1rem 1.2rem;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.toc.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.toc h4{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--violet-soft);margin-bottom:.6rem;padding-left:.5rem}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc button{width:100%;display:flex;gap:.75rem;align-items:baseline;text-align:left;background:transparent;border:none;cursor:pointer;font-family:inherit;font-size:.97rem;line-height:1.35;color:var(--paper);padding:.62rem .55rem;border-radius:9px;transition:background .18s}
+.toc button:hover,.toc button:focus-visible{background:rgba(124,77,255,.22);outline:none}
+.toc .tnum{color:var(--violet-soft);font-weight:600;font-size:.8rem;min-width:1.1rem;flex:none}
+body.mobile{overflow:visible;height:auto;min-height:100%;-webkit-text-size-adjust:100%}
+body.mobile .deck{position:static;inset:auto}
+body.mobile .slide{position:static;inset:auto;display:flex !important;opacity:1 !important;overflow:visible;justify-content:flex-start;padding:1.7rem 1.15rem 1.9rem;border-bottom:1px solid var(--line);scroll-margin-top:0}
+body.mobile .slide:last-of-type{border-bottom:none;padding-bottom:6.5rem}
+body.mobile .slide.cover{padding-top:3rem;padding-bottom:2.6rem}
+body.mobile .slide.section{background:rgba(124,77,255,.09);border-bottom:none;padding:2.2rem 1.15rem 1.6rem;align-items:flex-start}
+body.mobile .slide.section .num-big{font-size:3.4rem;line-height:.8;margin-bottom:.3rem}
+body.mobile .slide.section h1{margin-top:0}
+body.mobile h1{font-size:1.95rem;line-height:1.12}
+body.mobile .slide.cover h1{font-size:2.25rem}
+body.mobile h2{font-size:1.42rem;margin-bottom:.85rem}
+body.mobile h3{font-size:1.05rem}
+body.mobile .lead{font-size:1.02rem;line-height:1.6;max-width:none}
+body.mobile .sm{font-size:.95rem;line-height:1.55}
+body.mobile .ex{font-size:1rem;line-height:1.8}
+body.mobile .eyebrow{font-size:.78rem;margin-bottom:.7rem}
+body.mobile .two-col,body.mobile .grid2{grid-template-columns:1fr;gap:1.3rem}
+body.mobile .card{max-width:none}
+body.mobile pre.code{max-width:none;font-size:.78rem}
+</style>
+</head>
+
+<body>
+<div class="progress" id="prog"></div>
+<div class="deck">
+
+<!-- COUVERTURE -->
+<section class="slide cover active">
+  <div class="eyebrow"><span class="dot"></span>Chapitre 4 · Maths expertes · Terminale</div>
+  <h1>PGCD<br>et applications</h1>
+  <p class="lead" style="margin-top:1rem">Le <b>plus grand commun diviseur</b> et son calcul par Euclide, le théorème de <b>Bézout</b>, les entiers <b>premiers entre eux</b> et le théorème de <b>Gauss</b>. Deux TP Python en fin de chapitre : chiffrement affine et jour de la semaine d'une date.</p>
+</section>
+
+<!-- ============ §1 PGCD ============ -->
+<section class="slide section">
+  <div class="num-big">1</div>
+  <h1>PGCD<br>et algorithme d'Euclide</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Définition</div>
+  <h2>Le plus grand commun diviseur</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Soient <span data-tex>a</span> et <span data-tex>b</span> deux entiers naturels non tous deux nuls. Le <b>PGCD</b> de <span data-tex>a</span> et <span data-tex>b</span>, noté <span data-tex>\mathrm{pgcd}(a,b)</span>, est le <b>plus grand entier</b> qui divise à la fois <span data-tex>a</span> et <span data-tex>b</span>.</p>
+    <p class="sm" style="margin-top:.4rem">Par convention, <span data-tex>\mathrm{pgcd}(a,0) = a</span> pour tout <span data-tex>a\in\mathbb{N}^*</span>.</p>
+  </div>
+  <div class="exrow">
+    <div><span class="lb">pgcd(12, 18)</span><span class="vl">6</span><span class="muted">div. communs : 1, 2, 3, 6</span></div>
+    <div><span class="lb">pgcd(100, 25)</span><span class="vl">25</span><span class="muted">25 divise 100</span></div>
+    <div><span class="lb">pgcd(7, 11)</span><span class="vl">1</span><span class="muted">premiers entre eux</span></div>
+    <div><span class="lb">pgcd(0, 9)</span><span class="vl">9</span><span class="muted">tout divise 0</span></div>
+  </div>
+  <div class="card amber" style="margin-top:.5rem">
+    <span class="tag">Propriétés immédiates</span>
+    <ul class="props sm">
+      <li><span data-tex>\mathrm{pgcd}(a,b) = \mathrm{pgcd}(b,a)</span>.</li>
+      <li>Si <span data-tex>b \mid a</span>, alors <span data-tex>\mathrm{pgcd}(a,b) = b</span>.</li>
+      <li>Pour tout <span data-tex>k\in\mathbb{N}^*</span> : <span data-tex>\mathrm{pgcd}(ka, kb) = k\cdot\mathrm{pgcd}(a,b)</span>.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Le lemme clé</div>
+  <h2>Soustraire ne change pas le PGCD</h2>
+  <div class="card">
+    <span class="tag">Lemme fondamental</span>
+    <p class="sm">Si <span data-tex>a &gt; b &gt; 0</span>, alors tout diviseur commun à <span data-tex>a</span> et <span data-tex>b</span> divise aussi <span data-tex>a - b</span>, et tout diviseur commun à <span data-tex>b</span> et <span data-tex>a - b</span> divise <span data-tex>a</span>. Par conséquent :</p>
+    <div data-tex-display>\mathrm{pgcd}(a, b) = \mathrm{pgcd}(b, a - b)</div>
+    <p class="sm">Et plus utilement, en poussant l'idée jusqu'à son terme :</p>
+    <div data-tex-display>\mathrm{pgcd}(a, b) = \mathrm{pgcd}(b, r) \quad\text{où}\quad a = bq + r</div>
+    <p class="sm">(<span data-tex>r</span> est le reste de la division euclidienne de <span data-tex>a</span> par <span data-tex>b</span>).</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Algorithme d'Euclide</div>
+  <h2>Diviser, remplacer, recommencer</h2>
+  <div class="card amber">
+    <span class="tag">Principe</span>
+    <p class="sm">On remplace <span data-tex>(a,b)</span> par <span data-tex>(b, a\bmod b)</span> jusqu'à obtenir un reste nul. Le dernier reste non nul (c'est-à-dire la dernière valeur de <span data-tex>b</span> avant qu'elle ne devienne 0) est le PGCD.</p>
+  </div>
+  <div style="text-align:center;margin:1rem 0">
+    <div class="euclid">
+<span class="hl">pgcd(126, 35)</span>  → 126 = 35 × 3 + 21
+pgcd(35, 21)   → 35  = 21 × 1 + 14
+pgcd(21, 14)   → 21  = 14 × 1 + 7
+pgcd(14, 7)    → 14  = 7  × 2 + 0
+<span class="gr">pgcd(7, 0) = 7</span>
+    </div>
+  </div>
+  <div class="exrow">
+    <div><span class="lb">pgcd(126, 35)</span><span class="vl">7</span></div>
+    <div><span class="lb">pgcd(1071, 462)</span><span class="vl">21</span></div>
+    <div><span class="lb">pgcd(1000, 350)</span><span class="vl">50</span></div>
+    <div><span class="lb">pgcd(2024, 2025)</span><span class="vl">1</span></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Codage Python</div>
+  <h2>Deux lignes suffisent</h2>
+<pre class="code"><span class="kw">def</span> <span class="fn">pgcd</span>(a, b):
+    <span class="st">"""PGCD de a et b (entiers positifs)."""</span>
+    <span class="kw">while</span> b != <span class="nb">0</span>:
+        a, b = b, a % b
+    <span class="kw">return</span> a
+
+<span class="fn">pgcd</span>(<span class="nb">126</span>, <span class="nb">35</span>)       <span class="cm"># → 7</span>
+<span class="fn">pgcd</span>(<span class="nb">1071</span>, <span class="nb">462</span>)     <span class="cm"># → 21</span>
+<span class="fn">pgcd</span>(<span class="nb">2024</span>, <span class="nb">2025</span>)    <span class="cm"># → 1</span>
+
+<span class="cm"># Version récursive (élégante, mêmes résultats)</span>
+<span class="kw">def</span> <span class="fn">pgcd</span>(a, b):
+    <span class="kw">if</span> b == <span class="nb">0</span>:
+        <span class="kw">return</span> a
+    <span class="kw">return</span> <span class="fn">pgcd</span>(b, a % b)</pre>
+  <div class="card green" style="margin-top:.9rem">
+    <span class="tag">Complexité</span>
+    <p class="sm">Le nombre d'étapes de l'algorithme d'Euclide est en <b>O(log min(a, b))</b> : il est fulgurant même sur de très grands entiers. Pour deux nombres de 100 chiffres, moins de 500 divisions suffisent. Python a aussi <code>math.gcd(a, b)</code>.</p>
+  </div>
+</section>
+
+<!-- ============ §2 BÉZOUT ============ -->
+<section class="slide section">
+  <div class="num-big">2</div>
+  <h1>Bézout &<br>premiers entre eux</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Identité de Bézout</div>
+  <h2>Toujours une combinaison linéaire</h2>
+  <div class="card">
+    <span class="tag">Théorème de Bézout</span>
+    <p class="sm">Soient <span data-tex>a,b\in\mathbb{Z}</span> non tous deux nuls, et <span data-tex>d = \mathrm{pgcd}(a,b)</span>. Alors il existe deux entiers relatifs <span data-tex>u</span> et <span data-tex>v</span> tels que :</p>
+    <div data-tex-display>a\,u + b\,v = d</div>
+    <p class="sm">Un tel couple <span data-tex>(u,v)</span> s'appelle un <b>couple de Bézout</b> ; il n'est pas unique.</p>
+  </div>
+  <div class="exrow">
+    <div><span class="lb">pgcd(12, 18)</span><span class="vl">= 6</span><span class="muted">(−1)×12 + 1×18</span></div>
+    <div><span class="lb">pgcd(126, 35)</span><span class="vl">= 7</span><span class="muted">(−3)×35 + 1×126 ✗</span></div>
+    <div><span class="lb">pgcd(126, 35)</span><span class="vl">= 7</span><span class="muted">(−2)×35 + 1×126 − 2×35 ? essayez</span></div>
+  </div>
+  <div class="card amber" style="margin-top:.5rem">
+    <span class="tag">À trouver avec Euclide étendu</span>
+    <p class="sm">Pour obtenir <span data-tex>(u, v)</span>, on remonte les divisions de l'algorithme d'Euclide, en exprimant chaque reste comme combinaison des précédents. C'est l'<b>algorithme d'Euclide étendu</b> : voir le TP du chapitre 5.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Démonstration</div>
+  <h2>L'exemple pgcd(126, 35) remonté</h2>
+  <div class="card demo">
+    <span class="tag">Pas à pas</span>
+    <p class="sm">De l'algorithme d'Euclide : <span data-tex>126 = 35\times 3 + 21</span>, puis <span data-tex>35 = 21\times 1 + 14</span>, puis <span data-tex>21 = 14\times 1 + 7</span>, puis <span data-tex>14 = 7\times 2 + 0</span>.</p>
+    <p class="sm" style="margin-top:.5rem">On remonte en exprimant 7 à partir des lignes précédentes :</p>
+    <ul class="props sm">
+      <li>Ligne 3 : <span data-tex>7 = 21 - 14</span>.</li>
+      <li>Ligne 2 : <span data-tex>14 = 35 - 21</span>. On remplace : <span data-tex>7 = 21 - (35 - 21) = 2\times 21 - 35</span>.</li>
+      <li>Ligne 1 : <span data-tex>21 = 126 - 35\times 3</span>. On remplace : <span data-tex>7 = 2(126 - 35\times 3) - 35 = 2\times 126 - 7\times 35</span>.</li>
+    </ul>
+    <p class="sm">D'où le couple de Bézout : <span data-tex>\boxed{u = 2,\ v = -7}</span>, qui vérifie bien <span data-tex>2\times 126 + (-7)\times 35 = 252 - 245 = 7</span>. ✓</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Nombres premiers entre eux</div>
+  <h2>Quand le PGCD vaut 1</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Deux entiers <span data-tex>a</span> et <span data-tex>b</span> sont dits <b>premiers entre eux</b> lorsque <span data-tex>\mathrm{pgcd}(a,b) = 1</span>. On écrit parfois <span data-tex>a \wedge b = 1</span>.</p>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Théorème de Bézout — version « premiers entre eux »</span>
+    <p class="sm"><span data-tex>a</span> et <span data-tex>b</span> sont premiers entre eux <b>si et seulement si</b> il existe <span data-tex>u, v\in\mathbb{Z}</span> tels que :</p>
+    <div data-tex-display>a\,u + b\,v = 1</div>
+  </div>
+  <div class="exrow">
+    <div><span class="lb">7 et 11</span><span class="vl">pgcd = 1</span><span class="muted">(−3)×7 + 2×11 = 1</span></div>
+    <div><span class="lb">8 et 9</span><span class="vl">pgcd = 1</span><span class="muted">(−1)×8 + 1×9 = 1</span></div>
+    <div><span class="lb">15 et 28</span><span class="vl">pgcd = 1</span><span class="muted">15·15 + 28·(−8) = 1</span></div>
+    <div class="hi"><span class="lb">6 et 15</span><span class="vl">pgcd = 3</span><span class="muted">pas premiers entre eux</span></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Conséquence</div>
+  <h2>Inverse modulaire</h2>
+  <div class="card green">
+    <span class="tag">Propriété</span>
+    <p class="sm">Si <span data-tex>a</span> et <span data-tex>n</span> sont <b>premiers entre eux</b>, alors il existe un entier <span data-tex>u</span> tel que <span data-tex>a\,u \equiv 1 \pmod n</span>. Un tel <span data-tex>u</span> est appelé <b>inverse de <span data-tex>a</span> modulo <span data-tex>n</span></b>.</p>
+    <p class="sm" style="margin-top:.4rem">C'est précisément l'entier <span data-tex>u</span> du couple de Bézout <span data-tex>au + nv = 1</span>, pris modulo <span data-tex>n</span>.</p>
+  </div>
+  <div class="card demo" style="margin-top:.9rem">
+    <span class="tag">Exemple — inverse de 7 modulo 26</span>
+    <p class="sm">On cherche <span data-tex>u</span> tel que <span data-tex>7u \equiv 1 \pmod{26}</span>. Bézout donne <span data-tex>7 \times 15 - 26 \times 4 = 1</span>, donc <span data-tex>7 \times 15 \equiv 1 \pmod{26}</span>. L'inverse de 7 modulo 26 est donc <b>15</b>. Vérification : <span data-tex>7\times 15 = 105 = 4\times 26 + 1</span>. ✓</p>
+    <p class="sm" style="margin-top:.4rem">Cet inverse rendra possible le <b>déchiffrement</b> dans le TP sur le chiffrement affine.</p>
+  </div>
+</section>
+
+<!-- ============ §3 GAUSS ============ -->
+<section class="slide section">
+  <div class="num-big">3</div>
+  <h1>Théorème<br>de Gauss</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Énoncé</div>
+  <h2>Le théorème qui divise les divisibilités</h2>
+  <div class="card">
+    <span class="tag">Théorème de Gauss</span>
+    <p class="sm">Soient <span data-tex>a</span>, <span data-tex>b</span>, <span data-tex>c</span> trois entiers. Si <span data-tex>a</span> divise le produit <span data-tex>bc</span> <b>et</b> que <span data-tex>a</span> est premier avec <span data-tex>b</span>, alors :</p>
+    <div data-tex-display>a \mid c</div>
+    <p class="sm">« Si <span data-tex>a</span> divise un produit mais ignore l'un des facteurs, c'est qu'il divise l'autre. »</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Démonstration</span>
+    <p class="sm">Par Bézout, il existe <span data-tex>u,v\in\mathbb{Z}</span> tels que <span data-tex>a u + b v = 1</span>. En multipliant par <span data-tex>c</span> : <span data-tex>a u c + b c v = c</span>. Or <span data-tex>a</span> divise <span data-tex>auc</span> (évidence) et <span data-tex>a</span> divise <span data-tex>bc</span> par hypothèse, donc <span data-tex>a</span> divise <span data-tex>bcv</span>. Par combinaison linéaire, <span data-tex>a</span> divise la somme <span data-tex>auc + bcv = c</span>. ■</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application 1</div>
+  <h2>Résoudre une équation diophantienne</h2>
+  <div class="card amber">
+    <span class="tag">Problème</span>
+    <p class="sm">Résoudre dans <span data-tex>\mathbb{Z}^2</span> l'équation <span data-tex>7x + 11y = 1</span>.</p>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Résolution</span>
+    <ul class="props sm">
+      <li><b>Solution particulière</b> : <span data-tex>\mathrm{pgcd}(7,11) = 1</span>, donc il existe des solutions. Essayons : <span data-tex>7\times (-3) + 11 \times 2 = -21 + 22 = 1</span>. ✓ Donc <span data-tex>(x_0,y_0)=(-3,2)</span> convient.</li>
+      <li><b>Solutions générales</b> : soit <span data-tex>(x,y)</span> une autre solution. Par soustraction : <span data-tex>7(x+3) = -11(y-2)</span>, donc <span data-tex>7 \mid 11(y-2)</span>. Comme <span data-tex>7</span> et <span data-tex>11</span> sont premiers entre eux, Gauss donne <span data-tex>7 \mid y-2</span>, soit <span data-tex>y = 2 + 7k</span>, puis <span data-tex>x = -3 - 11k</span>.</li>
+      <li><b>Ensemble des solutions</b> : <span data-tex>(x,y) = (-3 - 11k,\ 2 + 7k)</span> pour tout <span data-tex>k\in\mathbb{Z}</span>.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application 2</div>
+  <h2>Simplifier des congruences</h2>
+  <div class="card">
+    <span class="tag">Corollaire</span>
+    <p class="sm">Si <span data-tex>a</span> est premier avec <span data-tex>n</span>, alors la congruence <span data-tex>a x \equiv a y \pmod n</span> entraîne <span data-tex>x \equiv y \pmod n</span>. On a le <b>droit de simplifier</b> par <span data-tex>a</span>.</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Attention — contre-exemple</span>
+    <p class="sm">La condition « <span data-tex>a</span> premier avec <span data-tex>n</span> » est <b>indispensable</b>. En effet, <span data-tex>2 \times 3 \equiv 2 \times 0 \pmod 6</span>, mais <span data-tex>3 \not\equiv 0 \pmod 6</span>. Ici <span data-tex>\mathrm{pgcd}(2,6) = 2 \neq 1</span> : on ne peut pas simplifier par 2 modulo 6.</p>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Exemple de résolution</span>
+    <p class="sm">Résoudre <span data-tex>3x \equiv 5 \pmod{11}</span>. Puisque <span data-tex>\mathrm{pgcd}(3,11) = 1</span>, l'inverse de 3 mod 11 existe : c'est 4 (car <span data-tex>3\times 4 = 12 \equiv 1</span>). Multiplions par 4 : <span data-tex>x \equiv 20 \equiv 9 \pmod{11}</span>.</p>
+  </div>
+</section>
+
+<!-- ============ §4 TP ============ -->
+<section class="slide section">
+  <div class="num-big">4</div>
+  <h1>TP Python</h1>
+</section>
+
+<section class="slide scroll">
+  <div class="tp-badge">TP 1</div>
+  <h2>Chiffrement affine</h2>
+  <p class="sm" style="max-width:70ch;margin-bottom:.8rem">On numérote les lettres de l'alphabet : A=0, B=1, …, Z=25. On chiffre chaque lettre <span data-tex>x</span> par la fonction <span data-tex>f(x) = (a x + b) \bmod 26</span>, où <span data-tex>a</span> et <span data-tex>b</span> sont les clés. Pour que le chiffrement soit <b>inversible</b>, il faut que <span data-tex>a</span> soit <b>premier avec 26</b>.</p>
+
+  <h3 style="margin-top:1rem">1. Les fonctions de base</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">pgcd</span>(a, b):
+    <span class="kw">while</span> b != <span class="nb">0</span>:
+        a, b = b, a % b
+    <span class="kw">return</span> a
+
+<span class="kw">def</span> <span class="fn">inverse_mod</span>(a, n):
+    <span class="st">"""Renvoie u tel que a*u ≡ 1 (mod n), si pgcd(a,n)=1."""</span>
+    <span class="kw">assert</span> <span class="fn">pgcd</span>(a, n) == <span class="nb">1</span>
+    <span class="kw">for</span> u <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1</span>, n):
+        <span class="kw">if</span> (a * u) % n == <span class="nb">1</span>:
+            <span class="kw">return</span> u
+
+<span class="fn">inverse_mod</span>(<span class="nb">7</span>, <span class="nb">26</span>)      <span class="cm"># → 15   car 7×15 = 105 = 4×26 + 1</span>
+<span class="fn">inverse_mod</span>(<span class="nb">3</span>, <span class="nb">26</span>)      <span class="cm"># → 9    car 3×9 = 27 ≡ 1 (mod 26)</span></pre>
+
+  <h3>2. Chiffrement et déchiffrement</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">chiffrer</span>(message, a, b):
+    <span class="kw">assert</span> <span class="fn">pgcd</span>(a, <span class="nb">26</span>) == <span class="nb">1</span>, <span class="st">"a doit être premier avec 26"</span>
+    chiffre = <span class="st">""</span>
+    <span class="kw">for</span> c <span class="kw">in</span> message.<span class="fn">upper</span>():
+        <span class="kw">if</span> <span class="st">"A"</span> &lt;= c &lt;= <span class="st">"Z"</span>:
+            x = <span class="fn">ord</span>(c) - <span class="fn">ord</span>(<span class="st">"A"</span>)       <span class="cm"># A=0, B=1, ...</span>
+            y = (a * x + b) % <span class="nb">26</span>
+            chiffre += <span class="fn">chr</span>(<span class="fn">ord</span>(<span class="st">"A"</span>) + y)
+        <span class="kw">else</span>:
+            chiffre += c                 <span class="cm"># on garde les autres caractères</span>
+    <span class="kw">return</span> chiffre
+
+<span class="kw">def</span> <span class="fn">dechiffrer</span>(message, a, b):
+    a_inv = <span class="fn">inverse_mod</span>(a, <span class="nb">26</span>)
+    clair = <span class="st">""</span>
+    <span class="kw">for</span> c <span class="kw">in</span> message.<span class="fn">upper</span>():
+        <span class="kw">if</span> <span class="st">"A"</span> &lt;= c &lt;= <span class="st">"Z"</span>:
+            y = <span class="fn">ord</span>(c) - <span class="fn">ord</span>(<span class="st">"A"</span>)
+            x = (a_inv * (y - b)) % <span class="nb">26</span>
+            clair += <span class="fn">chr</span>(<span class="fn">ord</span>(<span class="st">"A"</span>) + x)
+        <span class="kw">else</span>:
+            clair += c
+    <span class="kw">return</span> clair</pre>
+
+  <h3>3. Mise à l'essai</h3>
+<pre class="code"><span class="fn">chiffrer</span>(<span class="st">"MATHS"</span>, <span class="nb">7</span>, <span class="nb">3</span>)
+<span class="cm"># → "FZHMM"</span>
+
+<span class="fn">dechiffrer</span>(<span class="st">"FZHMM"</span>, <span class="nb">7</span>, <span class="nb">3</span>)
+<span class="cm"># → "MATHS"</span>
+
+<span class="fn">chiffrer</span>(<span class="st">"BONJOUR LE MONDE"</span>, <span class="nb">5</span>, <span class="nb">8</span>)
+<span class="cm"># → "RUXFUYH BG EUXZG"</span></pre>
+
+  <div class="card green" style="margin-top:1rem">
+    <span class="tag">Pourquoi ça marche</span>
+    <p class="sm">Chiffrer, c'est <span data-tex>y = ax + b</span>. Déchiffrer, c'est inverser : <span data-tex>x = a^{-1}(y - b)</span>, où <span data-tex>a^{-1}</span> est l'inverse modulaire de <span data-tex>a</span> modulo 26. Cette inverse existe si et seulement si <span data-tex>a</span> et 26 sont premiers entre eux. Il y a donc <span data-tex>\varphi(26) = 12</span> valeurs de <span data-tex>a</span> valides : 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25.</p>
+  </div>
+  <div class="card rose" style="margin-top:.8rem">
+    <span class="tag">Pour aller plus loin</span>
+    <p class="sm">Casser un chiffrement affine ? Il n'y a que 12 × 26 = 312 clés possibles : une attaque par force brute est triviale. Les cryptosystèmes modernes (RSA, voir chapitre 5) utilisent le même principe mathématique (inverse modulaire) mais avec des entiers de plusieurs centaines de chiffres.</p>
+  </div>
+</section>
+
+<section class="slide scroll">
+  <div class="tp-badge">TP 2</div>
+  <h2>Jour de la semaine d'une date</h2>
+  <p class="sm" style="max-width:70ch;margin-bottom:.8rem">Les calculs calendaires relèvent naturellement de l'arithmétique modulaire : il y a <b>7 jours</b> dans une semaine, donc chaque date correspond à un reste modulo 7. L'algorithme de <b>Zeller</b> (1882) donne, en une formule, le jour de la semaine d'une date quelconque du calendrier grégorien.</p>
+
+  <h3 style="margin-top:1rem">1. Formule de Zeller</h3>
+  <div class="card">
+    <span class="tag">Convention</span>
+    <p class="sm">Soit <span data-tex>d</span> le jour, <span data-tex>m</span> le mois, <span data-tex>Y</span> l'année. On traite janvier et février comme <b>mois 13 et 14 de l'année précédente</b>. On note <span data-tex>K</span> l'année modulo 100 et <span data-tex>J</span> le siècle (<span data-tex>Y \div 100</span>). Alors :</p>
+    <div data-tex-display>h = \left( d + \left\lfloor \tfrac{13(m+1)}{5} \right\rfloor + K + \left\lfloor \tfrac{K}{4} \right\rfloor + \left\lfloor \tfrac{J}{4} \right\rfloor + 5J \right) \bmod 7</div>
+    <p class="sm">Avec la convention de Zeller : <span data-tex>h = 0</span> correspond au <b>samedi</b>, 1 au dimanche, 2 au lundi, …, 6 au vendredi.</p>
+  </div>
+
+  <h3 style="margin-top:1rem">2. Implémentation</h3>
+<pre class="code"><span class="kw">def</span> <span class="fn">jour_semaine</span>(j, m, a):
+    <span class="st">"""Renvoie le nom du jour (fr) pour la date j/m/a (calendrier grégorien)."""</span>
+    <span class="kw">if</span> m &lt; <span class="nb">3</span>:                     <span class="cm"># janv. et fév. = mois 13 et 14 de l'an précédent</span>
+        m += <span class="nb">12</span>
+        a -= <span class="nb">1</span>
+    K = a % <span class="nb">100</span>
+    J = a // <span class="nb">100</span>
+    h = (j + (<span class="nb">13</span> * (m + <span class="nb">1</span>)) // <span class="nb">5</span> + K + K // <span class="nb">4</span> + J // <span class="nb">4</span> + <span class="nb">5</span> * J) % <span class="nb">7</span>
+    noms = [<span class="st">"samedi"</span>, <span class="st">"dimanche"</span>, <span class="st">"lundi"</span>, <span class="st">"mardi"</span>,
+            <span class="st">"mercredi"</span>, <span class="st">"jeudi"</span>, <span class="st">"vendredi"</span>]
+    <span class="kw">return</span> noms[h]</pre>
+
+  <h3>3. Essayons quelques dates</h3>
+<pre class="code"><span class="fn">jour_semaine</span>(<span class="nb">14</span>, <span class="nb">7</span>, <span class="nb">1789</span>)       <span class="cm"># → "mardi"   prise de la Bastille</span>
+<span class="fn">jour_semaine</span>(<span class="nb">11</span>, <span class="nb">11</span>, <span class="nb">1918</span>)      <span class="cm"># → "lundi"   armistice</span>
+<span class="fn">jour_semaine</span>(<span class="nb">21</span>, <span class="nb">7</span>, <span class="nb">1969</span>)       <span class="cm"># → "lundi"   premier pas sur la Lune</span>
+<span class="fn">jour_semaine</span>(<span class="nb">1</span>, <span class="nb">1</span>, <span class="nb">2000</span>)        <span class="cm"># → "samedi"  début du millénaire</span>
+<span class="fn">jour_semaine</span>(<span class="nb">25</span>, <span class="nb">12</span>, <span class="nb">2026</span>)      <span class="cm"># → "vendredi"</span></pre>
+
+  <h3>4. Vérification</h3>
+<pre class="code"><span class="kw">import</span> datetime
+<span class="kw">def</span> <span class="fn">verifier</span>(j, m, a):
+    attendu = datetime.<span class="fn">date</span>(a, m, j).<span class="fn">strftime</span>(<span class="st">"%A"</span>).<span class="fn">lower</span>()
+    trouve = <span class="fn">jour_semaine</span>(j, m, a)
+    <span class="kw">return</span> trouve == attendu <span class="kw">or</span> <span class="fn">print</span>(j, m, a, trouve, attendu)
+
+<span class="cm"># Tester sur quelques milliers de dates au hasard</span>
+<span class="kw">import</span> random
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nb">1000</span>):
+    a = random.<span class="fn">randint</span>(<span class="nb">1600</span>, <span class="nb">2100</span>)
+    m = random.<span class="fn">randint</span>(<span class="nb">1</span>, <span class="nb">12</span>)
+    j = random.<span class="fn">randint</span>(<span class="nb">1</span>, <span class="nb">28</span>)
+    <span class="fn">verifier</span>(j, m, a)
+<span class="fn">print</span>(<span class="st">"OK"</span>)</pre>
+
+  <div class="card green" style="margin-top:1rem">
+    <span class="tag">À méditer</span>
+    <p class="sm">Zeller a condensé en une formule modulo 7 toute l'irrégularité du calendrier grégorien : mois de longueurs différentes (via <span data-tex>\lfloor 13(m+1)/5 \rfloor</span>), années bissextiles tous les 4 ans mais pas tous les 100, sauf tous les 400 (via <span data-tex>\lfloor K/4\rfloor</span> et <span data-tex>\lfloor J/4\rfloor</span>). Toute l'arithmétique de ce chapitre à l'œuvre.</p>
+  </div>
+</section>
+
+<!-- ============ L'ESSENTIEL ============ -->
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Fiche de révision</div>
+  <h2>L'essentiel du chapitre</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">PGCD</span>
+      <p class="sm">Plus grand diviseur commun à <span data-tex>a</span> et <span data-tex>b</span>. Calcul par l'<b>algorithme d'Euclide</b> : remplacer <span data-tex>(a,b)</span> par <span data-tex>(b, a\bmod b)</span> jusqu'à <span data-tex>b=0</span>.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Bézout</span>
+      <p class="sm">Il existe <span data-tex>u,v\in\mathbb{Z}</span> tels que <span data-tex>au + bv = \mathrm{pgcd}(a,b)</span>. Trouvés par Euclide étendu (remontée).</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Premiers entre eux</span>
+      <p class="sm"><span data-tex>a \wedge b = 1</span> ⟺ il existe <span data-tex>u,v</span> tels que <span data-tex>au + bv = 1</span>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Inverse modulaire</span>
+      <p class="sm">Si <span data-tex>a \wedge n = 1</span>, il existe <span data-tex>u</span> tel que <span data-tex>au \equiv 1 \pmod n</span>. C'est le <span data-tex>u</span> de Bézout.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Gauss</span>
+      <p class="sm">Si <span data-tex>a \mid bc</span> et <span data-tex>a \wedge b = 1</span>, alors <span data-tex>a \mid c</span>. Permet de résoudre les équations diophantiennes <span data-tex>ax + by = c</span>.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">TP Python</span>
+      <p class="sm">Chiffrement affine : <span data-tex>y = (ax+b)\bmod 26</span>, invertible ssi <span data-tex>a\wedge 26 = 1</span>. Calendrier : la formule de Zeller donne le jour de la semaine mod 7.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="controls">
+  <button id="prev">‹</button>
+  <span class="num"><span id="cur">1</span>/<span id="tot">1</span></span>
+  <button id="next">›</button>
+  <span class="sep"></span>
+  <button id="tocBtn">Sommaire</button>
+  <span class="sep"></span>
+  <label class="toggle"><input type="checkbox" id="mobileToggle"><span class="track"></span><span>Mode portable</span></label>
+  <span class="sep"></span>
+  <button id="printBtn">Imprimer PDF</button>
+</div>
+
+<div class="toc-back" id="tocBack"></div>
+<nav class="toc" id="toc" aria-hidden="true">
+  <h4>Sommaire</h4>
+  <ol id="tocList"></ol>
+</nav>
+
+<script>
+function renderMath(){
+  document.querySelectorAll('[data-tex]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+  document.querySelectorAll('[data-tex-display]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{displayMode:true,throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+}
+window.addEventListener('load',()=>setTimeout(renderMath,150));
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+const cur=document.getElementById('cur'),tot=document.getElementById('tot'),prog=document.getElementById('prog');
+tot.textContent=slides.length;
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));cur.textContent=i+1;prog.style.width=((i+1)/slides.length*100)+'%';if(slides[i].scrollTop!==undefined)slides[i].scrollTop=0;}
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('prev').onclick=()=>show(i-1);
+document.addEventListener('keydown',e=>{if(document.body.classList.contains('mobile'))return;if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
+document.getElementById('printBtn').onclick=()=>window.print();
+const toc=document.getElementById('toc'),tocBack=document.getElementById('tocBack'),tocList=document.getElementById('tocList');
+function titleOf(h){if(!h)return'Partie';const c=h.cloneNode(true);c.querySelectorAll('br').forEach(b=>b.replaceWith(document.createTextNode(' ')));return c.textContent.replace(/\s+/g,' ').trim();}
+(function buildToc(){
+  const entries=[{n:'↑',t:'Début',k:0}];
+  slides.forEach((s,k)=>{if(!s.classList.contains('section'))return;const num=s.querySelector('.num-big');entries.push({n:num?num.textContent.trim():'',t:titleOf(s.querySelector('h1')),k});});
+  entries.forEach(e=>{const li=document.createElement('li'),b=document.createElement('button');b.dataset.i=e.k;const sp=document.createElement('span');sp.className='tnum';sp.textContent=e.n;b.append(sp,document.createTextNode(e.t));li.append(b);tocList.append(li);});
+})();
+function openToc(o){toc.classList.toggle('open',o);tocBack.classList.toggle('open',o);toc.setAttribute('aria-hidden',String(!o));}
+document.getElementById('tocBtn').onclick=()=>openToc(!toc.classList.contains('open'));
+tocBack.onclick=()=>openToc(false);
+tocList.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const n=+b.dataset.i;openToc(false);if(document.body.classList.contains('mobile')){if(n===0)window.scrollTo({top:0,behavior:'smooth'});else slides[n].scrollIntoView({behavior:'smooth',block:'start'});}else show(n);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')openToc(false)});
+const mobileToggle=document.getElementById('mobileToggle');
+const mq=window.matchMedia('(max-width: 820px)');let manual=false;
+function scrollProg(){const h=document.documentElement,max=h.scrollHeight-h.clientHeight;prog.style.width=(max>4?Math.min(100,h.scrollTop/max*100):100)+'%';}
+function setMobile(on){document.body.classList.toggle('mobile',on);mobileToggle.checked=on;openToc(false);if(on){requestAnimationFrame(()=>{if(i>0)slides[i].scrollIntoView({block:'start'});scrollProg();});}else{window.scrollTo(0,0);show(i);}}
+mobileToggle.addEventListener('change',e=>{manual=true;setMobile(e.target.checked)});
+mq.addEventListener('change',e=>{if(!manual)setMobile(e.matches)});
+window.addEventListener('scroll',()=>{if(document.body.classList.contains('mobile'))scrollProg()},{passive:true});
+show(0);setMobile(mq.matches);
+</script>
+</body>
+</html>
