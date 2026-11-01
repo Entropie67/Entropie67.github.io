@@ -311,15 +311,7 @@
 
     <h3>Quelques formes particulières</h3>
     <div class="figrow">
-      <div class="fig"><div class="t">Complet (0 ou 2 fils partout)</div>
-        <svg viewBox="0 0 200 120">
-          <line class="e" x1="100" y1="20" x2="55" y2="60"/><line class="e" x1="100" y1="20" x2="145" y2="60"/>
-          <line class="e" x1="145" y1="60" x2="115" y2="100"/><line class="e" x1="145" y1="60" x2="175" y2="100"/>
-          <g class="n root"><circle cx="100" cy="20" r="14"/><text x="100" y="20"> </text></g>
-          <g class="n leaf"><circle cx="55" cy="60" r="14"/></g><g class="n"><circle cx="145" cy="60" r="14"/></g>
-          <g class="n leaf"><circle cx="115" cy="100" r="14"/></g><g class="n leaf"><circle cx="175" cy="100" r="14"/></g>
-        </svg></div>
-      <div class="fig"><div class="t">Parfait (tous les niveaux pleins)</div>
+      <div class="fig"><div class="t">Complet (tous les niveaux pleins)</div>
         <svg viewBox="0 0 200 120">
           <line class="e" x1="100" y1="20" x2="55" y2="60"/><line class="e" x1="100" y1="20" x2="145" y2="60"/>
           <line class="e" x1="55" y1="60" x2="30" y2="100"/><line class="e" x1="55" y1="60" x2="80" y2="100"/>
@@ -328,6 +320,24 @@
           <g class="n"><circle cx="55" cy="60" r="14"/></g><g class="n"><circle cx="145" cy="60" r="14"/></g>
           <g class="n leaf"><circle cx="30" cy="100" r="14"/></g><g class="n leaf"><circle cx="80" cy="100" r="14"/></g>
           <g class="n leaf"><circle cx="120" cy="100" r="14"/></g><g class="n leaf"><circle cx="170" cy="100" r="14"/></g>
+        </svg></div>
+      <div class="fig"><div class="t">Parfait (dernier niveau rempli de gauche à droite)</div>
+        <svg viewBox="0 0 200 120">
+          <line class="e" x1="100" y1="20" x2="55" y2="60"/><line class="e" x1="100" y1="20" x2="145" y2="60"/>
+          <line class="e" x1="55" y1="60" x2="30" y2="100"/><line class="e" x1="55" y1="60" x2="80" y2="100"/>
+          <line class="e" x1="145" y1="60" x2="120" y2="100"/>
+          <g class="n root"><circle cx="100" cy="20" r="14"/></g>
+          <g class="n"><circle cx="55" cy="60" r="14"/></g><g class="n"><circle cx="145" cy="60" r="14"/></g>
+          <g class="n leaf"><circle cx="30" cy="100" r="14"/></g><g class="n leaf"><circle cx="80" cy="100" r="14"/></g>
+          <g class="n leaf"><circle cx="120" cy="100" r="14"/></g>
+        </svg></div>
+      <div class="fig"><div class="t">Localement complet (0 ou 2 fils partout)</div>
+        <svg viewBox="0 0 200 120">
+          <line class="e" x1="100" y1="20" x2="55" y2="60"/><line class="e" x1="100" y1="20" x2="145" y2="60"/>
+          <line class="e" x1="145" y1="60" x2="115" y2="100"/><line class="e" x1="145" y1="60" x2="175" y2="100"/>
+          <g class="n root"><circle cx="100" cy="20" r="14"/><text x="100" y="20"> </text></g>
+          <g class="n leaf"><circle cx="55" cy="60" r="14"/></g><g class="n"><circle cx="145" cy="60" r="14"/></g>
+          <g class="n leaf"><circle cx="115" cy="100" r="14"/></g><g class="n leaf"><circle cx="175" cy="100" r="14"/></g>
         </svg></div>
       <div class="fig"><div class="t">Filiforme, ou « peigne » (h = n)</div>
         <svg viewBox="0 0 200 120">
@@ -345,14 +355,25 @@
         </svg></div>
     </div>
 
+    <div class="box warn">
+      <span class="lbl">Attention — faux amis anglais / français</span>
+      <p>Les termes français <b>ne correspondent pas</b> à leurs équivalents anglais apparents :</p>
+      <ul>
+        <li><b>complet</b> (fr) ≠ <i>complete</i> (en) : en français, « complet » veut dire <b>tous les niveaux pleins</b>, soit l'anglais <i>perfect</i>.</li>
+        <li><b>parfait</b> (fr) ≠ <i>perfect</i> (en) : en français, « parfait » veut dire <b>tous les niveaux pleins sauf éventuellement le dernier, rempli de gauche à droite</b>, soit l'anglais <i>complete</i>.</li>
+        <li>« 0 ou 2 fils partout » (<i>full</i> en anglais) se dit <b>localement complet</b> en français ; certains auteurs disent aussi « entier ».</li>
+      </ul>
+      <p>Dans ce cours, on suit la convention française : <b>complet ⊂ parfait</b> (tout arbre complet est parfait). C'est le vocabulaire utilisé dans la partie sur les tas (chapitre « Structures de données »).</p>
+    </div>
+
     <h3>Hauteur et taille : les encadrements à connaître</h3>
     <p>Un niveau de profondeur <i>p</i> contient au plus 2<sup>p</sup> nœuds (chaque nœud a au plus deux fils). Un arbre de hauteur <i>h</i>
-      contient donc au plus 1 + 2 + 4 + … + 2<sup>h−1</sup> = <b>2<sup>h</sup> − 1</b> nœuds ; c'est le cas de l'arbre parfait.
+      contient donc au plus 1 + 2 + 4 + … + 2<sup>h−1</sup> = <b>2<sup>h</sup> − 1</b> nœuds ; c'est le cas de l'arbre complet.
       À l'inverse, il contient au moins <i>h</i> nœuds (un par niveau) : c'est le peigne.</p>
     <div class="box key">
       <span class="lbl">Pour un arbre binaire de taille n et de hauteur h (en niveaux)</span>
       <p style="text-align:center;font-size:1.05rem"><span class="m">h ≤ n ≤ 2<sup>h</sup> − 1</span> &nbsp; et donc &nbsp; <span class="m">⌈log<sub>2</sub>(n + 1)⌉ ≤ h ≤ n</span></p>
-      <p>La hauteur minimale, ⌈log<sub>2</sub>(n + 1)⌉, est atteinte quand l'arbre est parfait ou presque ; la hauteur maximale, n, quand il est filiforme.
+      <p>La hauteur minimale, ⌈log<sub>2</sub>(n + 1)⌉, est atteinte quand l'arbre est parfait (ou complet dans le cas où <i>n = 2<sup>h</sup> − 1</i>) ; la hauteur maximale, n, quand il est filiforme.
         Pour n = 1 000 nœuds : h vaut au moins 10 et au plus 1 000. Tout l'enjeu de la partie 6 sera de rester près de 10.</p>
     </div>
   </section>
@@ -409,7 +430,7 @@ a.gauche.droit.valeur        <span class="cm"># → 4</span></pre>
     <h3>D'autres représentations</h3>
     <ul>
       <li><b>Tuples imbriqués</b> : <code>(valeur, gauche, droit)</code>, l'arbre vide étant <code>()</code> ou <code>None</code>. Léger, mais on ne peut pas modifier l'arbre en place.</li>
-      <li><b>Tableau</b> pour un arbre <i>parfait ou presque</i> : la racine à l'indice 0, les fils du nœud <i>i</i> aux indices <i>2i + 1</i> et <i>2i + 2</i>, le père à l'indice <i>(i − 1) // 2</i>. Pas de pointeurs du tout : c'est la représentation utilisée par les <b>tas</b> (files de priorité).</li>
+      <li><b>Tableau</b> pour un arbre <i>parfait</i> : la racine à l'indice 0, les fils du nœud <i>i</i> aux indices <i>2i + 1</i> et <i>2i + 2</i>, le père à l'indice <i>(i − 1) // 2</i>. Pas de pointeurs du tout : c'est la représentation utilisée par les <b>tas</b> (files de priorité).</li>
       <li><b>Arbres généraux</b> (arité quelconque) : un nœud porte une <b>liste de fils</b> au lieu de deux attributs, comme un dossier contient une liste de sous-dossiers.</li>
     </ul>
   </section>
