@@ -492,7 +492,7 @@ x = f.popleft()           <span class="cm"># défile → x = 3, f = [9, 17]</spa
         <g class="nd leaf"><circle cx="190" cy="130" r="13"/><text x="190" y="130">F</text></g>
         <g class="nd leaf"><circle cx="270" cy="130" r="13"/><text x="270" y="130">G</text></g>
       </svg>
-      <div class="cap">Un arbre binaire parfait de 7 nœuds. Voir le chapitre arbres binaires pour la définition formelle, les parcours et les ABR.</div>
+      <div class="cap">Un arbre binaire complet de 7 nœuds (tous les niveaux sont pleins). Voir le chapitre arbres binaires pour la définition formelle, les parcours et les ABR.</div>
     </div>
 
     <div class="cta">
@@ -530,8 +530,8 @@ x = f.popleft()           <span class="cm"># défile → x = 3, f = [9, 17]</spa
     <h3>Les tas binaires</h3>
     <div class="box def">
       <span class="lbl">Définition</span>
-      <p>Un <b>tas-max</b> est un arbre binaire <b>parfait ou presque</b> (tous les niveaux sont pleins, sauf peut-être
-        le dernier qui se remplit de gauche à droite) tel que, pour tout nœud, sa valeur est <b>supérieure ou égale</b>
+      <p>Un <b>tas-max</b> est un arbre binaire <b>parfait</b> (tous les niveaux sont pleins, sauf éventuellement le
+        dernier qui se remplit de gauche à droite) tel que, pour tout nœud, sa valeur est <b>supérieure ou égale</b>
         à celles de ses fils. Le <b>maximum</b> global est donc à la racine.</p>
     </div>
 
@@ -552,8 +552,8 @@ x = f.popleft()           <span class="cm"># défile → x = 3, f = [9, 17]</spa
     </div>
 
     <h3>Stocké… dans un tableau</h3>
-    <p>Un arbre parfait ou presque se range dans un tableau sans aucun pointeur : à l'indice 0, la racine ; aux
-      indices 1 et 2 ses fils ; aux indices 3, 4, 5, 6 les quatre petits-enfants… et ainsi de suite.</p>
+    <p>Un arbre parfait se range dans un tableau sans aucun pointeur : à l'indice 0, la racine ; aux indices 1 et 2
+      ses fils ; aux indices 3, 4, 5, 6 les quatre petits-enfants… et ainsi de suite.</p>
     <div class="scrollx"><table class="tbl">
       <tr><th>indice</th><td class="mono">0</td><td class="mono">1</td><td class="mono">2</td><td class="mono">3</td><td class="mono">4</td><td class="mono">5</td><td class="mono">6</td></tr>
       <tr><th>valeur</th><td class="mono">42</td><td class="mono">30</td><td class="mono">25</td><td class="mono">15</td><td class="mono">20</td><td class="mono">10</td><td class="mono">8</td></tr>
@@ -745,7 +745,7 @@ M = [
       <div><b>Pile</b>LIFO. empiler, dépiler, sommet. En O(1). Évaluation RPN, parenthèses, DFS, Ctrl+Z.</div>
       <div><b>File</b>FIFO. enfiler, défiler, premier. En O(1) avec <code>deque</code>. BFS, files d'attente, buffers.</div>
       <div><b>File de priorité</b>Le plus prioritaire sort en premier. Implémentation : <b>tas binaire</b>, O(log n) par opération.</div>
-      <div><b>Tas binaire</b>Arbre parfait ou presque, père ≥ fils. Stocké dans un tableau : fils de i aux indices 2i+1 et 2i+2.</div>
+      <div><b>Tas binaire</b>Arbre parfait, père ≥ fils. Stocké dans un tableau : fils de i aux indices 2i+1 et 2i+2.</div>
       <div><b>Graphe</b>Sommets + arêtes. Orienté ou non, pondéré ou non. Deux représentations : matrice (dense) ou dictionnaire d'adjacence (creux).</div>
       <div><b>Parcours</b>DFS avec une pile (profondeur), BFS avec une file (largeur). Chacun en O(n + m).</div>
     </div>
@@ -753,7 +753,7 @@ M = [
       <span class="lbl">Ce qu'il faut savoir faire</span>
       <p>Écrire les quatre opérations sur une liste chaînée (longueur, ajout/retrait en tête, parcours) ;
         implémenter une pile et une file avec une liste Python et avec une liste chaînée ; comprendre comment un
-        tas range un arbre parfait ou presque dans un tableau ; passer d'une représentation de graphe à l'autre ; écrire
+        tas range un arbre parfait dans un tableau ; passer d'une représentation de graphe à l'autre ; écrire
         <code>bfs</code> et <code>dfs</code> ; dire quelle structure choisir pour un problème donné.</p>
     </div>
   </section>

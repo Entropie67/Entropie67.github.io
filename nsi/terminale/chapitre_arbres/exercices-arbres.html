@@ -220,7 +220,7 @@
         { lab: 'La taille du sous-arbre de racine C', a: size(T1.r), t: 'int' },
         { lab: 'Les nœuds du niveau 2', a: 'D E F G', t: 'set' },
       ] },
-      { type: 'mcq', q: 'T1 est-il un arbre binaire <b>complet</b> (chaque nœud a 0 ou 2 fils) ?', opts: ['Oui', 'Non, à cause de F', 'Non, à cause de E'], ok: 1, expl: 'F n\'a qu\'un seul fils (J). E est une feuille, ce qui est autorisé.' },
+      { type: 'mcq', q: 'T1 est-il un arbre binaire <b>localement complet</b> (chaque nœud a 0 ou 2 fils) ?', opts: ['Oui', 'Non, à cause de F', 'Non, à cause de E'], ok: 1, expl: 'F n\'a qu\'un seul fils (J). E est une feuille, ce qui est autorisé. Rappel du vocabulaire : <b>complet</b> en français veut dire « tous les niveaux pleins » (soit <i>2<sup>h</sup>−1</i> nœuds), <b>parfait</b> veut dire « tous les niveaux pleins sauf éventuellement le dernier, rempli de gauche à droite ».' },
     ] },
 
     { id: 'ex2', titre: 'Les quatre parcours', groupes: [
@@ -367,7 +367,7 @@
         { lab: 'Hauteur minimale d\'un ABR contenant 1 000 000 de clés', a: 20, t: 'int' },
         { lab: 'Nombre maximal de comparaisons pour une recherche dans cet ABR, s\'il est de hauteur minimale', a: 20, t: 'int' },
         { lab: 'Nombre maximal de comparaisons pour la même recherche dans un tableau non trié', a: 1000000, t: 'int' },
-        { lab: 'Nombre de nœuds d\'un arbre parfait de hauteur 10', a: 1023, t: 'int' },
+        { lab: 'Nombre de nœuds d\'un arbre complet de hauteur 10', a: 1023, t: 'int' },
       ] },
       { type: 'mcq', q: 'Un ABR est construit en insérant un million de clés <b>tirées au hasard</b>. Sa hauteur est le plus probablement…', opts: ['Environ 20 à 45 niveaux', 'Environ 1 000 niveaux', 'Un million de niveaux'], ok: 0, expl: 'Avec des insertions dans un ordre aléatoire, la hauteur reste de l\'ordre de quelques fois log₂ n (≈ 2 log₂ n en moyenne, soit une quarantaine). Le cas extrême, un million de niveaux, ne se produit qu\'avec des clés insérées déjà triées.' },
       { type: 'open', q: 'Expliquez pourquoi rechercher une clé coûte O(h) comparaisons dans un ABR, alors que la fonction <code>est_present</code> du cours (sur un arbre binaire quelconque) coûte O(n).', modele: 'Dans un arbre quelconque, rien n\'indique où se trouve la clé : il faut explorer les deux sous-arbres, donc potentiellement tous les nœuds (O(n)). Dans un ABR, la comparaison avec la clé du nœud élimine un sous-arbre entier : on ne suit qu\'une seule branche, de longueur au plus h. Si l\'arbre est équilibré, h ≈ log₂ n, ce qui est incomparablement plus petit que n.' },
