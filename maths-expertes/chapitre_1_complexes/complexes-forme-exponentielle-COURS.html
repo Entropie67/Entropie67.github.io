@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nombres complexes — Forme trigonométrique et exponentielle · Terminale maths expertes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{
+  --indigo:#1E1B3A; --ink:#2D2A45; --violet:#7C4DFF; --violet-soft:#B79CFF;
+  --amber:#F0A202; --paper:#FAF8FF; --paper-dim:#EDE9F7; --muted:#9B95C4;
+  --line:rgba(183,156,255,.22); --green:#3ECF8E; --rose:#FF8CB4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--indigo);color:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
+
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5.5vh 8vw;opacity:0;transition:opacity .4s ease}
+.slide.active{display:flex;opacity:1}
+.slide.scroll{justify-content:flex-start;overflow-y:auto}
+
+.slide.section{justify-content:center}
+.slide.section .num-big{font-family:'Fraunces';font-size:clamp(4rem,12vw,10rem);color:rgba(183,156,255,.18);line-height:.8;font-weight:600}
+.slide.section h1{margin-top:-2rem}
+
+.eyebrow{font-size:clamp(.7rem,1.05vw,.92rem);font-weight:600;color:var(--violet-soft);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.eyebrow .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--amber)}
+
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.2rem,5.5vw,4.6rem);line-height:1.02;letter-spacing:-.015em}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.3vw,2.7rem);line-height:1.1;margin-bottom:1.3rem;letter-spacing:-.01em}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.1rem,1.7vw,1.35rem);margin:0 0 .5rem;color:var(--violet-soft)}
+.lead{font-size:clamp(.95rem,1.45vw,1.28rem);line-height:1.55;max-width:64ch}
+.sm{font-size:clamp(.85rem,1.2vw,1.05rem);line-height:1.5}
+.muted{color:var(--muted)}
+.result{color:var(--amber);font-weight:600}
+.imag{color:var(--violet-soft);font-weight:600}
+.ok{color:var(--green);font-weight:600}
+
+.card{background:rgba(124,77,255,.08);border-left:3px solid var(--violet);border-radius:0 14px 14px 0;padding:1.3rem 1.6rem;max-width:66ch}
+.card.amber{background:rgba(240,162,2,.09);border-left-color:var(--amber)}
+.card.demo{background:rgba(255,255,255,.03);border-left-color:var(--muted)}
+.card.green{background:rgba(62,207,142,.08);border-left-color:var(--green)}
+.card.rose{background:rgba(255,140,180,.08);border-left-color:var(--rose)}
+.card + .card{margin-top:.9rem}
+.tag{font-size:.75rem;font-weight:600;letter-spacing:.04em;color:var(--violet-soft);text-transform:uppercase;display:block;margin-bottom:.45rem}
+.card.amber .tag{color:var(--amber)}
+.card.demo .tag{color:var(--muted)}
+.card.green .tag{color:var(--green)}
+.card.rose .tag{color:var(--rose)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}
+.two-col.top{align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+.katex{font-size:1.04em}
+[data-tex-display]{margin:.5rem 0}
+.ex{font-size:clamp(.95rem,1.4vw,1.22rem);line-height:1.9}
+ul.props,ul.list{padding:0;margin-top:.5rem}
+ul.props li,ul.list li{margin:.35rem 0;list-style:none}
+ul.props li::before{content:"• ";color:var(--violet-soft)}
+
+.exrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem;margin:.9rem 0}
+.exrow > div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font-size:.88rem}
+.exrow > div .lb{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;display:block}
+.exrow > div .vl{font-family:'JetBrains Mono', monospace;color:var(--paper);font-size:.95rem}
+.exrow > div.hi{border-color:var(--amber)}
+.exrow > div.hi .vl{color:var(--amber)}
+
+/* plan complexe */
+.plane-wrap{display:flex;justify-content:center;align-items:center}
+svg.plane{width:min(42vw,460px);height:auto;overflow:visible}
+.plane .axis{stroke:var(--muted);stroke-width:1.5}
+.plane .grid{stroke:var(--line);stroke-width:1}
+.plane .ax-re{stroke:var(--amber)} .plane .ax-im{stroke:var(--violet)}
+.plane .lbl{font-family:'Inter';font-size:14px;fill:var(--paper)}
+.plane .lbl-re{fill:var(--amber);font-weight:600}
+.plane .lbl-im{fill:var(--violet-soft);font-weight:600}
+.plane .vect{stroke:var(--green);stroke-width:2.5;fill:none;marker-end:url(#arrmk)}
+.plane .arc{stroke:var(--amber);stroke-width:1.8;fill:none}
+.plane .proj{stroke:var(--violet-soft);stroke-width:1.3;stroke-dasharray:4 4;opacity:.7}
+.plane .pt{fill:var(--paper);r:3.5}
+.plane .pt-halo{fill:var(--green);opacity:.25;r:9}
+.plane .mod-lab{fill:var(--green);font-family:'Fraunces',serif;font-style:italic;font-size:14px;font-weight:600}
+.plane .arg-lab{fill:var(--amber);font-family:'Fraunces',serif;font-style:italic;font-size:14px;font-weight:600}
+
+/* table de valeurs trigo */
+.trigtable{border-collapse:collapse;font-size:.88rem;margin:.6rem 0}
+.trigtable th,.trigtable td{border:1px solid var(--line);padding:.4rem .7rem;text-align:center;color:var(--paper);font-family:'JetBrains Mono', monospace}
+.trigtable th{background:rgba(124,77,255,.14);color:var(--violet-soft);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase}
+.trigtable td.hi{color:var(--amber);font-weight:600}
+
+.controls{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;align-items:center;background:rgba(45,42,69,.85);backdrop-filter:blur(10px);padding:.45rem .6rem;border-radius:100px;border:1px solid var(--line);z-index:50;font-size:.85rem}
+.controls button{font-family:inherit;font-size:.85rem;background:transparent;color:var(--paper);border:none;cursor:pointer;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.controls button:hover{background:rgba(124,77,255,.25)}
+.controls .num{color:var(--muted);min-width:3.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.controls .sep{width:1px;height:1.3rem;background:var(--line)}
+.toggle{display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.toggle:hover{background:rgba(124,77,255,.25)}
+.toggle input{display:none}
+.toggle .track{width:32px;height:17px;border-radius:100px;background:rgba(255,255,255,.2);position:relative;transition:background .2s}
+.toggle .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--paper);transition:transform .2s}
+.toggle input:checked + .track{background:var(--amber)}
+.toggle input:checked + .track::after{transform:translateX(15px)}
+
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--violet);z-index:60;transition:width .3s}
+
+@media print{
+  @page{size:A4 portrait;margin:15mm 14mm}
+  html,body{height:auto;overflow:visible;background:#fff;color:var(--ink)}
+  .controls,.progress{display:none !important}
+  .deck{position:static}
+  .slide{position:static;display:block !important;opacity:1 !important;padding:0;margin:0 0 6mm;break-inside:avoid}
+  .slide.section{margin:8mm 0 4mm;border-bottom:2px solid var(--violet);padding-bottom:2mm;break-before:page}
+  .slide.section:first-of-type{break-before:avoid}
+  .slide.section .num-big{font-size:20pt;color:var(--violet);display:inline;margin-right:3mm}
+  .slide.section h1{display:inline;font-size:19pt;margin:0}
+  .slide.cover{border-bottom:2px solid var(--violet);padding-bottom:4mm;margin-bottom:6mm}
+  .eyebrow{color:var(--violet);margin-bottom:.25rem;font-size:8pt}
+  h1{font-size:22pt;color:var(--ink)} h2{font-size:14pt;color:var(--violet);margin:0 0 2.5mm} h3{font-size:11pt;color:var(--violet)}
+  .lead,.sm,.ex{font-size:10pt;color:var(--ink);max-width:none;line-height:1.5}
+  .two-col,.grid2{grid-template-columns:1fr;gap:0}
+  .card{background:#F4F0FF;border-left:3px solid var(--violet);color:var(--ink);max-width:none;padding:2.5mm 4mm;border-radius:0 5px 5px 0;margin-bottom:2mm}
+  .card.amber{background:#FDF6E7;border-left-color:var(--amber)}
+  .card.demo{background:#F6F6FA;border-left-color:#999}
+  .card.green{background:#E8F7F0;border-left-color:var(--green)}
+  .card.rose{background:#FDE8F0;border-left-color:var(--rose)}
+  .tag{color:var(--violet)} .card.amber .tag{color:#B8730C} .card.green .tag{color:#1F8A70}
+  .result{color:#B8730C} .imag{color:#6B3FD6}
+  .plane-wrap{page-break-inside:avoid} svg.plane{width:62mm}
+  .plane .lbl{fill:var(--ink)}
+  .exrow > div{background:#f8f8fc;border:1px solid #ddd;color:var(--ink)}
+  .exrow > div .lb{color:#777}
+  .trigtable th,.trigtable td{color:var(--ink)}
+}
+
+.toc-back{position:fixed;inset:0;background:rgba(20,18,40,.62);backdrop-filter:blur(3px);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+.toc-back.open{opacity:1;pointer-events:auto}
+.toc{position:fixed;z-index:71;left:50%;top:50%;transform:translate(-50%,-46%) scale(.97);width:min(430px,92vw);max-height:76vh;overflow-y:auto;background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1.1rem 1.2rem;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.toc.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.toc h4{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--violet-soft);margin-bottom:.6rem;padding-left:.5rem}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc button{width:100%;display:flex;gap:.75rem;align-items:baseline;text-align:left;background:transparent;border:none;cursor:pointer;font-family:inherit;font-size:.97rem;line-height:1.35;color:var(--paper);padding:.62rem .55rem;border-radius:9px;transition:background .18s}
+.toc button:hover,.toc button:focus-visible{background:rgba(124,77,255,.22);outline:none}
+.toc .tnum{color:var(--violet-soft);font-weight:600;font-size:.8rem;min-width:1.1rem;flex:none}
+
+body.mobile{overflow:visible;height:auto;min-height:100%;-webkit-text-size-adjust:100%}
+body.mobile .deck{position:static;inset:auto}
+body.mobile .slide{position:static;inset:auto;display:flex !important;opacity:1 !important;overflow:visible;justify-content:flex-start;padding:1.7rem 1.15rem 1.9rem;border-bottom:1px solid var(--line);scroll-margin-top:0}
+body.mobile .slide:last-of-type{border-bottom:none;padding-bottom:6.5rem}
+body.mobile .slide.cover{padding-top:3rem;padding-bottom:2.6rem}
+body.mobile .slide.section{background:rgba(124,77,255,.09);border-bottom:none;padding:2.2rem 1.15rem 1.6rem;align-items:flex-start}
+body.mobile .slide.section .num-big{font-size:3.4rem;line-height:.8;margin-bottom:.3rem}
+body.mobile .slide.section h1{margin-top:0}
+body.mobile h1{font-size:1.95rem;line-height:1.12}
+body.mobile .slide.cover h1{font-size:2.25rem}
+body.mobile h2{font-size:1.42rem;margin-bottom:.85rem}
+body.mobile h3{font-size:1.05rem}
+body.mobile .lead{font-size:1.02rem;line-height:1.6;max-width:none}
+body.mobile .sm{font-size:.95rem;line-height:1.55}
+body.mobile .ex{font-size:1rem;line-height:1.8}
+body.mobile .eyebrow{font-size:.78rem;margin-bottom:.7rem}
+body.mobile .two-col,body.mobile .grid2{grid-template-columns:1fr;gap:1.3rem}
+body.mobile .card{max-width:none}
+body.mobile svg.plane{width:100%;max-width:none}
+</style>
+</head>
+
+<body>
+<div class="progress" id="prog"></div>
+<div class="deck">
+
+<!-- COUVERTURE -->
+<section class="slide cover active">
+  <div class="eyebrow"><span class="dot"></span>Chapitre 2 · Maths expertes · Terminale</div>
+  <h1>Forme trigonométrique<br>et exponentielle</h1>
+  <p class="lead" style="margin-top:1rem">Après la forme algébrique <span data-tex>z = x + \mathrm{i}y</span>, voici la <b>deuxième façon de décrire un complexe</b> : par son <b>module</b> (distance à l'origine) et son <b>argument</b> (angle). Elle se révèle imbattable pour multiplier, élever à une puissance, et pour exprimer les transformations géométriques. Le miracle : l'écriture exponentielle <span data-tex>z = r\,\mathrm{e}^{\mathrm{i}\theta}</span>.</p>
+</section>
+
+<!-- ============ §1 MODULE ============ -->
+<section class="slide section">
+  <div class="num-big">1</div>
+  <h1>Module<br>d'un complexe</h1>
+</section>
+
+<section class="slide">
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Définition</div>
+      <h2>Une distance à l'origine</h2>
+      <div class="card">
+        <span class="tag">Définition</span>
+        <p class="sm">Soit <span data-tex>z = x + \mathrm{i}y</span> un complexe d'image <span data-tex>M(x\,;\,y)</span> dans le plan complexe. Le <b>module</b> de <span data-tex>z</span>, noté <span data-tex>|z|</span>, est la <b>distance</b> <span data-tex>OM</span> :</p>
+        <div data-tex-display>|z| = \sqrt{x^2 + y^2}</div>
+      </div>
+      <div class="card amber" style="margin-top:.8rem">
+        <span class="tag">Propriétés immédiates</span>
+        <ul class="props sm">
+          <li><span data-tex>|z| \geq 0</span> et <span data-tex>|z| = 0 \iff z = 0</span>.</li>
+          <li>Si <span data-tex>z\in\mathbb{R}</span>, <span data-tex>|z|</span> coïncide avec la valeur absolue.</li>
+          <li>Si <span data-tex>z</span> est imaginaire pur <span data-tex>\mathrm{i}y</span>, alors <span data-tex>|z| = |y|</span>.</li>
+          <li><span data-tex>|\bar z| = |z|</span> (le conjugué a même module).</li>
+          <li><span data-tex>|{-z}| = |z|</span>.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="plane-wrap">
+      <svg class="plane" viewBox="-40 -170 300 207">
+        <defs><marker id="arrmk" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#3ECF8E"/></marker></defs>
+        <g class="grid"><line x1="60" y1="-160" x2="60" y2="20"/><line x1="120" y1="-160" x2="120" y2="20"/><line x1="180" y1="-160" x2="180" y2="20"/><line x1="0" y1="-40" x2="220" y2="-40"/><line x1="0" y1="-80" x2="220" y2="-80"/><line x1="0" y1="-120" x2="220" y2="-120"/></g>
+        <line class="axis ax-re" x1="-20" y1="0" x2="230" y2="0"/>
+        <line class="axis ax-im" x1="0" y1="20" x2="0" y2="-165"/>
+        <text class="lbl lbl-re" x="208" y="18">axe réel</text>
+        <text class="lbl lbl-im" x="8" y="-155">axe imag.</text>
+        <line class="proj" x1="150" y1="0" x2="150" y2="-120"/>
+        <line class="proj" x1="0" y1="-120" x2="150" y2="-120"/>
+        <text class="lbl lbl-re" x="140" y="18">x</text>
+        <text class="lbl lbl-im" x="-20" y="-116">y</text>
+        <line class="vect" x1="0" y1="0" x2="146" y2="-117"/>
+        <circle cx="150" cy="-120" class="pt-halo"/><circle cx="150" cy="-120" class="pt"/>
+        <text class="lbl" x="158" y="-124" style="font-family:Fraunces;font-style:italic">M(z)</text>
+        <text class="mod-lab" x="60" y="-74" style="font-size:16px">|z|</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>La propriété clé</div>
+  <h2>Module et conjugué</h2>
+  <div class="card">
+    <span class="tag">Propriété fondamentale</span>
+    <p class="sm">Pour tout complexe <span data-tex>z</span> :</p>
+    <div data-tex-display>|z|^2 = z\,\bar z</div>
+    <p class="sm">C'est l'identité à retenir pour <b>passer d'un module à des produits</b>, et pour démontrer les propriétés qui suivent.</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Démonstration — en une ligne</span>
+    <p class="sm">Si <span data-tex>z = x + \mathrm{i}y</span>, alors <span data-tex>z\,\bar z = (x+\mathrm{i}y)(x-\mathrm{i}y) = x^2 - (\mathrm{i}y)^2 = x^2 + y^2 = |z|^2</span>. ■</p>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Exemple</span>
+    <p class="sm">Pour <span data-tex>z = 3 + 2\mathrm{i}</span> : <span data-tex>z\,\bar z = (3+2\mathrm{i})(3-2\mathrm{i}) = 9 + 4 = 13</span>, donc <span data-tex>|z| = \sqrt{13}</span>.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Opérations</div>
+  <h2>Le module se comporte<br>comme la valeur absolue</h2>
+  <div class="card amber">
+    <span class="tag">Règles opératoires</span>
+    <p class="sm">Pour tous complexes <span data-tex>z, z'</span> (avec <span data-tex>z' \neq 0</span> pour le quotient) et tout entier naturel <span data-tex>n</span> :</p>
+    <div data-tex-display>|z \times z'| = |z| \times |z'| \qquad \left|\dfrac{z}{z'}\right| = \dfrac{|z|}{|z'|} \qquad |z^n| = |z|^n</div>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Démonstration — produit</span>
+    <p class="sm">On utilise <span data-tex>|w|^2 = w\bar w</span> et le fait que <span data-tex>\overline{zz'} = \bar z\,\bar{z'}</span> :</p>
+    <div data-tex-display>|zz'|^2 = zz'\overline{zz'} = zz'\,\bar z\,\bar{z'} = (z\bar z)(z'\bar{z'}) = |z|^2|z'|^2</div>
+    <p class="sm">D'où <span data-tex>|zz'| = |z|\,|z'|</span> (modules positifs). ■</p>
+  </div>
+  <div class="card rose" style="margin-top:.8rem">
+    <span class="tag">Inégalité triangulaire</span>
+    <p class="sm">Pour tous <span data-tex>z, z'</span> : <span data-tex>|z + z'| \leq |z| + |z'|</span>, avec égalité si et seulement si l'un est un multiple positif de l'autre. Interprétation : la longueur d'un côté d'un triangle n'excède jamais la somme des deux autres.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Trois calculs pour vérifier</div>
+  <h2>Calculs de modules</h2>
+  <div class="exrow">
+    <div><span class="lb">|1 + i|</span><span class="vl">√2</span><span class="muted">√(1 + 1)</span></div>
+    <div><span class="lb">|3 − 4i|</span><span class="vl">5</span><span class="muted">√(9 + 16)</span></div>
+    <div><span class="lb">|−5|</span><span class="vl">5</span><span class="muted">√25</span></div>
+    <div><span class="lb">|7i|</span><span class="vl">7</span><span class="muted">imaginaire pur</span></div>
+    <div><span class="lb">|(1+i)(2−i)|</span><span class="vl">√10</span><span class="muted">√2 × √5</span></div>
+    <div><span class="lb">|(1+i)⁸|</span><span class="vl">16</span><span class="muted">(√2)⁸ = 2⁴</span></div>
+  </div>
+</section>
+
+<!-- ============ §2 ARGUMENT ============ -->
+<section class="slide section">
+  <div class="num-big">2</div>
+  <h1>Argument<br>d'un complexe</h1>
+</section>
+
+<section class="slide">
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Définition</div>
+      <h2>L'angle qu'on fait<br>avec l'axe réel</h2>
+      <div class="card">
+        <span class="tag">Définition</span>
+        <p class="sm">Soit <span data-tex>z</span> un complexe <b>non nul</b> d'image <span data-tex>M</span>. Tout nombre réel <span data-tex>\theta</span> tel que <span data-tex>\theta = (\overrightarrow{u}, \overrightarrow{OM})\;[2\pi]</span> est un <b>argument</b> de <span data-tex>z</span>, noté <span data-tex>\arg(z)</span>.</p>
+        <p class="sm" style="margin-top:.4rem">Deux arguments de <span data-tex>z</span> diffèrent toujours d'un multiple de <span data-tex>2\pi</span>. L'<b>argument principal</b> est celui qui appartient à <span data-tex>]-\pi\,;\,\pi]</span>.</p>
+      </div>
+      <div class="card amber" style="margin-top:.8rem">
+        <span class="tag">Attention — 0 n'a pas d'argument</span>
+        <p class="sm">Le vecteur nul <span data-tex>\overrightarrow{OO}</span> ne définit pas de direction. On ne parle d'argument que pour <span data-tex>z \neq 0</span>.</p>
+      </div>
+    </div>
+    <div class="plane-wrap">
+      <svg class="plane" viewBox="-40 -170 300 207">
+        <g class="grid"><line x1="60" y1="-160" x2="60" y2="20"/><line x1="120" y1="-160" x2="120" y2="20"/><line x1="180" y1="-160" x2="180" y2="20"/><line x1="0" y1="-40" x2="220" y2="-40"/><line x1="0" y1="-80" x2="220" y2="-80"/><line x1="0" y1="-120" x2="220" y2="-120"/></g>
+        <line class="axis ax-re" x1="-20" y1="0" x2="230" y2="0"/>
+        <line class="axis ax-im" x1="0" y1="20" x2="0" y2="-165"/>
+        <text class="lbl lbl-re" x="208" y="18">axe réel</text>
+        <text class="lbl lbl-im" x="8" y="-155">axe imag.</text>
+        <line class="vect" x1="0" y1="0" x2="146" y2="-117"/>
+        <path class="arc" d="M 40 0 A 40 40 0 0 1 24 -32"/>
+        <circle cx="150" cy="-120" class="pt-halo"/><circle cx="150" cy="-120" class="pt"/>
+        <text class="lbl" x="158" y="-124" style="font-family:Fraunces;font-style:italic">M(z)</text>
+        <text class="arg-lab" x="46" y="-14">θ = arg(z)</text>
+        <text class="mod-lab" x="60" y="-74" style="font-size:14px">|z|</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Quelques arguments classiques</div>
+  <h2>À retenir par cœur</h2>
+  <div style="overflow-x:auto">
+    <table class="trigtable">
+      <tr><th>z</th><th>|z|</th><th>arg(z)</th><th>position</th></tr>
+      <tr><td>1</td><td>1</td><td class="hi">0</td><td>axe réel positif</td></tr>
+      <tr><td>i</td><td>1</td><td class="hi">π/2</td><td>axe imaginaire positif</td></tr>
+      <tr><td>−1</td><td>1</td><td class="hi">π</td><td>axe réel négatif</td></tr>
+      <tr><td>−i</td><td>1</td><td class="hi">−π/2</td><td>axe imaginaire négatif</td></tr>
+      <tr><td>1 + i</td><td>√2</td><td class="hi">π/4</td><td>première bissectrice</td></tr>
+      <tr><td>−1 + i</td><td>√2</td><td class="hi">3π/4</td><td>deuxième bissectrice</td></tr>
+      <tr><td>1 + i√3</td><td>2</td><td class="hi">π/3</td><td>π/3 au-dessus de l'axe réel</td></tr>
+      <tr><td>√3 + i</td><td>2</td><td class="hi">π/6</td><td>π/6 au-dessus de l'axe réel</td></tr>
+    </table>
+  </div>
+  <div class="card amber" style="margin-top:.5rem">
+    <span class="tag">Méthode — trouver un argument</span>
+    <ol class="props sm">
+      <li>Calculer <span data-tex>r = |z|</span>.</li>
+      <li>Écrire <span data-tex>\dfrac{z}{r} = \dfrac{x}{r} + \mathrm{i}\dfrac{y}{r}</span>. Les parties réelle et imaginaire sont alors <span data-tex>\cos\theta</span> et <span data-tex>\sin\theta</span>.</li>
+      <li>Reconnaître l'angle correspondant dans le cercle trigonométrique.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ §3 FORME TRIGO ============ -->
+<section class="slide section">
+  <div class="num-big">3</div>
+  <h1>Forme<br>trigonométrique</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Définition</div>
+  <h2>Rendre module et argument<br>visibles dans l'écriture</h2>
+  <div class="card">
+    <span class="tag">Théorème</span>
+    <p class="sm">Tout complexe <span data-tex>z \neq 0</span> s'écrit de manière unique (à <span data-tex>2\pi</span> près sur <span data-tex>\theta</span>) sous la forme :</p>
+    <div data-tex-display>\boxed{\, z = r\,\bigl(\cos\theta + \mathrm{i}\sin\theta\bigr) \,}</div>
+    <p class="sm">où <span data-tex>r = |z| &gt; 0</span> est le module et <span data-tex>\theta = \arg(z)</span> l'argument. C'est la <b>forme trigonométrique</b> de <span data-tex>z</span>.</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Démonstration</span>
+    <p class="sm">Soit <span data-tex>z = x + \mathrm{i}y \neq 0</span>, de module <span data-tex>r = \sqrt{x^2+y^2}</span>. Le point <span data-tex>M(x,y)</span> est sur le cercle de rayon <span data-tex>r</span> centré en <span data-tex>O</span>. Si <span data-tex>\theta</span> est l'angle du vecteur <span data-tex>\overrightarrow{OM}</span> avec <span data-tex>\vec u</span>, alors par définition du cosinus et du sinus sur ce cercle :</p>
+    <div data-tex-display>x = r\cos\theta \quad\text{et}\quad y = r\sin\theta</div>
+    <p class="sm">D'où <span data-tex>z = r\cos\theta + \mathrm{i}\, r\sin\theta = r(\cos\theta + \mathrm{i}\sin\theta)</span>. ■</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Passages à faire</div>
+  <h2>Algébrique ↔ trigonométrique</h2>
+  <div class="grid2">
+    <div class="card green">
+      <span class="tag">Alg → trigo (ex. z = 1 + i)</span>
+      <ol class="props sm">
+        <li><span data-tex>r = |z| = \sqrt{1^2 + 1^2} = \sqrt 2</span></li>
+        <li><span data-tex>\dfrac{z}{r} = \dfrac{1}{\sqrt 2} + \mathrm{i}\,\dfrac{1}{\sqrt 2}</span></li>
+        <li><span data-tex>\cos\theta = \sin\theta = \dfrac{\sqrt 2}{2}</span></li>
+        <li>D'où <span data-tex>\theta = \dfrac{\pi}{4}</span></li>
+      </ol>
+      <div data-tex-display>z = \sqrt 2 \left(\cos\tfrac{\pi}{4} + \mathrm{i}\sin\tfrac{\pi}{4}\right)</div>
+    </div>
+    <div class="card green">
+      <span class="tag">Trigo → alg (ex. r = 2, θ = π/3)</span>
+      <ol class="props sm">
+        <li><span data-tex>\cos\tfrac{\pi}{3} = \tfrac12</span>, <span data-tex>\sin\tfrac{\pi}{3} = \tfrac{\sqrt 3}{2}</span></li>
+        <li>D'où <span data-tex>z = 2\!\left(\tfrac12 + \mathrm{i}\tfrac{\sqrt 3}{2}\right)</span></li>
+        <li><span data-tex>= 1 + \mathrm{i}\sqrt 3</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Le miracle de la forme trigo</div>
+  <h2>Multiplier,<br>c'est multiplier les modules<br>et additionner les arguments</h2>
+  <div class="card amber">
+    <span class="tag">Propriétés — module et argument d'un produit</span>
+    <p class="sm">Pour tous <span data-tex>z, z'</span> non nuls :</p>
+    <div data-tex-display>|z\,z'| = |z|\,|z'| \qquad \arg(z\,z') = \arg(z) + \arg(z')\;[2\pi]</div>
+    <p class="sm">Et par conséquent, pour tout entier <span data-tex>n</span> et <span data-tex>z \neq 0</span> :</p>
+    <div data-tex-display>|z^n| = |z|^n \qquad \arg(z^n) = n\,\arg(z)\;[2\pi]</div>
+    <p class="sm">Pour l'inverse et le quotient (<span data-tex>z' \neq 0</span>) :</p>
+    <div data-tex-display>\arg\!\left(\tfrac{1}{z'}\right) = -\arg(z') \qquad \arg\!\left(\tfrac{z}{z'}\right) = \arg(z) - \arg(z')</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Démonstration par le produit</div>
+  <h2>Les formules d'addition<br>à l'œuvre</h2>
+  <div class="card demo">
+    <span class="tag">Produit en forme trigonométrique</span>
+    <p class="sm">Soient <span data-tex>z = r(\cos\theta + \mathrm{i}\sin\theta)</span> et <span data-tex>z' = r'(\cos\theta' + \mathrm{i}\sin\theta')</span>. Alors :</p>
+    <div data-tex-display>z\,z' = r\,r'\,(\cos\theta + \mathrm{i}\sin\theta)(\cos\theta' + \mathrm{i}\sin\theta')</div>
+    <p class="sm">On développe :</p>
+    <div data-tex-display>= r\,r'\,\bigl[(\cos\theta\cos\theta' - \sin\theta\sin\theta') + \mathrm{i}(\sin\theta\cos\theta' + \cos\theta\sin\theta')\bigr]</div>
+    <p class="sm">Et on reconnaît les formules de <b>cos(a+b)</b> et <b>sin(a+b)</b> :</p>
+    <div data-tex-display>z\,z' = r\,r'\,\bigl(\cos(\theta+\theta') + \mathrm{i}\sin(\theta+\theta')\bigr)</div>
+    <p class="sm">Autrement dit : le produit a pour module <span data-tex>rr'</span> et pour argument <span data-tex>\theta + \theta'</span>. ■</p>
+  </div>
+</section>
+
+<!-- ============ §4 FORME EXPONENTIELLE ============ -->
+<section class="slide section">
+  <div class="num-big">4</div>
+  <h1>Forme<br>exponentielle</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Une notation géniale</div>
+  <h2>e<sup>iθ</sup> au lieu de cos θ + i sin θ</h2>
+  <div class="card">
+    <span class="tag">Notation d'Euler</span>
+    <p class="sm">Pour tout réel <span data-tex>\theta</span>, on pose :</p>
+    <div data-tex-display>\boxed{\,\mathrm{e}^{\mathrm{i}\theta} = \cos\theta + \mathrm{i}\sin\theta\,}</div>
+    <p class="sm">Tout complexe <span data-tex>z \neq 0</span> admet alors une <b>forme exponentielle</b> :</p>
+    <div data-tex-display>z = r\,\mathrm{e}^{\mathrm{i}\theta} \quad\text{où}\quad r = |z|,\ \theta = \arg(z)</div>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Pourquoi « exponentielle » ?</span>
+    <p class="sm">Parce qu'elle se comporte <b>exactement</b> comme l'exponentielle réelle : <span data-tex>\mathrm{e}^{\mathrm{i}\theta} \cdot \mathrm{e}^{\mathrm{i}\theta'} = \mathrm{e}^{\mathrm{i}(\theta+\theta')}</span>. C'est précisément ce que dit la formule du produit démontrée à l'instant.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Règles de calcul</div>
+  <h2>L'exponentielle complexe<br>obéit aux mêmes règles que l'exponentielle réelle</h2>
+  <div class="card">
+    <span class="tag">Propriétés</span>
+    <p class="sm">Pour tous réels <span data-tex>\theta, \theta'</span> et tout entier <span data-tex>n\in\mathbb{Z}</span> :</p>
+    <div data-tex-display>\mathrm{e}^{\mathrm{i}\theta} \cdot \mathrm{e}^{\mathrm{i}\theta'} = \mathrm{e}^{\mathrm{i}(\theta+\theta')}</div>
+    <div data-tex-display>\dfrac{1}{\mathrm{e}^{\mathrm{i}\theta}} = \mathrm{e}^{-\mathrm{i}\theta} \qquad \overline{\mathrm{e}^{\mathrm{i}\theta}} = \mathrm{e}^{-\mathrm{i}\theta}</div>
+    <div data-tex-display>\bigl(\mathrm{e}^{\mathrm{i}\theta}\bigr)^n = \mathrm{e}^{\mathrm{i}n\theta}</div>
+    <p class="sm">Et pour deux complexes <span data-tex>z = r\mathrm{e}^{\mathrm{i}\theta}</span> et <span data-tex>z' = r'\mathrm{e}^{\mathrm{i}\theta'}</span> :</p>
+    <div data-tex-display>z\,z' = r r'\,\mathrm{e}^{\mathrm{i}(\theta+\theta')} \qquad \dfrac{z}{z'} = \dfrac{r}{r'}\,\mathrm{e}^{\mathrm{i}(\theta-\theta')}</div>
+    <div data-tex-display>z^n = r^n\,\mathrm{e}^{\mathrm{i}n\theta} \qquad \bar z = r\,\mathrm{e}^{-\mathrm{i}\theta}</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Formule de De Moivre</div>
+  <h2>Une puissance se calcule<br>sans développer</h2>
+  <div class="card amber">
+    <span class="tag">Formule de De Moivre</span>
+    <p class="sm">Pour tout <span data-tex>\theta\in\mathbb{R}</span> et tout <span data-tex>n\in\mathbb{Z}</span> :</p>
+    <div data-tex-display>\boxed{\,\bigl(\cos\theta + \mathrm{i}\sin\theta\bigr)^n = \cos(n\theta) + \mathrm{i}\sin(n\theta)\,}</div>
+    <p class="sm">C'est juste <span data-tex>(\mathrm{e}^{\mathrm{i}\theta})^n = \mathrm{e}^{\mathrm{i}n\theta}</span> écrit sous forme trigonométrique.</p>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Exemple — calcul de (1+i)⁸</span>
+    <p class="sm">Avec la forme algébrique, c'est long. Avec la forme exponentielle :</p>
+    <ul class="props sm">
+      <li><span data-tex>1 + \mathrm{i} = \sqrt 2\,\mathrm{e}^{\mathrm{i}\pi/4}</span></li>
+      <li><span data-tex>(1+\mathrm{i})^8 = (\sqrt 2)^8\,\mathrm{e}^{\mathrm{i}\cdot 8\pi/4} = 16\,\mathrm{e}^{2\mathrm{i}\pi} = 16</span></li>
+    </ul>
+    <p class="sm" style="margin-top:.4rem">On trouve <span class="result">16</span>, un réel pur, en trois lignes.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Exemples de passages à l'exponentielle</div>
+  <h2>À faire sans réfléchir</h2>
+  <div class="exrow">
+    <div class="hi"><span class="lb">1</span><span class="vl">e⁰</span></div>
+    <div class="hi"><span class="lb">i</span><span class="vl">e^(iπ/2)</span></div>
+    <div class="hi"><span class="lb">−1</span><span class="vl">e^(iπ)</span></div>
+    <div class="hi"><span class="lb">−i</span><span class="vl">e^(−iπ/2)</span></div>
+    <div><span class="lb">1 + i</span><span class="vl">√2·e^(iπ/4)</span></div>
+    <div><span class="lb">1 − i</span><span class="vl">√2·e^(−iπ/4)</span></div>
+    <div><span class="lb">√3 + i</span><span class="vl">2·e^(iπ/6)</span></div>
+    <div><span class="lb">1 + i√3</span><span class="vl">2·e^(iπ/3)</span></div>
+    <div><span class="lb">−√3 + i</span><span class="vl">2·e^(5iπ/6)</span></div>
+  </div>
+  <div class="card rose" style="margin-top:.4rem">
+    <span class="tag">La plus belle formule des mathématiques</span>
+    <p class="sm">Dans la formule <span data-tex>\mathrm{e}^{\mathrm{i}\theta}</span>, posons <span data-tex>\theta = \pi</span> : on obtient <span data-tex>\mathrm{e}^{\mathrm{i}\pi} = \cos\pi + \mathrm{i}\sin\pi = -1</span>. Soit :</p>
+    <div data-tex-display>\mathrm{e}^{\mathrm{i}\pi} + 1 = 0</div>
+    <p class="sm">L'<b>identité d'Euler</b>, qui réunit en une seule équation les cinq constantes les plus fondamentales : <span data-tex>0</span>, <span data-tex>1</span>, <span data-tex>\mathrm{i}</span>, <span data-tex>\pi</span> et <span data-tex>\mathrm{e}</span>.</p>
+  </div>
+</section>
+
+<!-- ============ §5 EULER ET APPLICATIONS ============ -->
+<section class="slide section">
+  <div class="num-big">5</div>
+  <h1>Formules d'Euler<br>et applications</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Les deux formules à savoir</div>
+  <h2>cos et sin,<br>exprimés en exponentielles</h2>
+  <div class="card">
+    <span class="tag">Formules d'Euler</span>
+    <p class="sm">Pour tout réel <span data-tex>\theta</span> :</p>
+    <div data-tex-display>\cos\theta = \dfrac{\mathrm{e}^{\mathrm{i}\theta} + \mathrm{e}^{-\mathrm{i}\theta}}{2} \qquad \sin\theta = \dfrac{\mathrm{e}^{\mathrm{i}\theta} - \mathrm{e}^{-\mathrm{i}\theta}}{2\mathrm{i}}</div>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Démonstration</span>
+    <p class="sm">Par définition : <span data-tex>\mathrm{e}^{\mathrm{i}\theta} = \cos\theta + \mathrm{i}\sin\theta</span> et <span data-tex>\mathrm{e}^{-\mathrm{i}\theta} = \cos\theta - \mathrm{i}\sin\theta</span>.</p>
+    <ul class="props sm">
+      <li>Somme : <span data-tex>\mathrm{e}^{\mathrm{i}\theta} + \mathrm{e}^{-\mathrm{i}\theta} = 2\cos\theta</span>, d'où la formule pour <span data-tex>\cos\theta</span>.</li>
+      <li>Différence : <span data-tex>\mathrm{e}^{\mathrm{i}\theta} - \mathrm{e}^{-\mathrm{i}\theta} = 2\mathrm{i}\sin\theta</span>, d'où la formule pour <span data-tex>\sin\theta</span>. ■</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application 1</div>
+  <h2>Linéariser cos²θ et sin²θ</h2>
+  <div class="card green">
+    <span class="tag">Méthode</span>
+    <p class="sm">« Linéariser » <span data-tex>\cos^p\theta\sin^q\theta</span>, c'est l'exprimer comme <b>combinaison linéaire</b> de <span data-tex>\cos(k\theta)</span> et <span data-tex>\sin(k\theta)</span> (plutôt que des puissances). C'est utile en primitive, en intégration, en physique.</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Linéarisation de cos²θ</span>
+    <p class="sm">On part de la formule d'Euler et on développe le carré :</p>
+    <div data-tex-display>\cos^2\theta = \left(\tfrac{\mathrm{e}^{\mathrm{i}\theta} + \mathrm{e}^{-\mathrm{i}\theta}}{2}\right)^2 = \tfrac{1}{4}\left(\mathrm{e}^{2\mathrm{i}\theta} + 2 + \mathrm{e}^{-2\mathrm{i}\theta}\right)</div>
+    <p class="sm">On regroupe <span data-tex>\mathrm{e}^{2\mathrm{i}\theta} + \mathrm{e}^{-2\mathrm{i}\theta} = 2\cos(2\theta)</span> :</p>
+    <div data-tex-display>\cos^2\theta = \tfrac{1}{4}\bigl(2\cos(2\theta) + 2\bigr) = \tfrac{1 + \cos(2\theta)}{2}</div>
+    <p class="sm">De la même façon : <span data-tex>\sin^2\theta = \dfrac{1 - \cos(2\theta)}{2}</span>.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application 2</div>
+  <h2>Linéariser sin³θ</h2>
+  <div class="card demo">
+    <span class="tag">Même méthode, cube</span>
+    <div data-tex-display>\sin^3\theta = \left(\tfrac{\mathrm{e}^{\mathrm{i}\theta} - \mathrm{e}^{-\mathrm{i}\theta}}{2\mathrm{i}}\right)^3 = \tfrac{1}{(2\mathrm{i})^3}\bigl(\mathrm{e}^{\mathrm{i}\theta} - \mathrm{e}^{-\mathrm{i}\theta}\bigr)^3</div>
+    <p class="sm">On développe (binôme) :</p>
+    <div data-tex-display>\bigl(\mathrm{e}^{\mathrm{i}\theta} - \mathrm{e}^{-\mathrm{i}\theta}\bigr)^3 = \mathrm{e}^{3\mathrm{i}\theta} - 3\mathrm{e}^{\mathrm{i}\theta} + 3\mathrm{e}^{-\mathrm{i}\theta} - \mathrm{e}^{-3\mathrm{i}\theta}</div>
+    <p class="sm">On regroupe par paires conjuguées :</p>
+    <div data-tex-display>= 2\mathrm{i}\sin(3\theta) - 6\mathrm{i}\sin\theta</div>
+    <p class="sm">Avec <span data-tex>(2\mathrm{i})^3 = -8\mathrm{i}</span>, finalement :</p>
+    <div data-tex-display>\sin^3\theta = \tfrac{2\mathrm{i}\sin(3\theta) - 6\mathrm{i}\sin\theta}{-8\mathrm{i}} = \tfrac{3\sin\theta - \sin(3\theta)}{4}</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application 3</div>
+  <h2>Retrouver les formules<br>d'addition</h2>
+  <div class="card">
+    <span class="tag">De De Moivre à cos(3θ)</span>
+    <p class="sm">On applique <span data-tex>(cos\theta + \mathrm{i}\sin\theta)^3 = \cos(3\theta) + \mathrm{i}\sin(3\theta)</span>. On développe le cube :</p>
+    <div data-tex-display>(\cos\theta + \mathrm{i}\sin\theta)^3 = \cos^3\theta + 3\mathrm{i}\cos^2\theta\sin\theta - 3\cos\theta\sin^2\theta - \mathrm{i}\sin^3\theta</div>
+    <p class="sm">On identifie parties réelle et imaginaire :</p>
+    <div data-tex-display>\cos(3\theta) = \cos^3\theta - 3\cos\theta\sin^2\theta</div>
+    <div data-tex-display>\sin(3\theta) = 3\cos^2\theta\sin\theta - \sin^3\theta</div>
+    <p class="sm">Avec <span data-tex>\sin^2\theta = 1 - \cos^2\theta</span>, on retrouve les formules classiques <span data-tex>\cos(3\theta) = 4\cos^3\theta - 3\cos\theta</span> et <span data-tex>\sin(3\theta) = 3\sin\theta - 4\sin^3\theta</span>.</p>
+  </div>
+</section>
+
+<!-- ============ §6 GÉOMÉTRIE ============ -->
+<section class="slide section">
+  <div class="num-big">6</div>
+  <h1>Interprétation<br>géométrique</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Lecture d'une multiplication</h2>
+  <h2>Multiplier par un complexe,<br>c'est une transformation du plan</h2>
+  <div class="card">
+    <span class="tag">Propriété</span>
+    <p class="sm">Soit <span data-tex>a = \rho\,\mathrm{e}^{\mathrm{i}\alpha}</span> un complexe non nul. L'application <span data-tex>z \mapsto a z</span> transforme chaque point <span data-tex>M(z)</span> en <span data-tex>M'(a z)</span> :</p>
+    <ul class="props sm">
+      <li>le module est <b>multiplié par <span data-tex>\rho</span></b> : <b>homothétie</b> de centre <span data-tex>O</span> et de rapport <span data-tex>\rho</span> ;</li>
+      <li>l'argument est <b>augmenté de <span data-tex>\alpha</span></b> : <b>rotation</b> de centre <span data-tex>O</span> et d'angle <span data-tex>\alpha</span>.</li>
+    </ul>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Trois cas remarquables</span>
+    <ul class="props sm">
+      <li><b>Multiplier par <span data-tex>\mathrm{i}</span></b> (<span data-tex>\rho = 1</span>, <span data-tex>\alpha = \pi/2</span>) : rotation d'un quart de tour direct autour de <span data-tex>O</span>.</li>
+      <li><b>Multiplier par <span data-tex>-1</span></b> : rotation d'un demi-tour (symétrie centrale par rapport à <span data-tex>O</span>).</li>
+      <li><b>Multiplier par <span data-tex>\mathrm{e}^{\mathrm{i}\pi/3}</span></b> : rotation d'un sixième de tour (60°), sans changement de module.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application</div>
+  <h2>Un triangle équilatéral</h2>
+  <div class="card green">
+    <span class="tag">Problème</span>
+    <p class="sm">Soient <span data-tex>A</span>, <span data-tex>B</span>, <span data-tex>C</span> trois points d'affixes <span data-tex>a</span>, <span data-tex>b</span>, <span data-tex>c</span>. Montrer qu'ils forment un <b>triangle équilatéral direct</b> si et seulement si :</p>
+    <div data-tex-display>c - a = \mathrm{e}^{\mathrm{i}\pi/3}\,(b - a)</div>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Lecture</span>
+    <p class="sm"><span data-tex>b - a</span> et <span data-tex>c - a</span> sont les affixes des vecteurs <span data-tex>\overrightarrow{AB}</span> et <span data-tex>\overrightarrow{AC}</span>. L'équation dit : <span data-tex>\overrightarrow{AC}</span> s'obtient à partir de <span data-tex>\overrightarrow{AB}</span> par <b>rotation de 60°</b>. Et puisque le facteur a pour module 1, les deux vecteurs ont même longueur : <span data-tex>AB = AC</span>. Avec un angle de 60° entre eux, le triangle est équilatéral. ■</p>
+  </div>
+  <div class="card rose" style="margin-top:.8rem">
+    <span class="tag">À retenir</span>
+    <p class="sm">Les complexes transforment les problèmes de <b>géométrie plane</b> en calculs algébriques : angles → arguments, longueurs → modules, translations → additions, rotations ↔ multiplications. C'est la grande force du chapitre.</p>
+  </div>
+</section>
+
+<!-- ============ L'ESSENTIEL ============ -->
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Fiche de révision</div>
+  <h2>L'essentiel du chapitre</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Module</span>
+      <p class="sm"><span data-tex>|z| = \sqrt{x^2 + y^2}</span>, distance <span data-tex>OM</span>. Formule clé : <span data-tex>|z|^2 = z\bar z</span>. Multiplicatif : <span data-tex>|zz'| = |z||z'|</span>.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Argument</span>
+      <p class="sm">Angle <span data-tex>(\vec u, \overrightarrow{OM})</span>. Défini modulo <span data-tex>2\pi</span>, principal dans <span data-tex>]-\pi,\pi]</span>. Non défini pour <span data-tex>z = 0</span>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Forme trigonométrique</span>
+      <p class="sm"><span data-tex>z = r(\cos\theta + \mathrm{i}\sin\theta)</span>, avec <span data-tex>r = |z|</span> et <span data-tex>\theta = \arg(z)</span>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Forme exponentielle</span>
+      <p class="sm"><span data-tex>z = r\,\mathrm{e}^{\mathrm{i}\theta}</span>. Produit : <span data-tex>r r'\,\mathrm{e}^{\mathrm{i}(\theta+\theta')}</span>. Puissance : <span data-tex>r^n\,\mathrm{e}^{\mathrm{i}n\theta}</span>.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">De Moivre</span>
+      <p class="sm"><span data-tex>(\cos\theta + \mathrm{i}\sin\theta)^n = \cos(n\theta) + \mathrm{i}\sin(n\theta)</span>.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Euler</span>
+      <p class="sm"><span data-tex>\cos\theta = \tfrac{\mathrm{e}^{\mathrm{i}\theta}+\mathrm{e}^{-\mathrm{i}\theta}}{2}</span>, <span data-tex>\sin\theta = \tfrac{\mathrm{e}^{\mathrm{i}\theta}-\mathrm{e}^{-\mathrm{i}\theta}}{2\mathrm{i}}</span>. Pour linéariser.</p>
+    </div>
+    <div class="card rose">
+      <span class="tag">Géométrie</span>
+      <p class="sm">Multiplier par <span data-tex>\rho\mathrm{e}^{\mathrm{i}\alpha}</span> = homothétie de rapport <span data-tex>\rho</span> composée d'une rotation d'angle <span data-tex>\alpha</span> centrée en <span data-tex>O</span>.</p>
+    </div>
+    <div class="card rose">
+      <span class="tag">Identité d'Euler</span>
+      <p class="sm"><span data-tex>\mathrm{e}^{\mathrm{i}\pi} + 1 = 0</span>. Les cinq constantes fondamentales en une égalité.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="controls">
+  <button id="prev">‹</button>
+  <span class="num"><span id="cur">1</span>/<span id="tot">1</span></span>
+  <button id="next">›</button>
+  <span class="sep"></span>
+  <button id="tocBtn">Sommaire</button>
+  <span class="sep"></span>
+  <label class="toggle"><input type="checkbox" id="mobileToggle"><span class="track"></span><span>Mode portable</span></label>
+  <span class="sep"></span>
+  <button id="printBtn">Imprimer PDF</button>
+</div>
+
+<div class="toc-back" id="tocBack"></div>
+<nav class="toc" id="toc" aria-hidden="true">
+  <h4>Sommaire</h4>
+  <ol id="tocList"></ol>
+</nav>
+
+<script>
+function renderMath(){
+  document.querySelectorAll('[data-tex]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+  document.querySelectorAll('[data-tex-display]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{displayMode:true,throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+}
+window.addEventListener('load',()=>setTimeout(renderMath,150));
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+const cur=document.getElementById('cur'),tot=document.getElementById('tot'),prog=document.getElementById('prog');
+tot.textContent=slides.length;
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));cur.textContent=i+1;prog.style.width=((i+1)/slides.length*100)+'%';if(slides[i].scrollTop!==undefined)slides[i].scrollTop=0;}
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('prev').onclick=()=>show(i-1);
+document.addEventListener('keydown',e=>{if(document.body.classList.contains('mobile'))return;if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
+document.getElementById('printBtn').onclick=()=>window.print();
+const toc=document.getElementById('toc'),tocBack=document.getElementById('tocBack'),tocList=document.getElementById('tocList');
+function titleOf(h){if(!h)return'Partie';const c=h.cloneNode(true);c.querySelectorAll('br').forEach(b=>b.replaceWith(document.createTextNode(' ')));return c.textContent.replace(/\s+/g,' ').trim();}
+(function buildToc(){
+  const entries=[{n:'↑',t:'Début',k:0}];
+  slides.forEach((s,k)=>{if(!s.classList.contains('section'))return;const num=s.querySelector('.num-big');entries.push({n:num?num.textContent.trim():'',t:titleOf(s.querySelector('h1')),k});});
+  entries.forEach(e=>{const li=document.createElement('li'),b=document.createElement('button');b.dataset.i=e.k;const sp=document.createElement('span');sp.className='tnum';sp.textContent=e.n;b.append(sp,document.createTextNode(e.t));li.append(b);tocList.append(li);});
+})();
+function openToc(o){toc.classList.toggle('open',o);tocBack.classList.toggle('open',o);toc.setAttribute('aria-hidden',String(!o));}
+document.getElementById('tocBtn').onclick=()=>openToc(!toc.classList.contains('open'));
+tocBack.onclick=()=>openToc(false);
+tocList.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const n=+b.dataset.i;openToc(false);if(document.body.classList.contains('mobile')){if(n===0)window.scrollTo({top:0,behavior:'smooth'});else slides[n].scrollIntoView({behavior:'smooth',block:'start'});}else show(n);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')openToc(false)});
+const mobileToggle=document.getElementById('mobileToggle');
+const mq=window.matchMedia('(max-width: 820px)');let manual=false;
+function scrollProg(){const h=document.documentElement,max=h.scrollHeight-h.clientHeight;prog.style.width=(max>4?Math.min(100,h.scrollTop/max*100):100)+'%';}
+function setMobile(on){document.body.classList.toggle('mobile',on);mobileToggle.checked=on;openToc(false);if(on){requestAnimationFrame(()=>{if(i>0)slides[i].scrollIntoView({block:'start'});scrollProg();});}else{window.scrollTo(0,0);show(i);}}
+mobileToggle.addEventListener('change',e=>{manual=true;setMobile(e.target.checked)});
+mq.addEventListener('change',e=>{if(!manual)setMobile(e.matches)});
+window.addEventListener('scroll',()=>{if(document.body.classList.contains('mobile'))scrollProg()},{passive:true});
+show(0);setMobile(mq.matches);
+</script>
+</body>
+</html>
