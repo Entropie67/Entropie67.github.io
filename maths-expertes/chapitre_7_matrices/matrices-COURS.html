@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrices · Terminale maths expertes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{
+  --indigo:#1E1B3A; --ink:#2D2A45; --violet:#7C4DFF; --violet-soft:#B79CFF;
+  --amber:#F0A202; --paper:#FAF8FF; --paper-dim:#EDE9F7; --muted:#9B95C4;
+  --line:rgba(183,156,255,.22); --green:#3ECF8E; --rose:#FF8CB4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--indigo);color:var(--paper);overflow:hidden;-webkit-font-smoothing:antialiased}
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:5.5vh 8vw;opacity:0;transition:opacity .4s ease}
+.slide.active{display:flex;opacity:1}
+.slide.scroll{justify-content:flex-start;overflow-y:auto}
+.slide.section{justify-content:center}
+.slide.section .num-big{font-family:'Fraunces';font-size:clamp(4rem,12vw,10rem);color:rgba(183,156,255,.18);line-height:.8;font-weight:600}
+.slide.section h1{margin-top:-2rem}
+.eyebrow{font-size:clamp(.7rem,1.05vw,.92rem);font-weight:600;color:var(--violet-soft);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.eyebrow .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--amber)}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.2rem,5.5vw,4.6rem);line-height:1.02;letter-spacing:-.015em}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.3vw,2.7rem);line-height:1.1;margin-bottom:1.3rem;letter-spacing:-.01em}
+h3{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.1rem,1.7vw,1.35rem);margin:0 0 .5rem;color:var(--violet-soft)}
+.lead{font-size:clamp(.95rem,1.45vw,1.28rem);line-height:1.55;max-width:64ch}
+.sm{font-size:clamp(.85rem,1.2vw,1.05rem);line-height:1.5}
+.muted{color:var(--muted)}
+.result{color:var(--amber);font-weight:600}
+.ok{color:var(--green);font-weight:600}
+.card{background:rgba(124,77,255,.08);border-left:3px solid var(--violet);border-radius:0 14px 14px 0;padding:1.3rem 1.6rem;max-width:66ch}
+.card.amber{background:rgba(240,162,2,.09);border-left-color:var(--amber)}
+.card.demo{background:rgba(255,255,255,.03);border-left-color:var(--muted)}
+.card.green{background:rgba(62,207,142,.08);border-left-color:var(--green)}
+.card.rose{background:rgba(255,140,180,.08);border-left-color:var(--rose)}
+.card + .card{margin-top:.9rem}
+.tag{font-size:.75rem;font-weight:600;letter-spacing:.04em;color:var(--violet-soft);text-transform:uppercase;display:block;margin-bottom:.45rem}
+.card.amber .tag{color:var(--amber)}
+.card.demo .tag{color:var(--muted)}
+.card.green .tag{color:var(--green)}
+.card.rose .tag{color:var(--rose)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}
+.two-col.top{align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.katex{font-size:1.04em}
+[data-tex-display]{margin:.5rem 0}
+.ex{font-size:clamp(.95rem,1.4vw,1.22rem);line-height:1.9}
+ul.props,ul.list{padding:0;margin-top:.5rem}
+ul.props li,ul.list li{margin:.35rem 0;list-style:none}
+ul.props li::before{content:"• ";color:var(--violet-soft)}
+
+.exrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem;margin:.9rem 0}
+.exrow > div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;font-size:.88rem}
+.exrow > div .lb{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;display:block}
+.exrow > div .vl{font-family:'JetBrains Mono', monospace;color:var(--paper);font-size:.95rem}
+.exrow > div.hi{border-color:var(--amber)}
+.exrow > div.hi .vl{color:var(--amber)}
+
+/* matrices visuelles */
+.mat{display:inline-grid;gap:.2rem;padding:.5rem .7rem;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.03);margin:.3rem;font-family:'JetBrains Mono', monospace;font-size:.95rem;line-height:1;position:relative}
+.mat .cell{min-width:1.8em;text-align:center;padding:.25rem}
+.mat .cell.hi{color:var(--amber);font-weight:600;background:rgba(240,162,2,.1);border-radius:4px}
+.mat .cell.hr{color:var(--green);font-weight:600;background:rgba(62,207,142,.08);border-radius:4px}
+.mat::before,.mat::after{content:"";position:absolute;top:4px;bottom:4px;width:6px;border:1px solid var(--paper);border-top-left-radius:3px;border-bottom-left-radius:3px}
+.mat::before{left:0;border-right:none}
+.mat::after{right:0;border-left:none;border-top-left-radius:0;border-bottom-left-radius:0;border-top-right-radius:3px;border-bottom-right-radius:3px}
+.mat-wrap{display:flex;justify-content:center;align-items:center;gap:.4rem;flex-wrap:wrap;margin:.9rem 0}
+.mat-wrap .op{font-family:'JetBrains Mono', monospace;font-size:1.3rem;color:var(--amber);font-weight:700}
+
+/* code pour python */
+pre.code{font-family:'JetBrains Mono', monospace;font-size:.84rem;line-height:1.6;background:#0c0e15;border:1px solid var(--line);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0;overflow-x:auto;color:#d6dae6;white-space:pre;font-variant-ligatures:none;max-width:70ch}
+pre.code .kw{color:#c792ea} pre.code .fn{color:#82aaff} pre.code .nb{color:#f78c6c}
+pre.code .st{color:#c3e88d} pre.code .cm{color:#6b7188;font-style:italic}
+
+.controls{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.4rem;align-items:center;background:rgba(45,42,69,.85);backdrop-filter:blur(10px);padding:.45rem .6rem;border-radius:100px;border:1px solid var(--line);z-index:50;font-size:.85rem}
+.controls button{font-family:inherit;font-size:.85rem;background:transparent;color:var(--paper);border:none;cursor:pointer;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.controls button:hover{background:rgba(124,77,255,.25)}
+.controls .num{color:var(--muted);min-width:3.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.controls .sep{width:1px;height:1.3rem;background:var(--line)}
+.toggle{display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none;padding:.4rem .65rem;border-radius:100px;transition:background .2s}
+.toggle:hover{background:rgba(124,77,255,.25)}
+.toggle input{display:none}
+.toggle .track{width:32px;height:17px;border-radius:100px;background:rgba(255,255,255,.2);position:relative;transition:background .2s}
+.toggle .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--paper);transition:transform .2s}
+.toggle input:checked + .track{background:var(--amber)}
+.toggle input:checked + .track::after{transform:translateX(15px)}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--violet);z-index:60;transition:width .3s}
+
+@media print{
+  @page{size:A4 portrait;margin:15mm 14mm}
+  html,body{height:auto;overflow:visible;background:#fff;color:var(--ink)}
+  .controls,.progress{display:none !important}
+  .deck{position:static}
+  .slide{position:static;display:block !important;opacity:1 !important;padding:0;margin:0 0 6mm;break-inside:avoid}
+  .slide.section{margin:8mm 0 4mm;border-bottom:2px solid var(--violet);padding-bottom:2mm;break-before:page}
+  .slide.section:first-of-type{break-before:avoid}
+  .slide.section .num-big{font-size:20pt;color:var(--violet);display:inline;margin-right:3mm}
+  .slide.section h1{display:inline;font-size:19pt;margin:0}
+  .slide.cover{border-bottom:2px solid var(--violet);padding-bottom:4mm;margin-bottom:6mm}
+  .eyebrow{color:var(--violet);margin-bottom:.25rem;font-size:8pt}
+  h1{font-size:22pt;color:var(--ink)} h2{font-size:14pt;color:var(--violet);margin:0 0 2.5mm} h3{font-size:11pt;color:var(--violet)}
+  .lead,.sm,.ex{font-size:10pt;color:var(--ink);max-width:none;line-height:1.5}
+  .two-col,.grid2{grid-template-columns:1fr;gap:0}
+  .card{background:#F4F0FF;border-left:3px solid var(--violet);color:var(--ink);max-width:none;padding:2.5mm 4mm;border-radius:0 5px 5px 0;margin-bottom:2mm}
+  .card.amber{background:#FDF6E7;border-left-color:var(--amber)}
+  .card.green{background:#E8F7F0;border-left-color:var(--green)}
+  .card.demo{background:#F6F6FA;border-left-color:#999}
+  .card.rose{background:#FDE8F0;border-left-color:var(--rose)}
+  .tag{color:var(--violet)} .card.amber .tag{color:#B8730C} .card.green .tag{color:#1F8A70}
+  .exrow > div{background:#f8f8fc;border:1px solid #ddd;color:var(--ink)}
+  pre.code{background:#1a1c25;color:#f0f0f0;padding:3mm;font-size:8pt}
+  .mat{background:#f8f8fc;color:var(--ink);border:1px solid #ddd}
+  .mat::before,.mat::after{border-color:var(--ink)}
+}
+.toc-back{position:fixed;inset:0;background:rgba(20,18,40,.62);backdrop-filter:blur(3px);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
+.toc-back.open{opacity:1;pointer-events:auto}
+.toc{position:fixed;z-index:71;left:50%;top:50%;transform:translate(-50%,-46%) scale(.97);width:min(430px,92vw);max-height:76vh;overflow-y:auto;background:var(--ink);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1.1rem 1.2rem;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.toc.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.toc h4{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--violet-soft);margin-bottom:.6rem;padding-left:.5rem}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc button{width:100%;display:flex;gap:.75rem;align-items:baseline;text-align:left;background:transparent;border:none;cursor:pointer;font-family:inherit;font-size:.97rem;line-height:1.35;color:var(--paper);padding:.62rem .55rem;border-radius:9px;transition:background .18s}
+.toc button:hover,.toc button:focus-visible{background:rgba(124,77,255,.22);outline:none}
+.toc .tnum{color:var(--violet-soft);font-weight:600;font-size:.8rem;min-width:1.1rem;flex:none}
+body.mobile{overflow:visible;height:auto;min-height:100%;-webkit-text-size-adjust:100%}
+body.mobile .deck{position:static;inset:auto}
+body.mobile .slide{position:static;inset:auto;display:flex !important;opacity:1 !important;overflow:visible;justify-content:flex-start;padding:1.7rem 1.15rem 1.9rem;border-bottom:1px solid var(--line);scroll-margin-top:0}
+body.mobile .slide:last-of-type{border-bottom:none;padding-bottom:6.5rem}
+body.mobile .slide.cover{padding-top:3rem;padding-bottom:2.6rem}
+body.mobile .slide.section{background:rgba(124,77,255,.09);border-bottom:none;padding:2.2rem 1.15rem 1.6rem;align-items:flex-start}
+body.mobile .slide.section .num-big{font-size:3.4rem;line-height:.8;margin-bottom:.3rem}
+body.mobile .slide.section h1{margin-top:0}
+body.mobile h1{font-size:1.95rem;line-height:1.12}
+body.mobile .slide.cover h1{font-size:2.25rem}
+body.mobile h2{font-size:1.42rem;margin-bottom:.85rem}
+body.mobile h3{font-size:1.05rem}
+body.mobile .lead{font-size:1.02rem;line-height:1.6;max-width:none}
+body.mobile .sm{font-size:.95rem;line-height:1.55}
+body.mobile .ex{font-size:1rem;line-height:1.8}
+body.mobile .eyebrow{font-size:.78rem;margin-bottom:.7rem}
+body.mobile .two-col,body.mobile .grid2{grid-template-columns:1fr;gap:1.3rem}
+body.mobile .card{max-width:none}
+body.mobile pre.code{max-width:none;font-size:.78rem}
+</style>
+</head>
+
+<body>
+<div class="progress" id="prog"></div>
+<div class="deck">
+
+<section class="slide cover active">
+  <div class="eyebrow"><span class="dot"></span>Chapitre 7 · Maths expertes · Terminale</div>
+  <h1>Matrices</h1>
+  <p class="lead" style="margin-top:1rem">Un <b>tableau de nombres</b> qu'on sait additionner, multiplier et élever à une puissance. Les matrices permettent de condenser des systèmes linéaires, d'étudier des suites couplées, d'écrire les transformations géométriques et de modéliser des phénomènes évolutifs (chaînes de Markov, graphes orientés).</p>
+</section>
+
+<!-- ============ §1 DÉFINITION ============ -->
+<section class="slide section">
+  <div class="num-big">1</div>
+  <h1>Vocabulaire<br>d'une matrice</h1>
+</section>
+
+<section class="slide">
+  <div class="two-col">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Définition</div>
+      <h2>Un tableau rectangulaire<br>de nombres</h2>
+      <div class="card">
+        <span class="tag">Définition</span>
+        <p class="sm">Une <b>matrice</b> <span data-tex>A</span> de <b>format <span data-tex>n \times p</span></b> (<i>n</i> lignes, <i>p</i> colonnes) est un tableau de <span data-tex>n\times p</span> nombres réels :</p>
+        <div data-tex-display>A = \begin{pmatrix} a_{1,1} & a_{1,2} & \cdots & a_{1,p} \\ a_{2,1} & a_{2,2} & \cdots & a_{2,p} \\ \vdots & \vdots & & \vdots \\ a_{n,1} & a_{n,2} & \cdots & a_{n,p} \end{pmatrix}</div>
+        <p class="sm"><span data-tex>a_{i,j}</span> est le <b>coefficient</b> situé à la <i>i</i>-ème ligne et à la <i>j</i>-ème colonne.</p>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <div class="mat" style="grid-template-columns:repeat(3,auto)">
+        <div class="cell">2</div><div class="cell hi">5</div><div class="cell">−1</div>
+        <div class="cell">0</div><div class="cell">3</div><div class="cell">4</div>
+      </div>
+      <p class="sm muted" style="margin-top:.6rem">Format <b>2 × 3</b>. Le coefficient en orange est <span data-tex>a_{1,2} = 5</span>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Quelques matrices particulières</div>
+  <h2>Vocabulaire indispensable</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Matrice carrée</span>
+      <p class="sm">Un format <span data-tex>n \times n</span> : autant de lignes que de colonnes. On parle alors de matrice <b>d'ordre <span data-tex>n</span></b>.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Matrice ligne / colonne</span>
+      <p class="sm">Format <span data-tex>1 \times p</span> : une seule ligne. Format <span data-tex>n \times 1</span> : une seule colonne. On note souvent une colonne par <span data-tex>X</span> et on y range les inconnues d'un système.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Matrice nulle</span>
+      <p class="sm">Tous les coefficients valent 0. On la note <span data-tex>O_{n,p}</span> ou simplement <span data-tex>0</span>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Matrice identité</span>
+      <p class="sm"><span data-tex>I_n</span>, carrée d'ordre <span data-tex>n</span>, avec des 1 sur la diagonale et des 0 ailleurs. Elle joue pour les matrices le rôle du nombre 1.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Matrice diagonale</span>
+      <p class="sm">Carrée, tous les coefficients hors de la diagonale sont nuls. Exemple : <span data-tex>\operatorname{diag}(2, -1, 7)</span>.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Matrice triangulaire</span>
+      <p class="sm">Supérieure si tous les coefficients <b>sous</b> la diagonale sont nuls ; inférieure si tous ceux <b>au-dessus</b> sont nuls.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Exemples visuels</div>
+  <h2>Quatre matrices types</h2>
+  <div class="mat-wrap">
+    <div style="text-align:center">
+      <div class="mat" style="grid-template-columns:repeat(3,auto)">
+        <div class="cell hr">1</div><div class="cell">0</div><div class="cell">0</div>
+        <div class="cell">0</div><div class="cell hr">1</div><div class="cell">0</div>
+        <div class="cell">0</div><div class="cell">0</div><div class="cell hr">1</div>
+      </div>
+      <p class="sm muted"><span data-tex>I_3</span></p>
+    </div>
+    <div style="text-align:center">
+      <div class="mat" style="grid-template-columns:repeat(3,auto)">
+        <div class="cell hr">2</div><div class="cell">0</div><div class="cell">0</div>
+        <div class="cell">0</div><div class="cell hr">−1</div><div class="cell">0</div>
+        <div class="cell">0</div><div class="cell">0</div><div class="cell hr">7</div>
+      </div>
+      <p class="sm muted">diagonale</p>
+    </div>
+    <div style="text-align:center">
+      <div class="mat" style="grid-template-columns:repeat(3,auto)">
+        <div class="cell">2</div><div class="cell">5</div><div class="cell">1</div>
+        <div class="cell">0</div><div class="cell">3</div><div class="cell">4</div>
+        <div class="cell">0</div><div class="cell">0</div><div class="cell">1</div>
+      </div>
+      <p class="sm muted">triangulaire sup.</p>
+    </div>
+    <div style="text-align:center">
+      <div class="mat" style="grid-template-columns:repeat(3,auto)">
+        <div class="cell">0</div><div class="cell">0</div><div class="cell">0</div>
+        <div class="cell">0</div><div class="cell">0</div><div class="cell">0</div>
+      </div>
+      <p class="sm muted">nulle <span data-tex>O_{2,3}</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ §2 OPÉRATIONS ============ -->
+<section class="slide section">
+  <div class="num-big">2</div>
+  <h1>Addition et<br>produit par un scalaire</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Addition</div>
+  <h2>Coefficient par coefficient</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Soient <span data-tex>A = (a_{i,j})</span> et <span data-tex>B = (b_{i,j})</span> <b>deux matrices de même format</b> <span data-tex>n\times p</span>. Leur somme est la matrice <span data-tex>A + B</span> définie par :</p>
+    <div data-tex-display>(A + B)_{i,j} = a_{i,j} + b_{i,j}</div>
+    <p class="sm">On n'additionne <b>que</b> des matrices de même format. L'addition est <b>commutative</b> et <b>associative</b>, et la matrice nulle est son élément neutre.</p>
+  </div>
+  <div class="mat-wrap" style="margin-top:1rem">
+    <div class="mat" style="grid-template-columns:repeat(2,auto)"><div class="cell">1</div><div class="cell">3</div><div class="cell">2</div><div class="cell">0</div></div>
+    <span class="op">+</span>
+    <div class="mat" style="grid-template-columns:repeat(2,auto)"><div class="cell">4</div><div class="cell">−1</div><div class="cell">1</div><div class="cell">5</div></div>
+    <span class="op">=</span>
+    <div class="mat" style="grid-template-columns:repeat(2,auto)"><div class="cell hr">5</div><div class="cell hr">2</div><div class="cell hr">3</div><div class="cell hr">5</div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Produit par un réel</div>
+  <h2>On multiplie chaque case</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Soient <span data-tex>A = (a_{i,j})</span> une matrice et <span data-tex>\lambda\in\mathbb{R}</span>. La matrice <span data-tex>\lambda A</span> a pour coefficients :</p>
+    <div data-tex-display>(\lambda A)_{i,j} = \lambda\, a_{i,j}</div>
+  </div>
+  <div class="mat-wrap" style="margin-top:1rem">
+    <span class="op">3 ·</span>
+    <div class="mat" style="grid-template-columns:repeat(2,auto)"><div class="cell">1</div><div class="cell">−2</div><div class="cell">4</div><div class="cell">0</div></div>
+    <span class="op">=</span>
+    <div class="mat" style="grid-template-columns:repeat(2,auto)"><div class="cell hr">3</div><div class="cell hr">−6</div><div class="cell hr">12</div><div class="cell hr">0</div></div>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Combinaison linéaire</span>
+    <p class="sm">On combine ces deux opérations : pour <span data-tex>\lambda, \mu\in\mathbb{R}</span>, la matrice <span data-tex>\lambda A + \mu B</span> est elle aussi une matrice de même format que <span data-tex>A</span> et <span data-tex>B</span>. L'<b>ensemble des matrices</b> de format <span data-tex>n\times p</span> est stable pour ces opérations.</p>
+  </div>
+</section>
+
+<!-- ============ §3 PRODUIT ============ -->
+<section class="slide section">
+  <div class="num-big">3</div>
+  <h1>Produit<br>matriciel</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Compatibilité</div>
+  <h2>Il faut que les formats collent</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Soient <span data-tex>A</span> de format <span data-tex>n \times p</span> et <span data-tex>B</span> de format <span data-tex>p \times q</span> (<b>même nombre</b> <span data-tex>p</span> de colonnes de <span data-tex>A</span> et de lignes de <span data-tex>B</span>). Alors le <b>produit</b> <span data-tex>AB</span> est une matrice de format <span data-tex>n \times q</span>, dont le coefficient <span data-tex>(i,j)</span> est :</p>
+    <div data-tex-display>(AB)_{i,j} = \sum_{k=1}^{p} a_{i,k}\,b_{k,j}</div>
+    <p class="sm">C'est la <b>somme des produits</b> ligne-de-A par colonne-de-B.</p>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">À retenir</span>
+    <p class="sm">« (<b>n × p</b>) × (<b>p × q</b>) donne (<b>n × q</b>) » : les deux <span data-tex>p</span> « se simplifient ». Si les formats ne collent pas, le produit <b>n'existe pas</b>.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>En pratique</div>
+  <h2>Un produit détaillé</h2>
+  <div class="mat-wrap">
+    <div class="mat" style="grid-template-columns:repeat(2,auto)"><div class="cell hi">1</div><div class="cell hi">2</div><div class="cell">3</div><div class="cell">0</div></div>
+    <span class="op">×</span>
+    <div class="mat" style="grid-template-columns:repeat(2,auto)"><div class="cell hi">4</div><div class="cell">5</div><div class="cell hi">−1</div><div class="cell">7</div></div>
+    <span class="op">=</span>
+    <div class="mat" style="grid-template-columns:repeat(2,auto)"><div class="cell hr">2</div><div class="cell">19</div><div class="cell">12</div><div class="cell">15</div></div>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Détail de chaque coefficient</span>
+    <ul class="props sm">
+      <li>(1,1) : <span data-tex>1\times 4 + 2\times(-1) = 4 - 2 = 2</span></li>
+      <li>(1,2) : <span data-tex>1\times 5 + 2\times 7 = 5 + 14 = 19</span></li>
+      <li>(2,1) : <span data-tex>3\times 4 + 0\times(-1) = 12 + 0 = 12</span></li>
+      <li>(2,2) : <span data-tex>3\times 5 + 0\times 7 = 15 + 0 = 15</span></li>
+    </ul>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Astuce visuelle</span>
+    <p class="sm">Pour trouver le coefficient (i, j) du produit, on « glisse » la i-ème ligne de la première matrice au-dessus de la j-ème colonne de la seconde, et on multiplie en vis-à-vis puis on additionne.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Attention</div>
+  <h2>Le produit matriciel<br>n'est pas commutatif</h2>
+  <div class="card amber">
+    <span class="tag">En général : AB ≠ BA</span>
+    <p class="sm">C'est une rupture majeure avec les nombres réels. Deux conséquences :</p>
+    <ul class="props sm">
+      <li>Il peut arriver que <span data-tex>AB</span> existe mais que <span data-tex>BA</span> <b>n'existe pas</b> (formats incompatibles).</li>
+      <li>Même quand les deux existent, les deux produits sont généralement <b>différents</b>.</li>
+    </ul>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Contre-exemple</span>
+    <p class="sm">Pour <span data-tex>A = \begin{pmatrix}1 & 2\\0 & 1\end{pmatrix}</span> et <span data-tex>B = \begin{pmatrix}0 & 1\\1 & 0\end{pmatrix}</span> :</p>
+    <div data-tex-display>AB = \begin{pmatrix}2 & 1\\1 & 0\end{pmatrix} \qquad BA = \begin{pmatrix}0 & 1\\1 & 2\end{pmatrix}</div>
+    <p class="sm">Deux matrices différentes. ⚠</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Propriétés quand même utiles</div>
+  <h2>Associativité et distributivité</h2>
+  <div class="card">
+    <span class="tag">Règles à connaître</span>
+    <p class="sm">Pour des matrices de formats compatibles et <span data-tex>\lambda\in\mathbb{R}</span> :</p>
+    <ul class="props sm">
+      <li><b>Associativité</b> : <span data-tex>(AB)C = A(BC)</span>.</li>
+      <li><b>Distributivité</b> : <span data-tex>A(B+C) = AB + AC</span> et <span data-tex>(A+B)C = AC + BC</span>.</li>
+      <li>Produit par un scalaire : <span data-tex>\lambda(AB) = (\lambda A)B = A(\lambda B)</span>.</li>
+      <li>Pour toute matrice carrée <span data-tex>A</span> d'ordre <span data-tex>n</span> : <span data-tex>A\,I_n = I_n\,A = A</span>.</li>
+    </ul>
+  </div>
+  <div class="card rose" style="margin-top:.8rem">
+    <span class="tag">Attention — identités remarquables</span>
+    <p class="sm">Comme le produit n'est pas commutatif, les identités remarquables scolaires <b>ne s'appliquent plus telles quelles</b> : <span data-tex>(A+B)^2 = A^2 + AB + BA + B^2</span> (et non pas <span data-tex>A^2 + 2AB + B^2</span>) ; <span data-tex>(A-B)(A+B) = A^2 + AB - BA - B^2</span> (et non <span data-tex>A^2 - B^2</span>).</p>
+  </div>
+</section>
+
+<!-- ============ §4 PUISSANCES ============ -->
+<section class="slide section">
+  <div class="num-big">4</div>
+  <h1>Puissances<br>d'une matrice</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Définition</div>
+  <h2>A × A × … × A</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Pour toute matrice <b>carrée</b> <span data-tex>A</span> d'ordre <span data-tex>n</span> et tout entier naturel <span data-tex>k</span>, on définit :</p>
+    <div data-tex-display>A^0 = I_n, \qquad A^{k+1} = A^k \times A</div>
+    <p class="sm">Par convention, <span data-tex>A^1 = A</span> et <span data-tex>A^2 = A\times A</span>. L'ordre est préservé puisqu'on multiplie <span data-tex>A</span> par elle-même : <span data-tex>A^k \times A^\ell = A^{k+\ell}</span> et <span data-tex>(A^k)^\ell = A^{k\ell}</span>.</p>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Exemple — puissances d'une matrice simple</span>
+    <p class="sm">Soit <span data-tex>D = \begin{pmatrix}2 & 0\\0 & 3\end{pmatrix}</span> (diagonale). Un calcul direct montre que :</p>
+    <div data-tex-display>D^2 = \begin{pmatrix}4 & 0\\0 & 9\end{pmatrix}, \quad D^3 = \begin{pmatrix}8 & 0\\0 & 27\end{pmatrix}, \quad D^k = \begin{pmatrix}2^k & 0\\0 & 3^k\end{pmatrix}</div>
+    <p class="sm">Pour une matrice diagonale, les puissances se calculent en élevant <b>chaque coefficient diagonal</b> à la puissance. Dommage : la plupart des matrices ne sont pas diagonales…</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Conjecturer puis démontrer</div>
+  <h2>La méthode à suivre</h2>
+  <div class="card amber">
+    <span class="tag">Méthode — trouver A<sup>n</sup></span>
+    <ol class="props sm">
+      <li>Calculer <span data-tex>A^2</span>, <span data-tex>A^3</span>, <span data-tex>A^4</span> à la main.</li>
+      <li><b>Conjecturer</b> une formule explicite pour <span data-tex>A^n</span> en fonction de <span data-tex>n</span>.</li>
+      <li>La <b>démontrer par récurrence</b> sur <span data-tex>n</span>.</li>
+    </ol>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Exemple — une matrice triangulaire</span>
+    <p class="sm">Soit <span data-tex>A = \begin{pmatrix}1 & 1\\0 & 1\end{pmatrix}</span>. On calcule :</p>
+    <div data-tex-display>A^2 = \begin{pmatrix}1 & 2\\0 & 1\end{pmatrix}, \quad A^3 = \begin{pmatrix}1 & 3\\0 & 1\end{pmatrix}, \quad A^4 = \begin{pmatrix}1 & 4\\0 & 1\end{pmatrix}</div>
+    <p class="sm">Conjecture : <span data-tex>A^n = \begin{pmatrix}1 & n\\0 & 1\end{pmatrix}</span>. Preuve par récurrence immédiate : <span data-tex>A^{n+1} = A^n \times A = \begin{pmatrix}1 & n\\0 & 1\end{pmatrix}\begin{pmatrix}1 & 1\\0 & 1\end{pmatrix} = \begin{pmatrix}1 & n+1\\0 & 1\end{pmatrix}</span>. ✓</p>
+  </div>
+</section>
+
+<!-- ============ §5 INVERSE ============ -->
+<section class="slide section">
+  <div class="num-big">5</div>
+  <h1>Matrice<br>inverse</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Définition</div>
+  <h2>Jouer le rôle de 1/a</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Une matrice carrée <span data-tex>A</span> d'ordre <span data-tex>n</span> est <b>inversible</b> s'il existe une matrice <span data-tex>B</span>, également carrée d'ordre <span data-tex>n</span>, telle que :</p>
+    <div data-tex-display>A \times B = B \times A = I_n</div>
+    <p class="sm">Si elle existe, cette matrice <span data-tex>B</span> est <b>unique</b> ; on la note <span data-tex>A^{-1}</span>, <b>l'inverse</b> de <span data-tex>A</span>.</p>
+  </div>
+  <div class="card amber" style="margin-top:.8rem">
+    <span class="tag">Attention — toutes les matrices n'ont pas d'inverse</span>
+    <p class="sm">Même carrée, une matrice peut ne pas être inversible. On dit alors qu'elle est <b>singulière</b>. L'analogie avec les réels : seul <span data-tex>0</span> n'a pas d'inverse ; côté matrices, c'est tout un ensemble de matrices (celles dont le déterminant est nul).</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Formule pour les 2 × 2</h2>
+  <h2>Déterminant et inverse</h2>
+  <div class="card">
+    <span class="tag">Théorème</span>
+    <p class="sm">Soit <span data-tex>A = \begin{pmatrix}a & b\\c & d\end{pmatrix}</span>. On pose <span data-tex>\det(A) = ad - bc</span> (le <b>déterminant</b> de <span data-tex>A</span>). Alors :</p>
+    <ul class="props sm">
+      <li><span data-tex>A</span> est inversible si et seulement si <span data-tex>\det(A) \neq 0</span> ;</li>
+      <li>dans ce cas :</li>
+    </ul>
+    <div data-tex-display>A^{-1} = \dfrac{1}{\det(A)}\begin{pmatrix}d & -b\\-c & a\end{pmatrix}</div>
+    <p class="sm">On échange les coefficients diagonaux, on change les signes des deux autres, et on divise par le déterminant.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Exemples</div>
+  <h2>Trois matrices,<br>trois cas</h2>
+  <div class="grid2">
+    <div class="card green">
+      <span class="tag">Inversible — det ≠ 0</span>
+      <p class="sm"><span data-tex>A = \begin{pmatrix}2 & 1\\3 & 4\end{pmatrix}</span></p>
+      <p class="sm"><span data-tex>\det(A) = 8 - 3 = 5</span></p>
+      <div data-tex-display>A^{-1} = \tfrac{1}{5}\begin{pmatrix}4 & -1\\-3 & 2\end{pmatrix}</div>
+      <p class="sm">Vérification : <span data-tex>A\,A^{-1} = \begin{pmatrix}1 & 0\\0 & 1\end{pmatrix} = I_2</span>. ✓</p>
+    </div>
+    <div class="card rose">
+      <span class="tag">Non inversible — det = 0</span>
+      <p class="sm"><span data-tex>B = \begin{pmatrix}1 & 2\\2 & 4\end{pmatrix}</span></p>
+      <p class="sm"><span data-tex>\det(B) = 4 - 4 = 0</span></p>
+      <p class="sm">La ligne 2 est le double de la ligne 1 : <span data-tex>B</span> est singulière, pas d'inverse.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Application</div>
+  <h2>Résoudre un système<br>avec les matrices</h2>
+  <div class="card">
+    <span class="tag">Écriture matricielle</span>
+    <p class="sm">Un système linéaire s'écrit <span data-tex>A X = B</span>, où :</p>
+    <ul class="props sm">
+      <li><span data-tex>A</span> contient les coefficients du système,</li>
+      <li><span data-tex>X</span> est la colonne des inconnues,</li>
+      <li><span data-tex>B</span> est la colonne des seconds membres.</li>
+    </ul>
+    <p class="sm" style="margin-top:.4rem">Si <span data-tex>A</span> est inversible, le système admet une <b>unique solution</b> donnée par <span data-tex>X = A^{-1} B</span>.</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Exemple</span>
+    <p class="sm">Résolvons <span data-tex>\begin{cases} 2x + y = 7 \\ 3x + 4y = 13 \end{cases}</span>. On a <span data-tex>A = \begin{pmatrix}2 & 1\\3 & 4\end{pmatrix}</span>, <span data-tex>B = \begin{pmatrix}7\\13\end{pmatrix}</span>. D'après l'exemple précédent, <span data-tex>A^{-1} = \tfrac15\begin{pmatrix}4 & -1\\-3 & 2\end{pmatrix}</span>, donc :</p>
+    <div data-tex-display>X = A^{-1}B = \tfrac15\begin{pmatrix}4 & -1\\-3 & 2\end{pmatrix}\begin{pmatrix}7\\13\end{pmatrix} = \tfrac15\begin{pmatrix}15\\5\end{pmatrix} = \begin{pmatrix}3\\1\end{pmatrix}</div>
+    <p class="sm">D'où <span class="result">x = 3, y = 1</span>. On vérifie : <span data-tex>2(3)+1 = 7</span> ✓, <span data-tex>3(3)+4(1) = 13</span> ✓.</p>
+  </div>
+</section>
+
+<!-- ============ §6 SUITES ============ -->
+<section class="slide section">
+  <div class="num-big">6</div>
+  <h1>Applications<br>aux suites</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Suites couplées</div>
+  <h2>Deux suites qui s'entraînent<br>l'une l'autre</h2>
+  <div class="card">
+    <span class="tag">Situation type</span>
+    <p class="sm">On considère deux suites <span data-tex>(u_n)</span> et <span data-tex>(v_n)</span> définies par un système :</p>
+    <div data-tex-display>\begin{cases} u_{n+1} = a\,u_n + b\,v_n \\ v_{n+1} = c\,u_n + d\,v_n \end{cases}</div>
+    <p class="sm">Posons <span data-tex>X_n = \begin{pmatrix}u_n\\v_n\end{pmatrix}</span> et <span data-tex>A = \begin{pmatrix}a & b\\c & d\end{pmatrix}</span>. Le système se réécrit :</p>
+    <div data-tex-display>X_{n+1} = A \, X_n</div>
+    <p class="sm">Et par récurrence immédiate : <span data-tex>X_n = A^n\,X_0</span>. <b>Calculer <span data-tex>A^n</span>, c'est connaître toutes les valeurs <span data-tex>u_n</span> et <span data-tex>v_n</span> d'un coup.</b></p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Exemple complet</div>
+  <h2>Un modèle proie–prédateur<br>simplifié</h2>
+  <div class="card green">
+    <span class="tag">Énoncé</span>
+    <p class="sm">On modélise deux populations : <span data-tex>u_n</span> le nombre de lapins l'année <span data-tex>n</span>, <span data-tex>v_n</span> le nombre de renards. On observe :</p>
+    <div data-tex-display>\begin{cases} u_{n+1} = 1{,}2\,u_n - 0{,}1\,v_n \\ v_{n+1} = 0{,}05\,u_n + 0{,}8\,v_n \end{cases}</div>
+    <p class="sm">Avec <span data-tex>u_0 = 100</span>, <span data-tex>v_0 = 10</span>. Que donne la 3<sup>e</sup> année ?</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Avec les matrices</span>
+    <p class="sm"><span data-tex>A = \begin{pmatrix}1{,}2 & -0{,}1\\0{,}05 & 0{,}8\end{pmatrix}</span>, <span data-tex>X_0 = \begin{pmatrix}100\\10\end{pmatrix}</span>. Alors :</p>
+    <div data-tex-display>X_3 = A^3\,X_0</div>
+    <p class="sm">On calcule <span data-tex>A^2 = \begin{pmatrix}1{,}435 & -0{,}2\\0{,}1 & 0{,}635\end{pmatrix}</span>, puis <span data-tex>A^3 = \begin{pmatrix}1{,}712 & -0{,}3035\\0{,}1518 & 0{,}498\end{pmatrix}</span> (à <span data-tex>10^{-4}</span> près), et enfin <span data-tex>X_3 \approx \begin{pmatrix}168\\20\end{pmatrix}</span>.</p>
+    <p class="sm">Interprétation : au bout de 3 ans, environ 168 lapins et 20 renards.</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Suite récurrente d'ordre 2</div>
+  <h2>Fibonacci en matrice</h2>
+  <div class="card">
+    <span class="tag">Mise en matrice</span>
+    <p class="sm">La suite de Fibonacci est définie par <span data-tex>F_0 = 0, F_1 = 1, F_{n+2} = F_{n+1} + F_n</span>. On pose <span data-tex>X_n = \begin{pmatrix}F_{n+1}\\F_n\end{pmatrix}</span>. Alors :</p>
+    <div data-tex-display>X_{n+1} = \begin{pmatrix}F_{n+2}\\F_{n+1}\end{pmatrix} = \begin{pmatrix}F_{n+1} + F_n\\F_{n+1}\end{pmatrix} = \begin{pmatrix}1 & 1\\1 & 0\end{pmatrix}\begin{pmatrix}F_{n+1}\\F_n\end{pmatrix}</div>
+    <p class="sm">Donc <span data-tex>X_n = A^n X_0</span>, où <span data-tex>A = \begin{pmatrix}1 & 1\\1 & 0\end{pmatrix}</span> et <span data-tex>X_0 = \begin{pmatrix}1\\0\end{pmatrix}</span>.</p>
+    <p class="sm">On montre par récurrence : <span data-tex>A^n = \begin{pmatrix}F_{n+1} & F_n\\F_n & F_{n-1}\end{pmatrix}</span>. Les coefficients de la matrice <span data-tex>A^n</span> sont donc exactement les nombres de Fibonacci — une identité élégante.</p>
+  </div>
+</section>
+
+<!-- ============ §7 CHAÎNES DE MARKOV ============ -->
+<section class="slide section">
+  <div class="num-big">7</div>
+  <h1>Chaînes<br>de Markov</h1>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>Matrices stochastiques</div>
+  <h2>Modéliser des évolutions<br>probabilistes</h2>
+  <div class="card">
+    <span class="tag">Définition</span>
+    <p class="sm">Une <b>matrice stochastique</b> est une matrice carrée dont tous les coefficients sont dans <span data-tex>[0, 1]</span> et dont <b>chaque colonne somme à 1</b>. Elle modélise les probabilités de passage entre <span data-tex>n</span> états.</p>
+  </div>
+  <div class="card green" style="margin-top:.8rem">
+    <span class="tag">Exemple — mobilité ville / campagne</span>
+    <p class="sm">Chaque année, 20 % des citadins partent à la campagne et 10 % des ruraux viennent en ville. Posons <span data-tex>p_n</span> la proportion de citadins et <span data-tex>q_n</span> celle de ruraux. Alors :</p>
+    <div data-tex-display>\begin{pmatrix}p_{n+1}\\q_{n+1}\end{pmatrix} = \begin{pmatrix}0{,}8 & 0{,}1\\0{,}2 & 0{,}9\end{pmatrix}\begin{pmatrix}p_n\\q_n\end{pmatrix}</div>
+    <p class="sm">La matrice <span data-tex>M</span> a des colonnes qui somment à 1 : <span data-tex>0{,}8 + 0{,}2 = 1</span> et <span data-tex>0{,}1 + 0{,}9 = 1</span>. ✓</p>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow"><span class="dot"></span>État stable</div>
+  <h2>Un équilibre à long terme</h2>
+  <div class="card">
+    <span class="tag">Idée</span>
+    <p class="sm">Un <b>état stable</b> (ou invariant) est une colonne de probabilités <span data-tex>\pi</span> telle que <span data-tex>M\,\pi = \pi</span>. L'état ne change plus d'une étape à l'autre.</p>
+  </div>
+  <div class="card demo" style="margin-top:.8rem">
+    <span class="tag">Résolution pour l'exemple</span>
+    <p class="sm">On cherche <span data-tex>\pi = \begin{pmatrix}p\\q\end{pmatrix}</span> avec <span data-tex>p + q = 1</span> et <span data-tex>M\pi = \pi</span>. La première ligne donne <span data-tex>0{,}8p + 0{,}1q = p</span>, soit <span data-tex>0{,}1q = 0{,}2p</span>, soit <span data-tex>q = 2p</span>. Avec <span data-tex>p + q = 1</span> : <span data-tex>3p = 1</span>, d'où <span data-tex>p = \tfrac13</span>, <span data-tex>q = \tfrac23</span>.</p>
+    <p class="sm">À long terme, un tiers de la population vit en ville et deux tiers à la campagne, <b>indépendamment des proportions initiales</b>.</p>
+  </div>
+  <div class="card rose" style="margin-top:.8rem">
+    <span class="tag">Pour aller plus loin</span>
+    <p class="sm">Si tous les coefficients de <span data-tex>M</span> sont strictement positifs, la suite <span data-tex>M^n X_0</span> converge toujours vers l'état stable, quel que soit <span data-tex>X_0</span>. C'est le <b>théorème de Perron–Frobenius</b>, à la base de <code>PageRank</code> de Google.</p>
+  </div>
+</section>
+
+<!-- ============ §8 PYTHON ============ -->
+<section class="slide section">
+  <div class="num-big">8</div>
+  <h1>En Python<br>avec numpy</h1>
+</section>
+
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Calculer sans peine</div>
+  <h2>numpy fait tout</h2>
+  <p class="sm" style="max-width:70ch;margin-bottom:.6rem">La bibliothèque <code>numpy</code> fournit un type <code>array</code> qui joue le rôle des matrices. Toutes les opérations du chapitre se font en une ligne.</p>
+
+<pre class="code"><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+A = np.<span class="fn">array</span>([[<span class="nb">2</span>, <span class="nb">1</span>], [<span class="nb">3</span>, <span class="nb">4</span>]])
+B = np.<span class="fn">array</span>([[<span class="nb">1</span>, <span class="nb">0</span>], [<span class="nb">0</span>, <span class="nb">1</span>]])
+
+A + B                    <span class="cm"># addition</span>
+<span class="nb">3</span> * A                    <span class="cm"># produit par un scalaire</span>
+A @ B                    <span class="cm"># produit matriciel  (noter @)</span>
+np.linalg.<span class="fn">matrix_power</span>(A, <span class="nb">5</span>)  <span class="cm"># A^5</span>
+np.linalg.<span class="fn">det</span>(A)         <span class="cm"># déterminant : 5.0</span>
+np.linalg.<span class="fn">inv</span>(A)         <span class="cm"># inverse</span>
+
+<span class="cm"># Résoudre A X = B'</span>
+Bp = np.<span class="fn">array</span>([<span class="nb">7</span>, <span class="nb">13</span>])
+X = np.linalg.<span class="fn">solve</span>(A, Bp)
+<span class="fn">print</span>(X)                 <span class="cm"># [3. 1.]</span></pre>
+
+  <div class="card amber" style="margin-top:.9rem">
+    <span class="tag">Attention — * vs @</span>
+    <p class="sm">En numpy, <code>A * B</code> effectue la multiplication <b>coefficient par coefficient</b> (produit de Hadamard), pas le produit matriciel. Il faut utiliser <code>A @ B</code> ou <code>np.dot(A, B)</code> pour le vrai produit.</p>
+  </div>
+
+  <div class="card green" style="margin-top:.9rem">
+    <span class="tag">Exemple — Fibonacci par matrice</span>
+<pre class="code" style="margin:.4rem 0 0"><span class="kw">def</span> <span class="fn">fibo</span>(n):
+    A = np.<span class="fn">array</span>([[<span class="nb">1</span>, <span class="nb">1</span>], [<span class="nb">1</span>, <span class="nb">0</span>]])
+    An = np.linalg.<span class="fn">matrix_power</span>(A, n)
+    <span class="kw">return</span> An[<span class="nb">0</span>, <span class="nb">1</span>]        <span class="cm"># c'est F_n</span>
+
+<span class="fn">fibo</span>(<span class="nb">10</span>)      <span class="cm"># → 55</span>
+<span class="fn">fibo</span>(<span class="nb">50</span>)      <span class="cm"># → 12586269025</span></pre>
+  </div>
+</section>
+
+<!-- ============ L'ESSENTIEL ============ -->
+<section class="slide scroll">
+  <div class="eyebrow"><span class="dot"></span>Fiche de révision</div>
+  <h2>L'essentiel du chapitre</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag">Format et vocabulaire</span>
+      <p class="sm">Matrice <span data-tex>n \times p</span>. Carrée, nulle, identité <span data-tex>I_n</span>, diagonale, triangulaire. Coefficient <span data-tex>a_{i,j}</span>.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Addition</span>
+      <p class="sm">Même format, coefficient par coefficient. Commutative, associative.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Produit</span>
+      <p class="sm">(n×p)·(p×q) = (n×q). <span data-tex>(AB)_{i,j} = \sum_k a_{i,k} b_{k,j}</span>. <b>Pas commutatif</b> : <span data-tex>AB \neq BA</span>.</p>
+    </div>
+    <div class="card amber">
+      <span class="tag">Puissance</span>
+      <p class="sm"><span data-tex>A^0 = I_n</span>, <span data-tex>A^{k+1} = A^k A</span>. Conjecturer puis récurrence.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Inverse 2×2</span>
+      <p class="sm"><span data-tex>\det(A) = ad - bc</span>. Inversible ssi <span data-tex>\det \neq 0</span>. <span data-tex>A^{-1} = \tfrac{1}{\det A}\begin{pmatrix}d & -b\\-c & a\end{pmatrix}</span>.</p>
+    </div>
+    <div class="card green">
+      <span class="tag">Système</span>
+      <p class="sm"><span data-tex>AX = B</span> → <span data-tex>X = A^{-1}B</span> (si <span data-tex>A</span> inversible). Unique solution.</p>
+    </div>
+    <div class="card rose">
+      <span class="tag">Suites couplées</span>
+      <p class="sm"><span data-tex>X_{n+1} = AX_n</span> → <span data-tex>X_n = A^n X_0</span>. Fibonacci : <span data-tex>A = \begin{pmatrix}1&1\\1&0\end{pmatrix}</span>.</p>
+    </div>
+    <div class="card rose">
+      <span class="tag">Chaînes de Markov</span>
+      <p class="sm">Matrices stochastiques (colonnes qui somment à 1). État stable : solution de <span data-tex>M\pi = \pi</span>.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="controls">
+  <button id="prev">‹</button>
+  <span class="num"><span id="cur">1</span>/<span id="tot">1</span></span>
+  <button id="next">›</button>
+  <span class="sep"></span>
+  <button id="tocBtn">Sommaire</button>
+  <span class="sep"></span>
+  <label class="toggle"><input type="checkbox" id="mobileToggle"><span class="track"></span><span>Mode portable</span></label>
+  <span class="sep"></span>
+  <button id="printBtn">Imprimer PDF</button>
+</div>
+
+<div class="toc-back" id="tocBack"></div>
+<nav class="toc" id="toc" aria-hidden="true">
+  <h4>Sommaire</h4>
+  <ol id="tocList"></ol>
+</nav>
+
+<script>
+function renderMath(){
+  document.querySelectorAll('[data-tex]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+  document.querySelectorAll('[data-tex-display]').forEach(el=>{if(el.dataset.done)return;try{katex.render(el.textContent,el,{displayMode:true,throwOnError:false,trust:true,strict:false});el.dataset.done=1}catch(e){}});
+}
+window.addEventListener('load',()=>setTimeout(renderMath,150));
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+const cur=document.getElementById('cur'),tot=document.getElementById('tot'),prog=document.getElementById('prog');
+tot.textContent=slides.length;
+function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));cur.textContent=i+1;prog.style.width=((i+1)/slides.length*100)+'%';if(slides[i].scrollTop!==undefined)slides[i].scrollTop=0;}
+document.getElementById('next').onclick=()=>show(i+1);
+document.getElementById('prev').onclick=()=>show(i-1);
+document.addEventListener('keydown',e=>{if(document.body.classList.contains('mobile'))return;if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))show(i-1)});
+document.getElementById('printBtn').onclick=()=>window.print();
+const toc=document.getElementById('toc'),tocBack=document.getElementById('tocBack'),tocList=document.getElementById('tocList');
+function titleOf(h){if(!h)return'Partie';const c=h.cloneNode(true);c.querySelectorAll('br').forEach(b=>b.replaceWith(document.createTextNode(' ')));return c.textContent.replace(/\s+/g,' ').trim();}
+(function buildToc(){
+  const entries=[{n:'↑',t:'Début',k:0}];
+  slides.forEach((s,k)=>{if(!s.classList.contains('section'))return;const num=s.querySelector('.num-big');entries.push({n:num?num.textContent.trim():'',t:titleOf(s.querySelector('h1')),k});});
+  entries.forEach(e=>{const li=document.createElement('li'),b=document.createElement('button');b.dataset.i=e.k;const sp=document.createElement('span');sp.className='tnum';sp.textContent=e.n;b.append(sp,document.createTextNode(e.t));li.append(b);tocList.append(li);});
+})();
+function openToc(o){toc.classList.toggle('open',o);tocBack.classList.toggle('open',o);toc.setAttribute('aria-hidden',String(!o));}
+document.getElementById('tocBtn').onclick=()=>openToc(!toc.classList.contains('open'));
+tocBack.onclick=()=>openToc(false);
+tocList.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const n=+b.dataset.i;openToc(false);if(document.body.classList.contains('mobile')){if(n===0)window.scrollTo({top:0,behavior:'smooth'});else slides[n].scrollIntoView({behavior:'smooth',block:'start'});}else show(n);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')openToc(false)});
+const mobileToggle=document.getElementById('mobileToggle');
+const mq=window.matchMedia('(max-width: 820px)');let manual=false;
+function scrollProg(){const h=document.documentElement,max=h.scrollHeight-h.clientHeight;prog.style.width=(max>4?Math.min(100,h.scrollTop/max*100):100)+'%';}
+function setMobile(on){document.body.classList.toggle('mobile',on);mobileToggle.checked=on;openToc(false);if(on){requestAnimationFrame(()=>{if(i>0)slides[i].scrollIntoView({block:'start'});scrollProg();});}else{window.scrollTo(0,0);show(i);}}
+mobileToggle.addEventListener('change',e=>{manual=true;setMobile(e.target.checked)});
+mq.addEventListener('change',e=>{if(!manual)setMobile(e.matches)});
+window.addEventListener('scroll',()=>{if(document.body.classList.contains('mobile'))scrollProg()},{passive:true});
+show(0);setMobile(mq.matches);
+</script>
+</body>
+</html>
