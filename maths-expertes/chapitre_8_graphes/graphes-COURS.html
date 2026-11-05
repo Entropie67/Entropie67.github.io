@@ -55,6 +55,7 @@ h3{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.1rem,1.7vw,1.3
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}
 .two-col.top{align-items:start}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid2.three{grid-template-columns:repeat(3,1fr)}
 
 .katex{font-size:1.04em}
 [data-tex-display]{margin:.5rem 0}
@@ -63,7 +64,7 @@ ul.props,ul.list{padding:0;margin-top:.5rem}
 ul.props li,ul.list li{margin:.35rem 0;list-style:none}
 
 /* graphes SVG */
-.g-wrap{display:flex;justify-content:center;align-items:center}
+.g-wrap{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.3rem}
 svg.g{width:min(42vw,520px);height:auto;overflow:visible}
 svg.g .edge{stroke:var(--violet-soft);stroke-width:2;fill:none;stroke-linecap:round}
 svg.g .edge.d{marker-end:url(#arr)}
@@ -189,7 +190,7 @@ body.mobile .lead{font-size:1.02rem;line-height:1.6;max-width:none}
 body.mobile .sm{font-size:.95rem;line-height:1.55}
 body.mobile .ex{font-size:1rem;line-height:1.8}
 body.mobile .eyebrow{font-size:.78rem;margin-bottom:.7rem}
-body.mobile .two-col,body.mobile .grid2,body.mobile .concrete{grid-template-columns:1fr;gap:1.3rem}
+body.mobile .two-col,body.mobile .grid2,body.mobile .grid2.three,body.mobile .concrete{grid-template-columns:1fr;gap:1.3rem}
 body.mobile .card,body.mobile .cta-nsi{max-width:none}
 body.mobile svg.g{width:100%;max-width:none}
 </style>
@@ -244,7 +245,6 @@ body.mobile svg.g{width:100%;max-width:none}
         <line class="edge" x1="200" y1="50" x2="260" y2="170"/>
         <line class="edge" x1="60" y1="170" x2="200" y2="50"/>
         <line class="edge" x1="60" y1="170" x2="260" y2="170"/>
-        <line class="edge" x1="200" y1="50" x2="260" y2="170"/>
         <g class="node"><circle cx="60" cy="50" r="18"/><text x="60" y="50">A</text></g>
         <g class="node"><circle cx="200" cy="50" r="18"/><text x="200" y="50">B</text></g>
         <g class="node"><circle cx="60" cy="170" r="18"/><text x="60" y="170">C</text></g>
@@ -455,7 +455,7 @@ body.mobile svg.g{width:100%;max-width:none}
 
 <section class="slide scroll">
   <div class="eyebrow"><span class="dot"></span>Pourquoi c'est important</div>
-  <h2>Quatre situations<br>que la coloration résout</h2>
+  <h2>Six situations<br>que la coloration résout</h2>
   <div class="concrete">
     <div>
       <h3>Carte de géographie</h3>
@@ -489,34 +489,33 @@ body.mobile svg.g{width:100%;max-width:none}
   <h2>Planning des examens</h2>
   <div class="two-col top">
     <div>
-      <p class="sm">Cinq matières, et pour chaque paire la liste des étudiants communs :</p>
+      <p class="sm">Cinq matières ; une arête relie deux matières qui ont au moins un étudiant en commun :</p>
       <ul class="props sm" style="margin-top:.4rem">
-        <li>• M (maths) — P (physique) — I (info) sont suivies par les scientifiques,</li>
-        <li>• P et C (chimie) partagent des étudiants,</li>
-        <li>• C et B (biologie) aussi,</li>
-        <li>• I et B n'ont personne en commun.</li>
+        <li>• M (maths), P (physique) et I (info) sont suivies ensemble par les scientifiques : arêtes M–P, P–I, M–I ;</li>
+        <li>• P et C (chimie) partagent des étudiants : arête P–C ;</li>
+        <li>• C et B (biologie) aussi : arête C–B ;</li>
+        <li>• B n'a aucun étudiant en commun avec M, P ni I.</li>
       </ul>
-      <p class="sm" style="margin-top:.6rem">Welsh–Powell (degrés : P=3, C=2, M=2, I=2, B=2) :</p>
+      <p class="sm" style="margin-top:.6rem">Welsh–Powell. Degrés : P = 3, M = 2, I = 2, C = 2, B = 1 ; on traite donc P, M, I, C, B :</p>
       <ul class="props sm" style="margin-top:.3rem">
-        <li>— couleur <b style="color:#B23A48">1</b> : P ;</li>
-        <li>— couleur <b style="color:#1F8A70">2</b> : C puis M (non adjacents) ;</li>
-        <li>— couleur <b style="color:#345995">3</b> : I et B.</li>
+        <li>— couleur <b style="color:#B23A48">1</b> : P, puis B (le seul sommet non adjacent à P) ;</li>
+        <li>— couleur <b style="color:#1F8A70">2</b> : M, puis C (non adjacent à M) ;</li>
+        <li>— couleur <b style="color:#345995">3</b> : I.</li>
       </ul>
-      <p class="sm" style="margin-top:.5rem"><span class="result">Trois créneaux</span> suffisent : {P} | {C, M} | {I, B}.</p>
+      <p class="sm" style="margin-top:.5rem"><span class="result">Trois créneaux</span> suffisent : {P, B} | {M, C} | {I}. Et on ne peut pas faire mieux : M, P, I forment un triangle, donc <span data-tex>\chi(G) = 3</span>.</p>
     </div>
     <div class="g-wrap">
       <svg class="g" viewBox="0 0 300 230">
         <line class="edge" x1="150" y1="35" x2="60" y2="100"/>
+        <line class="edge" x1="150" y1="35" x2="100" y2="200"/>
+        <line class="edge" x1="60" y1="100" x2="100" y2="200"/>
         <line class="edge" x1="150" y1="35" x2="240" y2="100"/>
-        <line class="edge" x1="150" y1="35" x2="150" y2="130"/>
-        <line class="edge" x1="60" y1="100" x2="150" y2="130"/>
-        <line class="edge" x1="150" y1="130" x2="100" y2="200"/>
-        <line class="edge" x1="150" y1="130" x2="240" y2="100"/>
+        <line class="edge" x1="240" y1="100" x2="240" y2="200"/>
         <g class="node c1"><circle cx="150" cy="35" r="19"/><text x="150" y="35">P</text></g>
         <g class="node c2"><circle cx="60" cy="100" r="19"/><text x="60" y="100">M</text></g>
         <g class="node c2"><circle cx="240" cy="100" r="19"/><text x="240" y="100">C</text></g>
-        <g class="node c3"><circle cx="150" cy="130" r="19"/><text x="150" y="130">I</text></g>
-        <g class="node c3"><circle cx="100" cy="200" r="19"/><text x="100" y="200">B</text></g>
+        <g class="node c3"><circle cx="100" cy="200" r="19"/><text x="100" y="200">I</text></g>
+        <g class="node c1"><circle cx="240" cy="200" r="19"/><text x="240" y="200">B</text></g>
       </svg>
     </div>
   </div>
@@ -542,20 +541,19 @@ body.mobile svg.g{width:100%;max-width:none}
     </div>
     <div class="g-wrap">
       <svg class="g" viewBox="0 0 300 220">
-        <path class="edge" d="M 150 40 Q 90 60 60 120"/>
-        <path class="edge" d="M 150 40 Q 210 60 240 120"/>
-        <path class="edge" d="M 150 40 Q 130 90 150 110"/>
-        <path class="edge" d="M 150 40 Q 170 90 150 110"/>
-        <path class="edge" d="M 60 120 Q 100 160 150 180"/>
-        <path class="edge" d="M 240 120 Q 200 160 150 180"/>
-        <path class="edge" d="M 150 110 Q 140 150 150 180"/>
-        <g class="node"><circle cx="150" cy="40" r="17"/><text x="150" y="40">N</text></g>
-        <g class="node"><circle cx="60" cy="120" r="17"/><text x="60" y="120">O</text></g>
-        <g class="node"><circle cx="240" cy="120" r="17"/><text x="240" y="120">E</text></g>
-        <g class="node"><circle cx="150" cy="110" r="17"/><text x="150" y="110">Î</text></g>
-        <g class="node"><circle cx="150" cy="180" r="17"/><text x="150" y="180">S</text></g>
+        <path class="edge" d="M 150 30 Q 110 60 120 110"/>
+        <path class="edge" d="M 150 30 Q 165 75 120 110"/>
+        <path class="edge" d="M 150 190 Q 110 160 120 110"/>
+        <path class="edge" d="M 150 190 Q 165 145 120 110"/>
+        <path class="edge" d="M 150 30 Q 235 45 250 110"/>
+        <path class="edge" d="M 150 190 Q 235 175 250 110"/>
+        <line class="edge" x1="120" y1="110" x2="250" y2="110"/>
+        <g class="node"><circle cx="150" cy="30" r="17"/><text x="150" y="30">A</text></g>
+        <g class="node"><circle cx="120" cy="110" r="17"/><text x="120" y="110">C</text></g>
+        <g class="node"><circle cx="250" cy="110" r="17"/><text x="250" y="110">D</text></g>
+        <g class="node"><circle cx="150" cy="190" r="17"/><text x="150" y="190">B</text></g>
       </svg>
-      <p class="sm muted" style="text-align:center;margin-top:.4rem">Les quatre rives et les sept ponts. Degrés : 3, 3, 5, 3 — tous impairs.</p>
+      <p class="sm muted" style="text-align:center;margin-top:.4rem">Les quatre rives (A : rive nord, B : rive sud, C : l'île, D : la rive est) et les sept ponts. Degrés : A = 3, B = 3, C = 5, D = 3 — tous impairs.</p>
     </div>
   </div>
 </section>
@@ -583,7 +581,7 @@ body.mobile svg.g{width:100%;max-width:none}
 <section class="slide">
   <div class="eyebrow"><span class="dot"></span>Trois graphes, trois cas</div>
   <h2>À vérifier d'un coup d'œil</h2>
-  <div class="grid2" style="grid-template-columns:repeat(3, 1fr)">
+  <div class="grid2 three">
     <div class="g-wrap" style="flex-direction:column">
       <svg class="g" viewBox="0 0 160 160" style="width:min(16vw,220px)">
         <line class="edge" x1="80" y1="30" x2="30" y2="110"/>
@@ -714,7 +712,7 @@ body.mobile svg.g{width:100%;max-width:none}
   </table>
   <div class="card green" style="max-width:60ch;margin-top:.6rem">
     <span class="tag">Lecture</span>
-    <p class="sm">La distance de A à chaque sommet est donnée dans la dernière ligne. En particulier : <span data-tex>d(A,E)=7</span>, atteinte par le chemin A→D→E (poids 2+5). Attention, un autre chemin de même longueur passe par A→B→E (poids 7+… non, 7+4=11, non) ; ici il est unique.</p>
+    <p class="sm">La distance de A à chaque sommet se lit dans la dernière ligne. En particulier <span data-tex>d(A,E)=7</span>, atteinte par le chemin A→D→E (poids 2 + 5) ; l'autre route A→B→E coûte 7 + 4 = 11, plus cher. De même <span data-tex>d(A,C)=10</span> par A→B→C (7 + 3), alors que A→D→E→C coûterait 2 + 5 + 6 = 13.</p>
   </div>
 </section>
 
