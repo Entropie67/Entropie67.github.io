@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coder l'information : bits et octets</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* ---------- compteur binaire ---------- */
+  .bits{display:flex;flex-wrap:wrap;gap:clamp(.3rem,1vw,.6rem);justify-content:center;margin:1rem 0 .4rem}
+  .bitcol{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+  .bitcol .w{font-family:var(--mono);font-size:.66rem;color:var(--muted);letter-spacing:.04em}
+  .bit{width:clamp(2.2rem,6.5vw,3.6rem);height:clamp(2.8rem,8vw,4.4rem);cursor:pointer;
+    font-family:var(--display);font-size:clamp(1.3rem,3.6vw,2.2rem);
+    border:2px solid var(--ink);background:var(--paper);color:var(--muted);transition:.15s}
+  .bit.one{background:var(--signal);color:#fff;border-color:var(--signal-dk);
+    box-shadow:0 0 18px rgba(31,92,255,.35)}
+  .bit:hover{transform:translateY(-2px)}
+  .readout{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:.9rem}
+  .ro{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.5rem .9rem;text-align:center;min-width:8.5rem}
+  .ro .l{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .ro .v{font-family:var(--display);font-size:clamp(1.1rem,2.6vw,1.6rem);color:var(--signal-dk);line-height:1.2}
+  .ro.calc .v{font-family:var(--mono);font-size:clamp(.72rem,1.3vw,.86rem);font-weight:bold;line-height:1.6}
+
+  /* ---------- texte ---------- */
+  .typein{display:flex;gap:.6rem;align-items:center;justify-content:center;flex-wrap:wrap;margin:1rem 0 .8rem}
+  .typein label{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .typein input{font-family:var(--display);font-size:clamp(1.1rem,2.6vw,1.6rem);padding:.4rem .7rem;
+    background:rgba(233,228,216,.06);border:1px solid rgba(233,228,216,.35);color:var(--paper);
+    width:min(22rem,80vw);outline:none}
+  .typein input:focus{border-color:var(--signal);box-shadow:0 0 0 3px rgba(31,92,255,.25)}
+  .glyphs{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;min-height:5rem}
+  .glyph{border:1px solid rgba(233,228,216,.22);background:rgba(233,228,216,.05);padding:.5rem .65rem;
+    display:flex;flex-direction:column;align-items:center;gap:.18rem;min-width:5.6rem}
+  .glyph.multi{border-color:var(--alarm)}
+  .glyph .ch{font-family:var(--display);font-size:1.5rem;color:#fff;line-height:1.1}
+  .glyph .cp{font-family:var(--mono);font-size:.62rem;color:#a9a294}
+  .glyph .by{font-family:var(--mono);font-size:.7rem;color:#7fa0ff;line-height:1.35;text-align:center}
+  .glyph.multi .by{color:#ff8a72}
+  .total{text-align:center;margin-top:.8rem;font-family:var(--mono);font-size:.8rem;letter-spacing:.06em;color:#c9c2b2}
+  .total b{color:#fff;font-size:1.05rem}
+
+  /* ---------- pixels ---------- */
+  .pixwrap{display:flex;flex-wrap:wrap;gap:clamp(1rem,3vw,2.4rem);align-items:center;justify-content:center;margin:1rem 0}
+  .pixgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;background:rgba(0,0,0,.25);
+    border:2px solid var(--ink);width:clamp(10rem,26vw,15rem);aspect-ratio:1}
+  .px{background:var(--paper);cursor:pointer;transition:background .12s}
+  .px.on{background:var(--ink)}
+  .rows{font-family:var(--mono);font-size:clamp(.72rem,1.4vw,.92rem);line-height:1.62;color:#4a4436;
+    border:1px solid rgba(0,0,0,.2);background:var(--paper);padding:.6rem .9rem}
+  .rows .one{color:var(--signal-dk);font-weight:bold}
+  .depth{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.6rem,1.6vw,1rem);margin-top:.6rem}
+  .ramp{height:1.1rem;border:1px solid rgba(0,0,0,.2);margin:.35rem 0 .45rem}
+  .ramp.bw{background:linear-gradient(90deg,#000 0 50%,#fff 50% 100%)}
+  .ramp.gray{background:linear-gradient(90deg,#000,#fff)}
+  .ramp.rgb{background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+
+  /* mélangeur RVB */
+  .rgbmix{display:flex;flex-wrap:wrap;gap:1.2rem;align-items:center;justify-content:center;margin-top:1rem}
+  .swatch{width:clamp(6rem,15vw,9rem);aspect-ratio:1;border:2px solid var(--ink);box-shadow:0 6px 18px rgba(0,0,0,.18)}
+  .sliders{display:grid;gap:.45rem;font-family:var(--mono);font-size:.78rem}
+  .sl{display:grid;grid-template-columns:1.4rem minmax(8rem,14rem) 2.6rem 5.6rem;gap:.5rem;align-items:center}
+  .sl input{width:100%}
+  .sl .bn{color:var(--muted);font-size:.7rem}
+  .sl.r b{color:#c0281a}.sl.g b{color:var(--green)}.sl.b b{color:var(--signal-dk)}
+
+  /* ---------- son ---------- */
+  .wavebox{background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.5rem;margin:.9rem 0 .5rem}
+  .wavebox svg{display:block;width:100%;height:auto}
+  .wavectl{display:flex;flex-wrap:wrap;gap:1.4rem;justify-content:center;font-family:var(--mono);font-size:.74rem;color:#4a4436}
+  .wavectl label{display:flex;align-items:center;gap:.5rem}
+  .wavectl b{color:var(--signal-dk)}
+
+  /* ---------- échelle ---------- */
+  .ladder{display:grid;gap:.12rem;margin:.25rem 0 .2rem}
+  .rung{display:grid;grid-template-columns:5.6rem 1fr;gap:.7rem;align-items:center}
+  .rung .sz{font-family:var(--display);font-size:clamp(.78rem,1.4vw,.95rem);text-align:right;color:var(--signal-dk)}
+  .bar{position:relative;height:clamp(.9rem,2.5vh,1.2rem);background:rgba(0,0,0,.05)}
+  .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--signal);opacity:.9}
+  .rung.warn .bar i{background:var(--alarm)}
+  .rung.warn .sz{color:var(--alarm)}
+  .bar span{position:absolute;left:.55rem;top:50%;transform:translateY(-50%);white-space:nowrap;
+    font-size:clamp(.72rem,1.3vw,.9rem);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+  .bar span.outside{color:#3a352c;text-shadow:none}
+  .scale-note{font-family:var(--mono);font-size:.64rem;color:var(--muted);letter-spacing:.06em}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4,.depth{grid-template-columns:1fr}
+    .sl{grid-template-columns:1.2rem 1fr 2.4rem}
+    .sl .bn{display:none}
+    .rung{grid-template-columns:4.4rem 1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- 0 · OUVERTURE -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="se-tester.html">◂ Séance précédente · Faire un point</a>
+    <div class="rain">01010011 01001110 01010100</div>
+    <div class="tag">SNT · Les données</div>
+    <h1 class="big">Tout n'est que<br><em>0</em> et <em>1</em></h1>
+    <p class="line">Un texto, une photo, une chanson, une vidéo… Pour un ordinateur, c'est <strong style="color:#fff">exactement la même chose</strong> : une très longue suite de 0 et de 1. Comment est-ce possible ? Et combien de place ça prend ?</p>
+    <div class="kick">Bit · octet · multiples · texte · image · son · ordres de grandeur</div>
+  </div>
+
+  <!-- 1 · LE BIT -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow">La brique de base</div>
+    <h2 class="stitle">Le bit :<br>oui ou non</h2>
+    <p class="lead">Un <b>bit</b> (<i>binary digit</i>) ne peut valoir que <b>0 ou 1</b>. C'est l'information la plus petite possible : un interrupteur ouvert ou fermé. Dans la machine, c'est toujours un phénomène physique à deux états.</p>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card"><h3>Électricité</h3><div class="sub">processeur, mémoire</div><p>Tension <b>basse</b> ou <b>haute</b> dans un transistor.</p></div>
+        <div class="card"><h3>Magnétisme</h3><div class="sub">disque dur</div><p>Une zone aimantée dans <b>un sens</b> ou dans <b>l'autre</b>.</p></div>
+        <div class="card"><h3>Lumière</h3><div class="sub">fibre optique</div><p>Une impulsion lumineuse <b>présente</b> ou <b>absente</b>.</p></div>
+        <div class="card"><h3>Relief</h3><div class="sub">CD, DVD, Blu-ray</div><p>Un <b>creux</b> ou un <b>plat</b> gravé, lu par un laser.</p></div>
+      </div>
+
+      <div class="chain">
+        <div class="cbox"><div class="n">1 bit</div><div class="t">2 possibilités</div><div class="v">0 · 1</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox"><div class="n">2 bits</div><div class="t">4 possibilités</div><div class="v">00 · 01 · 10 · 11</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox"><div class="n">3 bits</div><div class="t">8 possibilités</div><div class="v">000 … 111</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox hot"><div class="n">n bits</div><div class="t">2<sup>n</sup> possibilités</div><div class="v">chaque bit ajouté double le nombre de cas</div></div>
+      </div>
+      <p class="chain-note">Avec assez de bits, on peut tout numéroter : les lettres, les couleurs, les sons. <b>Coder</b>, c'est se mettre d'accord sur ce que représente chaque nombre.</p>
+    </div>
+  </div>
+
+  <!-- 2 · L'OCTET / COMPTER EN BINAIRE -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow">À vous de jouer</div>
+    <h2 class="stitle">8 bits = 1 octet</h2>
+    <p class="lead">Les bits sont regroupés par paquets de 8 : un <b>octet</b> (<i>byte</i> en anglais). Chaque position a un <b>poids</b>, une puissance de 2. Cliquez sur les bits pour écrire un nombre en binaire.</p>
+
+    <div class="mid">
+      <div class="bits" id="bits"></div>
+      <div class="readout">
+        <div class="ro"><div class="l">en binaire</div><div class="v" id="roBin">00000000</div></div>
+        <div class="ro"><div class="l">en décimal</div><div class="v" id="roDec">0</div></div>
+        <div class="ro calc"><div class="l">calcul</div><div class="v" id="roCalc">0</div></div>
+        <div class="ro"><div class="l">caractère ASCII</div><div class="v" id="roChar">—</div></div>
+      </div>
+      <p class="chain-note" style="margin-top:1rem">Un octet va de <b>00000000</b> (0) à <b>11111111</b> (255) : <b>2<sup>8</sup> = 256 valeurs</b> possibles. Essayez d'écrire 65… puis regardez la case « caractère ».</p>
+    </div>
+  </div>
+
+  <!-- 3 · LES MULTIPLES -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow">Les unités</div>
+    <h2 class="stitle">Kilo, méga, giga, téra…</h2>
+    <p class="lead">Un fichier contient vite des millions d'octets. On utilise donc les préfixes du système international, comme pour les mètres ou les grammes : <b>chaque palier multiplie par 1 000</b>.</p>
+
+    <div class="mid">
+      <div class="cards c2" style="align-items:start">
+        <div>
+          <table class="tbl">
+            <tr><th>Unité</th><th>Symbole</th><th>Vaut</th><th>Soit</th></tr>
+            <tr><td><b>octet</b></td><td>o</td><td>8 bits</td><td>1 o</td></tr>
+            <tr><td><b>kilooctet</b></td><td>ko</td><td>1 000 o</td><td>10<sup>3</sup> o</td></tr>
+            <tr><td><b>mégaoctet</b></td><td>Mo</td><td>1 000 ko</td><td>10<sup>6</sup> o</td></tr>
+            <tr><td><b>gigaoctet</b></td><td>Go</td><td>1 000 Mo</td><td>10<sup>9</sup> o</td></tr>
+            <tr><td><b>téraoctet</b></td><td>To</td><td>1 000 Go</td><td>10<sup>12</sup> o</td></tr>
+            <tr><td><b>pétaoctet</b></td><td>Po</td><td>1 000 To</td><td>10<sup>15</sup> o</td></tr>
+            <tr><td><b>exaoctet</b></td><td>Eo</td><td>1 000 Po</td><td>10<sup>18</sup> o</td></tr>
+            <tr><td><b>zettaoctet</b></td><td>Zo</td><td>1 000 Eo</td><td>10<sup>21</sup> o</td></tr>
+          </table>
+        </div>
+        <div style="display:grid;gap:clamp(.7rem,2vw,1.1rem)">
+          <div class="card warn">
+            <h3>Bit ≠ octet</h3>
+            <div class="sub">attention aux majuscules</div>
+            <p>Les <b>débits</b> internet sont donnés en <b>bits</b> par seconde : Mbit/s (ou Mb/s). Les <b>fichiers</b> sont mesurés en <b>octets</b> : Mo (en anglais MB, B = <i>byte</i>).</p>
+            <p class="ex">Fibre à 100 Mbit/s → 100 ÷ 8 = 12,5 Mo/s</p>
+          </div>
+          <div class="card">
+            <h3>Et 1 024 ?</h3>
+            <div class="sub">kibi, mébi, gibi</div>
+            <p>Les ordinateurs comptent en puissances de 2 : <b>2<sup>10</sup> = 1 024 ≈ 1 000</b>. D'où des unités binaires : <b>Kio, Mio, Gio</b> (1 Kio = 1 024 o).</p>
+            <p>En pratique, presque personne ne dit « Gio » : on parle de <b>ko, Mo, Go</b> même quand on compte en 1 024. Windows ou les fabricants de mémoire vive le font — d'où la <b>confusion</b>.</p>
+            <p class="ex">Un disque vendu « 1 To » (10<sup>12</sup> o) affiche ≈ 931 « Go » dans Windows : rien n'a disparu, ce sont en réalité des Gio.</p>
+            <p class="ex" style="color:var(--muted)">Et on écrit <b>ko</b> (k minuscule, comme km), pas « Ko ».</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 · CODER DU TEXTE -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow">Coder du texte</div>
+    <h2 class="stitle">Une lettre = un nombre</h2>
+    <p class="lead">On numérote les caractères dans une <b>table</b>. La table <b>ASCII</b> (1963) code 128 caractères sur 7 bits : <b>A = 65</b>, B = 66… Aujourd'hui, <b>Unicode</b> (encodage <b>UTF-8</b>) code plus de 150 000 caractères de toutes les langues — et les émojis — sur <b>1 à 4 octets</b>.</p>
+
+    <div class="mid">
+      <div class="typein">
+        <label for="txt">Tapez un mot</label>
+        <input id="txt" type="text" value="SNT" maxlength="16" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="glyphs" id="glyphs"></div>
+      <div class="total" id="txtTotal"></div>
+      <p class="chain-note" style="margin-top:.9rem">Essayez <b>é</b>, <b>€</b> ou un émoji : les lettres sans accent prennent <b>1 octet</b>, les autres en prennent <b>2, 3 ou 4</b> (encadrés en rouge).</p>
+    </div>
+  </div>
+
+  <!-- 5 · TEXTE : ORDRES DE GRANDEUR -->
+  <div class="pane light pad" id="s5">
+    <div class="eyebrow">Combien ça pèse ?</div>
+    <h2 class="stitle">Le texte, c'est léger</h2>
+    <p class="lead">Règle simple pour un texte en français sans mise en forme : <b>1 caractère ≈ 1 octet</b> (espaces et ponctuation compris).</p>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card"><h3>Un SMS</h3><div class="sub">160 caractères max</div><p>160 caractères codés sur 7 bits :</p><p class="ex">160 × 7 = 1 120 bits<br>= <b>140 octets</b></p></div>
+        <div class="card"><h3>Une page</h3><div class="sub">de roman</div><p>Environ 1 500 à 2 000 caractères.</p><p class="ex">≈ <b>2 ko</b></p></div>
+        <div class="card"><h3>Un roman</h3><div class="sub">300 pages</div><p>Environ 600 000 caractères.</p><p class="ex">≈ <b>0,6 Mo</b><br>une bibliothèque de 1 000 romans ≈ 600 Mo</p></div>
+        <div class="card warn"><h3>Le même roman</h3><div class="sub">en .docx ou .pdf</div><p>Polices, mise en page, images de couverture… s'ajoutent au texte.</p><p class="ex">souvent <b>× 2 à × 10</b></p></div>
+      </div>
+      <p class="chain-note">Le texte brut est le type de donnée le plus <b>compact</b>. Les images, les sons et les vidéos, eux, se comptent en millions d'octets.</p>
+    </div>
+  </div>
+
+  <!-- 6 · CODER UNE IMAGE -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow">Coder une image</div>
+    <h2 class="stitle">Une image = une grille<br>de pixels</h2>
+    <p class="lead">Une image numérique est découpée en petits carrés : les <b>pixels</b> (<i>picture elements</i>). Chaque pixel reçoit un nombre qui code sa couleur. Ici, 1 bit par pixel : <b>0 = blanc, 1 = noir</b>. Cliquez sur les cases pour dessiner.</p>
+
+    <div class="mid">
+      <div class="pixwrap">
+        <div class="pixgrid" id="pixgrid"></div>
+        <div>
+          <div class="rows" id="pixrows"></div>
+          <p class="scale-note" style="margin-top:.5rem">8 × 8 = 64 pixels × 1 bit = 64 bits = <b style="color:var(--signal-dk)">8 octets</b></p>
+        </div>
+      </div>
+
+      <div class="depth">
+        <div class="card"><h3>1 bit / pixel</h3><div class="sub">noir et blanc</div><div class="ramp bw"></div><p class="ex">2<sup>1</sup> = 2 couleurs</p></div>
+        <div class="card"><h3>8 bits / pixel</h3><div class="sub">niveaux de gris</div><div class="ramp gray"></div><p class="ex">2<sup>8</sup> = 256 nuances</p></div>
+        <div class="card"><h3>24 bits / pixel</h3><div class="sub">couleur RVB : 3 octets</div><div class="ramp rgb"></div><p class="ex">2<sup>24</sup> ≈ 16,7 millions de couleurs</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 · RVB + TAILLE D'UNE PHOTO -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow">La couleur, en chiffres</div>
+    <h2 class="stitle">Rouge, vert, bleu :<br>3 octets par pixel</h2>
+    <p class="lead">Un écran mélange trois lumières. Chaque pixel stocke <b>trois nombres de 0 à 255</b> : un octet pour le rouge, un pour le vert, un pour le bleu. Bougez les curseurs.</p>
+
+    <div class="mid">
+      <div class="rgbmix">
+        <div class="swatch" id="swatch"></div>
+        <div class="sliders">
+          <div class="sl r"><b>R</b><input type="range" min="0" max="255" value="31" id="rR"><span id="vR">31</span><span class="bn" id="bR"></span></div>
+          <div class="sl g"><b>V</b><input type="range" min="0" max="255" value="92" id="rG"><span id="vG">92</span><span class="bn" id="bG"></span></div>
+          <div class="sl b"><b>B</b><input type="range" min="0" max="255" value="255" id="rB"><span id="vB">255</span><span class="bn" id="bB"></span></div>
+          <div class="scale-note" id="hex" style="margin-top:.2rem"></div>
+        </div>
+      </div>
+
+      <div class="cards c2" style="margin-top:1.2rem">
+        <div class="card">
+          <h3>Une photo de smartphone</h3>
+          <div class="sub">12 mégapixels · 4 000 × 3 000</div>
+          <p class="ex">4 000 × 3 000 = 12 000 000 pixels<br>× 3 octets = 36 000 000 o = <b>36 Mo</b></p>
+        </div>
+        <div class="card good">
+          <h3>… mais le fichier JPEG</h3>
+          <div class="sub">compression</div>
+          <p>Le format JPEG supprime les détails que l'œil ne remarque pas : le fichier ne pèse plus que <b>3 à 4 Mo</b>, soit environ <b>10 fois moins</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 · CODER LE SON -->
+  <div class="pane light pad" id="s8">
+    <div class="eyebrow">Coder le son</div>
+    <h2 class="stitle">Mesurer l'onde,<br>des milliers de fois par seconde</h2>
+    <p class="lead">Un son est une vibration continue. Pour le numériser, on <b>échantillonne</b> : on mesure sa hauteur à intervalles réguliers, puis on arrondit chaque mesure à un nombre entier codé sur quelques bits (<b>quantification</b>).</p>
+
+    <div class="mid">
+      <div class="wavebox"><svg id="wave" viewBox="0 0 800 220" aria-label="Onde sonore échantillonnée"></svg></div>
+      <div class="wavectl">
+        <label>Échantillons : <input type="range" id="wN" min="6" max="60" value="16"> <b id="wNv">16</b></label>
+        <label>Bits par échantillon : <input type="range" id="wB" min="1" max="6" value="3"> <b id="wBv">3</b> (<span id="wLv">8</span> niveaux)</label>
+      </div>
+      <p class="chain-note" style="margin-top:.8rem">Courbe bleue : le son réel. Escalier rouge : ce que l'ordinateur garde. <b>Plus d'échantillons et plus de bits = son plus fidèle… mais fichier plus lourd.</b></p>
+    </div>
+  </div>
+
+  <!-- 9 · SON : CALCUL -->
+  <div class="pane dark pad" id="s9">
+    <div class="eyebrow">Combien ça pèse ?</div>
+    <h2 class="stitle">Une minute de musique</h2>
+    <p class="lead">Le <b>CD audio</b> (1982) a fixé la norme : <b>44 100 échantillons par seconde</b>, chacun codé sur <b>16 bits</b> (65 536 niveaux), en <b>stéréo</b> (2 canaux).</p>
+
+    <div class="mid">
+      <div class="cross">
+        <div class="chip">44 100 éch./s</div><div class="op">×</div>
+        <div class="chip">16 bits</div><div class="op">×</div>
+        <div class="chip">2 canaux</div><div class="eq">=</div>
+        <div class="chip out">1 411 200 bits/s</div>
+      </div>
+      <div class="chain">
+        <div class="cbox"><div class="n">÷ 8</div><div class="t">par seconde</div><div class="v">176 400 o ≈ 176 ko</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox"><div class="n">× 60</div><div class="t">par minute</div><div class="v">≈ 10,6 Mo</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox hot"><div class="n">une chanson de 3 min</div><div class="t">qualité CD</div><div class="v">≈ 32 Mo</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox"><div class="n">même chanson</div><div class="t">en MP3 128 kbit/s</div><div class="v">≈ 3 Mo (≈ 1 Mo / min)</div></div>
+      </div>
+      <p class="chain-note">Le MP3 (ou l'AAC des plateformes de streaming) supprime les sons que l'oreille entend mal : <b>environ 10 fois moins lourd</b>, presque sans différence audible.</p>
+    </div>
+  </div>
+
+  <!-- 10 · CHARNIÈRE VIDÉO -->
+  <div class="pane dark hinge" id="s10">
+    <div class="q">Et une <em>vidéo</em>,<br>alors&nbsp;?</div>
+    <p class="a">Une vidéo, c'est <b>25 images par seconde</b> (+ le son). En Full HD, une image fait 1 920 × 1 080 pixels × 3 octets ≈ <b>6,2 Mo</b>. Sans compression : 6,2 × 25 ≈ <b>155 Mo par seconde</b>, soit <b>≈ 560 Go pour un film d'une heure</b>.</p>
+    <p class="a">En streaming HD, cette même heure pèse <b>environ 3 Go</b>. La compression vidéo divise la taille par <b>près de 200</b> — sans elle, Netflix ou YouTube n'existeraient pas.</p>
+    <div class="next">Prenons du recul : comparons toutes ces tailles ▸</div>
+  </div>
+
+  <!-- 11 · ÉCHELLE -->
+  <div class="pane light pad" id="s11">
+    <div class="eyebrow">Ordres de grandeur</div>
+    <h2 class="stitle">De la lettre<br>au monde entier</h2>
+    <p class="lead">Chaque barre est une <b>échelle logarithmique</b> : un cran de plus = <b>× 10</b>. Sans ça, impossible de tout faire tenir sur un écran.</p>
+
+    <div class="mid">
+      <div class="ladder" id="ladder"></div>
+      <p class="chain-note" style="margin-top:.2rem">Tous les livres écrits par l'humanité : <b>≈ 80 To</b>. Facebook en une seule journée : <b>≈ 4 Po, soit 50 fois plus</b>. La différence ? Des <b>photos et des vidéos</b> — le texte, lui, ne pèse presque rien.</p>
+      <p class="scale-note" style="margin-top:.4rem">Ordres de grandeur arrondis. Livres : ≈ 130 millions de titres recensés par Google Books (2010) × ≈ 0,6 Mo de texte. Facebook : 4 Po/jour, chiffre publié par l'entreprise en 2014 (sans doute bien plus aujourd'hui). Données mondiales : estimation IDC pour 2025.</p>
+    </div>
+  </div>
+
+  <!-- 12 · ACTIVITÉ -->
+  <div class="pane dark act" id="s12">
+    <div class="tag">Activité de la séance</div>
+    <h2>À vos <em>calculatrices</em></h2>
+    <p class="sub">Pour chaque question, écrivez le calcul et donnez le résultat avec l'unité la plus adaptée.</p>
+    <ol class="steps">
+      <li>Écrivez vos <b>initiales</b> en binaire, à l'aide du code ASCII (A = 65, B = 66…). Combien d'octets ?</li>
+      <li>Votre téléphone a <b>128 Go</b> de stockage. Combien de photos de 4 Mo peut-il contenir, au maximum ?</li>
+      <li>Calculez la taille d'une image <b>non compressée</b> de 1 280 × 720 pixels en couleurs RVB.</li>
+      <li>Combien pèse <b>un album d'une heure</b> en qualité CD ? Et en MP3 à 128 kbit/s ?</li>
+      <li>Avec une connexion à <b>100 Mbit/s</b>, combien de temps faut-il pour télécharger un fichier de 1 Go ?</li>
+      <li>Sur votre téléphone, comparez le poids d'une photo, d'une vidéo de 10 s et d'un message. <b>Classez-les.</b></li>
+    </ol>
+  </div>
+
+  <!-- 13 · RÉCAP -->
+  <div class="pane light pad" id="s13">
+    <div class="rc-eye">Ce que je dois retenir</div>
+    <h2 class="rc-title">Bits, octets, <span>ordres de grandeur</span></h2>
+    <ol class="rc-list">
+      <li>Toute donnée numérique est codée en <b>binaire</b> : une suite de <span class="hl">bits</span> (0 ou 1). Avec <b>n bits</b>, on code <b>2<sup>n</sup></b> valeurs.</li>
+      <li><b>1 octet = 8 bits</b> = 256 valeurs. Puis ko, Mo, Go, To : <span class="hl">× 1 000</span> à chaque palier. Ne pas confondre Mo (fichiers) et Mbit/s (débits).</li>
+      <li><b>Texte</b> : chaque caractère a un numéro (ASCII, Unicode). ≈ <span class="hl">1 octet par caractère</span>.</li>
+      <li><b>Image</b> : une grille de pixels, <span class="hl">3 octets par pixel</span> en couleur (RVB). Taille = largeur × hauteur × 3.</li>
+      <li><b>Son</b> : on <span class="hl">échantillonne</span> l'onde. Qualité CD ≈ 10 Mo par minute.</li>
+      <li>La <b>compression</b> (JPEG, MP3, vidéo) réduit la taille de 10 à 200 fois.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term"><b>Bit</b>chiffre binaire, 0 ou 1.</div>
+      <div class="rc-term"><b>Octet</b>groupe de 8 bits.</div>
+      <div class="rc-term"><b>Codage</b>convention qui associe un nombre à une information.</div>
+      <div class="rc-term"><b>Pixel</b>plus petit élément d'une image numérique.</div>
+      <div class="rc-term"><b>Échantillon</b>mesure d'un son à un instant donné.</div>
+      <div class="rc-term"><b>Compression</b>réduction de la taille d'un fichier.</div>
+    </div>
+    <p class="rc-key">Prochaine étape&nbsp;: <b>ces 0 et 1, que représentent-ils ? Une donnée, c'est quoi ?</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours"><b>☰</b> <span>Parcours</span></a>
+  <button class="btn" id="prev">◀ Retour</button>
+  <div class="dots" id="dots"></div>
+  <button class="btn" id="next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+  /* ---------- navigation ---------- */
+  const panes = [...document.querySelectorAll('.pane')];
+  const dotsBox = document.getElementById('dots');
+  panes.forEach((_,i)=>{const d=document.createElement('div');d.className='dot';d.dataset.i=i;dotsBox.appendChild(d);});
+  const dots = [...document.querySelectorAll('.dot')];
+  let scene = 0;
+  const MAX = panes.length-1;
+
+  function render(){
+    panes.forEach((p,i)=>p.classList.toggle('on', i===scene));
+    dots.forEach((d,i)=>d.classList.toggle('active', i===scene));
+  }
+  function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+  document.getElementById('next').onclick = ()=>go(scene+1);
+  document.getElementById('prev').onclick = ()=>go(scene-1);
+  dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
+
+  window.addEventListener('keydown', e=>{
+    if(e.target.matches('input')) return;
+    // sinon, Espace sur un bit déjà cliqué le retournerait en même temps qu'il fait avancer
+    if(e.target.matches('button') && (e.key===' '||e.key==='Enter')) return;
+    if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowDown'){e.preventDefault();go(scene+1);}
+    if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
+    if(e.key==='ArrowUp'){e.preventDefault();go(scene-1);}
+  });
+  document.querySelector('.stage').addEventListener('click', e=>{
+    if(e.target.closest('a,button,input,label,.nostep')) return;
+    go(scene+1);
+  });
+
+  /* ---------- compteur binaire ---------- */
+  const bitsBox = document.getElementById('bits');
+  bitsBox.classList.add('nostep');
+  const bitState = [0,0,0,0,0,0,0,0];
+  const weights = [128,64,32,16,8,4,2,1];
+  weights.forEach((w,i)=>{
+    const col=document.createElement('div');col.className='bitcol';
+    const b=document.createElement('button');b.className='bit';b.textContent='0';
+    b.onclick=()=>{bitState[i]^=1;b.textContent=bitState[i];b.classList.toggle('one',!!bitState[i]);updBits();};
+    const lw=document.createElement('div');lw.className='w';lw.innerHTML='2<sup>'+(7-i)+'</sup> = '+w;
+    col.append(b,lw);bitsBox.appendChild(col);
+  });
+  function updBits(){
+    const dec=bitState.reduce((s,b,i)=>s+b*weights[i],0);
+    document.getElementById('roBin').textContent=bitState.join('');
+    document.getElementById('roDec').textContent=dec;
+    const parts=weights.filter((w,i)=>bitState[i]);
+    document.getElementById('roCalc').textContent=parts.length?parts.join(' + '):'0';
+    document.getElementById('roChar').textContent=(dec>=33&&dec<=126)?String.fromCharCode(dec):(dec===32?'espace':'—');
+  }
+
+  /* ---------- texte UTF-8 ---------- */
+  const txt=document.getElementById('txt'), glyphs=document.getElementById('glyphs');
+  const enc=new TextEncoder();
+  function updTxt(){
+    glyphs.innerHTML='';let total=0;
+    for(const ch of txt.value){
+      const bytes=[...enc.encode(ch)];total+=bytes.length;
+      const g=document.createElement('div');g.className='glyph'+(bytes.length>1?' multi':'');
+      const cp=ch.codePointAt(0);
+      g.innerHTML='<div class="ch">'+(ch===' '?'␣':ch.replace(/[<&]/g,c=>c==='<'?'&lt;':'&amp;'))+'</div>'+
+        '<div class="cp">n° '+cp+'</div>'+
+        '<div class="by">'+bytes.map(b=>b.toString(2).padStart(8,'0')).join('<br>')+'</div>';
+      glyphs.appendChild(g);
+    }
+    const n=[...txt.value].length;
+    document.getElementById('txtTotal').innerHTML=n?('<b>'+n+'</b> caractère'+(n>1?'s':'')+' → <b>'+total+'</b> octet'+(total>1?'s':'')+' = <b>'+(total*8)+'</b> bits'):'';
+  }
+  txt.addEventListener('input',updTxt);updTxt();
+
+  /* ---------- pixels ---------- */
+  const smile=[
+    '00111100',
+    '01000010',
+    '10100101',
+    '10000001',
+    '10100101',
+    '10011001',
+    '01000010',
+    '00111100'];
+  const pix=smile.map(r=>[...r].map(Number));
+  const grid=document.getElementById('pixgrid');grid.classList.add('nostep');
+  pix.forEach((row,y)=>row.forEach((v,x)=>{
+    const c=document.createElement('div');c.className='px'+(v?' on':'');
+    c.onclick=()=>{pix[y][x]^=1;c.classList.toggle('on');updPix();};
+    grid.appendChild(c);
+  }));
+  function updPix(){
+    document.getElementById('pixrows').innerHTML=pix.map(r=>r.map(v=>v?'<span class="one">1</span>':'0').join('')).join('<br>');
+  }
+  updPix();
+
+  /* ---------- RVB ---------- */
+  const rr=['R','G','B'].map(k=>document.getElementById('r'+k));
+  function updRGB(){
+    const v=rr.map(r=>+r.value);
+    ['R','G','B'].forEach((k,i)=>{
+      document.getElementById('v'+k).textContent=v[i];
+      document.getElementById('b'+k).textContent=v[i].toString(2).padStart(8,'0');
+    });
+    document.getElementById('swatch').style.background='rgb('+v.join(',')+')';
+    document.getElementById('hex').textContent='code web : #'+v.map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()+' · 3 octets = 24 bits';
+  }
+  rr.forEach(r=>r.addEventListener('input',updRGB));updRGB();
+
+  /* ---------- onde sonore ---------- */
+  const svg=document.getElementById('wave'), wN=document.getElementById('wN'), wB=document.getElementById('wB');
+  const W=800,H=220,M=14;
+  const f=t=>0.62*Math.sin(2*Math.PI*1.5*t)+0.28*Math.sin(2*Math.PI*4.2*t+0.6);
+  const Y=v=>H/2-v*(H/2-M);
+  function updWave(){
+    const N=+wN.value, B=+wB.value, L=2**B;
+    document.getElementById('wNv').textContent=N;
+    document.getElementById('wBv').textContent=B;
+    document.getElementById('wLv').textContent=L;
+    let s='';
+    // niveaux de quantification
+    for(let k=0;k<L;k++){const v=-0.9+1.8*k/(L-1||1);s+='<line x1="0" x2="'+W+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="rgba(0,0,0,.07)"/>';}
+    s+='<line x1="0" x2="'+W+'" y1="'+H/2+'" y2="'+H/2+'" stroke="rgba(0,0,0,.25)" stroke-dasharray="4 4"/>';
+    // courbe réelle
+    let d='';for(let i=0;i<=400;i++){const t=i/400;d+=(i?'L':'M')+(t*W).toFixed(1)+' '+Y(f(t)).toFixed(1);}
+    s+='<path d="'+d+'" fill="none" stroke="#1f5cff" stroke-width="2.5" opacity=".55"/>';
+    // échantillons quantifiés
+    const q=v=>{const k=Math.round((v+0.9)/1.8*(L-1));const kk=Math.max(0,Math.min(L-1,k));return -0.9+1.8*kk/(L-1||1);};
+    let st='',dots='';
+    for(let i=0;i<N;i++){
+      const t=i/N, x=t*W, x2=(i+1)/N*W, v=q(f(t));
+      st+=(i?'L':'M')+x.toFixed(1)+' '+Y(v).toFixed(1)+'L'+x2.toFixed(1)+' '+Y(v).toFixed(1);
+      dots+='<line x1="'+x+'" x2="'+x+'" y1="'+H/2+'" y2="'+Y(f(t))+'" stroke="#6c6355" stroke-width="1" opacity=".5"/>';
+      dots+='<circle cx="'+x+'" cy="'+Y(v)+'" r="4" fill="#b5301f"/>';
+    }
+    s+='<path d="'+st+'" fill="none" stroke="#b5301f" stroke-width="2.2"/>'+dots;
+    svg.innerHTML=s;
+  }
+  [wN,wB].forEach(r=>r.addEventListener('input',updWave));updWave();
+
+  /* ---------- échelle log ---------- */
+  const items=[
+    [0.125,'1 bit','un oui / non'],
+    [1,'1 o','une lettre'],
+    [140,'140 o','un SMS'],
+    [2e3,'2 ko','une page de texte'],
+    [6e5,'0,6 Mo','un roman entier'],
+    [1e6,'1 Mo','1 minute de musique MP3'],
+    [4e6,'4 Mo','une photo JPEG'],
+    [36e6,'36 Mo','la même photo, non compressée'],
+    [3e9,'3 Go','1 h de film en streaming HD'],
+    [128e9,'128 Go','un smartphone'],
+    [560e9,'560 Go','1 h de vidéo Full HD non compressée',true],
+    [2e12,'2 To','le disque dur d\'un PC'],
+    [8e13,'80 To','le texte de tous les livres jamais publiés',true],
+    [4e15,'4 Po','ce que Facebook (Meta) stocke en plus chaque jour',true],
+    [1.8e23,'180 Zo','toutes les données créées dans le monde en un an',true]
+  ];
+  const lo=Math.log10(0.125), hi=Math.log10(1.8e23);
+  const lad=document.getElementById('ladder');
+  items.forEach(([v,sz,lab,warn])=>{
+    const pct=4+96*(Math.log10(v)-lo)/(hi-lo);
+    const r=document.createElement('div');r.className='rung'+(warn?' warn':'');
+    r.innerHTML='<div class="sz">'+sz+'</div><div class="bar"><i style="width:'+pct.toFixed(1)+'%"></i><span>'+lab+'</span></div>';
+    lad.appendChild(r);
+    const span=r.querySelector('span');
+    requestAnimationFrame(()=>{ if(span.offsetWidth+16>r.querySelector('.bar').offsetWidth*pct/100){
+      span.classList.add('outside');span.style.left='calc('+pct.toFixed(1)+'% + .5rem)';}});
+  });
+</script>
+</body>
+</html>

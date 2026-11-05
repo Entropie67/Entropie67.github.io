@@ -236,6 +236,20 @@
   .stat span{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;
     text-transform:uppercase;color:var(--muted);line-height:1.3;display:block}
 
+  /* ---- échelle des poids de fichiers ---- */
+  .ladder{display:grid;gap:.22rem;margin:.3rem 0 .2rem}
+  .rung{display:grid;grid-template-columns:6.4rem 1fr;gap:.7rem;align-items:center}
+  .rung .sz{font-family:var(--display);font-size:clamp(.76rem,1.35vw,.92rem);
+    text-align:right;color:var(--signal-dk)}
+  .bar{position:relative;height:clamp(1rem,2.8vh,1.3rem);background:rgba(0,0,0,.05)}
+  .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--signal);opacity:.9}
+  .rung.warn .bar i{background:var(--alarm)}
+  .rung.warn .sz{color:var(--alarm)}
+  .bar span{position:absolute;left:.55rem;top:50%;transform:translateY(-50%);white-space:nowrap;
+    font-size:clamp(.7rem,1.25vw,.88rem);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+  .bar span.outside{color:#3a352c;text-shadow:none}
+  .scale-note{font-family:var(--mono);font-size:.63rem;color:var(--muted);letter-spacing:.06em}
+
   /* ---- activité ---- */
   .act{align-items:center;justify-content:center;text-align:center;padding:clamp(.6rem,2vh,1.2rem);
     background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
@@ -686,6 +700,41 @@
     </div>
   </div>
 
+  <!-- ============ 10b · ET SUR LE DISQUE DUR ? ============ -->
+  <div class="pane light pad" id="s10b">
+    <div class="eyebrow">Zoom arrière · et ça pèse combien&nbsp;?</div>
+    <h2 class="stitle">Une IA plus petite que Wikipédia</h2>
+    <p class="lead">Mille milliards de boutons, soit. Mais un bouton, c'est un <b>nombre</b> — et un nombre prend de la place, comme on l'a vu à la séance sur le codage. <b>Gemma 3</b> (Google, 2025) est un modèle de <b>4,3 milliards de paramètres</b>&nbsp;: en 16 bits par paramètre il pèse 8,6 Go, en <b>4 bits</b> il tient dans <b>2,15 Go</b> — et tourne sur un ordinateur portable.</p>
+
+    <div class="mid">
+      <div class="ladder" id="llmbars"></div>
+      <p class="lead" style="margin:.35rem auto .25rem;text-align:center;max-width:86ch">Un fichier <b>douze fois plus léger que Wikipédia en anglais</b>… entraîné sur des textes qui pèsent <b>des centaines de fois Wikipédia</b>.</p>
+      <p class="scale-note" style="text-align:center">Échelle linéaire, en Go. Wikipédia&nbsp;: texte de tous les articles, compressé sans perte (dumps.wikimedia.org). Modèles&nbsp;: fichiers publiés sur Hugging Face. Gemma 3&nbsp;: rapport technique Google, 2025.</p>
+
+      <div class="cards c3" style="margin-top:.6rem">
+        <div class="card">
+          <h3>Le calcul</h3>
+          <div class="sub">moins de bits par bouton</div>
+          <p class="ex">4,3 milliards × 16 bits = 8,6 Go<br>4,3 milliards × 4 bits = <b>2,15 Go</b></p>
+          <p>Quatre fois moins de bits par nombre, donc un fichier <b>quatre fois plus léger</b> — et un modèle un peu moins précis. Exactement le compromis du son.</p>
+          <p class="ex" style="color:var(--muted)">En vrai le fichier pèse un peu plus&nbsp;: certaines tables restent en 16 bits.</p>
+        </div>
+        <div class="card">
+          <h3>Ce qu'il a lu</h3>
+          <div class="sub">données d'entraînement</div>
+          <p>Environ <b>4 000 milliards de <i>tokens</i></b>, soit de l'ordre de <b>15 To</b> de texte — <b>des centaines de fois Wikipédia</b>.</p>
+          <p>Tout cela a été <b>vu</b> pendant l'entraînement, mais n'est <b>pas rangé</b> dans le fichier&nbsp;: ce qu'il en reste tient dans les poids.</p>
+        </div>
+        <div class="card warn">
+          <h3>Contient-il Wikipédia&nbsp;?</h3>
+          <div class="sub">pas mot pour mot</div>
+          <p>Faire tenir 26 Go dans 2 Go <b>sans rien perdre</b> est impossible. Comme un <b>JPEG</b>, le modèle garde l'allure générale&nbsp;: les grandes idées sont là, mais les <b>détails</b> — dates, chiffres, noms rares — peuvent être faux.</p>
+          <p>C'est une des origines des <b>«&nbsp;hallucinations&nbsp;»</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ 11 · ACTIVITÉ ============ -->
   <div class="pane dark act" id="s11">
     <div class="tag">Activité · 15 minutes · papier et crayon</div>
@@ -805,6 +854,7 @@
     <div class="dot" data-i="10"></div>
     <div class="dot" data-i="11"></div>
     <div class="dot" data-i="12"></div>
+    <div class="dot" data-i="13"></div>
   </div>
   <button class="btn" id="next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
@@ -814,10 +864,10 @@
 /* =========================================================
    NAVIGATION
    ========================================================= */
-var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s10b','s11','s12']
   .map(function(id){ return document.getElementById(id); });
 var dots = [].slice.call(document.querySelectorAll('.dot'));
-var scene = 0, MAX = 12;
+var scene = 0, MAX = 13;
 var INTERACTIVE = {s2:1, s4:1, s6:1, s8:1, s11:1};
 
 function render(){
@@ -1329,6 +1379,36 @@ var HX = (function(){
     var on = box.classList.toggle('show');
     b.innerHTML = on ? '🙈 Masquer la correction' : '👁 Afficher la correction';
   };
+})();
+
+/* =========================================================
+   SCÈNE 10b — le poids d'un modèle, en Go
+   ========================================================= */
+(function(){
+  var lb = document.getElementById('llmbars');
+  if(!lb) return;
+  var llm = [
+    [2.15, '2,15 Go', 'Gemma 3 · 4,3 milliards de paramètres · 4 bits chacun', true],
+    [7.1,  '7 Go',    'Wikipédia en français (texte compressé)', false],
+    [8.6,  '8,6 Go',  'Gemma 3 · le même, en 16 bits', true],
+    [16,   '16 Go',   'Llama 3.1 (Meta) · 8 milliards de paramètres · 16 bits', true],
+    [25.8, '26 Go',   'Wikipédia en anglais (texte compressé)', false]
+  ];
+  llm.forEach(function(it){
+    var pct = Math.max(1, 100*it[0]/25.8);
+    var r = document.createElement('div');
+    r.className = 'rung' + (it[3] ? ' warn' : '');
+    r.innerHTML = '<div class="sz">'+it[1]+'</div><div class="bar">'+
+                  '<i style="width:'+pct.toFixed(1)+'%"></i><span>'+it[2]+'</span></div>';
+    lb.appendChild(r);
+    var span = r.querySelector('span'), bar = r.querySelector('.bar');
+    requestAnimationFrame(function(){
+      if(span.offsetWidth + 16 > bar.offsetWidth*pct/100){
+        span.classList.add('outside');
+        span.style.left = 'calc('+pct.toFixed(1)+'% + .5rem)';
+      }
+    });
+  });
 })();
 
 /* =========================================================
