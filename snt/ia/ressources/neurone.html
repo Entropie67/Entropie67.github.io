@@ -111,6 +111,27 @@
   .pane.dark .card p b{color:#fff}
   .pane.dark .card .ex{color:#7fa0ff}
 
+  /* ---- la boîte en cinq étapes ---- */
+  .five{display:flex;flex:0 0 auto;flex-wrap:wrap;gap:.4rem;
+    margin:clamp(.35rem,1.1vh,.6rem) 0;align-items:stretch}
+  .fb{flex:1 1 9rem;border:1px solid rgba(0,0,0,.18);background:var(--paper-2);
+    padding:.38rem .55rem;display:flex;flex-direction:column;gap:.12rem}
+  .fb .n{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--signal-dk)}
+  .fb .t{font-size:clamp(.74rem,1.3vw,.9rem);line-height:1.3;color:#4a4436}
+  .fb .t b{color:var(--ink)}
+  .pane.dark .fb{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .fb .n{color:#7fa0ff}
+  .pane.dark .fb .t{color:#c9c2b2} .pane.dark .fb .t b{color:#fff}
+
+  /* ---- ce que les couches apprennent ---- */
+  .abstr{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-top:.5rem;
+    font-family:var(--mono);font-size:clamp(.66rem,1.15vw,.78rem);color:var(--muted);
+    justify-content:center}
+  .abstr span{border:1px solid rgba(0,0,0,.2);padding:.25rem .5rem;background:var(--paper-2);color:#4a4436}
+  .abstr span b{color:var(--signal-dk)}
+  .abstr i{font-style:normal;color:var(--signal)}
+
   /* ---- formules ---- */
   .eq{font-family:var(--mono);line-height:1.75;font-size:clamp(.82rem,1.6vw,1.05rem)}
   .eq .w{color:var(--signal-dk);font-weight:bold}
@@ -206,6 +227,8 @@
   /* ---- chiffres ---- */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;
     margin:clamp(.7rem,2.2vh,1.2rem) 0;max-width:920px}
+  .stats.s6{grid-template-columns:repeat(6,1fr);max-width:none}
+  .stats.s6 .stat b{font-size:clamp(.85rem,1.75vw,1.25rem)}
   .stat{border:1px solid rgba(233,228,216,.16);padding:.55rem .65rem}
   .pane.light .stat{border-color:rgba(0,0,0,.16);background:var(--paper-2)}
   .stat b{display:block;font-family:var(--display);color:var(--signal);line-height:1;
@@ -287,7 +310,8 @@
   @media (max-width:900px){
     .hint{display:none}
     .c3,.c2,.acts,.exos,.lab.l12,.lab.l21{grid-template-columns:1fr}
-    .stats{grid-template-columns:repeat(2,1fr)}
+    .stats,.stats.s6{grid-template-columns:repeat(2,1fr)}
+    .five{display:grid;grid-template-columns:1fr 1fr}
   }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
@@ -323,8 +347,16 @@
   <!-- ============ 2 · UN NEURONE, C'EST UNE FONCTION ============ -->
   <div class="pane light pad" id="s2">
     <div class="eyebrow">Le bouton · 1/2</div>
-    <h2 class="stitle">Un neurone,<br>c'est une fonction</h2>
-    <p class="lead">Pas une cellule, pas un cerveau&nbsp;: une <b>fonction mathématique</b> à plusieurs entrées et une sortie. Le nom vient d'une inspiration biologique de 1943 — on la mentionne une fois, puis on l'oublie, parce qu'elle n'explique rien.</p>
+    <h2 class="stitle">Un neurone, c'est une fonction</h2>
+    <p class="lead">Pas une cellule, pas un cerveau&nbsp;: une <b>fonction mathématique</b> à plusieurs entrées et une sortie. Le nom vient d'une inspiration biologique de 1943 — on la mentionne une fois, puis on l'oublie, parce qu'elle n'explique rien. Une petite boîte qui fait toujours les cinq mêmes gestes&nbsp;:</p>
+
+    <div class="five">
+      <div class="fb"><div class="n">1 · reçoit</div><div class="t">des <b>entrées</b>, qui sont des nombres</div></div>
+      <div class="fb"><div class="n">2 · multiplie</div><div class="t">chacune par un <b>poids</b></div></div>
+      <div class="fb"><div class="n">3 · additionne</div><div class="t">le tout, plus un <b>biais</b></div></div>
+      <div class="fb"><div class="n">4 · décide</div><div class="t">une <b>fonction</b> tranche&nbsp;: s'active ou pas</div></div>
+      <div class="fb"><div class="n">5 · transmet</div><div class="t">au <b>neurone suivant</b></div></div>
+    </div>
 
     <div class="mid">
       <div class="lab l12">
@@ -340,7 +372,7 @@
             <div><span class="r">s</span> = <span class="w">w₁</span>·<span class="x">x₁</span> + <span class="w">w₂</span>·<span class="x">x₂</span> + <span class="b">b</span></div>
             <div style="margin-top:.3rem">sortie = 1 si <span class="r">s</span> &gt; 0, sinon 0</div>
           </div>
-          <p class="verdict" style="margin-top:.6rem">Les <b>x</b> sont les entrées — données, pas réglables. Les <b>w</b> (poids) et <b>b</b> sont les <b>paramètres</b>&nbsp;: les boutons. Un poids grand et positif = «&nbsp;cette entrée compte beaucoup, et dans le sens du oui&nbsp;». Un poids négatif = elle pousse vers le non.</p>
+          <p class="verdict" style="margin-top:.5rem">Les <b>x</b> sont les entrées — données, pas réglables. Les <b>w</b> (poids) et <b>b</b> sont les <b>paramètres</b>&nbsp;: les boutons. Un poids grand et positif, c'est «&nbsp;cette entrée compte beaucoup, dans le sens du oui&nbsp;»&nbsp;; un poids négatif pousse vers le non.</p>
           <div class="warnbox">
             <div class="t">Attention, le mot « biais » a deux sens</div>
             <p>Ici, <b>b</b> s'appelle le <b>biais</b> du neurone&nbsp;: c'est juste un nombre qu'on ajoute, qui règle à quel point le neurone est difficile à convaincre. Rien à voir avec le <b>biais</b> de la séance précédente, qui désignait un écart systématique venu des données. Deux notions, deux mondes, un seul mot — c'est l'usage, il faut vivre avec.</p>
@@ -377,7 +409,7 @@
           <p>Plus simple encore&nbsp;: négatif → 0, positif → inchangé. Pente nulle à gauche, pente 1 à droite. <b>C'est celle qu'on utilise presque partout aujourd'hui</b>, parce qu'elle coûte une comparaison.</p>
         </div>
       </div>
-      <p class="lead" style="margin:0 auto;text-align:center;max-width:84ch">Sans elle, empiler des neurones ne servirait à rien&nbsp;: une somme de sommes pondérées reste une somme pondérée. <b>C'est la fonction d'activation qui rend un réseau capable d'autre chose qu'une droite.</b></p>
+      <p class="lead" style="margin:0 auto;text-align:center;max-width:88ch">Sans elle, empiler cent couches ne servirait à rien&nbsp;: une somme de sommes pondérées reste une somme pondérée, et tout reviendrait à une seule grande équation linéaire. C'est elle qui introduit la <b>non-linéarité</b> — <b>et donc la capacité du réseau à faire autre chose qu'une droite.</b></p>
     </div>
   </div>
 
@@ -590,11 +622,20 @@
                 <circle cx="445" cy="70" r="10"/><circle cx="445" cy="112" r="10"/>
               </g>
               <g class="nl">
-                <text x="55" y="172">3 entrées</text><text x="185" y="172">4 neurones</text>
-                <text x="315" y="172">4 neurones</text><text x="445" y="140">2 sorties</text>
+                <text x="55" y="172">couche d'entrée</text><text x="185" y="172">couche cachée</text>
+                <text x="315" y="172">couche cachée</text><text x="445" y="140">couche de sortie</text>
               </g>
             </svg>
           </div>
+          <p class="verdict" style="text-align:center;max-width:62ch;margin:0 auto">Chaque couche cachée apprend <b>un niveau d'abstraction de plus</b>. Pour reconnaître un chat sur une photo&nbsp;:</p>
+          <div class="abstr">
+            <span>les pixels</span><i>→</i>
+            <span>des <b>bords</b>, des taches</span><i>→</i>
+            <span>oreilles pointues, <b>yeux ronds</b></span><i>→</i>
+            <span>«&nbsp;<b>tête de chat</b>&nbsp;»</span><i>→</i>
+            <span>chat <b>(0,94)</b></span>
+          </div>
+          <p class="verdict" style="text-align:center;max-width:68ch;margin:.4rem auto 0"><b>Personne n'a décidé de regarder les oreilles.</b> Le réseau trouve tout seul ce qui marche, à force d'exemples — et c'est bien la descente de gradient qui l'y a conduit.</p>
         </div>
         <div class="labbox">
           <h4>Compter les paramètres</h4>
@@ -622,11 +663,13 @@
     <p class="lead">Rien de ce qui suit n'est nouveau. Un grand modèle de langage, c'est <b>exactement</b> ce que vous venez de voir — multiplier, additionner, écraser — à une autre échelle.</p>
 
     <div class="mid">
-      <div class="stats">
-        <div class="stat"><b>3</b><span>paramètres · le neurone « parapluie »</span></div>
-        <div class="stat"><b>46</b><span>paramètres · le petit réseau du schéma</span></div>
-        <div class="stat"><b>~10⁸</b><span>un modèle qui tient sur un téléphone</span></div>
-        <div class="stat"><b>~10¹²</b><span>un grand modèle de 2026</span></div>
+      <div class="stats s6">
+        <div class="stat"><b>3</b><span>le neurone « parapluie »</span></div>
+        <div class="stat"><b>46</b><span>le petit réseau du schéma</span></div>
+        <div class="stat"><b>60 M</b><span>AlexNet · 2012 · la bascule</span></div>
+        <div class="stat"><b>117 M</b><span>GPT-1 · 2018</span></div>
+        <div class="stat"><b>175 Md</b><span>GPT-3 · 2020</span></div>
+        <div class="stat"><b>&gt; 1 000 Md</b><span>modèle frontière · 2026</span></div>
       </div>
       <div class="cards c2" style="margin:0">
         <div class="card">
