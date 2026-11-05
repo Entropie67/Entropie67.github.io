@@ -1,0 +1,1305 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le neurone et son réglage</title>
+<style>
+  /* =========================================================
+     PALETTE & TOKENS — série SNT IA
+     ========================================================= */
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7;
+  }
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  /* ---- base des scènes ---- */
+  .pane{
+    position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(.7rem,2.2vh,1.5rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.45rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.3rem,3.9vw,2.6rem)}
+  .lead{max-width:88ch;margin-top:.5rem;font-size:clamp(.84rem,1.55vw,1.05rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;min-height:0}
+
+  /* ---- 0 · ouverture ---- */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:1.2rem;
+    opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8vw,6rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.95rem,1.9vw,1.22rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ---- rappel de la séance précédente ---- */
+  .quote{max-width:78ch;margin:0 auto;border-left:4px solid var(--signal);
+    padding:clamp(.7rem,2vh,1.1rem) clamp(.9rem,2.2vw,1.5rem);
+    background:rgba(31,92,255,.07)}
+  .quote .src{font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7fa0ff;margin-bottom:.5rem}
+  .quote p{font-size:clamp(.95rem,2vw,1.3rem);line-height:1.5;color:#e9e4d8;font-style:italic}
+  .quote p mark{background:transparent;color:#ffd166;font-style:normal;font-weight:bold}
+  .bigq{text-align:center;margin-top:clamp(1rem,3vh,1.8rem);font-family:var(--display);
+    text-transform:uppercase;line-height:1.08;font-size:clamp(1.2rem,3.6vw,2.4rem);max-width:26ch;
+    margin-left:auto;margin-right:auto}
+  .bigq em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .bigq small{display:block;font-family:var(--serif);text-transform:none;font-weight:normal;
+    font-size:clamp(.85rem,1.6vw,1.05rem);color:#a9a294;margin-top:.8rem;line-height:1.45;
+    max-width:60ch;margin-left:auto;margin-right:auto}
+
+  /* ---- cartes génériques ---- */
+  .cards{display:grid;gap:clamp(.6rem,1.8vw,1.2rem);margin:clamp(.6rem,2vh,1.1rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.75rem,1.9vw,1.2rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.88rem,1.8vw,1.2rem);margin-bottom:.25rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+  .card p{font-size:clamp(.78rem,1.4vw,.96rem);line-height:1.5;color:#4a4436;margin-bottom:.4rem}
+  .card p:last-child{margin-bottom:0}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+
+  /* ---- formules ---- */
+  .eq{font-family:var(--mono);line-height:1.75;font-size:clamp(.82rem,1.6vw,1.05rem)}
+  .eq .w{color:var(--signal-dk);font-weight:bold}
+  .eq .x{color:var(--alarm);font-weight:bold}
+  .eq .b{color:#8a6b00;font-weight:bold}
+  .eq .r{font-weight:bold}
+  .pane.dark .eq .w{color:#7fa0ff} .pane.dark .eq .x{color:#ff8e73} .pane.dark .eq .b{color:#ffd166}
+  .eqbox{border:1px dashed rgba(0,0,0,.3);padding:clamp(.6rem,1.6vw,1rem);background:rgba(0,0,0,.03)}
+  .pane.dark .eqbox{border-color:rgba(233,228,216,.3);background:rgba(233,228,216,.04)}
+
+  /* ---- bloc « attention, homonyme » ---- */
+  .warnbox{border-left:4px solid var(--alarm);background:rgba(181,48,31,.07);
+    padding:clamp(.6rem,1.6vw,.95rem) clamp(.7rem,1.9vw,1.1rem);margin-top:.7rem}
+  .warnbox .t{font-family:var(--display);text-transform:uppercase;color:var(--alarm);
+    font-size:clamp(.78rem,1.5vw,.98rem);margin-bottom:.3rem;line-height:1.1}
+  .warnbox p{font-size:clamp(.76rem,1.35vw,.93rem);line-height:1.5;color:#4a4436}
+  .warnbox p b{color:var(--ink)}
+  .pane.dark .warnbox p{color:#c9c2b2} .pane.dark .warnbox p b{color:#fff}
+
+  /* ---- ateliers interactifs ---- */
+  .lab{display:grid;gap:clamp(.7rem,2vw,1.3rem);align-items:start}
+  .lab.l12{grid-template-columns:1.15fr 1fr}
+  .lab.l21{grid-template-columns:1fr .85fr}
+  .labbox{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:clamp(.6rem,1.5vw,.95rem)}
+  .pane.dark .labbox{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .labbox h4{font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.55rem}
+  .pane.dark .labbox h4{color:#7fa0ff}
+  .cvwrap{position:relative;width:100%;height:clamp(170px,32vh,320px);
+    border:1px solid rgba(0,0,0,.2);background:#f3efe5}
+  .pane.dark .cvwrap{border-color:rgba(233,228,216,.2);background:#0d1726}
+  .cvwrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  .ctrls{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+  .bb{cursor:pointer;border:1px solid currentColor;background:transparent;color:var(--signal-dk);
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;
+    padding:.42rem .7rem;transition:.18s}
+  .bb:hover{background:var(--signal);border-color:var(--signal);color:#fff}
+  .bb.gh{color:var(--muted)}
+  .bb.gh:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .pane.dark .bb{color:#7fa0ff}
+  .pane.dark .bb.gh{color:#a9a294}
+
+  .sl{display:grid;grid-template-columns:4.6rem 1fr 3.2rem;align-items:center;
+    gap:.5rem;margin-bottom:.35rem;font-family:var(--mono);font-size:.74rem}
+  .sl label{color:var(--muted)}
+  .sl input[type=range]{width:100%;accent-color:var(--signal)}
+  .sl .val{text-align:right;font-weight:bold;color:var(--signal-dk)}
+  .pane.dark .sl .val{color:#7fa0ff}
+  .toggles{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+  .tg{cursor:pointer;border:1px solid rgba(0,0,0,.28);background:transparent;
+    font-family:var(--mono);font-size:.72rem;padding:.4rem .65rem;color:var(--ink);transition:.15s;text-align:left}
+  .tg small{display:block;opacity:.7;font-size:.86em}
+  .tg.on{background:var(--alarm);border-color:var(--alarm);color:#fff}
+  .pane.dark .tg{border-color:rgba(233,228,216,.3);color:#cfc8b8}
+
+  .read{font-family:var(--mono);font-size:clamp(.72rem,1.3vw,.86rem);line-height:1.6;
+    margin-top:.5rem;border-top:1px solid rgba(0,0,0,.15);padding-top:.45rem;color:#4a4436}
+  .pane.dark .read{border-color:rgba(233,228,216,.15);color:#a9a294}
+  .read b{color:var(--signal-dk)} .pane.dark .read b{color:#7fa0ff}
+  .read .ko{color:var(--alarm);font-weight:bold}
+  .read .ok{color:var(--green);font-weight:bold}
+  .pane.dark .read .ko{color:#ff8e73} .pane.dark .read .ok{color:#7fe0ac}
+  .verdict{font-family:var(--serif);font-size:clamp(.8rem,1.45vw,.98rem);line-height:1.45;
+    margin-top:.5rem;color:#4a4436}
+  .verdict b{color:var(--ink)}
+  .pane.dark .verdict{color:#c9c2b2} .pane.dark .verdict b{color:#fff}
+
+  /* ---- fonctions d'activation ---- */
+  .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.6rem,1.8vw,1.1rem)}
+  .actc{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.6rem}
+  .actc .nm{font-family:var(--display);text-transform:uppercase;font-size:clamp(.78rem,1.5vw,1rem);
+    line-height:1.1;margin-bottom:.15rem}
+  .actc .fm{font-family:var(--mono);font-size:.7rem;color:var(--signal-dk);margin-bottom:.4rem}
+  .actc .cv{position:relative;height:clamp(68px,11vh,100px);border:1px solid rgba(0,0,0,.12);background:#f3efe5}
+  .actc .cv canvas{position:absolute;inset:0;width:100%;height:100%}
+  .actc p{font-size:clamp(.72rem,1.3vw,.86rem);line-height:1.45;color:#4a4436;margin-top:.4rem}
+  .actc p b{color:var(--ink)}
+
+  /* ---- réseau SVG ---- */
+  .netwrap{display:flex;justify-content:center;align-items:center;margin:clamp(.4rem,1.5vh,.9rem) 0}
+  .netwrap svg{width:100%;max-width:640px;height:auto}
+  .nd{fill:var(--paper-2);stroke:var(--ink);stroke-width:1.4}
+  .pane.dark .nd{fill:#1c2740;stroke:#7fa0ff}
+  .ne{stroke:rgba(0,0,0,.22);stroke-width:1.1;fill:none}
+  .pane.dark .ne{stroke:rgba(233,228,216,.25)}
+  .nl{font-family:var(--mono);font-size:9px;fill:var(--muted);text-anchor:middle}
+  .bp{stroke:var(--alarm);stroke-width:2.4;fill:none;stroke-dasharray:7 120;
+    stroke-linecap:round;animation:bpflow 2.6s linear infinite}
+  @keyframes bpflow{from{stroke-dashoffset:0}to{stroke-dashoffset:-127}}
+  .bp.d1{animation-delay:0s} .bp.d2{animation-delay:.55s} .bp.d3{animation-delay:1.1s}
+
+  /* ---- chiffres ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;
+    margin:clamp(.7rem,2.2vh,1.2rem) 0;max-width:920px}
+  .stat{border:1px solid rgba(233,228,216,.16);padding:.55rem .65rem}
+  .pane.light .stat{border-color:rgba(0,0,0,.16);background:var(--paper-2)}
+  .stat b{display:block;font-family:var(--display);color:var(--signal);line-height:1;
+    font-size:clamp(.95rem,2.2vw,1.5rem);margin-bottom:.22rem}
+  .stat span{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);line-height:1.3;display:block}
+
+  /* ---- activité ---- */
+  .act{align-items:center;justify-content:center;text-align:center;padding:clamp(.6rem,2vh,1.2rem);
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.74rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:.5rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.2rem,3.4vw,2.1rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.5rem;max-width:72ch;font-size:clamp(.82rem,1.55vw,1rem);
+    line-height:1.45;color:#cfc8b8}
+  .exos{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(.5rem,1.4vw,.9rem);
+    margin:clamp(.5rem,1.6vh,.9rem) auto 0;max-width:940px;text-align:left}
+  .exo{border:1px solid rgba(233,228,216,.22);background:rgba(233,228,216,.05);padding:.5rem .7rem}
+  .exo .n{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:.3rem}
+  .exo .q{font-family:var(--mono);font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.5;color:#e9e4d8}
+  .exo .q i{color:#a9a294;font-style:normal}
+  .exo .sol{display:none;font-family:var(--mono);font-size:clamp(.72rem,1.25vw,.84rem);
+    line-height:1.5;color:#7fe0ac}
+  .exos.show .q{display:none}
+  .exos.show .sol{display:block}
+
+  /* ---- récap ---- */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.2rem,3.4vw,2.3rem);margin-bottom:clamp(.5rem,1.6vh,1rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.35rem,1.2vh,.6rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.82rem,1.55vw,1.05rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.5rem,1.8vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .7rem;
+    border-left:4px solid var(--signal);font-size:clamp(.74rem,1.3vw,.9rem);line-height:1.35;color:#4a4436;
+    flex:1 1 15rem}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.92em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.6rem,2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.5rem,1.6vh,.8rem);
+    font-size:clamp(.9rem,1.8vw,1.22rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* =========================================================
+     HUD
+     ========================================================= */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.6rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.42rem}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.acts,.exos,.lab.l12,.lab.l21{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="donnees.html">◂ Séance précédente · Comment une IA apprend</a>
+    <div class="tag">SNT · Enseignement IA</div>
+    <h1 class="big">Dans le bon<br>sens&nbsp;— mais<br><em>lequel</em>&nbsp;?</h1>
+    <p class="line">La dernière fois, on a dit que l'entraînement tourne des milliards de boutons «&nbsp;d'un cheveu dans le bon sens&nbsp;». On a laissé passer quelque chose&nbsp;: <strong style="color:#fff">comment la machine sait-elle de quel côté tourner&nbsp;?</strong></p>
+    <div class="kick">Neurone · poids · pente · rétropropagation</div>
+  </div>
+
+  <!-- ============ 1 · LA QUESTION LAISSÉE EN PLAN ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow">On reprend là où on s'était arrêtés</div>
+    <h2 class="stitle">Le mot qui cachait<br>tout le mécanisme</h2>
+
+    <div class="mid">
+      <div class="quote">
+        <div class="src">Séance précédente · « Comment une IA apprend »</div>
+        <p>«&nbsp;Un modèle, c'est des milliards de petits boutons de réglage. Au départ ils sont au hasard. À chaque erreur, on tourne chaque bouton d'un cheveu <mark>dans le bon sens</mark>.&nbsp;»</p>
+      </div>
+      <div class="bigq">Trois questions en une&nbsp;:<br><em>où</em> est le bouton,<br><em>comment</em> connaît-on le bon sens,<br><em>de combien</em> on tourne.
+        <small>Cette séance ouvre la boîte. On va écrire les formules — elles tiennent en une ligne chacune. Aucune n'est au programme de première, mais aucune n'est hors de portée.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2 · UN NEURONE, C'EST UNE FONCTION ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow">Le bouton · 1/2</div>
+    <h2 class="stitle">Un neurone,<br>c'est une fonction</h2>
+    <p class="lead">Pas une cellule, pas un cerveau&nbsp;: une <b>fonction mathématique</b> à plusieurs entrées et une sortie. Le nom vient d'une inspiration biologique de 1943 — on la mentionne une fois, puis on l'oublie, parce qu'elle n'explique rien.</p>
+
+    <div class="mid">
+      <div class="lab l12">
+        <div class="labbox">
+          <h4>Le neurone « faut-il prendre un parapluie ? »</h4>
+          <div class="toggles" id="n2tg"></div>
+          <div id="n2sl"></div>
+          <div class="read" id="n2read"></div>
+        </div>
+        <div class="labbox">
+          <h4>Ce qu'il calcule</h4>
+          <div class="eqbox eq">
+            <div><span class="r">s</span> = <span class="w">w₁</span>·<span class="x">x₁</span> + <span class="w">w₂</span>·<span class="x">x₂</span> + <span class="b">b</span></div>
+            <div style="margin-top:.3rem">sortie = 1 si <span class="r">s</span> &gt; 0, sinon 0</div>
+          </div>
+          <p class="verdict" style="margin-top:.6rem">Les <b>x</b> sont les entrées — données, pas réglables. Les <b>w</b> (poids) et <b>b</b> sont les <b>paramètres</b>&nbsp;: les boutons. Un poids grand et positif = «&nbsp;cette entrée compte beaucoup, et dans le sens du oui&nbsp;». Un poids négatif = elle pousse vers le non.</p>
+          <div class="warnbox">
+            <div class="t">Attention, le mot « biais » a deux sens</div>
+            <p>Ici, <b>b</b> s'appelle le <b>biais</b> du neurone&nbsp;: c'est juste un nombre qu'on ajoute, qui règle à quel point le neurone est difficile à convaincre. Rien à voir avec le <b>biais</b> de la séance précédente, qui désignait un écart systématique venu des données. Deux notions, deux mondes, un seul mot — c'est l'usage, il faut vivre avec.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3 · LA FONCTION D'ACTIVATION ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow">Le bouton · 2/2</div>
+    <h2 class="stitle">Et il faut écraser<br>le résultat</h2>
+    <p class="lead">La somme pondérée <b>s</b> peut valoir n'importe quoi&nbsp;: −14, 0,003, 2 millions. On la fait donc passer dans une dernière fonction, appelée <b>fonction d'activation</b>. C'est elle qui transforme un calcul en décision.</p>
+
+    <div class="mid">
+      <div class="acts">
+        <div class="actc">
+          <div class="nm">Marche</div>
+          <div class="fm">f(s) = 1 si s &gt; 0, sinon 0</div>
+          <div class="cv"><canvas id="a1"></canvas></div>
+          <p>La plus intuitive — celle qu'on vient d'utiliser. Mais elle est <b>plate partout</b>&nbsp;: elle n'a aucune pente. Retenez ce défaut, il va tout décider.</p>
+        </div>
+        <div class="actc">
+          <div class="nm">Sigmoïde</div>
+          <div class="fm">f(s) = 1 / (1 + e<sup>−s</sup>)</div>
+          <div class="cv"><canvas id="a2"></canvas></div>
+          <p>La même marche, mais adoucie&nbsp;: elle glisse de 0 à 1. Elle a <b>une pente partout</b>. Sortie lisible comme une «&nbsp;confiance&nbsp;» entre 0 et 1.</p>
+        </div>
+        <div class="actc">
+          <div class="nm">ReLU</div>
+          <div class="fm">f(s) = max(0, s)</div>
+          <div class="cv"><canvas id="a3"></canvas></div>
+          <p>Plus simple encore&nbsp;: négatif → 0, positif → inchangé. Pente nulle à gauche, pente 1 à droite. <b>C'est celle qu'on utilise presque partout aujourd'hui</b>, parce qu'elle coûte une comparaison.</p>
+        </div>
+      </div>
+      <p class="lead" style="margin:0 auto;text-align:center;max-width:84ch">Sans elle, empiler des neurones ne servirait à rien&nbsp;: une somme de sommes pondérées reste une somme pondérée. <b>C'est la fonction d'activation qui rend un réseau capable d'autre chose qu'une droite.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · APPRENDRE = CORRIGER LES POIDS ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow">Le réglage · l'expérience fondatrice</div>
+    <h2 class="stitle">Un neurone qui se corrige</h2>
+    <p class="lead">Chaque point est un mail&nbsp;: <b>→</b> son nombre de liens, <b>↑</b> son nombre de mots en capitales. Rouge = spam, bleu = normal. Le neurone trace une droite et dit «&nbsp;spam&nbsp;» d'un côté. Au départ, sa droite est au hasard&nbsp;: elle se trompe presque partout.</p>
+
+    <div class="mid">
+      <div class="lab l21">
+        <div>
+          <div class="cvwrap"><canvas id="pc"></canvas></div>
+          <div class="ctrls">
+            <button class="bb" id="pc1">▸ Un seul exemple</button>
+            <button class="bb" id="pcp">⟲ Une passe complète</button>
+            <button class="bb gh" id="pcr">↺ Tout remettre au hasard</button>
+          </div>
+        </div>
+        <div class="labbox">
+          <h4>La règle de correction</h4>
+          <div class="eqbox eq" style="font-size:.84rem">
+            <div>si la prédiction est <span class="r">juste</span> → on ne touche à rien</div>
+            <div style="margin-top:.35rem">sinon&nbsp;:</div>
+            <div><span class="w">w₁</span> ← <span class="w">w₁</span> + η·(<span class="x">attendu − prédit</span>)·<span class="x">x₁</span></div>
+            <div><span class="w">w₂</span> ← <span class="w">w₂</span> + η·(<span class="x">attendu − prédit</span>)·<span class="x">x₂</span></div>
+            <div><span class="b">b</span> ← <span class="b">b</span> + η·(<span class="x">attendu − prédit</span>)</div>
+          </div>
+          <div class="read" id="pcread"></div>
+          <p class="verdict">Rosenblatt, 1957. Trois lignes, aucune magie&nbsp;: quand on s'est trompé, on pousse la droite <b>vers l'exemple raté</b>. Et quand les deux familles sont séparables par une droite, c'est <b>démontré</b> que ça finit par marcher.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 5 · L'ERREUR EST UN NOMBRE ============ -->
+  <div class="pane light pad" id="s5">
+    <div class="eyebrow">Le réglage · ce qu'on cherche à rendre petit</div>
+    <h2 class="stitle">L'erreur,<br>c'est un nombre</h2>
+    <p class="lead">Pour corriger, il faut d'abord <b>mesurer</b>. On ne dit pas «&nbsp;le modèle est mauvais&nbsp;»&nbsp;: on calcule un nombre, le même à chaque fois. Ce nombre s'appelle la <b>fonction de coût</b> (ou fonction de perte, <i>loss</i> en anglais).</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card">
+          <h3>Sur un exemple</h3>
+          <div class="sub">écart au carré</div>
+          <p class="ex">erreur = (prédit − attendu)²</p>
+          <p>Au carré pour deux raisons&nbsp;: c'est <b>toujours positif</b> (une erreur de −3 est aussi grave qu'une de +3), et les <b>grosses erreurs comptent beaucoup plus</b> que les petites.</p>
+        </div>
+        <div class="card">
+          <h3>Sur tout le corpus</h3>
+          <div class="sub">la moyenne</div>
+          <p class="ex">C = moyenne des erreurs<br>&nbsp;&nbsp;&nbsp;sur les N exemples</p>
+          <p>Un seul nombre pour des milliards de phrases. <b>C'est ce nombre, et lui seul, que l'entraînement cherche à faire baisser.</b></p>
+        </div>
+        <div class="card good">
+          <h3>Donc : un minimum</h3>
+          <div class="sub">le problème est posé</div>
+          <p class="ex">trouver les w et b<br>qui rendent C minimal</p>
+          <p>C'est une question de maths parfaitement classique&nbsp;: <b>chercher le minimum d'une fonction</b>. Vous en faites déjà, avec une variable. Ici il y en a mille milliards.</p>
+        </div>
+      </div>
+      <p class="lead" style="margin:0 auto;text-align:center;max-width:84ch">Aucune formule ne donne la réponse d'un coup — avec mille milliards d'inconnues, personne ne sait résoudre. <b>Alors on y va à tâtons.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · DESCENDRE DANS LE BROUILLARD ============ -->
+  <div class="pane dark pad" id="s6">
+    <div class="eyebrow">Le réglage · la réponse à la question de la séance</div>
+    <h2 class="stitle">Descendre dans<br>le brouillard</h2>
+    <p class="lead">Vous êtes sur une pente, dans un brouillard total. Vous ne voyez pas la vallée. Mais vous <b>sentez la pente sous vos pieds</b> — alors vous faites un petit pas vers le bas. Puis vous recommencez. Voilà toute la méthode.</p>
+
+    <div class="mid">
+      <div class="lab l21">
+        <div>
+          <div class="cvwrap"><canvas id="gd"></canvas></div>
+          <div class="ctrls">
+            <button class="bb" id="gd1">▸ Un pas</button>
+            <button class="bb" id="gd10">▸▸ Dix pas</button>
+            <button class="bb gh" id="gdf">👁 Lever le brouillard</button>
+            <button class="bb gh" id="gdr">↺ Replacer la bille</button>
+          </div>
+        </div>
+        <div class="labbox">
+          <h4>La descente de gradient</h4>
+          <div class="eqbox eq" style="font-size:.86rem">
+            <div><span class="w">w</span> ← <span class="w">w</span> − η · pente de C en <span class="w">w</span></div>
+          </div>
+          <div class="sl" style="margin-top:.6rem">
+            <label>η (le pas)</label>
+            <input type="range" id="gdeta" min="0.02" max="2.5" step="0.02" value="0.3">
+            <span class="val" id="gdetav">0.30</span>
+          </div>
+          <div class="read" id="gdread"></div>
+          <p class="verdict">Le signe «&nbsp;moins&nbsp;» est tout le secret&nbsp;: la pente monte, donc on va <b>à l'opposé</b> de la pente. Voilà le fameux «&nbsp;bon sens&nbsp;». Et <b>η</b>, le <b>taux d'apprentissage</b>, c'est la longueur du pas. Poussez-le à fond pour voir ce qui arrive.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 7 · LA RÉTROPROPAGATION ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow">Le réglage · et pour mille milliards de boutons ?</div>
+    <h2 class="stitle">On remonte<br>depuis l'erreur</h2>
+    <p class="lead">Un bouton, on sait faire. Mais l'erreur se mesure <b>à la sortie</b>, et un bouton de la première couche en est très loin. Comment connaître sa pente à lui&nbsp;?</p>
+
+    <div class="mid">
+      <div class="netwrap">
+        <svg viewBox="0 0 620 170" role="img" aria-label="Réseau de neurones avec le signal d'erreur qui remonte de la sortie vers l'entrée">
+          <g class="ne">
+            <path d="M80 40 L220 30 M80 40 L220 70 M80 40 L220 110 M80 40 L220 150
+                     M80 85 L220 30 M80 85 L220 70 M80 85 L220 110 M80 85 L220 150
+                     M80 130 L220 30 M80 130 L220 70 M80 130 L220 110 M80 130 L220 150"/>
+            <path d="M220 30 L380 30 M220 30 L380 70 M220 30 L380 110 M220 30 L380 150
+                     M220 70 L380 30 M220 70 L380 70 M220 70 L380 110 M220 70 L380 150
+                     M220 110 L380 30 M220 110 L380 70 M220 110 L380 110 M220 110 L380 150
+                     M220 150 L380 30 M220 150 L380 70 M220 150 L380 110 M220 150 L380 150"/>
+            <path d="M380 30 L530 85 M380 70 L530 85 M380 110 L530 85 M380 150 L530 85"/>
+          </g>
+          <path class="bp d1" d="M530 85 L380 30 M530 85 L380 70 M530 85 L380 110 M530 85 L380 150"/>
+          <path class="bp d2" d="M380 70 L220 30 M380 70 L220 70 M380 110 L220 110 M380 110 L220 150"/>
+          <path class="bp d3" d="M220 70 L80 40 M220 70 L80 85 M220 110 L80 130"/>
+          <g class="nd">
+            <circle cx="80" cy="40" r="11"/><circle cx="80" cy="85" r="11"/><circle cx="80" cy="130" r="11"/>
+            <circle cx="220" cy="30" r="11"/><circle cx="220" cy="70" r="11"/>
+            <circle cx="220" cy="110" r="11"/><circle cx="220" cy="150" r="11"/>
+            <circle cx="380" cy="30" r="11"/><circle cx="380" cy="70" r="11"/>
+            <circle cx="380" cy="110" r="11"/><circle cx="380" cy="150" r="11"/>
+            <circle cx="530" cy="85" r="13" style="fill:#b5301f;stroke:#b5301f"/>
+          </g>
+          <g class="nl">
+            <text x="80" y="158">entrée</text><text x="220" y="168">couche cachée 1</text>
+            <text x="380" y="168">couche cachée 2</text><text x="530" y="113">erreur</text>
+          </g>
+        </svg>
+      </div>
+      <div class="cards c2" style="margin-top:0">
+        <div class="card">
+          <h3>La règle de la chaîne</h3>
+          <div class="sub">calcul · dérivation composée</div>
+          <p>Si l'erreur dépend de la sortie, qui dépend de la couche 2, qui dépend de la couche 1… alors on obtient la pente d'un bouton lointain en <b>multipliant les pentes successives</b> le long du chemin. C'est un théorème de terminale, appliqué des milliards de fois.</p>
+        </div>
+        <div class="card good">
+          <h3>Rétropropagation</h3>
+          <div class="sub">backpropagation · 1986</div>
+          <p>On part de l'erreur et on <b>remonte couche par couche</b>, de la droite vers la gauche. Chaque bouton reçoit sa pente — et <b>un seul passage en arrière suffit pour tous</b>. Sans cette astuce, entraîner un grand modèle prendrait des siècles&nbsp;: c'est elle qui a rendu l'IA moderne possible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 8 · UNE DROITE NE SUFFIT PAS ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow">Le réseau · pourquoi plusieurs neurones</div>
+    <h2 class="stitle">Une droite<br>ne suffit pas</h2>
+    <p class="lead">Nouveau problème&nbsp;: séparer le <b>disque rouge</b> de l'<b>anneau bleu</b>. Essayez toutes les droites que vous voulez — aucune n'y arrivera. Un neurone seul est condamné.</p>
+
+    <div class="mid">
+      <div class="lab l21">
+        <div>
+          <div class="cvwrap"><canvas id="hx"></canvas></div>
+          <div class="ctrls">
+            <button class="bb" id="hxl">↻ Une autre droite</button>
+            <button class="bb" id="hxm">▦ Passer à six neurones</button>
+          </div>
+        </div>
+        <div class="labbox">
+          <h4 id="hxh">Un seul neurone</h4>
+          <div class="read" id="hxread"></div>
+          <p class="verdict" id="hxv"></p>
+          <div class="eqbox eq" id="hxeq" style="font-size:.8rem;margin-top:.5rem;display:none">
+            <div>6 neurones cachés&nbsp;: <span class="w">h₁…h₆</span>, une droite chacun</div>
+            <div style="margin-top:.3rem">neurone de sortie&nbsp;:</div>
+            <div><span class="r">s</span> = <span class="w">h₁</span>+<span class="w">h₂</span>+<span class="w">h₃</span>+<span class="w">h₄</span>+<span class="w">h₅</span>+<span class="w">h₆</span> <span class="b">− 5,5</span></div>
+            <div style="margin-top:.3rem">→ positif <i>seulement si les six disent oui</i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 9 · LE RÉSEAU, ET LE MOT « PROFOND » ============ -->
+  <div class="pane light pad" id="s9">
+    <div class="eyebrow">Le réseau · et le mot de la séance 2</div>
+    <h2 class="stitle">Des couches —<br>et le mot « profond »</h2>
+    <p class="lead">On met les neurones en <b>couches</b>&nbsp;: la sortie de chacun devient l'entrée de tous ceux de la couche suivante. Chaque flèche porte un poids, chaque neurone porte un biais. Comptons.</p>
+
+    <div class="mid">
+      <div class="lab l12">
+        <div>
+          <div class="netwrap" style="margin:0">
+            <svg viewBox="0 0 500 185" role="img" aria-label="Réseau 3 entrées, deux couches cachées de 4 neurones, 2 sorties">
+              <g class="ne">
+                <path d="M55 50 L185 30 M55 50 L185 70 M55 50 L185 110 M55 50 L185 150
+                         M55 92 L185 30 M55 92 L185 70 M55 92 L185 110 M55 92 L185 150
+                         M55 134 L185 30 M55 134 L185 70 M55 134 L185 110 M55 134 L185 150"/>
+                <path d="M185 30 L315 30 M185 30 L315 70 M185 30 L315 110 M185 30 L315 150
+                         M185 70 L315 30 M185 70 L315 70 M185 70 L315 110 M185 70 L315 150
+                         M185 110 L315 30 M185 110 L315 70 M185 110 L315 110 M185 110 L315 150
+                         M185 150 L315 30 M185 150 L315 70 M185 150 L315 110 M185 150 L315 150"/>
+                <path d="M315 30 L445 70 M315 30 L445 112 M315 70 L445 70 M315 70 L445 112
+                         M315 110 L445 70 M315 110 L445 112 M315 150 L445 70 M315 150 L445 112"/>
+              </g>
+              <g class="nd">
+                <circle cx="55" cy="50" r="10"/><circle cx="55" cy="92" r="10"/><circle cx="55" cy="134" r="10"/>
+                <circle cx="185" cy="30" r="10"/><circle cx="185" cy="70" r="10"/>
+                <circle cx="185" cy="110" r="10"/><circle cx="185" cy="150" r="10"/>
+                <circle cx="315" cy="30" r="10"/><circle cx="315" cy="70" r="10"/>
+                <circle cx="315" cy="110" r="10"/><circle cx="315" cy="150" r="10"/>
+                <circle cx="445" cy="70" r="10"/><circle cx="445" cy="112" r="10"/>
+              </g>
+              <g class="nl">
+                <text x="55" y="172">3 entrées</text><text x="185" y="172">4 neurones</text>
+                <text x="315" y="172">4 neurones</text><text x="445" y="140">2 sorties</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="labbox">
+          <h4>Compter les paramètres</h4>
+          <div class="eqbox eq" style="font-size:.82rem">
+            <div>couche 1&nbsp;: 3×4 poids + 4 biais = <b>16</b></div>
+            <div>couche 2&nbsp;: 4×4 poids + 4 biais = <b>20</b></div>
+            <div>sortie&nbsp;&nbsp;&nbsp;: 4×2 poids + 2 biais = <b>10</b></div>
+            <div style="border-top:1px solid rgba(0,0,0,.25);margin-top:.35rem;padding-top:.3rem">
+              total&nbsp;: <span class="r">46 paramètres</span></div>
+          </div>
+          <p class="verdict" style="margin-top:.6rem">Quarante-six boutons, pour ce petit schéma. Chacun reçoit sa pente par rétropropagation, à chaque exemple.</p>
+          <div class="warnbox" style="border-left-color:var(--signal);background:rgba(31,92,255,.07)">
+            <div class="t" style="color:var(--signal-dk)">Le mot « profond » est enfin expliqué</div>
+            <p>Beaucoup de couches empilées = un réseau <b>profond</b>. Apprentissage profond, <i>deep learning</i>&nbsp;: le mot croisé à la séance 2 ne dit rien de plus que <b>ça</b>. Pas une profondeur de pensée — un nombre de couches.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 10 · RETOUR À L'ÉCHELLE ============ -->
+  <div class="pane dark pad" id="s10">
+    <div class="eyebrow">Zoom arrière</div>
+    <h2 class="stitle">La même opération,<br>mille milliards de fois</h2>
+    <p class="lead">Rien de ce qui suit n'est nouveau. Un grand modèle de langage, c'est <b>exactement</b> ce que vous venez de voir — multiplier, additionner, écraser — à une autre échelle.</p>
+
+    <div class="mid">
+      <div class="stats">
+        <div class="stat"><b>3</b><span>paramètres · le neurone « parapluie »</span></div>
+        <div class="stat"><b>46</b><span>paramètres · le petit réseau du schéma</span></div>
+        <div class="stat"><b>~10⁸</b><span>un modèle qui tient sur un téléphone</span></div>
+        <div class="stat"><b>~10¹²</b><span>un grand modèle de 2026</span></div>
+      </div>
+      <div class="cards c2" style="margin:0">
+        <div class="card">
+          <h3>Ce qu'on sait exactement</h3>
+          <div class="sub">aucun mystère ici</div>
+          <p>Chaque opération, une par une&nbsp;: les multiplications, les additions, la fonction d'activation, la pente, le pas. <b>Tout est écrit</b>, et on vient de tout écrire.</p>
+        </div>
+        <div class="card warn">
+          <h3>Ce qu'on ne sait pas</h3>
+          <div class="sub">la « boîte noire », pour de vrai</div>
+          <p>À quoi sert <b>ce bouton-là</b>, le 714 523 886<sup>e</sup>. Personne ne peut le dire. On ne l'a pas écrit&nbsp;: la descente de gradient l'a posé où il est. <b>La boîte noire n'est pas une ignorance du mécanisme — c'est une ignorance du sens de chaque réglage.</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 11 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s11">
+    <div class="tag">Activité · 15 minutes · papier et crayon</div>
+    <h2>Le neurone<br><em>à la main</em></h2>
+    <p class="sub">On ne comprend pas une formule en la regardant. Faites tourner celle-ci vous-même, sur quatre cas. Une calculatrice n'est même pas nécessaire.</p>
+    <div class="exos" id="exos">
+      <div class="exo">
+        <div class="n">Exercice 1 · la sortie du neurone</div>
+        <div class="q">
+          w = (0,6 ; −0,4 ; 0,9)&nbsp;&nbsp;b = −0,5<br>
+          sortie = 1 si s &gt; 0, sinon 0<br><br>
+          <i>a)</i> x = (1 ; 1 ; 0) → s = ? sortie = ?<br>
+          <i>b)</i> x = (1 ; 0 ; 1) → s = ? sortie = ?<br>
+          <i>c)</i> x = (0 ; 1 ; 1) → s = ? sortie = ?<br>
+          <i>d)</i> x = (1 ; 1 ; 1) → s = ? sortie = ?
+        </div>
+        <div class="sol">
+          a) s = 0,6 − 0,4 + 0 − 0,5 = <b>−0,3</b> → <b>0</b><br>
+          b) s = 0,6 + 0 + 0,9 − 0,5 = <b>1,0</b> → <b>1</b><br>
+          c) s = 0 − 0,4 + 0,9 − 0,5 = <b>0,0</b> → <b>0</b> (pile sur le seuil&nbsp;: s &gt; 0 est faux)<br>
+          d) s = 0,6 − 0,4 + 0,9 − 0,5 = <b>0,6</b> → <b>1</b>
+        </div>
+      </div>
+      <div class="exo">
+        <div class="n">Exercice 2 · un pas de descente</div>
+        <div class="q">
+          w ← w − η · pente&nbsp;&nbsp;&nbsp;avec η = 0,1<br><br>
+          <i>a)</i> w = 0,80 et pente = +1,6 → nouveau w ?<br>
+          <i>b)</i> w = 0,80 et pente = −1,6 → nouveau w ?<br>
+          <i>c)</i> Dans quel cas w <b>augmente</b>-t-il ?<br>
+          <i>d)</i> Et si la pente valait exactement 0 ?
+        </div>
+        <div class="sol">
+          a) w = 0,80 − 0,1×1,6 = <b>0,64</b> (ça descend vers la gauche)<br>
+          b) w = 0,80 + 0,1×1,6 = <b>0,96</b> (ça descend vers la droite)<br>
+          c) Quand la <b>pente est négative</b> — c'est-à-dire quand le coût baisse vers la droite.<br>
+          d) w ne bouge plus&nbsp;: on est sur un <b>minimum</b> (ou un plateau). L'entraînement s'arrête tout seul.
+        </div>
+      </div>
+      <div class="exo">
+        <div class="n">Exercice 3 · à quoi sert le biais</div>
+        <div class="q">
+          Un neurone à une entrée&nbsp;: w = 1, b réglable.<br><br>
+          <i>a)</i> Avec b = 0, pour quels x la sortie vaut-elle 1 ?<br>
+          <i>b)</i> Avec b = −3 ?<br>
+          <i>c)</i> Avec b = +3 ?<br>
+          <i>d)</i> Complétez&nbsp;: «&nbsp;plus b est petit, plus le neurone est …&nbsp;»
+        </div>
+        <div class="sol">
+          a) s = x, donc sortie = 1 pour <b>x &gt; 0</b><br>
+          b) s = x − 3, donc pour <b>x &gt; 3</b><br>
+          c) s = x + 3, donc pour <b>x &gt; −3</b><br>
+          d) … <b>difficile à convaincre</b>. Le biais déplace le seuil&nbsp;: c'est son seul rôle.
+        </div>
+      </div>
+      <div class="exo">
+        <div class="n">Exercice 4 · à discuter à l'oral</div>
+        <div class="q">
+          <i>a)</i> Pourquoi un η trop grand empêche-t-il d'apprendre ?<br>
+          <i>b)</i> Pourquoi un η trop petit, aussi ?<br>
+          <i>c)</i> Le mot «&nbsp;neurone&nbsp;» vous semble-t-il bien choisi ?<br>
+          <i>d)</i> On a tout écrit. Pourquoi parle-t-on encore de boîte noire ?
+        </div>
+        <div class="sol">
+          a) On saute par-dessus la vallée&nbsp;: la bille rebondit, ou part à l'infini.<br>
+          b) On met un temps déraisonnable&nbsp;: des pas d'un millième de millimètre.<br>
+          c) C'est une métaphore de 1943. Aucun de ces objets ne ressemble à une cellule&nbsp;: ce sont des multiplications et des additions.<br>
+          d) Parce qu'on connaît le mécanisme mais pas le <b>sens</b> de chaque réglage, et qu'il y en a mille milliards.
+        </div>
+      </div>
+    </div>
+    <div class="ctrls" style="justify-content:center;margin-top:.6rem">
+      <button class="bb" id="solbtn" style="color:#7fa0ff">👁 Afficher la correction</button>
+    </div>
+  </div>
+
+  <!-- ============ 12 · RÉCAP ============ -->
+  <div class="pane light pad" id="s12">
+    <div class="rc-eye">Fin de séance</div>
+    <h2 class="rc-title">Ce que je dois <span>retenir</span></h2>
+    <ol class="rc-list">
+      <li>Un <span class="hl">neurone</span> est une <b>fonction</b>&nbsp;: une somme pondérée des entrées, plus un biais, écrasée par une fonction d'activation. Rien de biologique.</li>
+      <li>Les <span class="hl">poids</span> et les <span class="hl">biais</span> sont les <b>paramètres</b> — les boutons de la séance précédente. Les entrées, elles, ne se règlent pas.</li>
+      <li>L'erreur se <b>mesure</b> par un nombre, la <span class="hl">fonction de coût</span>. Apprendre, c'est chercher les paramètres qui rendent ce nombre minimal.</li>
+      <li>Le «&nbsp;bon sens&nbsp;» de la séance dernière, c'est <b>l'opposé de la pente</b>&nbsp;: la <span class="hl">descente de gradient</span>. Le <span class="hl">taux d'apprentissage</span> fixe la taille du pas — trop grand, ça diverge&nbsp;; trop petit, c'est interminable.</li>
+      <li>La pente de chaque bouton s'obtient en <b>remontant depuis l'erreur</b> (<span class="hl">rétropropagation</span>), en un seul passage pour tous.</li>
+      <li>Un neurone seul ne sait tracer qu'une <b>droite</b>. C'est l'empilement de <span class="hl">couches</span> qui permet des frontières quelconques — et «&nbsp;profond&nbsp;» ne veut dire que «&nbsp;beaucoup de couches&nbsp;».</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term"><b>Poids &amp; biais</b>Les deux sortes de paramètres d'un neurone. Attention&nbsp;: «&nbsp;biais&nbsp;» a aussi un tout autre sens côté données.</div>
+      <div class="rc-term"><b>Fonction d'activation</b>Marche, sigmoïde, ReLU — ce qui transforme la somme en décision.</div>
+      <div class="rc-term"><b>Fonction de coût</b>Le nombre qui mesure l'erreur sur tout le corpus.</div>
+      <div class="rc-term"><b>Descente de gradient</b>Avancer à l'opposé de la pente, d'un pas η, encore et encore.</div>
+      <div class="rc-term"><b>Rétropropagation</b>Remonter l'erreur de la sortie vers l'entrée pour donner sa pente à chaque paramètre.</div>
+      <div class="rc-term"><b>Couche cachée</b>Les neurones entre l'entrée et la sortie. Beaucoup de couches = réseau profond.</div>
+    </div>
+    <p class="rc-key">Prochaine étape&nbsp;: <b>lui donner des informations qu'il n'a jamais apprises — sans toucher à un seul de ces boutons.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span>Parcours</span></a>
+  <button class="btn" id="prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div>
+    <div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div>
+    <div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div>
+    <div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div>
+    <div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div>
+    <div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div>
+    <div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div>
+  </div>
+  <button class="btn" id="next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 12;
+var INTERACTIVE = {s2:1, s4:1, s6:1, s8:1, s11:1};
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+  redrawAll();
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  var t = e.target;
+  if(t && t.tagName==='INPUT') return;                      // les flèches règlent le curseur
+  if(t && t.tagName==='BUTTON' && (e.key===' '||e.key==='Enter')) return;  // active le bouton, sans avancer
+  if(['ArrowRight',' ','Enter','ArrowDown'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(['ArrowLeft','ArrowUp'].indexOf(e.key)>=0){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,input,label')) return;
+  if(panes[scene] && INTERACTIVE[panes[scene].id]) return;   // scènes interactives
+  go(scene+1);
+});
+
+/* =========================================================
+   OUTILS CANVAS
+   ========================================================= */
+function fit(cv){
+  var r = cv.getBoundingClientRect();
+  var d = window.devicePixelRatio || 1;
+  var w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
+  cv.width = Math.round(w*d); cv.height = Math.round(h*d);
+  var ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  ctx.clearRect(0,0,w,h);
+  return { ctx:ctx, w:w, h:h };
+}
+function lcg(seed){
+  var s = seed>>>0;
+  return function(){ s = (s*1664525 + 1013904223) >>> 0; return s / 4294967296; };
+}
+function f2(x){ return (Math.round(x*100)/100).toFixed(2).replace('.', ',').replace('-', '−'); }
+
+/* =========================================================
+   SCÈNE 2 — le neurone « parapluie »
+   ========================================================= */
+var N2 = (function(){
+  var ENT = [
+    {k:'x₁', lbl:'Il y a des nuages', on:true},
+    {k:'x₂', lbl:'La météo annonce de la pluie', on:false}
+  ];
+  var P = { w1:1.2, w2:1.6, b:-0.5 };
+  var tg = document.getElementById('n2tg'),
+      sl = document.getElementById('n2sl'),
+      rd = document.getElementById('n2read');
+
+  function drawCtrls(){
+    tg.innerHTML = ENT.map(function(e,i){
+      return '<button class="tg'+(e.on?' on':'')+'" data-i="'+i+'">'+e.lbl+
+             '<small>'+e.k+' = '+(e.on?1:0)+'</small></button>';
+    }).join('');
+    [].slice.call(tg.querySelectorAll('.tg')).forEach(function(b){
+      b.onclick = function(){ ENT[+b.dataset.i].on = !ENT[+b.dataset.i].on; drawCtrls(); upd(); };
+    });
+  }
+  function slider(id,label,min,max,val){
+    return '<div class="sl"><label>'+label+'</label>'+
+      '<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="0.1" value="'+val+'">'+
+      '<span class="val" id="'+id+'v">'+f2(val)+'</span></div>';
+  }
+  sl.innerHTML = slider('n2w1','w₁ nuages',-2,2,P.w1) +
+                 slider('n2w2','w₂ météo',-2,2,P.w2) +
+                 slider('n2b','b biais',-2,2,P.b);
+  ['w1','w2','b'].forEach(function(k){
+    var el = document.getElementById('n2'+k);
+    el.oninput = function(){
+      P[k] = parseFloat(el.value);
+      document.getElementById('n2'+k+'v').textContent = f2(P[k]);
+      upd();
+    };
+  });
+
+  function upd(){
+    var x1 = ENT[0].on?1:0, x2 = ENT[1].on?1:0;
+    var s = P.w1*x1 + P.w2*x2 + P.b;
+    var out = s > 0 ? 1 : 0;
+    rd.innerHTML =
+      's = <b>'+f2(P.w1)+'</b>×'+x1+' + <b>'+f2(P.w2)+'</b>×'+x2+' + <b>'+f2(P.b)+'</b>'+
+      '<br>s = <b>'+f2(s)+'</b> &nbsp;→ sortie = <b>'+out+'</b>'+
+      '<br>'+(out ? '<span class="ok">☂ « prends ton parapluie »</span>'
+                  : '<span class="ko">☀ « laisse-le »</span>');
+  }
+  drawCtrls(); upd();
+  return { redraw:function(){} };
+})();
+
+/* =========================================================
+   SCÈNE 3 — les trois fonctions d'activation
+   ========================================================= */
+function drawAct(id, f, kink){
+  var cv = document.getElementById(id); if(!cv) return;
+  var o = fit(cv), ctx = o.ctx, w = o.w, h = o.h;
+  var pad = 8, x0 = pad, x1 = w-pad, y0 = pad, y1 = h-pad;
+  var X = function(s){ return x0 + (s+4)/8*(x1-x0); };      // s de -4 à 4
+  var Y = function(v){ return y1 - (v+0.25)/1.6*(y1-y0); }; // v de -0.25 à 1.35
+  ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x0, Y(0)); ctx.lineTo(x1, Y(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(0), y0); ctx.lineTo(X(0), y1); ctx.stroke();
+  ctx.strokeStyle = '#1f5cff'; ctx.lineWidth = 2.4; ctx.beginPath();
+  var started = false;
+  for(var i=0;i<=240;i++){
+    var s = -4 + 8*i/240, v = f(s);
+    if(kink && Math.abs(s) < 8/240){ ctx.stroke(); started = false; continue; }
+    var px = X(s), py = Y(Math.max(-0.25, Math.min(1.35, v)));
+    if(!started){ ctx.beginPath(); ctx.moveTo(px,py); started = true; } else ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+}
+function drawActs(){
+  drawAct('a1', function(s){ return s>0?1:0; }, true);
+  drawAct('a2', function(s){ return 1/(1+Math.exp(-s)); }, false);
+  drawAct('a3', function(s){ return Math.max(0, s/3); }, false);
+}
+
+/* =========================================================
+   SCÈNE 4 — le perceptron
+   ========================================================= */
+var PC = (function(){
+  var cv = document.getElementById('pc'), rd = document.getElementById('pcread');
+  var ETA = 0.25, N = 24;
+  var pts = (function(){
+    var r = lcg(20260501), a = [];
+    for(var i=0;i<N;i++){
+      var spam = i % 2 === 0;
+      var cx = spam ? 0.68 : 0.32, cy = spam ? 0.70 : 0.33;
+      var x = cx + (r()-0.5)*0.30, y = cy + (r()-0.5)*0.30;
+      a.push({ x:Math.max(0.05,Math.min(0.95,x)), y:Math.max(0.05,Math.min(0.95,y)), t:spam?1:0 });
+    }
+    return a;
+  })();
+  var W, idx, last, timer = null;
+
+  function reset(){
+    W = { w1:-0.9, w2:0.55, b:0.12 };
+    idx = 0; last = null;
+    if(timer){ clearInterval(timer); timer = null; }
+    draw();
+  }
+  function pred(p){ return (W.w1*p.x + W.w2*p.y + W.b) > 0 ? 1 : 0; }
+  function errors(){ var n=0; pts.forEach(function(p){ if(pred(p)!==p.t) n++; }); return n; }
+
+  function step(){
+    var p = pts[idx], py = pred(p), d = p.t - py;
+    if(d !== 0){
+      W.w1 += ETA*d*p.x; W.w2 += ETA*d*p.y; W.b += ETA*d;
+      last = { i:idx, d:d, p:p, said:py, fixed:false };
+    } else {
+      last = { i:idx, d:0, p:p, said:py, fixed:true };
+    }
+    idx = (idx+1) % pts.length;
+    draw();
+  }
+  function pass(){
+    if(timer){ clearInterval(timer); timer = null; return; }
+    var n = 0;
+    timer = setInterval(function(){
+      step(); n++;
+      if(n >= pts.length){ clearInterval(timer); timer = null; }
+    }, 110);
+  }
+
+  function draw(){
+    if(!cv) return;
+    var o = fit(cv), ctx = o.ctx, w = o.w, h = o.h, m = 14;
+    var X = function(v){ return m + v*(w-2*m); }, Y = function(v){ return h-m - v*(h-2*m); };
+
+    /* demi-plans */
+    ctx.save();
+    ctx.beginPath(); ctx.rect(m,m,w-2*m,h-2*m); ctx.clip();
+    for(var gx=0; gx<w; gx+=6){
+      for(var gy=0; gy<h; gy+=6){
+        var ux = (gx-m)/(w-2*m), uy = (h-m-gy)/(h-2*m);
+        var side = (W.w1*ux + W.w2*uy + W.b) > 0;
+        ctx.fillStyle = side ? 'rgba(181,48,31,.13)' : 'rgba(31,92,255,.10)';
+        ctx.fillRect(gx,gy,6,6);
+      }
+    }
+    ctx.restore();
+
+    /* cadre + axes */
+    ctx.strokeStyle = 'rgba(233,228,216,.25)'; ctx.lineWidth = 1;
+    ctx.strokeRect(m,m,w-2*m,h-2*m);
+    ctx.fillStyle = 'rgba(233,228,216,.55)'; ctx.font = '10px "Courier New",monospace';
+    ctx.fillText('liens →', w-m-58, h-m-5);
+    ctx.save(); ctx.translate(m+12, m+54); ctx.rotate(-Math.PI/2);
+    ctx.fillText('capitales →', 0, 0); ctx.restore();
+
+    /* droite */
+    var pA = null, pB = null;
+    if(Math.abs(W.w2) > 1e-6){
+      pA = [0, -(W.w1*0 + W.b)/W.w2]; pB = [1, -(W.w1*1 + W.b)/W.w2];
+    } else if(Math.abs(W.w1) > 1e-6){
+      var xv = -W.b/W.w1; pA = [xv,0]; pB = [xv,1];
+    }
+    if(pA){
+      ctx.save();
+      ctx.beginPath(); ctx.rect(m,m,w-2*m,h-2*m); ctx.clip();
+      ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(X(pA[0]),Y(pA[1])); ctx.lineTo(X(pB[0]),Y(pB[1])); ctx.stroke();
+      ctx.restore();
+    }
+
+    /* points */
+    pts.forEach(function(p,i){
+      var ok = pred(p) === p.t;
+      ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 5.2, 0, 7);
+      ctx.fillStyle = p.t ? '#ff6a4d' : '#6c9eff';
+      ctx.fill();
+      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = ok ? 'rgba(233,228,216,.5)' : '#fff';
+      ctx.stroke();
+      if(!ok){
+        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 8.5, 0, 7);
+        ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 1; ctx.stroke();
+      }
+      if(last && last.i === i){
+        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 11, 0, 7);
+        ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2; ctx.stroke();
+      }
+    });
+
+    var e = errors();
+    var html = 'w₁ = <b>'+f2(W.w1)+'</b> &nbsp; w₂ = <b>'+f2(W.w2)+'</b> &nbsp; b = <b>'+f2(W.b)+'</b>'+
+               '<br>erreurs : '+(e===0 ? '<span class="ok">0 / '+pts.length+' — la droite sépare tout</span>'
+                                       : '<span class="ko">'+e+' / '+pts.length+'</span>');
+    if(last){
+      var nom = last.p.t ? 'spam' : 'normal';
+      var dit = last.said ? 'spam' : 'normal';
+      html += '<br><br>exemple '+(last.i+1)+' ('+nom+') : ';
+      html += last.fixed
+        ? '<span class="ok">déjà juste → on ne touche à rien</span>'
+        : '<span class="ko">il disait « '+dit+' »</span> → on corrige de '+
+          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d*last.p.x))+' sur w₁, '+
+          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d*last.p.y))+' sur w₂, '+
+          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d))+' sur b';
+    } else {
+      html += '<br><br>η = 0,25 — appuyez sur « un seul exemple ».';
+    }
+    rd.innerHTML = html;
+  }
+
+  if(cv){
+    document.getElementById('pc1').onclick = function(){ if(timer){clearInterval(timer);timer=null;} step(); };
+    document.getElementById('pcp').onclick = pass;
+    document.getElementById('pcr').onclick = reset;
+    reset();
+  }
+  return { redraw:draw };
+})();
+
+/* =========================================================
+   SCÈNE 6 — descente de gradient dans le brouillard
+   ========================================================= */
+var GD = (function(){
+  var cv = document.getElementById('gd'), rd = document.getElementById('gdread');
+  var W0 = 3.5, WMIN = -2, WMAX = 4;
+  var w = W0, eta = 0.3, fog = true, diverged = false, nstep = 0, lastSlope = 0;
+
+  /* une cuvette (courbure 1 → le pas devient instable au-delà de η = 2)
+     plus une petite bosse sur le flanc gauche, pour que le terrain ait du relief */
+  function bump(u){ return Math.exp(-(u+2)*(u+2)/0.3); }
+  function C(v){ var u = v-1; return 0.5*u*u + 0.25*bump(u) + 0.4; }
+  function Cp(v){ var u = v-1; return u - 1.6667*(u+2)*bump(u); }
+
+  function step(){
+    if(diverged) return;
+    lastSlope = Cp(w);
+    w = w - eta*lastSlope;
+    nstep++;
+    if(w < WMIN-2 || w > WMAX+2){ diverged = true; }
+    draw();
+  }
+  function reset(){ w = W0; diverged = false; nstep = 0; lastSlope = 0; draw(); }
+
+  function draw(){
+    if(!cv) return;
+    var o = fit(cv), ctx = o.ctx, cw = o.w, ch = o.h, m = 16;
+    var CMAX = 5;
+    var X = function(v){ return m + (v-WMIN)/(WMAX-WMIN)*(cw-2*m); };
+    var Y = function(v){ return ch-m - (v/CMAX)*(ch-2*m); };
+
+    ctx.strokeStyle = 'rgba(233,228,216,.18)'; ctx.lineWidth = 1;
+    ctx.strokeRect(m,m,cw-2*m,ch-2*m);
+    ctx.fillStyle = 'rgba(233,228,216,.5)'; ctx.font = '10px "Courier New",monospace';
+    ctx.fillText('coût C ↑', m+6, m+14);
+    ctx.fillText('le paramètre w →', cw-m-108, ch-m-6);
+
+    /* la courbe : pâle si brouillard, nette autour de la bille */
+    function curve(a,b,col,lw){
+      ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath();
+      var first = true;
+      for(var i=0;i<=200;i++){
+        var v = a + (b-a)*i/200;
+        var px = X(v), py = Y(Math.min(CMAX, C(v)));
+        if(first){ ctx.moveTo(px,py); first = false; } else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+    }
+    curve(WMIN, WMAX, fog ? 'rgba(233,228,216,.09)' : 'rgba(127,160,255,.85)', fog ? 1.5 : 2.6);
+    if(fog){
+      var a = Math.max(WMIN, w-0.8), b = Math.min(WMAX, w+0.8);
+      if(b > a) curve(a, b, 'rgba(127,160,255,.9)', 2.8);
+    }
+
+    var wc = Math.max(WMIN, Math.min(WMAX, w));
+    var slope = Cp(wc);
+
+    /* tangente : « la pente sous les pieds » */
+    var dx = 0.75;
+    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(X(wc-dx), Y(Math.min(CMAX, C(wc) - slope*dx)));
+    ctx.lineTo(X(wc+dx), Y(Math.min(CMAX, C(wc) + slope*dx)));
+    ctx.stroke();
+
+    /* la bille */
+    ctx.beginPath(); ctx.arc(X(wc), Y(Math.min(CMAX, C(wc))), 7, 0, 7);
+    ctx.fillStyle = diverged ? '#ff6a4d' : '#e9e4d8'; ctx.fill();
+    ctx.strokeStyle = '#14110d'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    /* flèche du prochain pas */
+    if(!diverged){
+      var nw = wc - eta*slope;
+      ctx.strokeStyle = 'rgba(127,224,172,.9)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(X(wc), ch-m-6); ctx.lineTo(X(nw), ch-m-6); ctx.stroke();
+      var dir = nw > wc ? 1 : -1;
+      ctx.beginPath();
+      ctx.moveTo(X(nw), ch-m-6);
+      ctx.lineTo(X(nw)-dir*6, ch-m-10);
+      ctx.lineTo(X(nw)-dir*6, ch-m-2);
+      ctx.closePath(); ctx.fillStyle = 'rgba(127,224,172,.9)'; ctx.fill();
+    }
+
+    var html = 'w = <b>'+f2(w)+'</b> &nbsp; coût C = <b>'+f2(C(wc))+'</b>'+
+               '<br>pente de C en w = <b>'+f2(slope)+'</b>';
+    if(diverged){
+      html += '<br><br><span class="ko">✗ ça diverge — le pas était trop grand, la bille a sauté par-dessus la vallée et s\'enfuit.</span>';
+    } else {
+      html += '<br>pas = − η × pente = <b>'+f2(-eta*slope)+'</b>'+
+              '<br>nouveau w = <b>'+f2(wc - eta*slope)+'</b>'+
+              '<br><br>'+nstep+' pas effectué'+(nstep>1?'s':'')+
+              (Math.abs(slope) < 0.02 ? ' — <span class="ok">pente ≈ 0 : on est au fond</span>' : '');
+    }
+    rd.innerHTML = html;
+  }
+
+  if(cv){
+    document.getElementById('gd1').onclick = step;
+    document.getElementById('gd10').onclick = function(){ for(var i=0;i<10;i++) step(); };
+    document.getElementById('gdr').onclick = reset;
+    document.getElementById('gdf').onclick = function(){
+      fog = !fog;
+      this.innerHTML = fog ? '👁 Lever le brouillard' : '🌫 Remettre le brouillard';
+      draw();
+    };
+    var es = document.getElementById('gdeta');
+    es.oninput = function(){
+      eta = parseFloat(es.value);
+      document.getElementById('gdetav').textContent = f2(eta);
+      draw();
+    };
+    reset();
+  }
+  return { redraw:draw };
+})();
+
+/* =========================================================
+   SCÈNE 8 — une droite ne suffit pas / six neurones
+   ========================================================= */
+var HX = (function(){
+  var cv = document.getElementById('hx');
+  var rd = document.getElementById('hxread'), vd = document.getElementById('hxv'),
+      hd = document.getElementById('hxh'), eq = document.getElementById('hxeq');
+  var R = 0.42;                              // rayon inscrit de l'hexagone
+  var pts = (function(){
+    var r = lcg(778899), a = [];
+    for(var i=0;i<16;i++){
+      var th = r()*Math.PI*2, rad = 0.06 + r()*0.22;
+      a.push({ x:Math.cos(th)*rad, y:Math.sin(th)*rad, t:1 });
+    }
+    for(var j=0;j<28;j++){
+      var t2 = r()*Math.PI*2, r2 = 0.56 + r()*0.22;
+      a.push({ x:Math.cos(t2)*r2, y:Math.sin(t2)*r2, t:0 });
+    }
+    return a;
+  })();
+  var LINES = [[1,0.35,0],[0.6,-0.8,0.1],[-0.4,1,-0.15],[1,1,0.2],[0.2,1,0.05]];
+  var li = 0, mode = 0;
+
+  function nrm(k){ var a = Math.PI/6 + k*Math.PI/3; return [Math.cos(a), Math.sin(a)]; }
+  function predict(p){
+    if(mode === 0){
+      var L = LINES[li];
+      return (L[0]*p.x + L[1]*p.y + L[2]) > 0 ? 1 : 0;
+    }
+    var n = 0;
+    for(var k=0;k<6;k++){
+      var v = nrm(k);
+      if(R - (v[0]*p.x + v[1]*p.y) > 0) n++;      // h_k = 1 si du bon côté
+    }
+    return (n - 5.5) > 0 ? 1 : 0;                 // il faut les six
+  }
+  function errors(){ var n=0; pts.forEach(function(p){ if(predict(p)!==p.t) n++; }); return n; }
+
+  function draw(){
+    if(!cv) return;
+    var o = fit(cv), ctx = o.ctx, w = o.w, h = o.h, m = 12;
+    var S = Math.min(w,h)/2 - m, cx = w/2, cy = h/2;
+    var X = function(v){ return cx + v*S; }, Y = function(v){ return cy - v*S; };
+
+    ctx.strokeStyle = 'rgba(233,228,216,.18)'; ctx.lineWidth = 1;
+    ctx.strokeRect(m,m,w-2*m,h-2*m);
+
+    /* régions */
+    ctx.save();
+    ctx.beginPath(); ctx.rect(m,m,w-2*m,h-2*m); ctx.clip();
+    for(var gx=m; gx<w-m; gx+=5){
+      for(var gy=m; gy<h-m; gy+=5){
+        var ux = (gx+2.5-cx)/S, uy = (cy-gy-2.5)/S;
+        var inside = predict({x:ux, y:uy}) === 1;
+        ctx.fillStyle = inside ? 'rgba(181,48,31,.13)' : 'rgba(31,92,255,.09)';
+        ctx.fillRect(gx,gy,5,5);
+      }
+    }
+    /* frontière */
+    ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 2.4;
+    if(mode === 0){
+      var L = LINES[li];
+      if(Math.abs(L[1]) > 1e-6){
+        ctx.beginPath();
+        ctx.moveTo(X(-1.4), Y(-(L[0]*-1.4 + L[2])/L[1]));
+        ctx.lineTo(X( 1.4), Y(-(L[0]* 1.4 + L[2])/L[1]));
+        ctx.stroke();
+      }
+    } else {
+      ctx.beginPath();
+      for(var k=0;k<6;k++){
+        var a = Math.PI/6 + k*Math.PI/3;
+        var rc = R/Math.cos(Math.PI/6);                 // rayon circonscrit
+        var vx = Math.cos(a - Math.PI/6)*rc, vy = Math.sin(a - Math.PI/6)*rc;
+        if(k===0) ctx.moveTo(X(vx), Y(vy)); else ctx.lineTo(X(vx), Y(vy));
+      }
+      ctx.closePath(); ctx.stroke();
+      ctx.setLineDash([3,5]); ctx.strokeStyle = 'rgba(255,209,102,.4)'; ctx.lineWidth = 1;
+      for(var k2=0;k2<6;k2++){
+        var v2 = nrm(k2);
+        var px = v2[0]*R, py = v2[1]*R, tx = -v2[1], ty = v2[0];
+        ctx.beginPath();
+        ctx.moveTo(X(px - tx*1.5), Y(py - ty*1.5));
+        ctx.lineTo(X(px + tx*1.5), Y(py + ty*1.5));
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+    ctx.restore();
+
+    pts.forEach(function(p){
+      var ok = predict(p) === p.t;
+      ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 5, 0, 7);
+      ctx.fillStyle = p.t ? '#ff6a4d' : '#6c9eff'; ctx.fill();
+      ctx.lineWidth = 1.4; ctx.strokeStyle = ok ? 'rgba(233,228,216,.5)' : '#fff'; ctx.stroke();
+      if(!ok){
+        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 8.2, 0, 7);
+        ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 1; ctx.stroke();
+      }
+    });
+
+    var e = errors();
+    hd.textContent = mode === 0 ? 'Un seul neurone' : 'Six neurones + un neurone de sortie';
+    rd.innerHTML = 'frontière : <b>'+(mode===0 ? 'une droite' : 'six droites combinées')+'</b>'+
+      '<br>erreurs : '+(e===0 ? '<span class="ok">0 / '+pts.length+' — tout est séparé</span>'
+                              : '<span class="ko">'+e+' / '+pts.length+'</span>');
+    vd.innerHTML = mode === 0
+      ? 'Changez de droite autant que vous voulez&nbsp;: il en restera toujours du mauvais côté. Le problème n\'est <b>pas linéairement séparable</b> — et un neurone ne sait faire que du linéaire.'
+      : 'Chaque neurone caché trace <b>une</b> droite et répond oui / non. Le neurone de sortie exige que <b>les six soient d\'accord</b> — ce qui dessine un hexagone. Avec vingt neurones on aurait un cercle presque parfait&nbsp;: <b>plus de neurones = frontière plus fine</b>.';
+    eq.style.display = mode === 0 ? 'none' : 'block';
+    document.getElementById('hxl').style.display = mode === 0 ? '' : 'none';
+    document.getElementById('hxm').textContent = mode === 0 ? '▦ Passer à six neurones' : '◂ Revenir à un seul neurone';
+  }
+
+  if(cv){
+    document.getElementById('hxl').onclick = function(){ li = (li+1) % LINES.length; draw(); };
+    document.getElementById('hxm').onclick = function(){ mode = mode ? 0 : 1; draw(); };
+    draw();
+  }
+  return { redraw:draw };
+})();
+
+/* =========================================================
+   SCÈNE 11 — correction de l'activité
+   ========================================================= */
+(function(){
+  var b = document.getElementById('solbtn'), box = document.getElementById('exos');
+  if(!b) return;
+  b.onclick = function(){
+    var on = box.classList.toggle('show');
+    b.innerHTML = on ? '🙈 Masquer la correction' : '👁 Afficher la correction';
+  };
+})();
+
+/* =========================================================
+   REDESSIN
+   ========================================================= */
+function redrawAll(){
+  drawActs();
+  PC.redraw(); GD.redraw(); HX.redraw();
+}
+var rt = null;
+window.addEventListener('resize', function(){
+  clearTimeout(rt); rt = setTimeout(redrawAll, 120);
+});
+redrawAll();
+</script>
+</body>
+</html>
