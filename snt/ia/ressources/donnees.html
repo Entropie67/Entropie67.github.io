@@ -185,16 +185,16 @@
   .simverdict b{color:#fff}
 
   /* ---- définition du biais ---- */
-  .biasdef{margin:0 auto clamp(.55rem,1.7vh,.9rem);max-width:80ch;text-align:center;
-    border-bottom:1px solid rgba(233,228,216,.15);padding-bottom:clamp(.5rem,1.4vh,.75rem)}
+  .biasdef{margin:0 auto clamp(.4rem,1.2vh,.75rem);max-width:80ch;text-align:center;
+    border-bottom:1px solid rgba(233,228,216,.15);padding-bottom:clamp(.4rem,1.1vh,.65rem)}
   .biasdef .k{font-family:var(--display);text-transform:uppercase;color:var(--signal);
     font-size:clamp(1rem,2.5vw,1.7rem);line-height:1.05;margin-bottom:.45rem;
     text-shadow:0 0 26px rgba(31,92,255,.45)}
-  .biasdef p{font-size:clamp(.85rem,1.6vw,1.05rem);line-height:1.5;color:#cfc8b8}
+  .biasdef p{font-size:clamp(.85rem,1.6vw,1.05rem);line-height:1.45;color:#cfc8b8}
   .biasdef p b{color:#fff}
 
   /* ---- exemples de biais ---- */
-  .bias-ex{border-left:4px solid var(--alarm);padding-left:.9rem;margin-top:.5rem}
+  .bias-ex{border-left:4px solid var(--alarm);padding-left:.9rem;margin-top:.4rem}
   .bias-ex .q{font-family:var(--mono);font-size:clamp(.78rem,1.4vw,.92rem);color:#4a4436;line-height:1.5}
   .bias-ex .q b{color:var(--alarm)}
 
@@ -277,6 +277,13 @@
   .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
   .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
   @media (max-width:900px){.homelink span{display:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
@@ -296,54 +303,54 @@
 
   <!-- ============ 0 · OUVERTURE ============ -->
   <div class="pane dark intro on" id="s0">
-    <a class="back" href="la-donnee.html">◂ Séance précédente · Qu'est-ce qu'une donnée&nbsp;?</a>
-    <div class="tag">SNT · Enseignement IA</div>
-    <h1 class="big">D'où vient<br>ce qu'elle <em>sait</em>&nbsp;?</h1>
-    <p class="line">On sait maintenant <strong style="color:#fff">ce qu'elle fait</strong>&nbsp;: prédire le prochain token. Mais personne ne lui a appris le français, ni la capitale de la France, ni les maths. Alors&nbsp;: <strong style="color:#fff">comment a-t-elle appris&nbsp;?</strong></p>
-    <div class="kick">Données · entraînement · paramètres · biais</div>
+    <a class="back" href="la-donnee.html" data-i18n="s0.back">◂ Séance précédente · Qu'est-ce qu'une donnée&nbsp;?</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">D'où vient<br>ce qu'elle <em>sait</em>&nbsp;?</h1>
+    <p class="line" data-i18n="s0.line">On sait maintenant <strong style="color:#fff">ce qu'elle fait</strong>&nbsp;: prédire le prochain token. Mais personne ne lui a appris le français, ni la capitale de la France, ni les maths. Alors&nbsp;: <strong style="color:#fff">comment a-t-elle appris&nbsp;?</strong></p>
+    <div class="kick" data-i18n="s0.kick">Données · entraînement · paramètres · biais</div>
   </div>
 
   <!-- ============ 1 · LA CHAÎNE ============ -->
   <div class="pane dark pad" id="s1">
-    <div class="eyebrow">Vue d'ensemble</div>
-    <h2 class="stitle">Quatre étapes,<br>toujours les mêmes</h2>
-    <p class="lead">Que l'on fabrique un détecteur de spam ou un ChatGPT, la recette est la même. Ce qui change, c'est l'échelle.</p>
+    <div class="eyebrow" data-i18n="s1.eye">Vue d'ensemble</div>
+    <h2 class="stitle" data-i18n="s1.t">Quatre étapes,<br>toujours les mêmes</h2>
+    <p class="lead" data-i18n="s1.lead">Que l'on fabrique un détecteur de spam ou un ChatGPT, la recette est la même. Ce qui change, c'est l'échelle.</p>
 
     <div class="mid">
       <div class="chain">
-        <div class="cbox"><div class="n">1 · collecter</div><div class="t">Les données</div><div class="d">rassembler des milliards d'exemples</div></div>
+        <div class="cbox" data-i18n="s1.b1"><div class="n">1 · collecter</div><div class="t">Les données</div><div class="d">rassembler des milliards d'exemples</div></div>
         <div class="carrow">→</div>
-        <div class="cbox"><div class="n">2 · préparer</div><div class="t">Trier, nettoyer</div><div class="d">choisir ce qu'on garde… et ce qu'on jette</div></div>
+        <div class="cbox" data-i18n="s1.b2"><div class="n">2 · préparer</div><div class="t">Trier, nettoyer</div><div class="d">choisir ce qu'on garde… et ce qu'on jette</div></div>
         <div class="carrow">→</div>
-        <div class="cbox"><div class="n">3 · entraîner</div><div class="t">Régler le modèle</div><div class="d">ajuster des milliards de paramètres</div></div>
+        <div class="cbox" data-i18n="s1.b3"><div class="n">3 · entraîner</div><div class="t">Régler le modèle</div><div class="d">ajuster des milliards de paramètres</div></div>
         <div class="carrow">→</div>
-        <div class="cbox"><div class="n">4 · évaluer</div><div class="t">Le tester</div><div class="d">sur des questions jamais vues</div></div>
+        <div class="cbox" data-i18n="s1.b4"><div class="n">4 · évaluer</div><div class="t">Le tester</div><div class="d">sur des questions jamais vues</div></div>
       </div>
-      <p class="chain-note">Retenez cet ordre&nbsp;: <b>tout ce que le modèle saura</b> — et tout ce qu'il ratera — <b>se joue dans ces quatre cases</b>.</p>
+      <p class="chain-note" data-i18n="s1.note">Retenez cet ordre&nbsp;: <b>tout ce que le modèle saura</b> — et tout ce qu'il ratera — <b>se joue dans ces quatre cases</b>.</p>
     </div>
   </div>
 
   <!-- ============ 2 · LA COLLECTE ============ -->
   <div class="pane light pad" id="s2">
-    <div class="eyebrow">Étape 1 · collecter</div>
-    <h2 class="stitle">D'où viennent<br>les données&nbsp;?</h2>
-    <p class="lead">Pour un grand modèle de langage&nbsp;: essentiellement du <b>texte écrit par des humains</b>, aspiré en masse.</p>
+    <div class="eyebrow" data-i18n="s2.eye">Étape 1 · collecter</div>
+    <h2 class="stitle" data-i18n="s2.t">D'où viennent<br>les données&nbsp;?</h2>
+    <p class="lead" data-i18n="s2.lead">Pour un grand modèle de langage&nbsp;: essentiellement du <b>texte écrit par des humains</b>, aspiré en masse.</p>
 
     <div class="mid">
       <div class="stats">
-        <div class="stat"><b>Le Web</b><span>pages, forums, blogs</span></div>
-        <div class="stat"><b>Livres</b><span>et articles</span></div>
-        <div class="stat"><b>Code</b><span>dépôts publics</span></div>
-        <div class="stat"><b>Encyclopédies</b><span>Wikipédia…</span></div>
+        <div class="stat" data-i18n="s2.g1"><b>Le Web</b><span>pages, forums, blogs</span></div>
+        <div class="stat" data-i18n="s2.g2"><b>Livres</b><span>et articles</span></div>
+        <div class="stat" data-i18n="s2.g3"><b>Code</b><span>dépôts publics</span></div>
+        <div class="stat" data-i18n="s2.g4"><b>Encyclopédies</b><span>Wikipédia…</span></div>
       </div>
       <div class="cards c2">
-        <div class="card">
+        <div class="card" data-i18n="s2.c1">
           <h3>L'échelle</h3>
           <div class="sub">des ordres de grandeur qui donnent le vertige</div>
           <p>On parle de <b>milliers de milliards de tokens</b>. Un humain qui lirait sans dormir toute sa vie n'en verrait qu'une fraction infime.</p>
           <div class="ex">▸ impossible pour un humain de tout relire</div>
         </div>
-        <div class="card warn">
+        <div class="card warn" data-i18n="s2.c2">
           <h3>Le piège</h3>
           <div class="sub">à garder en tête pour la suite</div>
           <p>Le Web <b>n'est pas le monde</b>. Qui y écrit&nbsp;? Dans quelles langues&nbsp;? Sur quels sujets&nbsp;? Certaines voix y sont très présentes, d'autres presque absentes.</p>
@@ -355,52 +362,52 @@
 
   <!-- ============ 3 · LA PRÉPARATION ============ -->
   <div class="pane light pad" id="s3">
-    <div class="eyebrow">Étape 2 · préparer</div>
-    <h2 class="stitle">On ne jette pas<br>le Web brut dans la machine</h2>
-    <p class="lead">Entre l'aspiration et l'entraînement, il y a un gros travail de tri. Et <b>trier, c'est déjà choisir</b>.</p>
+    <div class="eyebrow" data-i18n="s3.eye">Étape 2 · préparer</div>
+    <h2 class="stitle" data-i18n="s3.t">On ne jette pas<br>le Web brut dans la machine</h2>
+    <p class="lead" data-i18n="s3.lead">Entre l'aspiration et l'entraînement, il y a un gros travail de tri. Et <b>trier, c'est déjà choisir</b>.</p>
 
     <div class="mid">
       <div class="cards c3">
-        <div class="card">
+        <div class="card" data-i18n="s3.c1">
           <h3>Nettoyer</h3>
           <div class="sub">enlever le bruit</div>
           <p>Menus de sites, publicités, pages vides, texte illisible, contenus dupliqués des milliers de fois.</p>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s3.c2">
           <h3>Filtrer</h3>
           <div class="sub">enlever ce qu'on ne veut pas</div>
           <p>Spam, contenus violents ou illégaux, données personnelles. Quelqu'un décide où passe la limite.</p>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s3.c3">
           <h3>Découper</h3>
           <div class="sub">rappel de la séance précédente</div>
           <p>Le texte est transformé en <b>tokens</b> — l'unité que le modèle lit et produit.</p>
           <div class="ex">▸ « Le chat mange » → 3 tokens</div>
         </div>
       </div>
-      <p class="lead" style="text-align:center;margin:0 auto;max-width:80ch"><b>Chaque décision de tri est une décision humaine</b> — et elle laissera une trace dans le modèle final.</p>
+      <p class="lead" style="text-align:center;margin:0 auto;max-width:80ch" data-i18n="s3.note"><b>Chaque décision de tri est une décision humaine</b> — et elle laissera une trace dans le modèle final.</p>
     </div>
   </div>
 
   <!-- ============ 4 · L'ENTRAÎNEMENT ============ -->
   <div class="pane dark pad" id="s4">
-    <div class="eyebrow">Étape 3 · entraîner</div>
-    <h2 class="stitle">Se tromper,<br>des milliards de fois</h2>
-    <p class="lead">L'entraînement, c'est une boucle d'une simplicité déconcertante — répétée à une échelle qui ne l'est pas.</p>
+    <div class="eyebrow" data-i18n="s4.eye">Étape 3 · entraîner</div>
+    <h2 class="stitle" data-i18n="s4.t">Se tromper,<br>des milliards de fois</h2>
+    <p class="lead" data-i18n="s4.lead">L'entraînement, c'est une boucle d'une simplicité déconcertante — répétée à une échelle qui ne l'est pas.</p>
 
     <div class="mid">
       <div class="loop">
-        <div class="lstep"><div class="n">1</div><div class="t">On cache le mot suivant d'un texte et on demande au modèle de le <b>deviner</b>.</div></div>
+        <div class="lstep" data-i18n="s4.l1"><div class="n">1</div><div class="t">On cache le mot suivant d'un texte et on demande au modèle de le <b>deviner</b>.</div></div>
         <div class="carrow">→</div>
-        <div class="lstep"><div class="n">2</div><div class="t">On <b>compare</b> sa réponse au vrai mot.</div></div>
+        <div class="lstep" data-i18n="s4.l2"><div class="n">2</div><div class="t">On <b>compare</b> sa réponse au vrai mot.</div></div>
         <div class="carrow">→</div>
-        <div class="lstep"><div class="n">3</div><div class="t">S'il s'est trompé, on <b>ajuste très légèrement</b> ses réglages internes.</div></div>
+        <div class="lstep" data-i18n="s4.l3"><div class="n">3</div><div class="t">S'il s'est trompé, on <b>ajuste très légèrement</b> ses réglages internes.</div></div>
         <div class="carrow">→</div>
-        <div class="lstep"><div class="n">4</div><div class="t">On recommence avec le texte suivant.</div></div>
+        <div class="lstep" data-i18n="s4.l4"><div class="n">4</div><div class="t">On recommence avec le texte suivant.</div></div>
       </div>
-      <div class="loop-back">↻ des milliards de fois, pendant des semaines</div>
+      <div class="loop-back" data-i18n="s4.back">↻ des milliards de fois, pendant des semaines</div>
 
-      <div class="param">
+      <div class="param" data-i18n="s4.param">
         <div class="k">Ces réglages ont un nom : les paramètres</div>
         <p>Un modèle, c'est <b>des milliards de petits boutons de réglage</b> (on dit aussi «&nbsp;poids&nbsp;»). Au départ ils sont au hasard — le modèle raconte n'importe quoi. À chaque erreur, on tourne chaque bouton d'un cheveu dans le bon sens. Au bout de milliards de corrections, l'ensemble finit par produire du texte cohérent.<br><br>
         <b>Personne n'a écrit ces réglages à la main.</b> Personne ne sait dire à quoi sert un bouton en particulier. C'est ça, la fameuse «&nbsp;boîte noire&nbsp;».</p>
@@ -410,55 +417,55 @@
 
   <!-- ============ 5 · ENTRAÎNER ≠ UTILISER ============ -->
   <div class="pane light pad" id="s5">
-    <div class="eyebrow">Une distinction qui règle beaucoup de malentendus</div>
-    <h2 class="stitle">Entraîner,<br>ce n'est pas utiliser</h2>
+    <div class="eyebrow" data-i18n="s5.eye">Une distinction qui règle beaucoup de malentendus</div>
+    <h2 class="stitle" data-i18n="s5.t">Entraîner,<br>ce n'est pas utiliser</h2>
 
     <div class="mid">
       <div class="vs">
-        <div class="card">
+        <div class="card" data-i18n="s5.c1">
           <h3>L'entraînement</h3>
           <div class="sub">une fois, avant la sortie</div>
           <p>Des <b>semaines</b> de calcul, des milliers de machines, un coût en millions. Les paramètres <b>changent</b>.</p>
           <p>C'est là — et seulement là — que le modèle « apprend ».</p>
         </div>
         <div class="vs-mid">≠</div>
-        <div class="card good">
+        <div class="card good" data-i18n="s5.c2">
           <h3>L'inférence</h3>
           <div class="sub">à chaque fois que vous l'utilisez</div>
           <p>Quelques <b>secondes</b>. Les paramètres <b>ne bougent pas d'un iota</b>.</p>
           <p>Le modèle applique ce qu'il a appris, il n'apprend rien de neuf.</p>
         </div>
       </div>
-      <p class="lead" style="text-align:center;margin:0 auto;max-width:82ch">Conséquence directe&nbsp;: <b>votre conversation ne « rentre » pas dans le modèle</b>. Il paraît se souvenir de ce que vous avez dit plus haut simplement parce qu'on lui <b>renvoie tout l'historique</b> à chaque message — c'est le <b>contexte</b>, pas de la mémoire.</p>
+      <p class="lead" style="text-align:center;margin:0 auto;max-width:82ch" data-i18n="s5.note">Conséquence directe&nbsp;: <b>votre conversation ne « rentre » pas dans le modèle</b>. Il paraît se souvenir de ce que vous avez dit plus haut simplement parce qu'on lui <b>renvoie tout l'historique</b> à chaque message — c'est le <b>contexte</b>, pas de la mémoire.</p>
     </div>
   </div>
 
   <!-- ============ 6 · ÉVALUER ============ -->
   <div class="pane light pad" id="s6">
-    <div class="eyebrow">Étape 4 · évaluer</div>
-    <h2 class="stitle">Apprendre,<br>ce n'est pas réciter</h2>
-    <p class="lead">Comment savoir si un modèle a vraiment appris — ou s'il a simplement retenu&nbsp;?</p>
+    <div class="eyebrow" data-i18n="s6.eye">Étape 4 · évaluer</div>
+    <h2 class="stitle" data-i18n="s6.t">Apprendre,<br>ce n'est pas réciter</h2>
+    <p class="lead" data-i18n="s6.lead">Comment savoir si un modèle a vraiment appris — ou s'il a simplement retenu&nbsp;?</p>
 
     <div class="mid">
       <div class="cards c2">
-        <div class="card">
+        <div class="card" data-i18n="s6.c1">
           <h3>Le jeu d'entraînement</h3>
           <div class="sub">ce qu'il a vu</div>
           <p>Les données sur lesquelles on l'a entraîné. Il y est forcément bon&nbsp;: il les a « travaillées ».</p>
         </div>
-        <div class="card good">
+        <div class="card good" data-i18n="s6.c2">
           <h3>Le jeu de test</h3>
           <div class="sub">ce qu'il n'a jamais vu</div>
           <p>Des exemples <b>mis de côté</b> avant l'entraînement. C'est le seul verdict qui compte&nbsp;: sait-il <b>généraliser</b>&nbsp;?</p>
         </div>
       </div>
       <div class="cards c2" style="margin-top:0">
-        <div class="card warn">
+        <div class="card warn" data-i18n="s6.c3">
           <h3>Le sur-apprentissage</h3>
           <div class="sub">le piège classique</div>
           <p>Un élève qui apprend <b>les corrigés par cœur</b> a 20/20 sur les annales… et s'effondre le jour du contrôle. Un modèle peut faire exactement pareil.</p>
         </div>
-        <div class="card warn">
+        <div class="card warn" data-i18n="s6.c4">
           <h3>Et pour les benchmarks&nbsp;?</h3>
           <div class="sub">rappel de la séance 1</div>
           <p>Même problème&nbsp;: si les questions du test ont fuité dans les données d'entraînement, le score ne veut plus rien dire. On appelle ça la <b>contamination</b>.</p>
@@ -469,20 +476,20 @@
 
   <!-- ============ 7 · SIMULATION : ENTRAÎNE TON DÉTECTEUR ============ -->
   <div class="pane dark pad" id="sim">
-    <div class="eyebrow">À vous de jouer</div>
-    <h2 class="stitle">Entraîne<br>ton détecteur</h2>
-    <p class="lead">Objectif&nbsp;: distinguer un <b>loup 🐺</b> d'un <b>husky 🐕</b>. Deux jeux de données possibles. <b>Vous choisissez</b> — la machine apprend, puis on la teste sur des images qu'elle n'a jamais vues.</p>
+    <div class="eyebrow" data-i18n="sim.eye">À vous de jouer</div>
+    <h2 class="stitle" data-i18n="sim.t">Entraîne<br>ton détecteur</h2>
+    <p class="lead" data-i18n="sim.lead">Objectif&nbsp;: distinguer un <b>loup 🐺</b> d'un <b>husky 🐕</b>. Deux jeux de données possibles. <b>Vous choisissez</b> — la machine apprend, puis on la teste sur des images qu'elle n'a jamais vues.</p>
 
     <div class="simchips" id="simchips"></div>
 
     <div class="simgrid">
       <div class="simbox">
-        <h4>Le jeu d'entraînement choisi</h4>
+        <h4 data-i18n="sim.h1">Le jeu d'entraînement choisi</h4>
         <div class="g8" id="simtrain"></div>
         <div class="simrule" id="simrule"></div>
       </div>
       <div class="simbox">
-        <h4>Le test — des images jamais vues</h4>
+        <h4 data-i18n="sim.h2">Le test — des images jamais vues</h4>
         <div class="simtests" id="simtests"></div>
         <div class="simscore" id="simscore"></div>
       </div>
@@ -493,108 +500,114 @@
 
   <!-- ============ 8 · LE BIAIS ============ -->
   <div class="pane dark pad" id="s7">
-    <div class="eyebrow">Le point critique</div>
-    <h2 class="stitle">D'où vient<br>un <em style="font-style:normal;color:var(--signal)">biais</em>&nbsp;?</h2>
-    <p class="lead">Vous venez de le provoquer vous-même. Un modèle ne « croit » rien et ne « veut » rien&nbsp;: il <b>reproduit les régularités</b> de ce qu'on lui a montré. Si le corpus penche, le modèle penche.</p>
+    <div class="eyebrow" data-i18n="s7.eye">Le point critique</div>
+    <h2 class="stitle" data-i18n="s7.t">D'où vient<br>un <em style="font-style:normal;color:var(--signal)">biais</em>&nbsp;?</h2>
+    <p class="lead" data-i18n="s7.lead">Vous venez de le provoquer vous-même. Un modèle ne « croit » rien et ne « veut » rien&nbsp;: il <b>reproduit les régularités</b> de ce qu'on lui a montré. Si le corpus penche, le modèle penche.</p>
 
     <div class="mid">
-      <div class="biasdef">
+      <div class="biasdef" data-i18n="s7.def">
         <div class="k">Un biais, c'est un écart <span style="color:#fff">systématique</span></div>
         <p>Pas une erreur au hasard, qui tomberait une fois d'un côté, une fois de l'autre. Un biais se trompe <b>toujours dans le même sens</b> — parce que les données penchaient dans ce sens. C'est pour ça qu'on ne le corrige pas en relançant le calcul&nbsp;: il faut <b>revenir aux données</b>.</p>
       </div>
       <div class="cards c2">
-        <div class="card">
+        <div class="card" data-i18n="s7.c1">
           <h3>Traduction</h3>
           <div class="sub">un exemple facile à tester en classe</div>
           <p>Depuis une langue sans genre grammatical, une phrase neutre revient souvent genrée&nbsp;: le médecin devient « il », l'infirmière « elle ».</p>
           <div class="bias-ex"><div class="q">Le modèle n'a pas d'opinion. Il restitue <b>ce qui était le plus fréquent</b> dans ses données.</div></div>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s7.c2">
           <h3>Reconnaissance de visages</h3>
           <div class="sub">un cas documenté</div>
           <p>Des systèmes se sont révélés nettement <b>moins fiables</b> sur certains groupes — parce que les visages d'entraînement n'étaient pas également représentés.</p>
           <div class="bias-ex"><div class="q">Un défaut de <b>représentation dans les données</b> devient un défaut de performance pour de vraies personnes.</div></div>
         </div>
       </div>
-      <p class="chain-note">Un biais n'est <b>pas un bug</b> qu'on corrige avec une ligne de code&nbsp;: il vient de ce qu'on a collecté, trié et gardé. <b>On y reviendra</b> — cette fois du côté des conséquences pour la société.</p>
+      <p class="chain-note" data-i18n="s7.note">Un biais n'est <b>pas un bug</b> qu'on corrige avec une ligne de code&nbsp;: il vient de ce qu'on a collecté, trié et gardé. <b>On y reviendra</b> — cette fois du côté des conséquences pour la société.</p>
     </div>
   </div>
 
   <!-- ============ 8 · FINE-TUNING ============ -->
   <div class="pane light pad" id="s8">
-    <div class="eyebrow">Et après le grand entraînement ?</div>
-    <h2 class="stitle">Spécialiser<br>sans tout refaire</h2>
-    <p class="lead">Réentraîner un modèle depuis zéro coûte des millions. Heureusement, on peut <b>repartir d'un modèle existant</b> et poursuivre son entraînement sur un petit corpus ciblé.</p>
+    <div class="eyebrow" data-i18n="s8.eye">Et après le grand entraînement ?</div>
+    <h2 class="stitle" data-i18n="s8.t">Spécialiser<br>sans tout refaire</h2>
+    <p class="lead" data-i18n="s8.lead">Réentraîner un modèle depuis zéro coûte des millions. Heureusement, on peut <b>repartir d'un modèle existant</b> et poursuivre son entraînement sur un petit corpus ciblé.</p>
 
     <div class="mid">
       <div class="cards c2">
-        <div class="card">
+        <div class="card" data-i18n="s8.c1">
           <h3>Le fine-tuning</h3>
           <div class="sub">« réglage fin »</div>
           <p>On reprend les paramètres du modèle général et on les <b>ajuste encore un peu</b>, avec des exemples du domaine visé (juridique, médical, un style d'écriture…).</p>
           <p><b>Les paramètres changent</b> — c'est bien de l'entraînement, en plus petit.</p>
         </div>
-        <div class="card good">
+        <div class="card good" data-i18n="s8.c2">
           <h3>Le réglage par des humains</h3>
           <div class="sub">la couche promise la dernière fois</div>
           <p>Des personnes comparent des réponses et indiquent lesquelles sont préférables. Le modèle est ajusté pour aller dans ce sens&nbsp;: plus utile, plus poli, moins dangereux.</p>
           <p>C'est ce qui sépare un <b>moteur brut</b> du <b>ChatGPT</b> que vous utilisez.</p>
         </div>
       </div>
-      <p class="lead" style="text-align:center;margin:0 auto;max-width:82ch">Dans les deux cas, on <b>touche aux paramètres</b>. Retenez-le&nbsp;: la prochaine méthode qu'on verra, elle, n'y touchera pas du tout.</p>
+      <p class="lead" style="text-align:center;margin:0 auto;max-width:82ch" data-i18n="s8.note">Dans les deux cas, on <b>touche aux paramètres</b>. Retenez-le&nbsp;: la prochaine méthode qu'on verra, elle, n'y touchera pas du tout.</p>
     </div>
   </div>
 
   <!-- ============ 9 · LA CHARNIÈRE ============ -->
   <div class="pane dark hinge" id="s9">
-    <div class="eyebrow" style="color:var(--signal)">La question qui ouvre la suite</div>
-    <div class="q">Et si je veux qu'il connaisse<br>les infos de <em>mon lycée</em>&nbsp;?</div>
-    <p class="a">Le menu de la cantine, les dates du bac blanc, le règlement intérieur… Rien de tout ça n'était sur le Web au moment de l'entraînement.<br><br>Faut-il <b>réentraîner le modèle</b> à chaque changement de menu&nbsp;?</p>
-    <div class="next">Réponse à la séance suivante : il faut aller les chercher →</div>
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s9.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s9.q">Et si je veux qu'il connaisse<br>les infos de <em>mon lycée</em>&nbsp;?</div>
+    <p class="a" data-i18n="s9.a">Le menu de la cantine, les dates du bac blanc, le règlement intérieur… Rien de tout ça n'était sur le Web au moment de l'entraînement.<br><br>Faut-il <b>réentraîner le modèle</b> à chaque changement de menu&nbsp;?</p>
+    <div class="next" data-i18n="s9.next">Réponse à la séance suivante : il faut aller les chercher →</div>
   </div>
 
   <!-- ============ 10 · ACTIVITÉ ============ -->
   <div class="pane dark act" id="s10">
-    <div class="tag">Activité de la séance</div>
-    <h2>Faites apparaître<br>le <em>biais</em></h2>
-    <p class="sub">Un biais, ça ne se raconte pas&nbsp;: ça se constate. À vous de le débusquer, puis de remonter à sa source.</p>
+    <div class="tag" data-i18n="s10.tag">Activité de la séance</div>
+    <h2 data-i18n="s10.t">Faites apparaître<br>le <em>biais</em></h2>
+    <p class="sub" data-i18n="s10.sub">Un biais, ça ne se raconte pas&nbsp;: ça se constate. À vous de le débusquer, puis de remonter à sa source.</p>
     <ol class="steps">
-      <li>Choisissez un <b>métier</b> et une <b>situation</b> neutre (sans indice de genre, d'origine ou d'âge).</li>
-      <li>Demandez au modèle de <b>compléter</b> ou de <b>traduire</b>, plusieurs fois.</li>
-      <li>Notez ce qui revient <b>le plus souvent</b>. Y a-t-il un défaut systématique&nbsp;?</li>
-      <li>Recommencez en changeant un seul mot du contexte. <b>Qu'est-ce qui bascule&nbsp;?</b></li>
-      <li>Remontez à la source&nbsp;: <b>quelles données</b> pourraient produire ce penchant&nbsp;?</li>
+      <li data-i18n="s10.l1">Choisissez un <b>métier</b> et une <b>situation</b> neutre (sans indice de genre, d'origine ou d'âge).</li>
+      <li data-i18n="s10.l2">Demandez au modèle de <b>compléter</b> ou de <b>traduire</b>, plusieurs fois.</li>
+      <li data-i18n="s10.l3">Notez ce qui revient <b>le plus souvent</b>. Y a-t-il un défaut systématique&nbsp;?</li>
+      <li data-i18n="s10.l4">Recommencez en changeant un seul mot du contexte. <b>Qu'est-ce qui bascule&nbsp;?</b></li>
+      <li data-i18n="s10.l5">Remontez à la source&nbsp;: <b>quelles données</b> pourraient produire ce penchant&nbsp;?</li>
     </ol>
     <a class="cta" href="https://edu-nsi-web.vercel.app/" target="_blank" rel="noopener">
-      <span>Rejoindre PédagoIA<small>edu-nsi-web.vercel.app →</small></span>
+      <span data-i18n="s10.cta">Rejoindre PédagoIA<small>edu-nsi-web.vercel.app →</small></span>
     </a>
   </div>
 
   <!-- ============ 11 · RÉCAP ============ -->
   <div class="pane light pad" id="s11">
-    <div class="rc-eye">Fin de séance</div>
-    <h2 class="rc-title">Ce que je dois <span>retenir</span></h2>
+    <div class="rc-eye" data-i18n="rc.eye">Fin de séance</div>
+    <h2 class="rc-title" data-i18n="rc.title">Ce que je dois <span>retenir</span></h2>
     <ol class="rc-list">
-      <li>Une IA apprend en <b>quatre étapes</b>&nbsp;: collecter, préparer, entraîner, évaluer. Tout ce qu'elle saura se joue là.</li>
-      <li>L'entraînement, c'est <b>se tromper des milliards de fois</b> et corriger un peu à chaque erreur des milliards de <span class="hl">paramètres</span>.</li>
-      <li><b>Entraîner ≠ utiliser</b>&nbsp;: quand vous discutez avec elle, ses paramètres ne changent pas. Elle ne retient rien de votre conversation.</li>
-      <li>On la teste sur des exemples <b>jamais vus</b> — sinon c'est réciter, pas apprendre.</li>
-      <li>Un <span class="hl">biais</span> ne vient pas d'une intention&nbsp;: il vient <b>des données</b> qu'on a collectées et triées.</li>
+      <li data-i18n="rc.i1">Une IA apprend en <b>quatre étapes</b>&nbsp;: collecter, préparer, entraîner, évaluer. Tout ce qu'elle saura se joue là.</li>
+      <li data-i18n="rc.i2">L'entraînement, c'est <b>se tromper des milliards de fois</b> et corriger un peu à chaque erreur des milliards de <span class="hl">paramètres</span>.</li>
+      <li data-i18n="rc.i3"><b>Entraîner ≠ utiliser</b>&nbsp;: quand vous discutez avec elle, ses paramètres ne changent pas. Elle ne retient rien de votre conversation.</li>
+      <li data-i18n="rc.i4">On la teste sur des exemples <b>jamais vus</b> — sinon c'est réciter, pas apprendre.</li>
+      <li data-i18n="rc.i5">Un <span class="hl">biais</span> ne vient pas d'une intention&nbsp;: il vient <b>des données</b> qu'on a collectées et triées.</li>
     </ol>
     <div class="rc-voc">
-      <div class="rc-term"><b>Paramètres</b>Les milliards de réglages internes ajustés pendant l'entraînement.</div>
-      <div class="rc-term"><b>Inférence</b>L'usage du modèle, une fois entraîné — sans rien modifier.</div>
-      <div class="rc-term"><b>Fine-tuning</b>Poursuivre l'entraînement sur un petit corpus ciblé.</div>
+      <div class="rc-term" data-i18n="rc.v1"><b>Paramètres</b>Les milliards de réglages internes ajustés pendant l'entraînement.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Inférence</b>L'usage du modèle, une fois entraîné — sans rien modifier.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Fine-tuning</b>Poursuivre l'entraînement sur un petit corpus ciblé.</div>
     </div>
-    <p class="rc-key">Prochaine étape&nbsp;: on a dit «&nbsp;tourner chaque bouton d'un cheveu <b>dans le bon sens</b>&nbsp;». <b>Mais comment la machine sait-elle lequel&nbsp;?</b></p>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: on a dit «&nbsp;tourner chaque bouton d'un cheveu <b>dans le bon sens</b>&nbsp;». <b>Mais comment la machine sait-elle lequel&nbsp;?</b></p>
   </div>
 
 </div>
 
 <!-- HUD -->
 <div class="hud">
-  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span>Parcours</span></a>
-  <button class="btn" id="prev">◀ Retour</button>
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div>
     <div class="dot" data-i="1"></div>
@@ -610,7 +623,7 @@
     <div class="dot" data-i="11"></div>
     <div class="dot" data-i="12"></div>
   </div>
-  <button class="btn" id="next">Suite ▶</button>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
@@ -632,6 +645,8 @@
   dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
 
   window.addEventListener('keydown', e=>{
+    // espace/entrée sur le sélecteur de langue : on laisse le bouton agir
+    if(e.target && e.target.closest && e.target.closest('#langsw') && (e.key===' '||e.key==='Enter')) return;
     if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
     if(e.key==='ArrowDown'){e.preventDefault();go(scene+1);}
     if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
@@ -648,7 +663,7 @@
      ========================================================= */
   (function(){
     const W='🐺', D='🐕';
-    const SETS = {
+    const SETS_ALL = { fr:{
       A:{
         label:'🅰 Photos « faciles à trouver »',
         hint:'les loups dans la neige, les huskies sur l\'herbe',
@@ -671,7 +686,36 @@
         train_s:'92 %', new_s:'88 %',
         verdict:'Un peu moins bon à l\'entraînement… et bien meilleur sur ce qu\'il n\'a jamais vu. <b>C\'est ça, apprendre</b> — au lieu de retenir un décor.'
       }
+    }, en:{
+      A:{
+        label:'\uD83C\uDD70 "Easy to find" photos',
+        hint:'wolves in the snow, huskies on the grass',
+        train:[[W,'snow'],[W,'snow'],[W,'snow'],[W,'snow'],[D,'grass'],[D,'grass'],[D,'grass'],[D,'grass']],
+        rule:'\u201cWhite background \u2192 wolf\u201d',
+        ruleSub:'The model never once looked at the animal. It found a shortcut that worked on every photo: the scenery.',
+        bad:true,
+        tests:[[D,'snow','wolf ?',false],[W,'grass','husky ?',false],[W,'snow','wolf',true]],
+        train_s:'100%', new_s:'33%',
+        verdict:'A perfect score on the training set, a catastrophic one on new images. The model has not learnt what a wolf is \u2014 it has learnt <b>what told your photos apart</b>. You built a bias without meaning to.'
+      },
+      B:{
+        label:'\uD83C\uDD71 Varied photos',
+        hint:'each animal in both settings',
+        train:[[W,'snow'],[W,'grass'],[W,'grass'],[W,'snow'],[D,'snow'],[D,'grass'],[D,'snow'],[D,'grass']],
+        rule:'\u201cMuzzle, ears, silhouette\u201d',
+        ruleSub:'The scenery no longer tells them apart: the only clue left is the animal itself.',
+        bad:false,
+        tests:[[D,'snow','husky',true],[W,'grass','wolf',true],[W,'snow','wolf',true]],
+        train_s:'92%', new_s:'88%',
+        verdict:'A little worse on the training set\u2026 and far better on what it has never seen. <b>That is what learning is</b> \u2014 rather than memorising a backdrop.'
+      }
+    } };
+    function SETS_(){ return SETS_ALL[(typeof curLang !== 'undefined' && curLang === 'en') ? 'en' : 'fr']; }
+    const SIMT = {
+      fr:{ kept:'Ce que le mod\u00e8le a retenu :', tr:'sur ses photos d\'entra\u00eenement', nv:'sur de nouvelles photos' },
+      en:{ kept:'What the model took away:',       tr:'on its training photos',           nv:'on new photos' }
     };
+    function TX(){ return SIMT[(typeof curLang !== 'undefined' && curLang === 'en') ? 'en' : 'fr']; }
     let cur='A';
     const chips=document.getElementById('simchips');
     if(!chips) return;
@@ -679,10 +723,10 @@
     function card(a,bg){ return '<div class="exc bg-'+bg+'">'+a+'</div>'; }
 
     function draw(){
-      const S=SETS[cur];
-      chips.innerHTML = Object.keys(SETS).map(function(k){
+      const S=SETS_()[cur];
+      chips.innerHTML = Object.keys(SETS_()).map(function(k){
         return '<button class="dsim simchip'+(k===cur?' on':'')+'" data-k="'+k+'">'+
-               SETS[k].label+'<small>'+SETS[k].hint+'</small></button>';
+               SETS_()[k].label+'<small>'+SETS_()[k].hint+'</small></button>';
       }).join('');
       chips.querySelectorAll('.dsim').forEach(function(b){
         b.onclick=function(){ cur=b.dataset.k; draw(); };
@@ -692,7 +736,7 @@
 
       document.getElementById('simrule').className = 'simrule ' + (S.bad?'bad':'good');
       document.getElementById('simrule').innerHTML =
-        'Ce que le modèle a retenu :<br>'+S.rule+'<small>'+S.ruleSub+'</small>';
+        TX().kept+'<br>'+S.rule+'<small>'+S.ruleSub+'</small>';
 
       document.getElementById('simtests').innerHTML = S.tests.map(function(t){
         return '<div class="simtest">'+card(t[0],t[1])+
@@ -700,14 +744,164 @@
       }).join('');
 
       document.getElementById('simscore').innerHTML =
-        '<div class="sc hi"><b>'+S.train_s+'</b><span>sur ses photos d\'entraînement</span></div>'+
-        '<div class="sc '+(S.bad?'lo':'hi')+'"><b>'+S.new_s+'</b><span>sur de nouvelles photos</span></div>';
+        '<div class="sc hi"><b>'+S.train_s+'</b><span>'+TX().tr+'</span></div>'+
+        '<div class="sc '+(S.bad?'lo':'hi')+'"><b>'+S.new_s+'</b><span>'+TX().nv+'</span></div>';
 
       document.getElementById('simverdict').innerHTML = S.verdict;
     }
     window.drawSim = draw;
     draw();
   })();
+
+  /* ================= i18n \u2014 le FR est dans la page, l'EN ici ================= */
+  const MSG = {
+    fr:{ title:`Comment une IA apprend`, hint:`\u2194 fl\u00e8ches \u00b7 espace \u00b7 clic` },
+    en:{ title:`How does an AI learn?`,  hint:`\u2194 arrows \u00b7 space \u00b7 click` }
+  };
+  const I18N = { en: {
+    'hud.menu':`Course map`, 'hud.prev':`\u25c0 Back`, 'hud.next':`Next \u25b6`,
+
+    /* --- 0 \u00b7 ouverture --- */
+    's0.back':`\u25c2 Previous lesson \u00b7 What is a piece of data?`,
+    's0.tag':`SNT \u00b7 AI Course`,
+    's0.big':`Where does what<br>it <em>knows</em> come from?`,
+    's0.line':`We now know <strong style="color:#fff">what it does</strong>: predict the next token. But nobody taught it French, or the capital of France, or maths. So: <strong style="color:#fff">how did it learn?</strong>`,
+    's0.kick':`Data \u00b7 training \u00b7 parameters \u00b7 bias`,
+
+    /* --- 1 \u00b7 la cha\u00eene --- */
+    's1.eye':`The big picture`,
+    's1.t':`Four steps,<br>always the same`,
+    's1.lead':`Whether you are building a spam detector or a ChatGPT, the recipe is the same. What changes is the scale.`,
+    's1.b1':`<div class="n">1 \u00b7 collect</div><div class="t">The data</div><div class="d">gather billions of examples</div>`,
+    's1.b2':`<div class="n">2 \u00b7 prepare</div><div class="t">Sort, clean</div><div class="d">choose what to keep\u2026 and what to throw out</div>`,
+    's1.b3':`<div class="n">3 \u00b7 train</div><div class="t">Tune the model</div><div class="d">adjust billions of parameters</div>`,
+    's1.b4':`<div class="n">4 \u00b7 evaluate</div><div class="t">Test it</div><div class="d">on questions it has never seen</div>`,
+    's1.note':`Remember this order: <b>everything the model will know</b> \u2014 and everything it will get wrong \u2014 <b>is settled in these four boxes</b>.`,
+
+    /* --- 2 \u00b7 la collecte --- */
+    's2.eye':`Step 1 \u00b7 collect`,
+    's2.t':`Where does<br>the data come from?`,
+    's2.lead':`For a large language model: essentially <b>text written by humans</b>, hoovered up in bulk.`,
+    's2.g1':`<b>The Web</b><span>pages, forums, blogs</span>`,
+    's2.g2':`<b>Books</b><span>and articles</span>`,
+    's2.g3':`<b>Code</b><span>public repositories</span>`,
+    's2.g4':`<b>Encyclopedias</b><span>Wikipedia\u2026</span>`,
+    's2.c1':`<h3>The scale</h3><div class="sub">orders of magnitude that make your head spin</div><p>We are talking <b>thousands of billions of tokens</b>. A human reading without sleeping for a whole lifetime would see only a tiny fraction of it.</p><div class="ex">\u25b8 impossible for a human to read it all</div>`,
+    's2.c2':`<h3>The trap</h3><div class="sub">worth keeping in mind for later</div><p>The Web <b>is not the world</b>. Who writes on it? In which languages? About what? Some voices are everywhere on it, others almost absent.</p><div class="ex">\u25b8 this is where bias is born</div>`,
+
+    /* --- 3 \u00b7 la pr\u00e9paration --- */
+    's3.eye':`Step 2 \u00b7 prepare`,
+    's3.t':`You do not tip the raw Web<br>into the machine`,
+    's3.lead':`Between the hoovering and the training comes a great deal of sorting. And <b>sorting is already choosing</b>.`,
+    's3.c1':`<h3>Clean</h3><div class="sub">take out the noise</div><p>Site menus, adverts, empty pages, unreadable text, content duplicated thousands of times over.</p>`,
+    's3.c2':`<h3>Filter</h3><div class="sub">take out what we do not want</div><p>Spam, violent or illegal content, personal data. Somebody decides where the line falls.</p>`,
+    's3.c3':`<h3>Split up</h3><div class="sub">a reminder from the previous lesson</div><p>The text is turned into <b>tokens</b> \u2014 the unit the model reads and produces.</p><div class="ex">\u25b8 \u201cThe cat eats\u201d \u2192 3 tokens</div>`,
+    's3.note':`<b>Every sorting decision is a human decision</b> \u2014 and it will leave its mark in the final model.`,
+
+    /* --- 4 \u00b7 l'entra\u00eenement --- */
+    's4.eye':`Step 3 \u00b7 train`,
+    's4.t':`Getting it wrong,<br>billions of times`,
+    's4.lead':`Training is a loop of disconcerting simplicity \u2014 repeated at a scale that is anything but.`,
+    's4.l1':`<div class="n">1</div><div class="t">We hide the next word of a text and ask the model to <b>guess</b> it.</div>`,
+    's4.l2':`<div class="n">2</div><div class="t">We <b>compare</b> its answer with the real word.</div>`,
+    's4.l3':`<div class="n">3</div><div class="t">If it got it wrong, we <b>nudge</b> its internal settings ever so slightly.</div>`,
+    's4.l4':`<div class="n">4</div><div class="t">We start again with the next text.</div>`,
+    's4.back':`\u21bb billions of times, over several weeks`,
+    's4.param':`<div class="k">These settings have a name: the parameters</div><p>A model is <b>billions of tiny tuning knobs</b> (also called \u201cweights\u201d). At the start they are random \u2014 the model talks nonsense. At every mistake, each knob is turned by a hair in the right direction. After billions of corrections, the whole thing ends up producing coherent text.<br><br>
+        <b>Nobody wrote these settings by hand.</b> Nobody can say what any one knob is for. That is the famous \u201cblack box\u201d.</p>`,
+
+    /* --- 5 \u00b7 entra\u00eener \u2260 utiliser --- */
+    's5.eye':`A distinction that clears up a great deal of confusion`,
+    's5.t':`Training<br>is not using`,
+    's5.c1':`<h3>Training</h3><div class="sub">once, before release</div><p><b>Weeks</b> of computation, thousands of machines, a cost in the millions. The parameters <b>change</b>.</p><p>That is where \u2014 and only there \u2014 the model \u201clearns\u201d.</p>`,
+    's5.c2':`<h3>Inference</h3><div class="sub">every time you use it</div><p>A few <b>seconds</b>. The parameters <b>do not budge one bit</b>.</p><p>The model applies what it has learnt; it learns nothing new.</p>`,
+    's5.note':`Direct consequence: <b>your conversation does not \u201cgo into\u201d the model</b>. It seems to remember what you said further up simply because <b>the whole history is sent back to it</b> with every message \u2014 that is the <b>context</b>, not memory.`,
+
+    /* --- 6 \u00b7 \u00e9valuer --- */
+    's6.eye':`Step 4 \u00b7 evaluate`,
+    's6.t':`Learning<br>is not reciting`,
+    's6.lead':`How do we know whether a model has really learnt \u2014 or has simply memorised?`,
+    's6.c1':`<h3>The training set</h3><div class="sub">what it has seen</div><p>The data it was trained on. It is bound to be good at it: it has \u201cworked through\u201d it.</p>`,
+    's6.c2':`<h3>The test set</h3><div class="sub">what it has never seen</div><p>Examples <b>set aside</b> before training. It is the only verdict that counts: can it <b>generalise</b>?</p>`,
+    's6.c3':`<h3>Overfitting</h3><div class="sub">the classic trap</div><p>A student who learns <b>the mark schemes by heart</b> gets full marks on past papers\u2026 and falls apart on the day of the exam. A model can do exactly the same.</p>`,
+    's6.c4':`<h3>And what about benchmarks?</h3><div class="sub">a reminder from lesson 1</div><p>Same problem: if the test questions leaked into the training data, the score no longer means anything. That is called <b>contamination</b>.</p>`,
+
+    /* --- simulation --- */
+    'sim.eye':`Your turn`,
+    'sim.t':`Train<br>your detector`,
+    'sim.lead':`The goal: tell a <b>wolf \ud83d\udc3a</b> from a <b>husky \ud83d\udc15</b>. Two possible training sets. <b>You choose</b> \u2014 the machine learns, then we test it on images it has never seen.`,
+    'sim.h1':`The training set you picked`,
+    'sim.h2':`The test \u2014 images never seen before`,
+
+    /* --- 7 \u00b7 le biais --- */
+    's7.eye':`The critical point`,
+    's7.t':`Where does<br>a <em style="font-style:normal;color:var(--signal)">bias</em> come from?`,
+    's7.lead':`You have just caused one yourself. A model \u201cbelieves\u201d nothing and \u201cwants\u201d nothing: it <b>reproduces the regularities</b> of what it was shown. If the corpus leans, the model leans.`,
+    's7.def':`<div class="k">A bias is a <span style="color:#fff">systematic</span> skew</div><p>Not a random error that would fall one way one time and the other way the next. A bias gets it wrong <b>always in the same direction</b> \u2014 because the data leaned that way. Which is why you do not fix it by running the computation again: you have to <b>go back to the data</b>.</p>`,
+    's7.c1':`<h3>Translation</h3><div class="sub">an example easy to try out in class</div><p>From a language with no grammatical gender, a neutral sentence often comes back gendered: the doctor becomes \u201che\u201d, the nurse \u201cshe\u201d.</p><div class="bias-ex"><div class="q">The model has no opinion. It gives back <b>whatever was most frequent</b> in its data.</div></div>`,
+    's7.c2':`<h3>Face recognition</h3><div class="sub">a documented case</div><p>Some systems turned out to be markedly <b>less reliable</b> on certain groups \u2014 because the training faces were not equally represented.</p><div class="bias-ex"><div class="q">A gap in <b>representation in the data</b> becomes a gap in performance for real people.</div></div>`,
+    's7.note':`A bias is <b>not a bug</b> you fix with one line of code: it comes from what was collected, sorted and kept. <b>We will come back to it</b> \u2014 next time from the side of what it does to society.`,
+
+    /* --- 8 \u00b7 fine-tuning --- */
+    's8.eye':`And after the big training run?`,
+    's8.t':`Specialise<br>without starting over`,
+    's8.lead':`Retraining a model from scratch costs millions. Happily, you can <b>start from an existing model</b> and carry on its training on a small, targeted corpus.`,
+    's8.c1':`<h3>Fine-tuning</h3><div class="sub">\u201cfine adjustment\u201d</div><p>You take the general model's parameters and <b>adjust them a little further</b>, with examples from the field you are aiming at (legal, medical, a writing style\u2026).</p><p><b>The parameters change</b> \u2014 this really is training, just smaller.</p>`,
+    's8.c2':`<h3>Tuning by humans</h3><div class="sub">the layer promised last time</div><p>People compare answers and say which ones are preferable. The model is adjusted to lean that way: more useful, more polite, less dangerous.</p><p>That is what separates a <b>raw engine</b> from the <b>ChatGPT</b> you use.</p>`,
+    's8.note':`In both cases we <b>touch the parameters</b>. Remember that: the next method we will see does not touch them at all.`,
+
+    /* --- 9 \u00b7 charni\u00e8re --- */
+    's9.eye':`The question that opens what comes next`,
+    's9.q':`And if I want it to know<br>what goes on at <em>my school</em>?`,
+    's9.a':`The canteen menu, the mock exam dates, the school rules\u2026 None of that was on the Web at training time.<br><br>Do we have to <b>retrain the model</b> every time the menu changes?`,
+    's9.next':`Answered in the next lesson: we have to go and fetch them \u2192`,
+
+    /* --- 10 \u00b7 activit\u00e9 --- */
+    's10.tag':`Activity for this lesson`,
+    's10.t':`Make the<br><em>bias</em> show`,
+    's10.sub':`A bias is not something you are told about: it is something you observe. Your job is to flush it out, then trace it back to its source.`,
+    's10.l1':`Pick a <b>job</b> and a neutral <b>situation</b> (no clue as to gender, origin or age).`,
+    's10.l2':`Ask the model to <b>complete</b> it or <b>translate</b> it, several times over.`,
+    's10.l3':`Note what comes back <b>most often</b>. Is there a systematic skew?`,
+    's10.l4':`Start again, changing a single word of the context. <b>What tips over?</b>`,
+    's10.l5':`Trace it back to its source: <b>what data</b> could produce that leaning?`,
+    's10.cta':`Join P\u00e9dagoIA<small>edu-nsi-web.vercel.app \u2192</small>`,
+
+    /* --- 11 \u00b7 r\u00e9cap --- */
+    'rc.eye':`End of lesson`,
+    'rc.title':`What I must <span>remember</span>`,
+    'rc.i1':`An AI learns in <b>four steps</b>: collect, prepare, train, evaluate. Everything it will know is settled there.`,
+    'rc.i2':`Training means <b>getting it wrong billions of times</b> and correcting billions of <span class="hl">parameters</span> a little at every mistake.`,
+    'rc.i3':`<b>Training \u2260 using</b>: when you chat with it, its parameters do not change. It keeps nothing of your conversation.`,
+    'rc.i4':`We test it on examples it has <b>never seen</b> \u2014 otherwise it is reciting, not learning.`,
+    'rc.i5':`A <span class="hl">bias</span> does not come from an intention: it comes <b>from the data</b> that was collected and sorted.`,
+    'rc.v1':`<b>Parameters</b>The billions of internal settings adjusted during training.`,
+    'rc.v2':`<b>Inference</b>Using the model once it is trained \u2014 without changing a thing.`,
+    'rc.v3':`<b>Fine-tuning</b>Carrying on the training on a small, targeted corpus.`,
+    'rc.key':`Next step: we said \u201cturn every knob by a hair <b>in the right direction</b>\u201d. <b>But how does the machine know which way that is?</b>`
+  } };
+
+  const frCache = {};
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+  var curLang = 'fr';
+  function applyLang(lang){
+    curLang = (lang === 'en') ? 'en' : 'fr';
+    document.documentElement.setAttribute('lang', curLang);
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k = el.dataset.i18n;
+      el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+    });
+    document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+    document.title = MSG[curLang].title;
+    const h = document.getElementById('hint');
+    if(h) h.textContent = MSG[curLang].hint;
+    if(window.drawSim) window.drawSim();
+    try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  }
+  document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+  let savedLang = 'fr';
+  try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+  applyLang(savedLang === 'en' ? 'en' : 'fr');
 </script>
 </body>
 </html>

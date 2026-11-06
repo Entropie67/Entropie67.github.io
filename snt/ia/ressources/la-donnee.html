@@ -208,6 +208,13 @@
   .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
   .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
   @media (max-width:900px){.homelink span{display:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
@@ -225,154 +232,154 @@
 
   <!-- 0 · OUVERTURE -->
   <div class="pane dark intro on" id="s0">
-    <a class="back" href="codage.html">◂ Séance précédente · Coder l'information</a>
-    <div class="tag">SNT · Enseignement IA</div>
-    <h1 class="big">Une <em>donnée</em>,<br>c'est quoi&nbsp;?</h1>
-    <p class="line">Avant de parler de ce qu'une IA fait des données, il faut savoir <strong style="color:#fff">de quoi on parle</strong>. Et vous en produisez des centaines par jour — la plupart du temps sans vous en rendre compte.</p>
-    <div class="kick">Donnée · donnée personnelle · format · structurée ou non</div>
+    <a class="back" href="codage.html" data-i18n="s0.back">◂ Séance précédente · Coder l'information</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Une <em>donnée</em>,<br>c'est quoi&nbsp;?</h1>
+    <p class="line" data-i18n="s0.line">Avant de parler de ce qu'une IA fait des données, il faut savoir <strong style="color:#fff">de quoi on parle</strong>. Et vous en produisez des centaines par jour — la plupart du temps sans vous en rendre compte.</p>
+    <div class="kick" data-i18n="s0.kick">Donnée · donnée personnelle · format · structurée ou non</div>
   </div>
 
   <!-- 1 · DÉFINITION -->
   <div class="pane dark pad" id="s1">
-    <div class="eyebrow">Définition</div>
-    <h2 class="stitle">Donnée, information,<br>connaissance</h2>
-    <p class="lead">Trois mots qu'on confond tout le temps — et qui ne désignent pas du tout la même chose.</p>
+    <div class="eyebrow" data-i18n="s1.eye">Définition</div>
+    <h2 class="stitle" data-i18n="s1.t">Donnée, information,<br>connaissance</h2>
+    <p class="lead" data-i18n="s1.lead">Trois mots qu'on confond tout le temps — et qui ne désignent pas du tout la même chose.</p>
 
     <div class="mid">
       <div class="chain">
-        <div class="cbox">
+        <div class="cbox" data-i18n="s1.b1">
           <div class="n">1 · la donnée</div><div class="t">Un fait brut</div>
           <div class="d">codé sous une forme que la machine peut stocker et traiter</div>
           <div class="v">14</div>
         </div>
         <div class="carrow">→</div>
-        <div class="cbox">
+        <div class="cbox" data-i18n="s1.b2">
           <div class="n">2 · l'information</div><div class="t">La donnée + le contexte</div>
           <div class="d">on sait enfin de quoi il s'agit</div>
           <div class="v">14 °C à Strasbourg, ce matin</div>
         </div>
         <div class="carrow">→</div>
-        <div class="cbox">
+        <div class="cbox" data-i18n="s1.b3">
           <div class="n">3 · la connaissance</div><div class="t">Ce qu'on en tire</div>
           <div class="d">un sens, une décision</div>
           <div class="v">il fait plus froid qu'hier → je prends un manteau</div>
         </div>
       </div>
-      <p class="chain-note">Une machine ne manipule que des <b>données</b>. Le <b>sens</b>, c'est nous qui l'apportons — en disant ce que représente ce «&nbsp;14&nbsp;».</p>
+      <p class="chain-note" data-i18n="s1.note">Une machine ne manipule que des <b>données</b>. Le <b>sens</b>, c'est nous qui l'apportons — en disant ce que représente ce «&nbsp;14&nbsp;».</p>
     </div>
   </div>
 
   <!-- 2 · TU EN PRODUIS -->
   <div class="pane light pad" id="s2">
-    <div class="eyebrow">Où sont-elles ?</div>
-    <h2 class="stitle">Vous en produisez<br>sans arrêt</h2>
-    <p class="lead">Une journée ordinaire. Chaque geste laisse une trace, quelque part, sur une machine.</p>
+    <div class="eyebrow" data-i18n="s2.eye">Où sont-elles ?</div>
+    <h2 class="stitle" data-i18n="s2.t">Vous en produisez<br>sans arrêt</h2>
+    <p class="lead" data-i18n="s2.lead">Une journée ordinaire. Chaque geste laisse une trace, quelque part, sur une machine.</p>
 
     <div class="mid">
       <div class="traces">
-        <div class="trace">Déverrouiller le téléphone<b>empreinte, heure</b></div>
-        <div class="trace">Prendre le tram<b>carte, arrêt, horaire</b></div>
-        <div class="trace">Envoyer un message<b>texte, destinataire, heure</b></div>
-        <div class="trace">Prendre une photo<b>image, date, lieu</b></div>
-        <div class="trace">Chercher sur le Web<b>requête, clics</b></div>
-        <div class="trace">Regarder une vidéo<b>durée, pauses, reprise</b></div>
-        <div class="trace">Payer en carte<b>montant, commerçant, lieu</b></div>
-        <div class="trace">Se connecter au wifi<b>appareil, réseau, durée</b></div>
+        <div class="trace" data-i18n="s2.x1">Déverrouiller le téléphone<b>empreinte, heure</b></div>
+        <div class="trace" data-i18n="s2.x2">Prendre le tram<b>carte, arrêt, horaire</b></div>
+        <div class="trace" data-i18n="s2.x3">Envoyer un message<b>texte, destinataire, heure</b></div>
+        <div class="trace" data-i18n="s2.x4">Prendre une photo<b>image, date, lieu</b></div>
+        <div class="trace" data-i18n="s2.x5">Chercher sur le Web<b>requête, clics</b></div>
+        <div class="trace" data-i18n="s2.x6">Regarder une vidéo<b>durée, pauses, reprise</b></div>
+        <div class="trace" data-i18n="s2.x7">Payer en carte<b>montant, commerçant, lieu</b></div>
+        <div class="trace" data-i18n="s2.x8">Se connecter au wifi<b>appareil, réseau, durée</b></div>
       </div>
-      <p class="chain-note">La question n'est pas «&nbsp;est-ce que je produis des données&nbsp;?&nbsp;» mais <b>lesquelles, qui les garde, et pour combien de temps</b>.</p>
+      <p class="chain-note" data-i18n="s2.note">La question n'est pas «&nbsp;est-ce que je produis des données&nbsp;?&nbsp;» mais <b>lesquelles, qui les garde, et pour combien de temps</b>.</p>
     </div>
   </div>
 
   <!-- 3 · DONNÉE PERSONNELLE -->
   <div class="pane light pad" id="s3">
-    <div class="eyebrow">Une catégorie à part — et protégée</div>
-    <h2 class="stitle">La donnée<br>personnelle</h2>
-    <p class="lead">Définition du <b>RGPD</b> (le règlement européen, applicable depuis mai 2018)&nbsp;: <b>toute information se rapportant à une personne physique identifiée ou identifiable</b>.</p>
+    <div class="eyebrow" data-i18n="s3.eye">Une catégorie à part — et protégée</div>
+    <h2 class="stitle" data-i18n="s3.t">La donnée<br>personnelle</h2>
+    <p class="lead" data-i18n="s3.lead">Définition du <b>RGPD</b> (le règlement européen, applicable depuis mai 2018)&nbsp;: <b>toute information se rapportant à une personne physique identifiée ou identifiable</b>.</p>
 
     <div class="mid">
       <div class="cards c3">
-        <div class="card">
+        <div class="card" data-i18n="s3.c1">
           <h3>Directement</h3>
           <div class="sub">elle vous nomme</div>
           <p>Nom, prénom, photo du visage, adresse, numéro de téléphone.</p>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s3.c2">
           <h3>Indirectement</h3>
           <div class="sub">on peut remonter jusqu'à vous</div>
           <p>Numéro d'élève, adresse IP, identifiant de téléphone, plaque, position GPS.</p>
           <div class="ex">▸ le mot important : <b>identifiable</b></div>
         </div>
-        <div class="card warn">
+        <div class="card warn" data-i18n="s3.c3">
           <h3>Sensibles</h3>
           <div class="sub">protection renforcée</div>
           <p>Santé, opinions politiques, religion, origine, orientation sexuelle, données biométriques.</p>
           <div class="ex">▸ interdites de traitement, sauf exceptions</div>
         </div>
       </div>
-      <p class="chain-note">Le RGPD vous donne des droits sur vos données&nbsp;: <b>y accéder</b>, les <b>corriger</b>, les <b>effacer</b>, les <b>récupérer</b> pour aller ailleurs.</p>
+      <p class="chain-note" data-i18n="s3.note">Le RGPD vous donne des droits sur vos données&nbsp;: <b>y accéder</b>, les <b>corriger</b>, les <b>effacer</b>, les <b>récupérer</b> pour aller ailleurs.</p>
     </div>
   </div>
 
   <!-- 4 · LE CROISEMENT -->
   <div class="pane dark pad" id="s4">
-    <div class="eyebrow">Le piège que personne ne voit venir</div>
-    <h2 class="stitle">Anodines séparément,<br>identifiantes ensemble</h2>
-    <p class="lead">Prises une par une, ces trois données ne désignent personne. Des millions de gens les partagent.</p>
+    <div class="eyebrow" data-i18n="s4.eye">Le piège que personne ne voit venir</div>
+    <h2 class="stitle" data-i18n="s4.t">Anodines séparément,<br>identifiantes ensemble</h2>
+    <p class="lead" data-i18n="s4.lead">Prises une par une, ces trois données ne désignent personne. Des millions de gens les partagent.</p>
 
     <div class="mid">
       <div class="cross">
-        <div class="chip">code postal</div>
+        <div class="chip" data-i18n="s4.k1">code postal</div>
         <div class="plus">+</div>
-        <div class="chip">date de naissance</div>
+        <div class="chip" data-i18n="s4.k2">date de naissance</div>
         <div class="plus">+</div>
-        <div class="chip">sexe</div>
+        <div class="chip" data-i18n="s4.k3">sexe</div>
         <div class="eq">=</div>
-        <div class="chip out">une seule personne</div>
+        <div class="chip out" data-i18n="s4.out">une seule personne</div>
       </div>
-      <p class="chain-note">Une étude américaine devenue classique estimait qu'avec <b>ce seul trio</b>, on identifiait de façon unique <b>environ 87&nbsp;%</b> de la population des États-Unis.<br><br>
+      <p class="chain-note" data-i18n="s4.note">Une étude américaine devenue classique estimait qu'avec <b>ce seul trio</b>, on identifiait de façon unique <b>environ 87&nbsp;%</b> de la population des États-Unis.<br><br>
       D'où la leçon&nbsp;: «&nbsp;<b>anonyme</b>&nbsp;» est beaucoup plus fragile qu'on ne le croit. Ce n'est pas une donnée qui vous identifie — <b>c'est leur croisement</b>.</p>
     </div>
   </div>
 
   <!-- 5 · LES FORMATS -->
   <div class="pane light pad" id="s5">
-    <div class="eyebrow">Sous quelle forme ?</div>
-    <h2 class="stitle">Stocker, c'est<br>choisir un format</h2>
-    <p class="lead">Un <b>format</b>, c'est une convention&nbsp;: une manière d'écrire la donnée — et surtout de pouvoir la <b>relire</b> plus tard, avec un autre logiciel, sur une autre machine.</p>
+    <div class="eyebrow" data-i18n="s5.eye">Sous quelle forme ?</div>
+    <h2 class="stitle" data-i18n="s5.t">Stocker, c'est<br>choisir un format</h2>
+    <p class="lead" data-i18n="s5.lead">Un <b>format</b>, c'est une convention&nbsp;: une manière d'écrire la donnée — et surtout de pouvoir la <b>relire</b> plus tard, avec un autre logiciel, sur une autre machine.</p>
 
     <div class="mid">
       <div class="cards c3">
-        <div class="card">
+        <div class="card" data-i18n="s5.c1">
           <h3>Texte</h3>
           <div class="sub">le plus simple</div>
           <p>Des caractères, rien d'autre.</p>
           <div class="ex">.txt · .csv · .json · .xml</div>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s5.c2">
           <h3>Image, son, vidéo</h3>
           <div class="sub">souvent compressés</div>
           <p>On accepte de perdre un peu de qualité pour gagner beaucoup de place.</p>
           <div class="ex">.jpg · .png · .mp3 · .mp4</div>
         </div>
-        <div class="card good">
+        <div class="card good" data-i18n="s5.c3">
           <h3>Ouvert ou fermé</h3>
           <div class="sub">une question de liberté</div>
           <p>Un format <b>ouvert</b> est documenté&nbsp;: n'importe qui peut écrire un logiciel qui le lit. Un format <b>fermé</b> vous lie à une entreprise.</p>
           <div class="ex">▸ enjeu : pouvoir relire dans 20 ans</div>
         </div>
       </div>
-      <p class="chain-note">Mauvais format = données <b>illisibles</b> un jour. C'est un vrai problème d'archives, pas une question de détail.</p>
+      <p class="chain-note" data-i18n="s5.note">Mauvais format = données <b>illisibles</b> un jour. C'est un vrai problème d'archives, pas une question de détail.</p>
     </div>
   </div>
 
   <!-- 6 · STRUCTURÉE OU NON -->
   <div class="pane light pad" id="s6">
-    <div class="eyebrow">La distinction clé du programme</div>
-    <h2 class="stitle">Structurée,<br>ou pas</h2>
+    <div class="eyebrow" data-i18n="s6.eye">La distinction clé du programme</div>
+    <h2 class="stitle" data-i18n="s6.t">Structurée,<br>ou pas</h2>
 
     <div class="mid">
       <div class="cards c3">
-        <div class="card good">
+        <div class="card good" data-i18n="s6.c1">
           <h3>Structurée</h3>
           <div class="sub">un tableau</div>
           <p>Des <b>lignes</b> (les enregistrements), des <b>colonnes</b> (les descripteurs), un type fixé par colonne.</p>
@@ -383,7 +390,7 @@
           </table>
           <div class="ex" style="margin-top:.5rem">▸ trier, filtrer, calculer : facile</div>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s6.c2">
           <h3>Semi-structurée</h3>
           <div class="sub">des champs nommés</div>
           <p>Une hiérarchie, des étiquettes — mais pas forcément les mêmes champs partout.</p>
@@ -394,7 +401,7 @@
 }</div>
           <div class="ex" style="margin-top:.5rem">▸ JSON, XML — le format des API</div>
         </div>
-        <div class="card warn">
+        <div class="card warn" data-i18n="s6.c3">
           <h3>Non structurée</h3>
           <div class="sub">le vrac</div>
           <p>Du texte libre, une image, un son. Aucune case, aucune colonne.</p>
@@ -402,19 +409,19 @@
           <div class="ex" style="margin-top:.5rem">▸ l'essentiel de ce qu'on produit aujourd'hui</div>
         </div>
       </div>
-      <p class="chain-note">Et c'est exactement là que l'IA générative a tout changé&nbsp;: elle sait enfin <b>traiter du non structuré</b> — du texte libre, des images — ce que les tableurs et les bases de données ne savaient pas faire.</p>
+      <p class="chain-note" data-i18n="s6.note">Et c'est exactement là que l'IA générative a tout changé&nbsp;: elle sait enfin <b>traiter du non structuré</b> — du texte libre, des images — ce que les tableurs et les bases de données ne savaient pas faire.</p>
     </div>
   </div>
 
   <!-- 7 · MÉTADONNÉES -->
   <div class="pane dark pad" id="s7">
-    <div class="eyebrow">Les données cachées</div>
-    <h2 class="stitle">Les métadonnées</h2>
-    <p class="lead">Des <b>données sur les données</b>. Elles voyagent avec le fichier, sans que vous les voyiez.</p>
+    <div class="eyebrow" data-i18n="s7.eye">Les données cachées</div>
+    <h2 class="stitle" data-i18n="s7.t">Les métadonnées</h2>
+    <p class="lead" data-i18n="s7.lead">Des <b>données sur les données</b>. Elles voyagent avec le fichier, sans que vous les voyiez.</p>
 
     <div class="mid">
       <div class="cards c2">
-        <div class="card">
+        <div class="card" data-i18n="s7.c1">
           <h3>Une photo</h3>
           <div class="sub">ce que contient le fichier, en plus de l'image</div>
           <div class="meta-row">
@@ -425,7 +432,7 @@
           </div>
           <p style="margin-top:.6rem">Publier une photo, c'est parfois publier <b>l'endroit exact</b> où vous étiez, et <b>quand</b>.</p>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s7.c2">
           <h3>Un document</h3>
           <div class="sub">idem</div>
           <div class="meta-row">
@@ -437,80 +444,86 @@
           <p style="margin-top:.6rem">Un fichier rendu anonyme peut trahir son auteur par ses seules métadonnées.</p>
         </div>
       </div>
-      <p class="chain-note">Bonne nouvelle&nbsp;: elles se <b>consultent</b> et se <b>suppriment</b>. Encore faut-il savoir qu'elles existent.</p>
+      <p class="chain-note" data-i18n="s7.note">Bonne nouvelle&nbsp;: elles se <b>consultent</b> et se <b>suppriment</b>. Encore faut-il savoir qu'elles existent.</p>
     </div>
   </div>
 
   <!-- 8 · STOCKER ET TRANSFÉRER -->
   <div class="pane light pad" id="s8">
-    <div class="eyebrow">Où vit la donnée ?</div>
-    <h2 class="stitle">Stocker ici,<br>ou chez quelqu'un d'autre</h2>
+    <div class="eyebrow" data-i18n="s8.eye">Où vit la donnée ?</div>
+    <h2 class="stitle" data-i18n="s8.t">Stocker ici,<br>ou chez quelqu'un d'autre</h2>
 
     <div class="mid">
       <div class="cards c2">
-        <div class="card">
+        <div class="card" data-i18n="s8.c1">
           <h3>En local</h3>
           <div class="sub">sur votre appareil</div>
           <p>Vous la maîtrisez. Mais si l'appareil casse ou se perd, elle disparaît avec.</p>
         </div>
-        <div class="card warn">
+        <div class="card warn" data-i18n="s8.c2">
           <h3>Sur un serveur</h3>
           <div class="sub">ce qu'on appelle « le cloud »</div>
           <p>Accessible partout, sauvegardée — mais elle est <b>sur l'ordinateur de quelqu'un d'autre</b>, dans un pays qui a ses propres lois.</p>
         </div>
       </div>
-      <p class="chain-note">Et transférer une donnée, ce n'est pas la déplacer&nbsp;: c'est la <b>copier</b>. L'original reste. <br><span style="color:var(--muted)">Comment elle voyage à travers le réseau — ce sera tout un chapitre.</span></p>
+      <p class="chain-note" data-i18n="s8.note">Et transférer une donnée, ce n'est pas la déplacer&nbsp;: c'est la <b>copier</b>. L'original reste. <br><span style="color:var(--muted)">Comment elle voyage à travers le réseau — ce sera tout un chapitre.</span></p>
     </div>
   </div>
 
   <!-- 9 · CHARNIÈRE -->
   <div class="pane dark hinge" id="s9">
-    <div class="eyebrow" style="color:var(--signal)">La question qui ouvre la suite</div>
-    <div class="q">Et si on en donnait<br><em>des milliards</em> à une machine&nbsp;?</div>
-    <p class="a">On sait maintenant ce qu'est une donnée, sous quelle forme elle se range, et laquelle mérite d'être protégée.<br><br>Reste à comprendre ce qu'une IA <b>en fait</b> — et pourquoi <b>ce qu'on lui donne</b> détermine tout ce qu'elle saura.</p>
-    <div class="next">Séance suivante : comment une IA apprend →</div>
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s9.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s9.q">Et si on en donnait<br><em>des milliards</em> à une machine&nbsp;?</div>
+    <p class="a" data-i18n="s9.a">On sait maintenant ce qu'est une donnée, sous quelle forme elle se range, et laquelle mérite d'être protégée.<br><br>Reste à comprendre ce qu'une IA <b>en fait</b> — et pourquoi <b>ce qu'on lui donne</b> détermine tout ce qu'elle saura.</p>
+    <div class="next" data-i18n="s9.next">Séance suivante : comment une IA apprend →</div>
   </div>
 
   <!-- 10 · ACTIVITÉ -->
   <div class="pane dark act" id="s10">
-    <div class="tag">Activité de la séance</div>
-    <h2>Que disent<br>mes <em>données</em> de moi&nbsp;?</h2>
-    <p class="sub">Une enquête sur vous-même — puis sur ce que les autres pourraient en déduire.</p>
+    <div class="tag" data-i18n="s10.tag">Activité de la séance</div>
+    <h2 data-i18n="s10.t">Que disent<br>mes <em>données</em> de moi&nbsp;?</h2>
+    <p class="sub" data-i18n="s10.sub">Une enquête sur vous-même — puis sur ce que les autres pourraient en déduire.</p>
     <ol class="steps">
-      <li>Listez <b>dix données</b> que vous avez produites depuis ce matin.</li>
-      <li>Pour chacune&nbsp;: est-elle <b>personnelle</b>&nbsp;? Directement, ou indirectement&nbsp;?</li>
-      <li>Ouvrez les <b>métadonnées</b> d'une de vos photos. Qu'y trouvez-vous&nbsp;? Y a-t-il un lieu&nbsp;?</li>
-      <li>Classez trois de ces données en <b>structurée / semi-structurée / non structurée</b>.</li>
-      <li><b>Le défi du croisement&nbsp;:</b> avec combien de vos données anodines peut-on vous retrouver dans la classe&nbsp;?</li>
+      <li data-i18n="s10.l1">Listez <b>dix données</b> que vous avez produites depuis ce matin.</li>
+      <li data-i18n="s10.l2">Pour chacune&nbsp;: est-elle <b>personnelle</b>&nbsp;? Directement, ou indirectement&nbsp;?</li>
+      <li data-i18n="s10.l3">Ouvrez les <b>métadonnées</b> d'une de vos photos. Qu'y trouvez-vous&nbsp;? Y a-t-il un lieu&nbsp;?</li>
+      <li data-i18n="s10.l4">Classez trois de ces données en <b>structurée / semi-structurée / non structurée</b>.</li>
+      <li data-i18n="s10.l5"><b>Le défi du croisement&nbsp;:</b> avec combien de vos données anodines peut-on vous retrouver dans la classe&nbsp;?</li>
     </ol>
   </div>
 
   <!-- 11 · RÉCAP -->
   <div class="pane light pad" id="s11">
-    <div class="rc-eye">Fin de séance</div>
-    <h2 class="rc-title">Ce que je dois <span>retenir</span></h2>
+    <div class="rc-eye" data-i18n="rc.eye">Fin de séance</div>
+    <h2 class="rc-title" data-i18n="rc.title">Ce que je dois <span>retenir</span></h2>
     <ol class="rc-list">
-      <li>Une <b>donnée</b> est un fait brut&nbsp;; elle devient <b>information</b> avec un contexte, et <b>connaissance</b> quand on en tire quelque chose.</li>
-      <li>Une <span class="hl">donnée personnelle</span> concerne une personne <b>identifiée ou identifiable</b> — directement ou <b>indirectement</b>.</li>
-      <li>Ce n'est pas une donnée qui vous identifie, c'est leur <b>croisement</b>. «&nbsp;Anonyme&nbsp;» est fragile.</li>
-      <li>Une donnée se range dans un <span class="hl">format</span>&nbsp;; elle est <b>structurée</b> (tableau), <b>semi-structurée</b> (JSON) ou <b>non structurée</b> (texte, image).</li>
-      <li>Les <span class="hl">métadonnées</span> voyagent avec le fichier — dont, souvent, le <b>lieu</b> et la <b>date</b>.</li>
+      <li data-i18n="rc.i1">Une <b>donnée</b> est un fait brut&nbsp;; elle devient <b>information</b> avec un contexte, et <b>connaissance</b> quand on en tire quelque chose.</li>
+      <li data-i18n="rc.i2">Une <span class="hl">donnée personnelle</span> concerne une personne <b>identifiée ou identifiable</b> — directement ou <b>indirectement</b>.</li>
+      <li data-i18n="rc.i3">Ce n'est pas une donnée qui vous identifie, c'est leur <b>croisement</b>. «&nbsp;Anonyme&nbsp;» est fragile.</li>
+      <li data-i18n="rc.i4">Une donnée se range dans un <span class="hl">format</span>&nbsp;; elle est <b>structurée</b> (tableau), <b>semi-structurée</b> (JSON) ou <b>non structurée</b> (texte, image).</li>
+      <li data-i18n="rc.i5">Les <span class="hl">métadonnées</span> voyagent avec le fichier — dont, souvent, le <b>lieu</b> et la <b>date</b>.</li>
     </ol>
     <div class="rc-voc">
-      <div class="rc-term"><b>Donnée personnelle</b>Toute information se rapportant à une personne identifiée ou identifiable (RGPD).</div>
-      <div class="rc-term"><b>Format</b>La convention qui permet d'écrire une donnée — et de la relire.</div>
-      <div class="rc-term"><b>Donnée structurée</b>Organisée en lignes et colonnes, avec un type par colonne.</div>
-      <div class="rc-term"><b>Métadonnée</b>Une donnée qui décrit une autre donnée.</div>
+      <div class="rc-term" data-i18n="rc.v1"><b>Donnée personnelle</b>Toute information se rapportant à une personne identifiée ou identifiable (RGPD).</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Format</b>La convention qui permet d'écrire une donnée — et de la relire.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Donnée structurée</b>Organisée en lignes et colonnes, avec un type par colonne.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Métadonnée</b>Une donnée qui décrit une autre donnée.</div>
     </div>
-    <p class="rc-key">Prochaine étape&nbsp;: <b>ce qu'une machine fait quand on lui en donne des milliards.</b></p>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>ce qu'une machine fait quand on lui en donne des milliards.</b></p>
   </div>
 
 </div>
 
 <!-- HUD -->
 <div class="hud">
-  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span>Parcours</span></a>
-  <button class="btn" id="prev">◀ Retour</button>
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
     <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
@@ -519,7 +532,7 @@
     <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
     <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
   </div>
-  <button class="btn" id="next">Suite ▶</button>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
@@ -541,6 +554,8 @@
   dots.forEach(d=>d.onclick=()=>go(+d.dataset.i));
 
   window.addEventListener('keydown', e=>{
+    // espace/entrée sur le sélecteur de langue : on laisse le bouton agir
+    if(e.target && e.target.closest && e.target.closest('#langsw') && (e.key===' '||e.key==='Enter')) return;
     if(['ArrowRight',' ','Enter'].includes(e.key)){e.preventDefault();go(scene+1);}
     if(e.key==='ArrowDown'){e.preventDefault();go(scene+1);}
     if(e.key==='ArrowLeft'){e.preventDefault();go(scene-1);}
@@ -550,6 +565,148 @@
     if(e.target.closest('a,button')) return;
     go(scene+1);
   });
+
+  /* ================= i18n \u2014 le FR est dans la page, l'EN ici ================= */
+  const MSG = {
+    fr:{ title:`Qu'est-ce qu'une donn\u00e9e`, hint:`\u2194 fl\u00e8ches \u00b7 espace \u00b7 clic` },
+    en:{ title:`What is a piece of data?`,    hint:`\u2194 arrows \u00b7 space \u00b7 click` }
+  };
+  const I18N = { en: {
+    'hud.menu':`Course map`, 'hud.prev':`\u25c0 Back`, 'hud.next':`Next \u25b6`,
+
+    /* --- 0 \u00b7 ouverture --- */
+    's0.back':`\u25c2 Previous lesson \u00b7 Coding information`,
+    's0.tag':`SNT \u00b7 AI Course`,
+    's0.big':`A <em>piece of data</em>:<br>what is it?`,
+    's0.line':`Before we talk about what an AI does with data, we need to know <strong style="color:#fff">what we are talking about</strong>. And you produce hundreds of them a day \u2014 most of the time without noticing.`,
+    's0.kick':`Data \u00b7 personal data \u00b7 file format \u00b7 structured or not`,
+
+    /* --- 1 \u00b7 d\u00e9finition --- */
+    's1.eye':`Definition`,
+    's1.t':`Data, information,<br>knowledge`,
+    's1.lead':`Three words we mix up all the time \u2014 and that mean completely different things.`,
+    's1.b1':`<div class="n">1 \u00b7 the data</div><div class="t">A raw fact</div><div class="d">coded in a form the machine can store and process</div><div class="v">14</div>`,
+    's1.b2':`<div class="n">2 \u00b7 the information</div><div class="t">The data + the context</div><div class="d">at last we know what it is about</div><div class="v">14 \u00b0C in Strasbourg, this morning</div>`,
+    's1.b3':`<div class="n">3 \u00b7 the knowledge</div><div class="t">What we draw from it</div><div class="d">a meaning, a decision</div><div class="v">colder than yesterday \u2192 I'll take a coat</div>`,
+    's1.note':`A machine only ever handles <b>data</b>. The <b>meaning</b> is ours to supply \u2014 by saying what that \u201c14\u201d stands for.`,
+
+    /* --- 2 \u00b7 vous en produisez --- */
+    's2.eye':`Where are they?`,
+    's2.t':`You produce them<br>non-stop`,
+    's2.lead':`An ordinary day. Every move leaves a trace, somewhere, on some machine.`,
+    's2.x1':`Unlock your phone<b>fingerprint, time</b>`,
+    's2.x2':`Take the tram<b>travel card, stop, time</b>`,
+    's2.x3':`Send a message<b>text, recipient, time</b>`,
+    's2.x4':`Take a photo<b>image, date, place</b>`,
+    's2.x5':`Search the Web<b>query, clicks</b>`,
+    's2.x6':`Watch a video<b>how long, pauses, where you stopped</b>`,
+    's2.x7':`Pay by card<b>amount, shop, place</b>`,
+    's2.x8':`Join the wifi<b>device, network, duration</b>`,
+    's2.note':`The question is not \u201cam I producing data?\u201d but <b>which data, who keeps it, and for how long</b>.`,
+
+    /* --- 3 \u00b7 donn\u00e9e personnelle --- */
+    's3.eye':`A category of its own \u2014 and a protected one`,
+    's3.t':`Personal<br>data`,
+    's3.lead':`The <b>GDPR</b> definition (the European regulation, in force since May 2018): <b>any information relating to an identified or identifiable natural person</b>.`,
+    's3.c1':`<h3>Directly</h3><div class="sub">it names you</div><p>Surname, first name, a photo of your face, address, phone number.</p>`,
+    's3.c2':`<h3>Indirectly</h3><div class="sub">it can be traced back to you</div><p>Student number, IP address, phone identifier, number plate, GPS position.</p><div class="ex">\u25b8 the word that matters: <b>identifiable</b></div>`,
+    's3.c3':`<h3>Sensitive</h3><div class="sub">stronger protection</div><p>Health, political opinions, religion, ethnic origin, sexual orientation, biometric data.</p><div class="ex">\u25b8 processing forbidden, save for exceptions</div>`,
+    's3.note':`The GDPR gives you rights over your data: to <b>see</b> it, <b>correct</b> it, <b>erase</b> it, and <b>take it with you</b> somewhere else.`,
+
+    /* --- 4 \u00b7 le croisement --- */
+    's4.eye':`The trap nobody sees coming`,
+    's4.t':`Harmless apart,<br>identifying together`,
+    's4.lead':`Taken one at a time, these three pieces of data point to nobody. Millions of people share them.`,
+    's4.k1':`postcode`,
+    's4.k2':`date of birth`,
+    's4.k3':`sex`,
+    's4.out':`one single person`,
+    's4.note':`A now classic American study estimated that <b>this trio alone</b> uniquely identified <b>about 87%</b> of the population of the United States.<br><br>
+      Hence the lesson: \u201c<b>anonymous</b>\u201d is far more fragile than we think. It is not one piece of data that identifies you \u2014 <b>it is putting them together</b>.`,
+
+    /* --- 5 \u00b7 les formats --- */
+    's5.eye':`In what form?`,
+    's5.t':`Storing means<br>picking a format`,
+    's5.lead':`A <b>format</b> is a convention: a way of writing the data down \u2014 and above all of being able to <b>read it back</b> later, with other software, on another machine.`,
+    's5.c1':`<h3>Text</h3><div class="sub">the simplest</div><p>Characters, nothing else.</p><div class="ex">.txt \u00b7 .csv \u00b7 .json \u00b7 .xml</div>`,
+    's5.c2':`<h3>Image, sound, video</h3><div class="sub">usually compressed</div><p>We accept losing a little quality to save a lot of room.</p><div class="ex">.jpg \u00b7 .png \u00b7 .mp3 \u00b7 .mp4</div>`,
+    's5.c3':`<h3>Open or closed</h3><div class="sub">a question of freedom</div><p>An <b>open</b> format is documented: anyone can write software that reads it. A <b>closed</b> format ties you to one company.</p><div class="ex">\u25b8 at stake: still being able to read it in 20 years</div>`,
+    's5.note':`The wrong format means data that is <b>unreadable</b> one day. That is a real archiving problem, not a detail.`,
+
+    /* --- 6 \u00b7 structur\u00e9e ou non --- */
+    's6.eye':`The key distinction in the syllabus`,
+    's6.t':`Structured,<br>or not`,
+    's6.c1':`<h3>Structured</h3><div class="sub">a table</div><p><b>Rows</b> (the records), <b>columns</b> (the fields), one fixed type per column.</p><table class="tbl"><tr><th>name</th><th>class</th><th>mark</th></tr><tr><td>Camille</td><td>2de4</td><td>15</td></tr><tr><td>Yacine</td><td>2de1</td><td>12</td></tr></table><div class="ex" style="margin-top:.5rem">\u25b8 sorting, filtering, computing: easy</div>`,
+    's6.c2':`<h3>Semi-structured</h3><div class="sub">named fields</div><p>A hierarchy, labels \u2014 but not necessarily the same fields everywhere.</p><div class="codebox">{\n  <span class="k">"name"</span>: "Camille",\n  <span class="k">"class"</span>: "2de4",\n  <span class="k">"options"</span>: ["chinese"]\n}</div><div class="ex" style="margin-top:.5rem">\u25b8 JSON, XML \u2014 the format of APIs</div>`,
+    's6.c3':`<h3>Unstructured</h3><div class="sub">loose</div><p>Free text, an image, a sound. No cells, no columns.</p><div class="blob">\u201cGreat atmosphere at the careers fair, I loved the robotics workshop \ud83e\udd16\u201d</div><div class="ex" style="margin-top:.5rem">\u25b8 the bulk of what we produce today</div>`,
+    's6.note':`And this is exactly where generative AI changed everything: it can finally <b>handle the unstructured</b> \u2014 free text, images \u2014 which spreadsheets and databases never could.`,
+
+    /* --- 7 \u00b7 m\u00e9tadonn\u00e9es --- */
+    's7.eye':`The hidden data`,
+    's7.t':`Metadata`,
+    's7.lead':`<b>Data about the data</b>. It travels with the file, without you ever seeing it.`,
+    's7.c1':`<h3>A photo</h3><div class="sub">what the file holds besides the image</div><div class="meta-row"><span class="meta-tag">date &amp; time</span><span class="meta-tag">device model</span><span class="meta-tag">settings</span><span class="meta-tag hot">GPS coordinates</span></div><p style="margin-top:.6rem">Publishing a photo sometimes means publishing <b>the exact place</b> you were, and <b>when</b>.</p>`,
+    's7.c2':`<h3>A document</h3><div class="sub">same thing</div><div class="meta-row"><span class="meta-tag">author</span><span class="meta-tag">date created</span><span class="meta-tag">revisions</span><span class="meta-tag">software</span></div><p style="margin-top:.6rem">A file handed in anonymously can still give its author away through its metadata alone.</p>`,
+    's7.note':`The good news: metadata can be <b>looked at</b> and <b>deleted</b>. You just have to know it is there.`,
+
+    /* --- 8 \u00b7 stocker et transf\u00e9rer --- */
+    's8.eye':`Where does the data live?`,
+    's8.t':`Store it here,<br>or at someone else's`,
+    's8.c1':`<h3>Locally</h3><div class="sub">on your own device</div><p>You are in control. But if the device breaks or gets lost, the data goes with it.</p>`,
+    's8.c2':`<h3>On a server</h3><div class="sub">what we call \u201cthe cloud\u201d</div><p>Reachable anywhere, backed up \u2014 but it sits on <b>somebody else's computer</b>, in a country with its own laws.</p>`,
+    's8.note':`And transferring data does not move it: it <b>copies</b> it. The original stays where it was. <br><span style="color:var(--muted)">How it travels across the network \u2014 that will be a whole chapter of its own.</span>`,
+
+    /* --- 9 \u00b7 charni\u00e8re --- */
+    's9.eye':`The question that opens what comes next`,
+    's9.q':`What if we gave<br><em>billions</em> of them to a machine?`,
+    's9.a':`We now know what a piece of data is, what form it is filed in, and which kind deserves protecting.<br><br>What is left is to understand what an AI <b>does with it</b> \u2014 and why <b>what we feed it</b> decides everything it will ever know.`,
+    's9.next':`Next lesson: how an AI learns \u2192`,
+
+    /* --- 10 \u00b7 activit\u00e9 --- */
+    's10.tag':`Activity for this lesson`,
+    's10.t':`What does my<br><em>data</em> say about me?`,
+    's10.sub':`An investigation into yourself \u2014 then into what others could work out from it.`,
+    's10.l1':`List <b>ten pieces of data</b> you have produced since this morning.`,
+    's10.l2':`For each one: is it <b>personal</b>? Directly, or indirectly?`,
+    's10.l3':`Open the <b>metadata</b> of one of your photos. What do you find? Is there a location?`,
+    's10.l4':`Sort three of them into <b>structured / semi-structured / unstructured</b>.`,
+    's10.l5':`<b>The combination challenge:</b> how few of your harmless data points does it take to pick you out of the class?`,
+
+    /* --- 11 \u00b7 r\u00e9cap --- */
+    'rc.eye':`End of lesson`,
+    'rc.title':`What I must <span>remember</span>`,
+    'rc.i1':`A <b>piece of data</b> is a raw fact; it becomes <b>information</b> once it has a context, and <b>knowledge</b> once we draw something from it.`,
+    'rc.i2':`<span class="hl">Personal data</span> is about an <b>identified or identifiable</b> person \u2014 directly or <b>indirectly</b>.`,
+    'rc.i3':`It is not one piece of data that identifies you, it is <b>putting them together</b>. \u201cAnonymous\u201d is fragile.`,
+    'rc.i4':`Data is filed in a <span class="hl">format</span>; it is <b>structured</b> (a table), <b>semi-structured</b> (JSON) or <b>unstructured</b> (text, image).`,
+    'rc.i5':`<span class="hl">Metadata</span> travels with the file \u2014 including, very often, the <b>place</b> and the <b>date</b>.`,
+    'rc.v1':`<b>Personal data</b>Any information relating to an identified or identifiable person (GDPR).`,
+    'rc.v2':`<b>Format</b>The convention that lets us write data down \u2014 and read it back.`,
+    'rc.v3':`<b>Structured data</b>Organised in rows and columns, with one type per column.`,
+    'rc.v4':`<b>Metadata</b>Data that describes other data.`,
+    'rc.key':`Next step: <b>what a machine does when you hand it billions of them.</b>`
+  } };
+
+  const frCache = {};
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+  let curLang = 'fr';
+  function applyLang(lang){
+    curLang = (lang === 'en') ? 'en' : 'fr';
+    document.documentElement.setAttribute('lang', curLang);
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k = el.dataset.i18n;
+      el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+    });
+    document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+    document.title = MSG[curLang].title;
+    const h = document.getElementById('hint');
+    if(h) h.textContent = MSG[curLang].hint;
+    try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  }
+  document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+  let savedLang = 'fr';
+  try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+  applyLang(savedLang === 'en' ? 'en' : 'fr');
 </script>
 </body>
 </html>
