@@ -341,14 +341,46 @@
   #s3 .lead{font-size:clamp(.83rem,1.5vw,1rem)}
   #s3 .chain-note{font-size:clamp(.88rem,1.68vw,1.12rem)}
   #s5 .mapsvg{width:min(31.5rem,88vw)}
-  #s6 .vecsvg{width:min(16.5rem,72vw)}
+  #s6 .vecsvg{width:min(14.5rem,70vw)}
   #s6 .card p{font-size:clamp(.76rem,1.3vw,.92rem);line-height:1.38}
-  #s13 .rc-title{margin-bottom:clamp(.4rem,1.5vh,.8rem)}
-  #s13 .rc-list{gap:clamp(.26rem,.95vh,.48rem)}
+  #s13 .rc-title{margin-bottom:clamp(.3rem,1.1vh,.6rem)}
+  #s13 .rc-list{gap:clamp(.22rem,.8vh,.4rem)}
   #s13 .rc-list li{font-size:clamp(.79rem,1.42vw,.99rem);line-height:1.34}
-  #s13 .rc-voc{gap:.38rem;margin-top:clamp(.38rem,1.3vh,.68rem)}
-  #s13 .rc-term{font-size:clamp(.71rem,1.22vw,.85rem);padding:.36rem .6rem}
-  #s13 .rc-key{font-size:clamp(.85rem,1.58vw,1.08rem);margin-top:clamp(.45rem,1.5vh,.75rem);padding-top:clamp(.38rem,1.15vh,.58rem)}
+  #s13 .rc-voc{gap:.32rem;margin-top:clamp(.3rem,1vh,.52rem)}
+  #s13 .rc-term{font-size:clamp(.7rem,1.18vw,.82rem);padding:.3rem .55rem}
+  #s13 .rc-key{font-size:clamp(.83rem,1.52vw,1.04rem);margin-top:clamp(.35rem,1.15vh,.58rem);padding-top:clamp(.3rem,.95vh,.48rem)}
+  /* ---------- s5b : trois façons de mesurer un écart ---------- */
+  .dwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(.7rem,2.2vw,1.5rem);align-items:center;max-width:58rem;margin:0 auto}
+  .dsvg{background:var(--paper);border:1px solid rgba(0,0,0,.22);
+    width:100%;max-width:14rem;height:auto;display:block;justify-self:end}
+  .dsvg text{font-family:'Courier New',monospace;font-size:11px;fill:#4a4436}
+  .dsvg .grid{stroke:rgba(0,0,0,.07);stroke-width:1}
+  .dsvg .ax{stroke:rgba(0,0,0,.3);stroke-width:1}
+  .dsvg .ray{stroke:rgba(0,0,0,.22);stroke-width:1;stroke-dasharray:2 3}
+  .dside{display:grid;gap:.35rem;min-width:0;max-width:21rem;align-content:start}
+  .dpick{display:grid;grid-template-columns:1.5rem 1fr 1.5rem 1fr;gap:.4rem;align-items:center}
+  .dpick b{font-family:var(--mono);font-size:.8rem}
+  .dpick select{font-family:var(--mono);font-size:.82rem;padding:.24rem .3rem;width:100%;
+    background:var(--paper);border:1px solid rgba(0,0,0,.3);color:var(--ink)}
+  .drow{display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:baseline;
+    border-top:1px solid rgba(0,0,0,.14);padding:.3rem 0}
+  .drow .dn{font-family:var(--display);text-transform:uppercase;font-size:clamp(.72rem,1.3vw,.86rem)}
+  .drow .df{font-family:var(--mono);font-size:clamp(.66rem,1.18vw,.78rem);color:#4a4436}
+  .drow .dv{font-family:var(--mono);font-size:clamp(.78rem,1.4vw,.95rem);font-weight:bold}
+  .drow.man .dn,.drow.man .dv{color:var(--alarm)}
+  .drow.euc .dn,.drow.euc .dv{color:var(--signal-dk)}
+  .drow.cos .dn,.drow.cos .dv{color:var(--green)}
+  .dnote{font-family:var(--mono);font-size:.64rem;color:var(--muted);line-height:1.45;
+    border-top:1px solid rgba(0,0,0,.14);padding-top:.28rem}
+  #s5b .card h3{font-size:clamp(.84rem,1.65vw,1.08rem)}
+  #s5b .card p{font-size:clamp(.74rem,1.26vw,.88rem);line-height:1.34}
+  #s5b .card{padding:clamp(.55rem,1.4vw,.8rem)}
+  #s5b .lead{font-size:clamp(.83rem,1.5vw,1rem)}
+  #s5b .chain-note{font-size:clamp(.86rem,1.62vw,1.08rem)}
+  #s6 .lead{font-size:clamp(.83rem,1.5vw,1rem)}
+  #s13 .rc-list li{font-size:clamp(.77rem,1.38vw,.96rem);line-height:1.32}
+  @media (max-width:900px){.dwrap{grid-template-columns:1fr}.dsvg{justify-self:center;max-width:17rem}}
 </style>
 </head>
 <body>
@@ -483,11 +515,53 @@
     </div>
   </div>
 
+  <!-- ============ 5b · TROIS FAÇONS DE MESURER UN ÉCART ============ -->
+  <div class="pane light pad" id="s5b">
+    <div class="eyebrow" data-i18n="s5b.eye">Une parenthèse de mathématiques — et elle sert</div>
+    <h2 class="stitle" data-i18n="s5b.t">Qu'est-ce qu'une distance&nbsp;?</h2>
+    <p class="lead" data-i18n="s5b.lead">Vous l'avez déjà fait sans le dire&nbsp;: à la séance 2, les manchots, vous cliquiez un point et la machine cherchait ses <b>plus proches voisins</b>. Proches de combien&nbsp;? Il n'y a pas <i>une</i> réponse, mais plusieurs.</p>
+
+    <div class="mid">
+      <div class="dwrap">
+        <svg class="dsvg" id="s5bsvg" viewBox="0 0 300 290" role="img"></svg>
+        <div class="dside">
+          <div class="dpick">
+            <b style="color:var(--signal-dk)">A</b><select id="s5ba"></select>
+            <b style="color:var(--alarm)">B</b><select id="s5bb"></select>
+          </div>
+          <div id="s5brows"></div>
+          <div class="dnote" id="s5bnote"></div>
+        </div>
+      </div>
+      <div class="cards c3" style="max-width:94ch;margin:.45rem auto 0">
+        <div class="card warn" data-i18n="s5b.c1">
+          <h3>Manhattan</h3>
+          <div class="sub">en taxi</div>
+          <p class="ex">d = |x<sub>A</sub> − x<sub>B</sub>| + |y<sub>A</sub> − y<sub>B</sub>|</p>
+          <p>Interdit de couper&nbsp;: on suit les rues, d'où le nom. Elle est <b>toujours plus grande</b> que la suivante — sauf si les deux points sont alignés.</p>
+        </div>
+        <div class="card" data-i18n="s5b.c2">
+          <h3>Euclidienne</h3>
+          <div class="sub">à vol d'oiseau</div>
+          <p class="ex">d = √( (x<sub>A</sub>−x<sub>B</sub>)² + (y<sub>A</sub>−y<sub>B</sub>)² )</p>
+          <p>C'est <b>Pythagore</b>, rien d'autre&nbsp;: la règle posée sur la carte. C'est elle qui faisait voter les manchots.</p>
+        </div>
+        <div class="card good" data-i18n="s5b.c3">
+          <h3>Cosinus</h3>
+          <div class="sub">la même direction</div>
+          <p class="ex">cos θ = (x<sub>A</sub>x<sub>B</sub> + y<sub>A</sub>y<sub>B</sub>) / (‖A‖ × ‖B‖)</p>
+          <p>On jette les longueurs, on ne garde que l'<b>angle</b>. Ce n'est pas une distance au sens strict&nbsp;: c'est une <b>similarité</b>, qui vaut 1 quand c'est aligné.</p>
+        </div>
+      </div>
+      <p class="chain-note" style="margin-top:.45rem" data-i18n="s5b.note">Trois réponses différentes pour les deux <b>mêmes</b> points&nbsp;: «&nbsp;loin&nbsp;» n'a de sens qu'une fois qu'on a dit <b>de quoi on parle</b>. Pour des sens, c'est la troisième — la scène suivante dit pourquoi.</p>
+    </div>
+  </div>
+
   <!-- ============ 6 · LA DISTANCE DE SENS ============ -->
   <div class="pane light pad" id="s6">
-    <div class="eyebrow" data-i18n="s6.eye">Mesurer une ressemblance</div>
-    <h2 class="stitle" data-i18n="s6.t">Deux sens proches,<br>deux flèches alignées</h2>
-    <p class="lead" data-i18n="s6.lead">Les mots devenus des points, «&nbsp;se ressembler&nbsp;» devient une question de géométrie. On compare la <b>direction</b> des deux flèches partant de l'origine&nbsp;: alignées, les sens sont proches&nbsp;; perpendiculaires, ils n'ont rien à voir.</p>
+    <div class="eyebrow" data-i18n="s6.eye">Pourquoi la troisième</div>
+    <h2 class="stitle" data-i18n="s6.t">L'angle, pas la longueur</h2>
+    <p class="lead" data-i18n="s6.lead">Des trois mesures, c'est l'<b>angle</b> qu'on retient pour le sens. Un exemple suffit&nbsp;: un paragraphe de dix lignes et son résumé en une phrase parlent de la même chose, mais la première flèche est bien plus longue. L'angle les reconnaît comme proches&nbsp;; l'euclidienne les éloignerait.</p>
 
     <div class="mid">
       <div class="vecwrap">
@@ -504,7 +578,8 @@
         <div class="card" data-i18n="s6.c1">
           <h3>Pourquoi l'angle</h3>
           <div class="sub">et pas la longueur</div>
-          <p>Un mot rare a une flèche plus courte qu'un mot fréquent. En ne regardant que la <b>direction</b>, on les rend comparables. Ce score d'alignement porte un nom&nbsp;: la <b>similarité cosinus</b>. <b>1</b> = même direction, <b>0</b> = perpendiculaire, sans rapport.</p>
+          <p>La longueur d'une flèche dit surtout <b>combien il y a de texte</b>&nbsp;; sa direction dit <b>de quoi il parle</b>. En jetant la longueur, on rend comparables un mot, une phrase et un paragraphe.</p>
+          <p class="ex">astuce de métier : si on ramène tous les vecteurs à la longueur 1, euclidienne et cosinus classent dans le même ordre.</p>
         </div>
         <div class="card warn" data-i18n="s6.c2">
           <h3>Ce que la carte exagère</h3>
@@ -670,7 +745,7 @@
       <li data-i18n="rc.i2">La <span class="hl">fenêtre de contexte</span> est la quantité de texte lisible d'un coup, comptée en tokens. Grande, mais pas infinie — et plus on la remplit, plus c'est lent, cher, et mal lu au milieu.</li>
       <li data-i18n="rc.i3">Chercher par <b>mots-clés</b> échoue dès que la question n'emploie pas les mots du document. Il faut chercher le <b>sens</b>.</li>
       <li data-i18n="rc.i4">Un <span class="hl">embedding</span> transforme un mot, une phrase ou un paragraphe en une <b>liste de nombres</b> — une position. Sens proches, positions proches. Ces positions ont été <b>apprises</b>, pas écrites à la main.</li>
-      <li data-i18n="rc.i5">On mesure la ressemblance par l'<b>angle</b> entre deux vecteurs (<span class="hl">similarité cosinus</span>)&nbsp;: 1 = même direction, 0 = sans rapport.</li>
+      <li data-i18n="rc.i5">Mesurer un écart n'a rien d'unique&nbsp;: <span class="hl">Manhattan</span> (|Δx|&nbsp;+&nbsp;|Δy|), l'<span class="hl">euclidienne</span> (Pythagore) et le <span class="hl">cosinus</span> (l'angle) donnent trois réponses pour les deux mêmes points. Pour le sens, on retient <b>l'angle</b>.</li>
       <li data-i18n="rc.i6">Le <span class="hl">RAG</span>, c'est la chaîne <b>découper → vectoriser → retrouver → répondre</b>. Il n'ajoute aucun savoir au modèle&nbsp;: il lui met le bon passage sous les yeux.</li>
       <li data-i18n="rc.i7"><b>Fine-tuning ≠ RAG</b>&nbsp;: l'un change la <b>manière de parler</b>, l'autre <b>ce dont on parle</b>. Et le RAG ne supprime pas les erreurs — il les fait dépendre de vos documents.</li>
     </ol>
@@ -678,7 +753,7 @@
       <div class="rc-term" data-i18n="rc.v1"><b>Contexte</b>Tout ce que le modèle lit pour produire une réponse&nbsp;: question, historique, documents joints.</div>
       <div class="rc-term" data-i18n="rc.v2"><b>Fenêtre de contexte</b>La taille maximale de ce contexte, en tokens.</div>
       <div class="rc-term" data-i18n="rc.v3"><b>Embedding</b>Le vecteur de nombres qui représente le sens d'un texte.</div>
-      <div class="rc-term" data-i18n="rc.v4"><b>Similarité cosinus</b>Le score d'alignement de deux vecteurs, entre 0 et 1.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Similarité cosinus</b>Le score d'alignement de deux vecteurs, entre 0 et 1. Ce n'est pas une distance : c'est une ressemblance.</div>
       <div class="rc-term" data-i18n="rc.v5"><b>Base vectorielle</b>La base de données qui stocke les embeddings et retrouve les plus proches.</div>
       <div class="rc-term" data-i18n="rc.v6"><b>RAG</b>Retrouver des passages, puis répondre à partir d'eux.</div>
     </div>
@@ -705,6 +780,7 @@
     <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
     <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
     <div class="dot" data-i="12"></div><div class="dot" data-i="13"></div>
+    <div class="dot" data-i="14"></div>
   </div>
   <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
@@ -714,10 +790,10 @@
 /* =========================================================
    NAVIGATION
    ========================================================= */
-var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13']
+var panes = ['s0','s1','s2','s3','s4','s5','s5b','s6','s7','s8','s9','s10','s11','s12','s13']
   .map(function(id){ return document.getElementById(id); });
 var dots = [].slice.call(document.querySelectorAll('.dot'));
-var scene = 0, MAX = 13;
+var scene = 0, MAX = 14;
 
 function render(){
   panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
@@ -1003,7 +1079,7 @@ function pos(w){
    verticalement tant qu'elle en chevauche une déjà posée. */
 var placed = [];
 function placeLabel(px, py, txt, right){
-  var w = txt.length * 7.2 + 5, y0 = py + 4;
+  var w = txt.length * 8.8 + 10, y0 = py + 4;
   for(var k = 0; k < 40; k++){
     var y = y0 + (k === 0 ? 0 : Math.ceil(k/2) * 14 * (k % 2 ? 1 : -1));
     var x = right ? px + 8 : px - 8 - w;
@@ -1015,6 +1091,30 @@ function placeLabel(px, py, txt, right){
   }
   return y0;
 }
+/* Après rendu, on mesure les étiquettes réellement dessinées (getBBox, en unités
+   du viewBox) et on décale verticalement celles qui en chevauchent une autre.
+   Les premières rencontrées gardent leur place : on émet donc les repères d'axes
+   avant les mots. */
+function deconflict(svg){
+  var boxes = [];
+  [].slice.call(svg.querySelectorAll('text')).forEach(function(t){
+    var b;
+    try{ b = t.getBBox(); }catch(e){ return; }
+    if(!b || !b.width) return;
+    for(var k = 0; k < 60; k++){
+      var dy = (k === 0) ? 0 : Math.ceil(k/2) * 4 * (k % 2 ? 1 : -1);
+      var r = {x0:b.x - 1, y0:b.y + dy - 1, x1:b.x + b.width + 1, y1:b.y + b.height + dy + 1};
+      var hit = boxes.some(function(o){
+        return r.x0 < o.x1 && o.x0 < r.x1 && r.y0 < o.y1 && o.y0 < r.y1;
+      });
+      if(!hit){
+        boxes.push(r);
+        if(dy) t.setAttribute('y', (parseFloat(t.getAttribute('y')) + dy).toFixed(1));
+        return;
+      }
+    }
+  });
+}
 function drawS5(){
   var t = S5T[LG()], L = LG(), svg = document.getElementById('s5svg');
   var s = '';
@@ -1022,6 +1122,8 @@ function drawS5(){
   s += '<line class="ax" x1="' + M.ox + '" y1="' + M.oy + '" x2="' + (M.ox + M.sc + 16) + '" y2="' + M.oy + '"/>';
   s += '<line class="ax" x1="' + M.ox + '" y1="' + M.oy + '" x2="' + M.ox + '" y2="' + (M.oy - M.sc - 16) + '"/>';
   s += '<path class="arc" d="M ' + (M.ox + M.sc) + ' ' + M.oy + ' A ' + M.sc + ' ' + M.sc + ' 0 0 0 ' + M.ox + ' ' + (M.oy - M.sc) + '"/>';
+  s += '<text x="' + (M.ox + M.sc - 6) + '" y="' + (M.oy + 16) + '" opacity=".6">x</text>';
+  s += '<text x="' + (M.ox - 14) + '" y="' + (M.oy - M.sc - 4) + '" opacity=".6">y</text>';
   var sel = WORDS[s5sel], ps = pos(sel);
   s += '<line class="ray" x1="' + M.ox + '" y1="' + M.oy + '" x2="' + ps.x.toFixed(1) + '" y2="' + ps.y.toFixed(1) + '"/>';
   var nb = nearest(s5sel);
@@ -1040,9 +1142,8 @@ function drawS5(){
          '" text-anchor="' + (right ? 'start' : 'end') + '" class="' + (on ? 'on' : '') +
          '" style="cursor:pointer" data-w="' + i + '">' + w[L] + '</text>';
   });
-  s += '<text x="' + (M.ox + M.sc - 6) + '" y="' + (M.oy + 16) + '" opacity=".6">x</text>';
-  s += '<text x="' + (M.ox - 14) + '" y="' + (M.oy - M.sc - 4) + '" opacity=".6">y</text>';
   svg.innerHTML = s;
+  deconflict(svg);
   [].slice.call(svg.querySelectorAll('[data-w]')).forEach(function(el){
     el.onclick = function(ev){ ev.stopPropagation(); s5sel = +el.getAttribute('data-w'); drawS5(); };
   });
@@ -1070,6 +1171,89 @@ function nearest(i){
 }
 
 /* =========================================================
+   SCÈNE 5b — trois façons de mesurer un écart
+   ========================================================= */
+var S5BT = {
+  fr:{ man:'Manhattan', euc:'Euclidienne', cos:'Cosinus',
+       note:'Les mêmes formules s’écrivent à l’identique avec 1 536 nombres au lieu de 2 : on additionne 1 536 termes au lieu de 2. C’est tout ce qui change.',
+       same:'A et B sont le même mot : écart nul, angle nul.' },
+  en:{ man:'Manhattan', euc:'Euclidean', cos:'Cosine',
+       note:'The same formulas are written identically with 1,536 numbers instead of 2: you add up 1,536 terms instead of 2. That is the only difference.',
+       same:'A and B are the same word: zero gap, zero angle.' }
+};
+var D = {ox:42, oy:250, sc:206};
+var s5ia = 0, s5ib = 11;
+
+function dpt(w){
+  var th = w.a * Math.PI / 180;
+  return { u: Math.cos(th) * w.r, v: Math.sin(th) * w.r };
+}
+function dpx(c){ return { x: D.ox + c.u * D.sc, y: D.oy - c.v * D.sc }; }
+
+function drawS5b(){
+  var t = S5BT[LG()], L = LG();
+  fillSel('s5ba'); fillSel('s5bb');
+  document.getElementById('s5ba').value = s5ia;
+  document.getElementById('s5bb').value = s5ib;
+  var A = WORDS[s5ia], B = WORDS[s5ib];
+  var ca = dpt(A), cb = dpt(B), pa = dpx(ca), pb = dpx(cb);
+  var s = '';
+  placed = [];
+  /* quadrillage au dixième */
+  for(var k = 0; k <= 10; k++){
+    var g = k / 10;
+    s += '<line class="grid" x1="' + (D.ox + g*D.sc).toFixed(1) + '" y1="' + (D.oy - D.sc) +
+         '" x2="' + (D.ox + g*D.sc).toFixed(1) + '" y2="' + D.oy + '"/>';
+    s += '<line class="grid" x1="' + D.ox + '" y1="' + (D.oy - g*D.sc).toFixed(1) +
+         '" x2="' + (D.ox + D.sc) + '" y2="' + (D.oy - g*D.sc).toFixed(1) + '"/>';
+  }
+  s += '<line class="ax" x1="' + D.ox + '" y1="' + D.oy + '" x2="' + (D.ox + D.sc + 10) + '" y2="' + D.oy + '"/>';
+  s += '<line class="ax" x1="' + D.ox + '" y1="' + D.oy + '" x2="' + D.ox + '" y2="' + (D.oy - D.sc - 10) + '"/>';
+  s += '<text x="' + (D.ox - 14) + '" y="' + (D.oy + 4) + '" opacity=".6">0</text>';
+  s += '<text x="' + (D.ox + D.sc - 3) + '" y="' + (D.oy + 16) + '" opacity=".6">1</text>';
+  s += '<text x="' + (D.ox - 14) + '" y="' + (D.oy - D.sc + 4) + '" opacity=".6">1</text>';
+  /* rayons depuis l'origine + arc de l'angle : la partie « cosinus » */
+  s += '<line class="ray" x1="' + D.ox + '" y1="' + D.oy + '" x2="' + pa.x.toFixed(1) + '" y2="' + pa.y.toFixed(1) + '"/>';
+  s += '<line class="ray" x1="' + D.ox + '" y1="' + D.oy + '" x2="' + pb.x.toFixed(1) + '" y2="' + pb.y.toFixed(1) + '"/>';
+  var ra = 46, lo = Math.min(A.a, B.a), hi = Math.max(A.a, B.a);
+  if(hi - lo > 0.5){
+    s += '<path d="M ' + (D.ox + Math.cos(lo*Math.PI/180)*ra).toFixed(1) + ' ' + (D.oy - Math.sin(lo*Math.PI/180)*ra).toFixed(1) +
+         ' A ' + ra + ' ' + ra + ' 0 0 0 ' + (D.ox + Math.cos(hi*Math.PI/180)*ra).toFixed(1) + ' ' + (D.oy - Math.sin(hi*Math.PI/180)*ra).toFixed(1) +
+         '" fill="none" stroke="#12924f" stroke-width="2"/>';
+  }
+  /* Manhattan : l'escalier */
+  s += '<polyline points="' + pa.x.toFixed(1) + ',' + pa.y.toFixed(1) + ' ' +
+       pb.x.toFixed(1) + ',' + pa.y.toFixed(1) + ' ' + pb.x.toFixed(1) + ',' + pb.y.toFixed(1) +
+       '" fill="none" stroke="#b5301f" stroke-width="2.4" stroke-dasharray="5 3"/>';
+  /* Euclide : la ligne droite */
+  s += '<line x1="' + pa.x.toFixed(1) + '" y1="' + pa.y.toFixed(1) + '" x2="' + pb.x.toFixed(1) + '" y2="' + pb.y.toFixed(1) +
+       '" stroke="#123bab" stroke-width="2.4"/>';
+  s += '<circle cx="' + pa.x.toFixed(1) + '" cy="' + pa.y.toFixed(1) + '" r="5" fill="#123bab"/>';
+  s += '<circle cx="' + pb.x.toFixed(1) + '" cy="' + pb.y.toFixed(1) + '" r="5" fill="#b5301f"/>';
+  var la = 'A · ' + A[L], lb = 'B · ' + B[L];
+  var ya = placeLabel(pa.x, pa.y, la, true), yb = placeLabel(pb.x, pb.y, lb, true);
+  s += '<text x="' + (pa.x + 8).toFixed(1) + '" y="' + ya.toFixed(1) + '" style="fill:#123bab;font-weight:bold">' + la + '</text>';
+  s += '<text x="' + (pb.x + 8).toFixed(1) + '" y="' + yb.toFixed(1) + '" style="fill:#b5301f;font-weight:bold">' + lb + '</text>';
+  document.getElementById('s5bsvg').innerHTML = s;
+  deconflict(document.getElementById('s5bsvg'));
+
+  var du = Math.abs(ca.u - cb.u), dv = Math.abs(ca.v - cb.v);
+  var man = du + dv, euc = Math.sqrt(du*du + dv*dv);
+  var ang = Math.abs(A.a - B.a), cos = Math.cos(ang * Math.PI / 180);
+  function row(cls, name, f, v){
+    return '<div class="drow ' + cls + '"><div class="dn">' + name + '</div>' +
+           '<div class="df">' + f + '</div><div class="dv">' + v + '</div></div>';
+  }
+  document.getElementById('s5brows').innerHTML =
+    row('man', t.man, num(du) + ' + ' + num(dv), num(man)) +
+    row('euc', t.euc, '√( ' + num(du) + '² + ' + num(dv) + '² )', num(euc)) +
+    row('cos', t.cos, 'θ = ' + Math.round(ang) + '°', num(cos));
+  document.getElementById('s5bnote').textContent = (s5ia === s5ib) ? t.same : t.note;
+}
+document.getElementById('s5ba').onchange = function(){ s5ia = +this.value; drawS5b(); };
+document.getElementById('s5bb').onchange = function(){ s5ib = +this.value; drawS5b(); };
+
+/* =========================================================
    SCÈNE 6 — deux flèches, un angle
    ========================================================= */
 var V = {ox:40, oy:240, sc:205};
@@ -1088,6 +1272,7 @@ function drawS6(){
   var pa = { x: V.ox + Math.cos(A.a * Math.PI/180) * A.r * V.sc, y: V.oy - Math.sin(A.a * Math.PI/180) * A.r * V.sc };
   var pb = { x: V.ox + Math.cos(B.a * Math.PI/180) * B.r * V.sc, y: V.oy - Math.sin(B.a * Math.PI/180) * B.r * V.sc };
   var s = '';
+  placed = [];
   s += '<line class="ax" x1="' + V.ox + '" y1="' + V.oy + '" x2="' + (V.ox + V.sc + 14) + '" y2="' + V.oy + '"/>';
   s += '<line class="ax" x1="' + V.ox + '" y1="' + V.oy + '" x2="' + V.ox + '" y2="' + (V.oy - V.sc - 14) + '"/>';
   s += '<path class="arc" d="M ' + (V.ox + V.sc) + ' ' + V.oy + ' A ' + V.sc + ' ' + V.sc + ' 0 0 0 ' + V.ox + ' ' + (V.oy - V.sc) + '"/>';
@@ -1097,9 +1282,11 @@ function drawS6(){
        ' A ' + ra + ' ' + ra + ' 0 0 0 ' + (V.ox + Math.cos(hi*Math.PI/180)*ra).toFixed(1) + ' ' + (V.oy - Math.sin(hi*Math.PI/180)*ra).toFixed(1) +
        '" fill="none" stroke="#6c6355" stroke-width="1.4"/>';
   s += arrow(pa, '#123bab') + arrow(pb, '#b5301f');
-  s += '<text x="' + (pa.x + 7).toFixed(1) + '" y="' + (pa.y + 3).toFixed(1) + '" style="fill:#123bab;font-weight:bold">' + A[L] + '</text>';
-  s += '<text x="' + (pb.x + 7).toFixed(1) + '" y="' + (pb.y + 3).toFixed(1) + '" style="fill:#b5301f;font-weight:bold">' + B[L] + '</text>';
+  var ya6 = placeLabel(pa.x, pa.y, A[L], true), yb6 = placeLabel(pb.x, pb.y, B[L], false);
+  s += '<text x="' + (pa.x + 7).toFixed(1) + '" y="' + ya6.toFixed(1) + '" text-anchor="start" style="fill:#123bab;font-weight:bold">' + A[L] + '</text>';
+  s += '<text x="' + (pb.x - 7).toFixed(1) + '" y="' + yb6.toFixed(1) + '" text-anchor="end" style="fill:#b5301f;font-weight:bold">' + B[L] + '</text>';
   document.getElementById('s6svg').innerHTML = s;
+  deconflict(document.getElementById('s6svg'));
 
   var d = Math.abs(A.a - B.a), cos = Math.cos(d * Math.PI / 180);
   document.getElementById('s6line').innerHTML =
@@ -1183,7 +1370,7 @@ function drawS7(){
 /* =========================================================
    REDESSIN GLOBAL (appelé aussi au changement de langue)
    ========================================================= */
-function redrawAll(){ drawS2(); drawS3(); drawS5(); drawS6(); drawS7(); }
+function redrawAll(){ drawS2(); drawS3(); drawS5(); drawS5b(); drawS6(); drawS7(); }
 window.redrawAll = redrawAll;
 </script>
 
@@ -1259,13 +1446,32 @@ const I18N = { en: {
   's5.lead':`A computer does not compare meanings: it compares numbers. The whole trick is to give every word a <b>position</b> — and to arrange things so that words with close meanings land in close positions. <b>Click a word.</b>`,
   's5.note':`This vector of numbers is called an <b>embedding</b>. Nobody placed these points by hand: the positions were <b>learnt</b>, with the machinery of the previous lesson, over billions of sentences — words that appear in the same contexts end up in the same place.`,
 
+  /* --- 5b · qu'est-ce qu'une distance --- */
+  's5b.eye':`A short detour through mathematics — a useful one`,
+  's5b.t':`What is a distance?`,
+  's5b.lead':`You have done this already without saying so: in lesson 2, the penguins, you clicked a point and the machine looked for its <b>nearest neighbours</b>. Near by how much? There is no single answer, but several.`,
+  's5b.c1':`<h3>Manhattan</h3>
+          <div class="sub">by taxi</div>
+          <p class="ex">d = |x<sub>A</sub> − x<sub>B</sub>| + |y<sub>A</sub> − y<sub>B</sub>|</p>
+          <p>No cutting corners: you follow the streets, hence the name. It is <b>always larger</b> than the next one — unless the two points line up.</p>`,
+  's5b.c2':`<h3>Euclidean</h3>
+          <div class="sub">as the crow flies</div>
+          <p class="ex">d = √( (x<sub>A</sub>−x<sub>B</sub>)² + (y<sub>A</sub>−y<sub>B</sub>)² )</p>
+          <p>This is <b>Pythagoras</b>, nothing more: a ruler laid on the map. It is the one that made the penguins vote.</p>`,
+  's5b.c3':`<h3>Cosine</h3>
+          <div class="sub">the same direction</div>
+          <p class="ex">cos θ = (x<sub>A</sub>x<sub>B</sub> + y<sub>A</sub>y<sub>B</sub>) / (‖A‖ × ‖B‖)</p>
+          <p>Throw away the lengths, keep only the <b>angle</b>. Strictly speaking it is not a distance: it is a <b>similarity</b>, worth 1 when the arrows line up.</p>`,
+  's5b.note':`Three different answers for the <b>same</b> two points: “far” only means something once you have said <b>what you are talking about</b>. For meanings it is the third one — the next scene says why.`,
+
   /* --- 6 · la distance de sens --- */
-  's6.eye':`Measuring a resemblance`,
-  's6.t':`Two close meanings,<br>two aligned arrows`,
-  's6.lead':`Once words have become points, “resembling each other” becomes a question of geometry. We compare the <b>direction</b> of the two arrows from the origin: aligned, the meanings are close; perpendicular, they have nothing to do with each other.`,
+  's6.eye':`Why the third one`,
+  's6.t':`The angle, not the length`,
+  's6.lead':`Of the three measures, it is the <b>angle</b> we keep for meaning. One example is enough: a ten-line paragraph and its one-sentence summary are about the same thing, but the first arrow is far longer. The angle calls them close; Euclidean would pull them apart.`,
   's6.c1':`<h3>Why the angle</h3>
           <div class="sub">and not the length</div>
-          <p>A rare word has a shorter arrow than a frequent one. Looking only at <b>direction</b> makes them comparable. This alignment score has a name: <b>cosine similarity</b>. <b>1</b> = same direction, <b>0</b> = perpendicular, unrelated.</p>`,
+          <p>The length of an arrow mostly says <b>how much text there is</b>; its direction says <b>what it is about</b>. Throwing the length away makes a word, a sentence and a paragraph comparable.</p>
+          <p class="ex">a trick of the trade: scale every vector to length 1 and Euclidean and cosine rank in the same order.</p>`,
   's6.c2':`<h3>What the map exaggerates</h3>
           <div class="sub">in all honesty</div>
           <p>Here everything is reduced to <b>two</b> numbers; a real model uses <b>1,536, sometimes several thousand</b>. Its scores are far more tightly packed — you compare scores <b>with each other</b>, you do not read them as marks out of 1.</p>`,
@@ -1358,13 +1564,13 @@ const I18N = { en: {
   'rc.i2':`The <span class="hl">context window</span> is the amount of text readable at once, counted in tokens. Large, but not infinite — and the fuller it gets, the slower, the costlier, and the worse-read in the middle.`,
   'rc.i3':`Searching by <b>keyword</b> fails as soon as the question does not use the words of the document. We must search for <b>meaning</b>.`,
   'rc.i4':`An <span class="hl">embedding</span> turns a word, a sentence or a paragraph into a <b>list of numbers</b> — a position. Close meanings, close positions. Those positions were <b>learnt</b>, not written by hand.`,
-  'rc.i5':`Resemblance is measured by the <b>angle</b> between two vectors (<span class="hl">cosine similarity</span>): 1 = same direction, 0 = unrelated.`,
+  'rc.i5':`Measuring a gap is not one single thing: <span class="hl">Manhattan</span> (|Δx|&nbsp;+&nbsp;|Δy|), <span class="hl">Euclidean</span> (Pythagoras) and <span class="hl">cosine</span> (the angle) give three answers for the same two points. For meaning we keep <b>the angle</b>.`,
   'rc.i6':`<span class="hl">RAG</span> is the chain <b>split → embed → retrieve → answer</b>. It adds no knowledge to the model: it puts the right passage in front of it.`,
   'rc.i7':`<b>Fine-tuning ≠ RAG</b>: one changes the <b>way it speaks</b>, the other <b>what it speaks about</b>. And RAG does not remove errors — it makes them depend on your documents.`,
   'rc.v1':`<b>Context</b>Everything the model reads to produce an answer: question, history, attached documents.`,
   'rc.v2':`<b>Context window</b>The maximum size of that context, in tokens.`,
   'rc.v3':`<b>Embedding</b>The vector of numbers that represents the meaning of a text.`,
-  'rc.v4':`<b>Cosine similarity</b>The alignment score of two vectors, between 0 and 1.`,
+  'rc.v4':`<b>Cosine similarity</b>The alignment score of two vectors, between 0 and 1. Not a distance: a resemblance.`,
   'rc.v5':`<b>Vector database</b>The database that stores embeddings and retrieves the closest ones.`,
   'rc.v6':`<b>RAG</b>Retrieve passages, then answer from them.`,
   'rc.key':`Next step: <b>how one machine calls another — the Internet, the Web and APIs.</b>`
