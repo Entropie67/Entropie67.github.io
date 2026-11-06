@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chercher avant de répondre</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4,.depth{grid-template-columns:1fr}
+    .sl{grid-template-columns:1.2rem 1fr 2.4rem}
+    .sl .bn{display:none}
+    .rung{grid-template-columns:4.4rem 1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- s2 : le prompt et la réponse ---------- */
+  .promptbox{font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);line-height:1.55;
+    background:var(--paper);border:1px solid rgba(0,0,0,.22);padding:.55rem .7rem}
+  .promptbox .plbl{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+  .promptbox .attached{border-left:3px solid var(--signal);background:rgba(31,92,255,.08);
+    padding:.35rem .5rem;margin-top:.45rem;color:var(--signal-dk)}
+  .ansbox{border:1px solid rgba(0,0,0,.18);border-left:5px solid var(--alarm);
+    background:var(--paper-2);padding:.5rem .7rem;margin-top:.5rem}
+  .ansbox.ok{border-left-color:var(--green)}
+  .ansbox .albl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.22rem}
+  .ansbox .atxt{font-size:clamp(.82rem,1.5vw,1rem);line-height:1.4;color:var(--ink)}
+  .ansbox .averd{font-size:clamp(.76rem,1.35vw,.9rem);line-height:1.4;color:var(--alarm);margin-top:.3rem}
+  .ansbox.ok .averd{color:var(--green)}
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+
+  /* ---------- s3 : la fenêtre de contexte ---------- */
+  .winbar{position:relative;height:clamp(1.5rem,4vh,2.1rem);margin:.15rem 0 .35rem;
+    background:rgba(233,228,216,.08);border:1px solid rgba(233,228,216,.28);overflow:hidden}
+  .winbar i{position:absolute;left:0;top:0;bottom:0;background:var(--signal);transition:width .3s}
+  .winbar.over i{background:var(--alarm)}
+  .winbar .cap{position:absolute;right:.45rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.66rem;color:#cfc8b8}
+  .docs{display:grid;gap:.22rem;margin:.5rem 0 .2rem}
+  .docrow{display:grid;grid-template-columns:1.15rem 1fr auto;gap:.6rem;align-items:center;cursor:pointer;
+    font-size:clamp(.76rem,1.35vw,.92rem);color:#c9c2b2;padding:.16rem .3rem;border:1px solid transparent}
+  .docrow:hover{border-color:rgba(233,228,216,.22)}
+  .docrow .box{width:1.05rem;height:1.05rem;border:1.5px solid rgba(233,228,216,.5);
+    display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#fff;line-height:1}
+  .docrow.on .box{background:var(--signal);border-color:var(--signal)}
+  .docrow .tk{font-family:var(--mono);font-size:.7rem;color:#7fa0ff}
+  .winverd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.15rem}
+  .winverd b{color:#fff}
+  .winverd.bad b{color:#ff8a72}
+
+  /* ---------- s5 : la carte des sens ---------- */
+  .mapwrap{display:flex;flex-wrap:wrap;gap:clamp(.7rem,2.2vw,1.6rem);align-items:flex-start;justify-content:center}
+  .mapsvg{background:rgba(233,228,216,.04);border:1px solid rgba(233,228,216,.2);
+    width:min(33rem,90vw);height:auto;display:block}
+  .mapsvg text{font-family:'Courier New',monospace;font-size:11px;fill:#c9c2b2}
+  .mapsvg text.on{fill:#fff;font-weight:bold}
+  .mapsvg .ax{stroke:rgba(233,228,216,.3);stroke-width:1}
+  .mapsvg .arc{fill:none;stroke:rgba(233,228,216,.15);stroke-width:1;stroke-dasharray:3 4}
+  .mapsvg .ray{stroke:var(--signal);stroke-width:1.6}
+  .mapsvg .nbray{stroke:rgba(127,160,255,.45);stroke-width:1;stroke-dasharray:2 3}
+  .mapside{min-width:13rem;max-width:19rem;display:grid;gap:.4rem;align-content:start}
+  .mapside .mh{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
+  .vecout{font-family:var(--mono);font-size:clamp(.74rem,1.3vw,.88rem);color:#7fa0ff;
+    border:1px solid rgba(233,228,216,.2);background:rgba(233,228,216,.05);padding:.4rem .55rem;line-height:1.5}
+  .vecout b{color:#fff}
+  .nbrow{display:grid;grid-template-columns:1fr auto;gap:.5rem;font-family:var(--mono);font-size:.74rem;
+    color:#c9c2b2;border-bottom:1px dashed rgba(233,228,216,.16);padding:.2rem 0}
+  .nbrow span{color:#7fa0ff}
+  .maphint{font-family:var(--mono);font-size:.66rem;color:var(--muted);line-height:1.5}
+
+  /* ---------- s6 : deux flèches, un angle ---------- */
+  .vecwrap{display:flex;flex-wrap:wrap;gap:clamp(.8rem,2.5vw,1.8rem);align-items:center;justify-content:center}
+  .vecsvg{background:var(--paper);border:1px solid rgba(0,0,0,.22);width:min(20rem,78vw);height:auto;display:block}
+  .vecsvg text{font-family:'Courier New',monospace;font-size:11px;fill:#4a4436}
+  .vecsvg .ax{stroke:rgba(0,0,0,.25);stroke-width:1}
+  .vecsvg .arc{fill:none;stroke:rgba(0,0,0,.14);stroke-width:1;stroke-dasharray:3 4}
+  .vecctl{display:grid;gap:.45rem;min-width:min(16rem,88vw)}
+  .vecctl .row{display:grid;grid-template-columns:1.5rem 1fr;gap:.5rem;align-items:center}
+  .vecctl .row b{font-family:var(--mono);font-size:.8rem}
+  .vecctl select{font-family:var(--mono);font-size:.84rem;padding:.26rem .35rem;width:100%;
+    background:var(--paper);border:1px solid rgba(0,0,0,.3);color:var(--ink)}
+  .simline{font-family:var(--mono);font-size:clamp(.74rem,1.3vw,.88rem);color:#4a4436;margin-top:.2rem}
+  .simline b{color:var(--signal-dk);font-size:1.15em}
+  .simbar{position:relative;height:.95rem;border:1px solid rgba(0,0,0,.25);background:var(--paper);margin-top:.1rem}
+  .simbar i{position:absolute;left:0;top:0;bottom:0;background:var(--signal);transition:width .25s}
+  .simverd{font-size:clamp(.78rem,1.4vw,.94rem);line-height:1.4;color:#4a4436;margin-top:.2rem}
+  .simverd b{color:var(--ink)}
+
+  /* ---------- s7 : mots-clés contre sens ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.88rem);padding:.32rem .58rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.6rem,1.8vw,1.1rem)}
+  .col{border:1px solid rgba(233,228,216,.2);background:rgba(233,228,216,.04);padding:.5rem .65rem}
+  .col h4{font-family:var(--display);text-transform:uppercase;font-size:clamp(.74rem,1.4vw,.94rem);
+    color:#fff;line-height:1.1}
+  .col .how{font-family:var(--mono);font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);margin:.12rem 0 .35rem}
+  .hit{border-top:1px solid rgba(233,228,216,.14);padding:.3rem 0;
+    font-size:clamp(.72rem,1.25vw,.84rem);line-height:1.38;color:#c9c2b2}
+  .hit .sc{font-family:var(--mono);font-size:.68rem;color:#7fa0ff}
+  .hit.weak{opacity:.5}
+  .hit mark{background:rgba(31,92,255,.35);color:#fff;padding:0 .1em}
+  .none{font-family:var(--mono);font-size:.74rem;color:#ff8a72;padding:.4rem 0;line-height:1.5}
+  .srchverd{font-family:var(--serif);font-size:clamp(.84rem,1.55vw,1.02rem);line-height:1.4;
+    color:#cfc8b8;margin-top:.5rem;border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem}
+  .srchverd b{color:#fff}
+
+  @media (max-width:900px){
+    .cols{grid-template-columns:1fr}
+    .mapside{min-width:0}
+  }
+  /* ---------- calage projection 1280x720 ---------- */
+  #s3 .docs{gap:.14rem}
+  #s3 .docrow{padding:.1rem .3rem;font-size:clamp(.74rem,1.28vw,.88rem)}
+  #s3 .winbar{height:clamp(1.3rem,3.4vh,1.8rem)}
+  #s3 .card p{font-size:clamp(.76rem,1.3vw,.92rem);line-height:1.38}
+  #s3 .winverd{font-size:clamp(.8rem,1.42vw,.96rem)}
+  #s3 .lead{font-size:clamp(.83rem,1.5vw,1rem)}
+  #s3 .chain-note{font-size:clamp(.88rem,1.68vw,1.12rem)}
+  #s5 .mapsvg{width:min(31.5rem,88vw)}
+  #s6 .vecsvg{width:min(16.5rem,72vw)}
+  #s6 .card p{font-size:clamp(.76rem,1.3vw,.92rem);line-height:1.38}
+  #s13 .rc-title{margin-bottom:clamp(.4rem,1.5vh,.8rem)}
+  #s13 .rc-list{gap:clamp(.26rem,.95vh,.48rem)}
+  #s13 .rc-list li{font-size:clamp(.79rem,1.42vw,.99rem);line-height:1.34}
+  #s13 .rc-voc{gap:.38rem;margin-top:clamp(.38rem,1.3vh,.68rem)}
+  #s13 .rc-term{font-size:clamp(.71rem,1.22vw,.85rem);padding:.36rem .6rem}
+  #s13 .rc-key{font-size:clamp(.85rem,1.58vw,1.08rem);margin-top:clamp(.45rem,1.5vh,.75rem);padding-top:clamp(.38rem,1.15vh,.58rem)}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="neurone.html" data-i18n="s0.back">◂ Séance précédente · Le neurone et son réglage</a>
+    <div class="rain">0,82 &nbsp; 0,61 &nbsp; −0,04 &nbsp; 0,37</div>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Il ne sait rien<br>de <em>notre lycée</em></h1>
+    <p class="line" data-i18n="s0.line">La séance dernière s'est terminée sur une promesse&nbsp;: lui donner une information qu'il n'a <strong style="color:#fff">jamais apprise</strong>, sans toucher à un seul de ses paramètres. C'est tout l'objet de celle-ci — et c'est ce qui sépare un modèle d'un véritable outil.</p>
+    <div class="kick" data-i18n="s0.kick">Contexte · fenêtre · sens · vecteurs · RAG</div>
+  </div>
+
+  <!-- ============ 1 · TROIS ENDROITS ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">La distinction qui démonte une idée reçue</div>
+    <h2 class="stitle" data-i18n="s1.t">Trois endroits<br>très différents</h2>
+    <p class="lead" data-i18n="s1.lead">Quand une IA vous répond, l'information qu'elle utilise peut venir de trois endroits. La plupart des malentendus sur l'IA viennent de la confusion entre les trois.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s1.c1">
+          <h3>Ce qu'elle a appris</h3>
+          <div class="sub">dans les poids</div>
+          <p>Figé à l'entraînement. Des milliards de pages digérées, dont <b>rien n'est rangé</b>&nbsp;: il n'en reste que des nombres.</p>
+          <p class="ex">pas de date · pas de source · pas de correction possible sans réentraîner</p>
+        </div>
+        <div class="card" data-i18n="s1.c2">
+          <h3>Ce qu'on met dans son contexte</h3>
+          <div class="sub">dans la question</div>
+          <p>Ce que vous venez d'écrire, plus les documents joints. <b>Relu mot à mot</b> à chaque réponse.</p>
+          <p class="ex">exact · daté · citable — mais limité en taille, et oublié après</p>
+        </div>
+        <div class="card good" data-i18n="s1.c3">
+          <h3>Ce qu'elle va chercher</h3>
+          <div class="sub">avec un outil</div>
+          <p>Une recherche, une base de documents, une API. Le modèle ne <b>sait</b> rien de plus&nbsp;: on lui apporte du texte.</p>
+          <p class="ex">et ce texte atterrit… dans son contexte</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s1.note">L'idée reçue «&nbsp;elle cherche sur Internet&nbsp;» est <b>fausse par défaut</b> et <b>vraie sur commande</b>&nbsp;: un modèle nu ne cherche rien. Remarquez surtout où mènent les deux derniers chemins — <b>au contexte</b>. C'est donc par là qu'il faut commencer.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · COLLER L'INFORMATION ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Étape 1 · le plus simple qui marche</div>
+    <h2 class="stitle" data-i18n="s2.t">Collez l'information<br>dans la question</h2>
+    <p class="lead" data-i18n="s2.lead">Le moyen le plus direct d'apprendre quelque chose à un modèle&nbsp;: l'écrire dans la question. Il ne <b>retient</b> rien — mais pendant qu'il rédige, il a le texte sous les yeux.</p>
+
+    <div class="mid">
+      <div style="display:flex;justify-content:center;margin:.3rem 0 .5rem">
+        <button class="bigbtn" id="s2btn"></button>
+      </div>
+      <div style="max-width:84ch;margin:0 auto;width:100%">
+        <div class="promptbox" id="s2prompt"></div>
+        <div class="ansbox" id="s2ans"></div>
+      </div>
+      <p class="chain-note" style="margin-top:.6rem" data-i18n="s2.note">Même modèle, mêmes poids, mêmes paramètres&nbsp;: rien n'a été réentraîné. Seule la <b>question</b> a changé. <b>C'est déjà du RAG — fait à la main.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · LA FENÊTRE ============ -->
+  <div class="pane dark pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Mais il y a une limite</div>
+    <h2 class="stitle" data-i18n="s3.t">La fenêtre<br>de contexte</h2>
+    <p class="lead" data-i18n="s3.lead">Tout ce que le modèle lit d'un coup — votre question, l'historique, les documents joints — doit tenir dans une taille maximale, comptée en <b>tokens</b> (séance&nbsp;3). Cochez ce que vous voulez lui joindre.</p>
+
+    <div class="mid">
+      <div style="max-width:82ch;margin:0 auto;width:100%">
+        <div class="winbar" id="s3bar"><i style="width:0"></i><div class="cap" id="s3cap"></div></div>
+        <div class="docs" id="s3docs"></div>
+        <div class="winverd" id="s3verd"></div>
+      </div>
+      <div class="cards c2" style="max-width:82ch;margin:.45rem auto 0">
+        <div class="card warn" data-i18n="s3.c1">
+          <h3>Ce que ça coûte</h3>
+          <div class="sub">à chaque question</div>
+          <p>Le modèle <b>relit tout le contexte</b> pour chaque réponse. Deux fois plus de texte joint&nbsp;: deux fois plus de calcul, une réponse plus lente et plus chère.</p>
+        </div>
+        <div class="card warn" data-i18n="s3.c2">
+          <h3>Perdu au milieu</h3>
+          <div class="sub">grande fenêtre ≠ bonne lecture</div>
+          <p>Les mesures le montrent régulièrement&nbsp;: une information placée <b>au milieu</b> d'un très long contexte est moins bien retrouvée qu'au début ou à la fin.</p>
+        </div>
+      </div>
+      <p class="chain-note" style="margin-top:.6rem" data-i18n="s3.note">On ne peut donc pas tout coller — et les 2&nbsp;000 pages du lycée n'y tiendraient pas de toute façon. Il faut <b>choisir les trois paragraphes utiles</b>. Reste à savoir comment les trouver.</p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · LES MOTS-CLÉS NE SUFFISENT PAS ============ -->
+  <div class="pane light pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Première idée · Ctrl+F</div>
+    <h2 class="stitle" data-i18n="s4.t">Les mots-clés<br>ne suffisent pas</h2>
+    <p class="lead" data-i18n="s4.lead">Chercher un mot exact dans 2&nbsp;000 pages, c'est facile&nbsp;: un ordinateur le fait depuis cinquante ans. Le problème, c'est que la question d'un élève n'emploie presque jamais <b>les mots du document</b>.</p>
+
+    <div class="mid">
+      <table class="tbl" style="max-width:92ch;margin:0 auto" data-i18n="s4.tbl">
+        <thead><tr><th>La question de l'élève</th><th>Mot cherché</th><th>Ce que dit le règlement</th><th>Trouvé&nbsp;?</th></tr></thead>
+        <tbody>
+          <tr><td>«&nbsp;j'ai cassé mon <b>badge</b> de <b>self</b>&nbsp;»</td><td>badge, self</td><td>«&nbsp;la perte de la <b>carte d'accès</b> au <b>restaurant scolaire</b>…&nbsp;»</td><td style="color:var(--alarm)"><b>non</b></td></tr>
+          <tr><td>«&nbsp;mes parents doivent <b>prévenir</b>&nbsp;?&nbsp;»</td><td>prévenir</td><td>«&nbsp;toute absence doit être <b>justifiée</b>…&nbsp;»</td><td style="color:var(--alarm)"><b>non</b></td></tr>
+          <tr><td>«&nbsp;on peut <b>emporter</b> un dessert&nbsp;?&nbsp;»</td><td>emporter</td><td>«&nbsp;interdit de <b>sortir</b> de la nourriture du réfectoire&nbsp;»</td><td style="color:var(--alarm)"><b>non</b></td></tr>
+          <tr><td>«&nbsp;ça <b>finit</b> à quelle heure&nbsp;?&nbsp;»</td><td>finit</td><td>«&nbsp;les enseignements <b>prennent fin</b>…&nbsp;»</td><td style="color:var(--alarm)"><b>non</b></td></tr>
+          <tr><td>«&nbsp;le self est <b>ouvert</b> <b>mercredi</b>&nbsp;?&nbsp;»</td><td>ouvert, mercredi</td><td>«&nbsp;le centre de documentation est <b>ouvert</b>… sauf le <b>mercredi</b>&nbsp;»</td><td style="color:var(--alarm)"><b>oui — mais c'est le CDI</b></td></tr>
+        </tbody>
+      </table>
+      <p class="chain-note" style="margin-top:.8rem" data-i18n="s4.note">Deux phrases peuvent dire <b>la même chose sans partager un seul mot</b>. Et deux phrases peuvent partager tous leurs mots en parlant d'autre chose. Chercher des <b>suites de caractères</b>, c'est chercher à côté. Il faut chercher du <b>sens</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · DES MOTS AUX NOMBRES ============ -->
+  <div class="pane dark pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Le pivot de la séance</div>
+    <h2 class="stitle" data-i18n="s5.t">Des mots<br>aux nombres</h2>
+    <p class="lead" data-i18n="s5.lead">Un ordinateur ne compare pas des sens&nbsp;: il compare des nombres. Toute l'astuce consiste à donner à chaque mot une <b>position</b> — et à s'arranger pour que les mots de sens proches tombent à des positions proches. <b>Cliquez un mot.</b></p>
+
+    <div class="mid">
+      <div class="mapwrap">
+        <svg class="mapsvg" id="s5svg" viewBox="0 0 430 300" role="img"></svg>
+        <div class="mapside">
+          <div class="mh" id="s5h"></div>
+          <div class="vecout" id="s5vec"></div>
+          <div id="s5nb"></div>
+          <div class="maphint" id="s5hint"></div>
+        </div>
+      </div>
+      <p class="chain-note" style="margin-top:.5rem" data-i18n="s5.note">Ce vecteur de nombres s'appelle un <b>embedding</b> (un «&nbsp;plongement&nbsp;»). Personne n'a placé ces points à la main&nbsp;: les positions ont été <b>apprises</b>, avec la machinerie de la séance dernière, sur des milliards de phrases — les mots qui apparaissent dans les mêmes contextes finissent au même endroit.</p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · LA DISTANCE DE SENS ============ -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Mesurer une ressemblance</div>
+    <h2 class="stitle" data-i18n="s6.t">Deux sens proches,<br>deux flèches alignées</h2>
+    <p class="lead" data-i18n="s6.lead">Les mots devenus des points, «&nbsp;se ressembler&nbsp;» devient une question de géométrie. On compare la <b>direction</b> des deux flèches partant de l'origine&nbsp;: alignées, les sens sont proches&nbsp;; perpendiculaires, ils n'ont rien à voir.</p>
+
+    <div class="mid">
+      <div class="vecwrap">
+        <svg class="vecsvg" id="s6svg" viewBox="0 0 300 280" role="img"></svg>
+        <div class="vecctl">
+          <div class="row"><b style="color:var(--signal-dk)">A</b><select id="s6a"></select></div>
+          <div class="row"><b style="color:var(--alarm)">B</b><select id="s6b"></select></div>
+          <div class="simline" id="s6line"></div>
+          <div class="simbar"><i id="s6bar" style="width:0"></i></div>
+          <div class="simverd" id="s6verd"></div>
+        </div>
+      </div>
+      <div class="cards c2" style="max-width:88ch;margin:.6rem auto 0">
+        <div class="card" data-i18n="s6.c1">
+          <h3>Pourquoi l'angle</h3>
+          <div class="sub">et pas la longueur</div>
+          <p>Un mot rare a une flèche plus courte qu'un mot fréquent. En ne regardant que la <b>direction</b>, on les rend comparables. Ce score d'alignement porte un nom&nbsp;: la <b>similarité cosinus</b>. <b>1</b> = même direction, <b>0</b> = perpendiculaire, sans rapport.</p>
+        </div>
+        <div class="card warn" data-i18n="s6.c2">
+          <h3>Ce que la carte exagère</h3>
+          <div class="sub">honnêteté</div>
+          <p>Ici tout est ramené à <b>deux</b> nombres&nbsp;; un vrai modèle en utilise <b>1&nbsp;536, voire plusieurs milliers</b>. Les scores y sont bien plus resserrés — on compare les scores <b>entre eux</b>, on ne les lit pas comme des notes sur 1.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 7 · CHERCHER PAR LE SENS ============ -->
+  <div class="pane dark pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">On assemble</div>
+    <h2 class="stitle" data-i18n="s7.t">Chercher par le sens</h2>
+    <p class="lead" data-i18n="s7.lead">Huit extraits du règlement intérieur, et la question d'un élève. À gauche, on cherche <b>les mots</b>&nbsp;; à droite, <b>le sens</b>. Choisissez une question.</p>
+
+    <div class="mid">
+      <div class="qbtns" id="s7qb"></div>
+      <div class="cols">
+        <div class="col">
+          <h4 id="s7h1"></h4>
+          <div class="how" id="s7how1"></div>
+          <div id="s7r1"></div>
+        </div>
+        <div class="col">
+          <h4 id="s7h2"></h4>
+          <div class="how" id="s7how2"></div>
+          <div id="s7r2"></div>
+        </div>
+      </div>
+      <div class="srchverd" id="s7verd"></div>
+    </div>
+  </div>
+
+  <!-- ============ 8 · LE RAG EN QUATRE TEMPS ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Le nom de tout ça</div>
+    <h2 class="stitle" data-i18n="s8.t">R · A · G</h2>
+    <p class="lead" data-i18n="s8.lead"><i>Retrieval-Augmented Generation</i> — «&nbsp;génération augmentée par la recherche&nbsp;». Trois mots qui décrivent exactement la chaîne que nous venons de construire à la main.</p>
+
+    <div class="mid">
+      <div class="chain">
+        <div class="cbox" data-i18n="s8.b1">
+          <div class="n">1 · découper</div>
+          <div class="t">Des passages</div>
+          <div class="d">Les documents sont coupés en morceaux de quelques phrases.</div>
+          <div class="v">2 000 pages → 7 000 passages</div>
+        </div>
+        <div class="carrow">→</div>
+        <div class="cbox" data-i18n="s8.b2">
+          <div class="n">2 · vectoriser</div>
+          <div class="t">Des positions</div>
+          <div class="d">Chaque passage devient un vecteur, rangé dans une base vectorielle.</div>
+          <div class="v">7 000 × 1 536 nombres</div>
+        </div>
+        <div class="carrow">→</div>
+        <div class="cbox" data-i18n="s8.b3">
+          <div class="n">3 · retrouver</div>
+          <div class="t">Les plus proches</div>
+          <div class="d">La question devient un vecteur à son tour&nbsp;; on garde les passages les mieux alignés.</div>
+          <div class="v">top 3 à 5</div>
+        </div>
+        <div class="carrow">→</div>
+        <div class="cbox" data-i18n="s8.b4">
+          <div class="n">4 · répondre</div>
+          <div class="t">Dans le contexte</div>
+          <div class="d">Les passages sont collés avec la question. Le modèle rédige — et cite.</div>
+          <div class="v">≈ 1 200 tokens joints</div>
+        </div>
+      </div>
+      <p class="lead" style="text-align:center;margin:0 auto;max-width:86ch" data-i18n="s8.split">Les étapes <b>①</b> et <b>②</b> se font <b>une fois pour toutes</b>, à l'avance&nbsp;: c'est l'<b>indexation</b>. Les étapes <b>③</b> et <b>④</b> se refont <b>à chaque question</b>, en quelques dixièmes de seconde.</p>
+      <p class="chain-note" style="margin-top:.6rem" data-i18n="s8.note">Regardez où atterrit le résultat de l'étape&nbsp;③&nbsp;: <b>dans le contexte</b>, exactement comme à la scène&nbsp;3. Le RAG n'ajoute <b>pas un gramme de savoir</b> au modèle — il lui met le bon document sous les yeux, au bon moment.</p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · RAG OU FINE-TUNING ============ -->
+  <div class="pane light pad" id="s9">
+    <div class="eyebrow" data-i18n="s9.eye">Ne pas confondre · rappel du bloc 3</div>
+    <h2 class="stitle" data-i18n="s9.t">Lui apprendre,<br>ou lui montrer</h2>
+    <p class="lead" data-i18n="s9.lead">La séance «&nbsp;comment une IA apprend&nbsp;» présentait le <b>fine-tuning</b>&nbsp;: réentraîner un modèle sur des données choisies. Le RAG, lui, ne touche à <b>aucun</b> paramètre. Les deux ne servent pas à la même chose.</p>
+
+    <div class="mid">
+      <table class="tbl" style="max-width:90ch;margin:0 auto" data-i18n="s9.tbl">
+        <thead><tr><th></th><th>Fine-tuning</th><th>RAG</th></tr></thead>
+        <tbody>
+          <tr><td><b>ce qu'on modifie</b></td><td>les paramètres du modèle</td><td>le contexte, à chaque question</td></tr>
+          <tr><td><b>ce que ça coûte</b></td><td>des heures de calcul, un GPU</td><td>quelques centimes et un index</td></tr>
+          <tr><td><b>corriger une erreur</b></td><td>tout réentraîner</td><td>remplacer un fichier</td></tr>
+          <tr><td><b>citer sa source</b></td><td>impossible</td><td>naturel — on sait quel passage</td></tr>
+          <tr><td><b>bon pour</b></td><td>le style, le format, le vocabulaire d'un métier</td><td>les faits, les chiffres, tout ce qui change</td></tr>
+          <tr><td><b>et pour notre lycée&nbsp;?</b></td><td style="color:var(--muted)">non</td><td style="color:var(--green)"><b>oui</b></td></tr>
+        </tbody>
+      </table>
+      <p class="chain-note" style="margin-top:.8rem" data-i18n="s9.note">Règle simple&nbsp;: <b>le fine-tuning change la manière de parler, le RAG change ce dont on parle.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 10 · CE QUE LE RAG NE RÈGLE PAS ============ -->
+  <div class="pane light pad" id="s10">
+    <div class="eyebrow" data-i18n="s10.eye">Les limites, honnêtement</div>
+    <h2 class="stitle" data-i18n="s10.t">Quatre façons<br>de se tromper quand même</h2>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card warn" data-i18n="s10.c1">
+          <h3>Le passage n'est pas trouvé</h3>
+          <div class="sub">étape ③ ratée</div>
+          <p>Question mal formulée, ou information éparpillée sur dix pages. Le modèle répond quand même — <b>sans dire qu'il n'a rien reçu</b>.</p>
+          <p class="ex">c'est le piège de la question «&nbsp;le self, mercredi&nbsp;?&nbsp;»</p>
+        </div>
+        <div class="card warn" data-i18n="s10.c2">
+          <h3>Le document est faux</h3>
+          <div class="sub">ou périmé</div>
+          <p>Le RAG est <b>fidèle à sa source</b>&nbsp;: il recopie l'erreur avec aplomb. Un règlement de l'an dernier donne des réponses fausses impeccablement citées.</p>
+          <p class="ex">garbage in, garbage out</p>
+        </div>
+        <div class="card warn" data-i18n="s10.c3">
+          <h3>Le découpage a mal coupé</h3>
+          <div class="sub">étape ① ratée</div>
+          <p>Un tableau tronqué, une phrase séparée de son «&nbsp;<b>sauf si…</b>&nbsp;». Le passage retrouvé est juste et la réponse fausse.</p>
+          <p class="ex">le pire des cas : indétectable à la lecture</p>
+        </div>
+        <div class="card warn" data-i18n="s10.c4">
+          <h3>Le modèle brode</h3>
+          <div class="sub">étape ④ ratée</div>
+          <p>Il a bien le passage, mais complète avec ce qu'il «&nbsp;sait&nbsp;» déjà. D'où l'intérêt d'<b>exiger la citation</b>&nbsp;: on peut alors vérifier.</p>
+          <p class="ex">« réponds uniquement à partir des extraits »</p>
+        </div>
+      </div>
+      <p class="chain-note" style="margin-top:.6rem" data-i18n="s10.note">Le RAG réduit beaucoup les hallucinations&nbsp;; il ne les supprime pas. Et il <b>déplace la responsabilité</b>&nbsp;: la qualité de la réponse devient <b>la qualité de vos documents</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 11 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s11">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s11.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s11.q">Et s'il allait<br><em>chercher</em><br>tout seul&nbsp;?</div>
+    <p class="a" data-i18n="s11.a">Jusqu'ici, <b>nous</b> avons fait la recherche à sa place&nbsp;: nous choisissons les documents, nous les lui mettons sous les yeux. Un assistant vraiment utile devrait s'apercevoir <b>lui-même</b> qu'il lui manque quelque chose — et aller le chercher. Pour cela, il lui faut des <b>outils</b>&nbsp;; et pour qu'il s'en serve, il faut savoir comment deux machines se parlent.</p>
+    <div class="next" data-i18n="s11.next">Séance suivante · Internet, le Web et les API</div>
+  </div>
+
+  <!-- ============ 12 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s12">
+    <div class="tag" data-i18n="s12.tag">Activité de la séance · 25 minutes · par groupes de quatre</div>
+    <h2 data-i18n="s12.t">Vous êtes<br>la <em>base vectorielle</em></h2>
+    <p class="sub" data-i18n="s12.sub">Fabriquer un RAG sans ordinateur. C'est vous qui tenez l'étape&nbsp;③.</p>
+    <ol class="steps">
+      <li data-i18n="s12.l1"><b>Le corpus.</b> Prenez un document réel du lycée (règlement intérieur, une page du site, les menus de la semaine). <b>Découpez-le</b> en passages de trois ou quatre phrases, numérotés&nbsp;: c'est l'étape&nbsp;①. Combien en obtenez-vous&nbsp;?</li>
+      <li data-i18n="s12.l2"><b>Les questions.</b> Écrivez <b>cinq questions</b> qu'un élève de seconde poserait vraiment. Règle du jeu&nbsp;: <b>interdiction d'employer les mots du document</b>. C'est tout l'intérêt.</li>
+      <li data-i18n="s12.l3"><b>L'échange.</b> Donnez vos cinq questions au groupe voisin — <b>pas</b> votre document. Vous recevez les siennes, avec son corpus découpé.</li>
+      <li data-i18n="s12.l4"><b>Retrouvez.</b> Pour chaque question reçue, désignez les <b>trois passages</b> que vous donneriez au modèle. Vous venez de faire l'étape&nbsp;③ à la main, au jugé.</li>
+      <li data-i18n="s12.l5"><b>Répondez</b> en n'utilisant <b>que</b> ces trois passages, et citez leur numéro. Si la réponse n'y est pas, écrivez-le&nbsp;: c'est <b>la bonne réponse</b>.</li>
+      <li data-i18n="s12.l6"><b>Le bilan.</b> Rendez les copies au groupe qui a posé les questions&nbsp;: lui seul peut corriger. Pour chaque échec, nommez la cause d'après la scène&nbsp;10 — <b>passage introuvable</b>, <b>document faux</b>, <b>mauvais découpage</b>, ou <b>brodage</b>.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 13 · RÉCAP ============ -->
+  <div class="pane light pad" id="s13">
+    <div class="rc-eye" data-i18n="rc.eye">Fin de séance</div>
+    <h2 class="rc-title" data-i18n="rc.title">Ce que je dois <span>retenir</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">L'information qu'une IA utilise vient de <b>trois endroits</b>&nbsp;: ce qu'elle a <b>appris</b> (figé dans les poids), ce qu'on met dans son <span class="hl">contexte</span>, ce qu'elle <b>va chercher</b>. Les deux derniers finissent au même endroit&nbsp;: le contexte.</li>
+      <li data-i18n="rc.i2">La <span class="hl">fenêtre de contexte</span> est la quantité de texte lisible d'un coup, comptée en tokens. Grande, mais pas infinie — et plus on la remplit, plus c'est lent, cher, et mal lu au milieu.</li>
+      <li data-i18n="rc.i3">Chercher par <b>mots-clés</b> échoue dès que la question n'emploie pas les mots du document. Il faut chercher le <b>sens</b>.</li>
+      <li data-i18n="rc.i4">Un <span class="hl">embedding</span> transforme un mot, une phrase ou un paragraphe en une <b>liste de nombres</b> — une position. Sens proches, positions proches. Ces positions ont été <b>apprises</b>, pas écrites à la main.</li>
+      <li data-i18n="rc.i5">On mesure la ressemblance par l'<b>angle</b> entre deux vecteurs (<span class="hl">similarité cosinus</span>)&nbsp;: 1 = même direction, 0 = sans rapport.</li>
+      <li data-i18n="rc.i6">Le <span class="hl">RAG</span>, c'est la chaîne <b>découper → vectoriser → retrouver → répondre</b>. Il n'ajoute aucun savoir au modèle&nbsp;: il lui met le bon passage sous les yeux.</li>
+      <li data-i18n="rc.i7"><b>Fine-tuning ≠ RAG</b>&nbsp;: l'un change la <b>manière de parler</b>, l'autre <b>ce dont on parle</b>. Et le RAG ne supprime pas les erreurs — il les fait dépendre de vos documents.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Contexte</b>Tout ce que le modèle lit pour produire une réponse&nbsp;: question, historique, documents joints.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Fenêtre de contexte</b>La taille maximale de ce contexte, en tokens.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Embedding</b>Le vecteur de nombres qui représente le sens d'un texte.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Similarité cosinus</b>Le score d'alignement de deux vecteurs, entre 0 et 1.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Base vectorielle</b>La base de données qui stocke les embeddings et retrouve les plus proches.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>RAG</b>Retrouver des passages, puis répondre à partir d'eux.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>comment une machine en appelle une autre — Internet, le Web et les API.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div><div class="dot" data-i="13"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 13;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.closest && e.target.closest('#langsw,select') && (e.key===' '||e.key==='Enter')) return;
+  if(e.target && e.target.matches && e.target.matches('select')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+/* curLang est déclaré en var : les widgets ci-dessous tournent AVANT le bloc i18n
+   et lisent cette variable. Avec let, ils lèveraient une ReferenceError. */
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+
+/* =========================================================
+   DONNÉES DES MANIPULATIONS
+   ========================================================= */
+
+/* ---- scène 2 : coller le document dans la question ---- */
+var S2 = {
+  fr:{
+    plbl:'Ce que le modèle reçoit',
+    q:'À quelle heure ferme le CDI le mercredi ?',
+    dlbl:'Pièce jointe · règlement intérieur, extrait',
+    doc:'« Le centre de documentation est ouvert de 8 h à 17 h, sauf le mercredi où il ferme à 12 h 30. »',
+    albl:'Ce que le modèle répond',
+    offA:'Le CDI ferme à 17 h, comme les autres jours de la semaine.',
+    offV:'Faux — et affirmé sans la moindre hésitation. Le modèle n\u2019a jamais vu notre règlement : il produit la suite la plus plausible.',
+    onA:'Le mercredi, le CDI ferme à 12 h 30 ; les autres jours, à 17 h.',
+    onV:'Juste, daté, vérifiable — et il peut citer la phrase exacte sur laquelle il s\u2019appuie.',
+    btnOn:'📎 Joindre le règlement',
+    btnOff:'✕ Retirer le règlement'
+  },
+  en:{
+    plbl:'What the model receives',
+    q:'What time does the library close on Wednesday?',
+    dlbl:'Attachment · school rules, extract',
+    doc:'“The documentation centre is open from 8 am to 5 pm, except on Wednesday when it closes at 12.30 pm.”',
+    albl:'What the model answers',
+    offA:'The library closes at 5 pm, like every other day of the week.',
+    offV:'Wrong — and stated without a flicker of hesitation. The model has never seen our rules: it produces the most plausible continuation.',
+    onA:'On Wednesday the library closes at 12.30 pm; on other days, at 5 pm.',
+    onV:'Right, dated, checkable — and it can quote the exact sentence it relied on.',
+    btnOn:'📎 Attach the school rules',
+    btnOff:'✕ Remove the school rules'
+  }
+};
+var s2on = false;
+
+/* ---- scène 3 : la fenêtre de contexte ---- */
+var WIN = 128000;
+var S3DOCS = [
+  {tok:18,     on:true,  fr:'Votre question',                             en:'Your question'},
+  {tok:1200,   on:true,  fr:'L\u2019historique de la conversation',        en:'The conversation history'},
+  {tok:9000,   on:true,  fr:'Le règlement intérieur (12 pages)',          en:'The school rules (12 pages)'},
+  {tok:2400,   on:false, fr:'Les menus du mois',                          en:'This month\u2019s lunch menus'},
+  {tok:31000,  on:false, fr:'Les emplois du temps de toutes les classes', en:'Every class timetable'},
+  {tok:140000, on:false, fr:'Le projet d\u2019établissement (180 pages)',   en:'The school development plan (180 pages)'}
+];
+var S3T = {
+  fr:{ cap:'fenêtre : 128 000 tokens', used:'tokens joints', win:'de la fenêtre.',
+       v1:'<b>Large.</b> Le modèle lit tout, et il reste de la place.',
+       v2:'<b>Ça rentre</b> — mais chaque question coûte désormais le prix de <b>tout</b> ce texte, relu intégralement.',
+       v3:'<b>Juste à la limite.</b> Un échange de plus et il faudra couper quelque chose.',
+       v4:'<b>Ça ne rentre pas.</b> Il faut choisir ce qu\u2019on garde — ou apprendre à ne joindre que les bons passages.' },
+  en:{ cap:'window: 128,000 tokens', used:'tokens attached', win:'of the window.',
+       v1:'<b>Plenty of room.</b> The model reads everything and there is space to spare.',
+       v2:'<b>It fits</b> — but every question now costs the price of <b>all</b> that text, re-read in full.',
+       v3:'<b>Right at the edge.</b> One more exchange and something will have to go.',
+       v4:'<b>It does not fit.</b> You must choose what to keep — or learn to attach only the right passages.' }
+};
+</script>
+
+<script>
+/* ---- scènes 5 et 6 : les mots et leurs positions ----
+   Angle en degrés (0 à 90) + rayon. Les mots d'un même groupe partagent un
+   secteur : l'angle porte le sens, le rayon ne sert qu'à aérer le dessin.    */
+var WORDS = [
+  {fr:'chat',    en:'cat',     a: 7, r:.95, c:0},
+  {fr:'chaton',  en:'kitten',  a:14, r:.74, c:0},
+  {fr:'chien',   en:'dog',     a:20, r:.90, c:0},
+  {fr:'chiot',   en:'puppy',   a:26, r:.70, c:0},
+  {fr:'tigre',   en:'tiger',   a:33, r:.93, c:1},
+  {fr:'lion',    en:'lion',    a:38, r:.80, c:1},
+  {fr:'loup',    en:'wolf',    a:43, r:.88, c:1},
+  {fr:'roi',     en:'king',    a:50, r:.96, c:2},
+  {fr:'reine',   en:'queen',   a:54, r:.86, c:2},
+  {fr:'prince',  en:'prince',  a:59, r:.72, c:2},
+  {fr:'voiture', en:'car',     a:65, r:.94, c:3},
+  {fr:'camion',  en:'lorry',   a:70, r:.82, c:3},
+  {fr:'vélo',    en:'bicycle', a:75, r:.70, c:3},
+  {fr:'pain',    en:'bread',   a:80, r:.92, c:4},
+  {fr:'fromage', en:'cheese',  a:84, r:.80, c:4},
+  {fr:'pomme',   en:'apple',   a:88, r:.68, c:4}
+];
+var CLUST = {
+  fr:['animaux familiers','animaux sauvages','personnes de la cour','véhicules','nourriture'],
+  en:['pets','wild animals','royal court','vehicles','food']
+};
+var CCOL = ['#7fa0ff','#4cc98a','#ff8a72','#e0b24c','#5fc9d8'];
+var S5T = {
+  fr:{ h:'Le mot choisi', pick:'Cliquez un mot sur la carte.',
+       vec:'Son vecteur', nb:'Ses trois plus proches voisins', grp:'groupe',
+       hint:'La carte n’a que deux dimensions, pour qu’on puisse la dessiner. Un vrai modèle en utilise 1 536, voire plusieurs milliers : impossible à représenter — mais l’idée est exactement celle-ci.' },
+  en:{ h:'Selected word', pick:'Click a word on the map.',
+       vec:'Its vector', nb:'Its three nearest neighbours', grp:'group',
+       hint:'The map has only two dimensions so that it can be drawn. A real model uses 1,536 of them, sometimes several thousand: impossible to picture — but the idea is exactly this one.' }
+};
+var s5sel = 0;
+
+var S6T = {
+  fr:{ ang:'écart d’angle', cos:'similarité cosinus',
+       v1:'Presque la même direction&nbsp;: <b>deux sens très proches</b>.',
+       v2:'Nettement alignées&nbsp;: <b>même famille de sens</b>.',
+       v3:'Un angle large&nbsp;: <b>un rapport lointain</b>.',
+       v4:'Quasiment perpendiculaires&nbsp;: <b>aucun rapport</b>.' },
+  en:{ ang:'angle between them', cos:'cosine similarity',
+       v1:'Almost the same direction: <b>two very close meanings</b>.',
+       v2:'Clearly aligned: <b>same family of meanings</b>.',
+       v3:'A wide angle: <b>a distant relation</b>.',
+       v4:'Near perpendicular: <b>no relation at all</b>.' }
+};
+
+/* ---- scène 7 : le petit corpus et les questions ---- */
+var CORPUS = {
+  fr:[
+    'Art. 12 — L’usage du téléphone portable est interdit dans l’ensemble des bâtiments, y compris à la cantine.',
+    'Art. 7 — Les enseignements s’achèvent à 16 h 30, sauf le vendredi où ils prennent fin à 15 h 30.',
+    'Art. 19 — Les élèves de seconde bénéficient du régime de la sortie libre entre deux heures de cours, sur autorisation écrite des responsables légaux.',
+    'Art. 3 — Toute absence doit être justifiée auprès de la vie scolaire dans les 48 heures.',
+    'Le centre de documentation est ouvert de 8 h à 17 h, sauf le mercredi où il ferme à 12 h 30.',
+    'Art. 24 — La perte de la carte d’accès au restaurant scolaire doit être signalée au secrétariat ; une nouvelle carte est délivrée contre 5 €.',
+    'Art. 31 — La tenue vestimentaire doit rester correcte et compatible avec les activités d’enseignement.',
+    'Les repas sont pris exclusivement dans l’enceinte du restaurant scolaire ; il est interdit de sortir de la nourriture du réfectoire.'
+  ],
+  en:[
+    'Art. 12 — Mobile phone use is prohibited throughout the buildings, including in the canteen.',
+    'Art. 7 — Lessons end at 4.30 pm, except on Friday when they finish at 3.30 pm.',
+    'Art. 19 — Year-10 students may leave the premises between lessons, with written permission from their legal guardians.',
+    'Art. 3 — Any absence must be justified to the student affairs office within 48 hours.',
+    'The documentation centre is open from 8 am to 5 pm, except on Wednesday when it closes at 12.30 pm.',
+    'Art. 24 — Loss of the canteen access card must be reported to the school office; a replacement card costs €5.',
+    'Art. 31 — Dress must remain appropriate and compatible with teaching activities.',
+    'Meals are to be eaten exclusively inside the canteen; taking food out of the dining hall is prohibited.'
+  ]
+};
+var QUERIES = {
+  fr:[
+    {q:'J’ai cassé mon badge de self, je fais quoi ?',
+     sem:[[5,.81],[7,.44],[0,.29]],
+     v:'<b>Zéro résultat à gauche.</b> Le règlement ne dit jamais «&nbsp;badge&nbsp;», ni «&nbsp;self&nbsp;». À droite, le bon article arrive premier.'},
+    {q:'On peut emporter un dessert pour plus tard ?',
+     sem:[[7,.76],[5,.38],[0,.31]],
+     v:'Même scénario&nbsp;: «&nbsp;emporter un dessert&nbsp;» et «&nbsp;sortir de la nourriture du réfectoire&nbsp;» <b>ne partagent aucun mot</b>.'},
+    {q:'Mes parents doivent prévenir si je suis malade ?',
+     sem:[[3,.84],[2,.35],[6,.22]],
+     v:'«&nbsp;doivent&nbsp;» et «&nbsp;doit&nbsp;» sont <b>deux suites de caractères différentes</b>. Pour le sens, c’est la même idée.'},
+    {q:'Ça finit à quelle heure le vendredi ?',
+     sem:[[1,.88],[4,.46],[2,.33]],
+     v:'Ici les mots-clés s’en sortent — grâce au seul mot «&nbsp;vendredi&nbsp;». <b>Un coup de chance, pas une méthode.</b>'},
+    {q:'Le self est ouvert le mercredi ?',
+     sem:[[4,.55],[5,.49],[7,.47]],
+     v:'<b>Le piège.</b> À gauche, deux mots correspondent… dans l’article du <b>CDI</b>, qui ne parle pas du self. À droite, aucun passage n’atteint le seuil&nbsp;: la bonne réponse est «&nbsp;ce n’est pas dans le document&nbsp;».'}
+  ],
+  en:[
+    {q:'I broke my lunch badge, what do I do?',
+     sem:[[5,.81],[7,.44],[0,.29]],
+     v:'<b>Zero results on the left.</b> The rules never say &ldquo;badge&rdquo; or &ldquo;lunch&rdquo;. On the right, the correct article comes first.'},
+    {q:'Can I take a dessert away for later?',
+     sem:[[7,.76],[5,.38],[0,.31]],
+     v:'Same story: &ldquo;take a dessert away&rdquo; and &ldquo;taking food out of the dining hall&rdquo; <b>share no word at all</b>.'},
+    {q:'Do my parents have to call in if I am ill?',
+     sem:[[3,.84],[2,.35],[6,.22]],
+     v:'&ldquo;call in&rdquo; and &ldquo;justified&rdquo; are <b>two different strings of characters</b>. As meaning, they are the same idea.'},
+    {q:'What time does it finish on Friday?',
+     sem:[[1,.88],[4,.46],[2,.33]],
+     v:'Here the keywords get through — thanks to the single word &ldquo;Friday&rdquo;. <b>Luck, not a method.</b>'},
+    {q:'Is the canteen open on Wednesday?',
+     sem:[[4,.55],[5,.49],[7,.47]],
+     v:'<b>The trap.</b> On the left, two words match… inside the <b>library</b> article, which says nothing about the canteen. On the right, no passage reaches the threshold: the correct answer is &ldquo;it is not in the document&rdquo;.'}
+  ]
+};
+var STOP = {
+  fr:['pour','plus','dans','avec','mais','quel','quelle','quels','quelles','elle','elles','nous','vous','cela','ceci','tout','tous','aussi','donc','alors','cette','leur','leurs','chez','suis','fais','faire','quoi','pris'],
+  en:['what','does','this','that','with','from','have','they','their','there','into','about','will','would','could','should','just','only','some','your','mine','ours']
+};
+var SEUIL = .60;
+var S7T = {
+  fr:{ h1:'Mots-clés', how1:'algorithme réel · correspondance exacte', h2:'Par le sens',
+       how2:'scores simulés pour la démonstration',
+       none:'Aucun passage ne contient un seul des mots cherchés.',
+       below:'Aucun passage n’atteint le seuil de 0,60 → ne pas répondre.',
+       nomatch:'aucune correspondance' },
+  en:{ h1:'Keywords', how1:'real algorithm · exact match', h2:'By meaning',
+       how2:'scores simulated for the demonstration',
+       none:'No passage contains a single one of the words searched for.',
+       below:'No passage reaches the 0.60 threshold → do not answer.',
+       nomatch:'no match' }
+};
+var s7q = 0;
+</script>
+
+<script>
+/* =========================================================
+   SCÈNE 2 — coller le document dans la question
+   ========================================================= */
+var s2btn = document.getElementById('s2btn');
+s2btn.onclick = function(){ s2on = !s2on; drawS2(); };
+
+function drawS2(){
+  var t = S2[LG()];
+  s2btn.textContent = s2on ? t.btnOff : t.btnOn;
+  s2btn.className = 'bigbtn' + (s2on ? ' off' : '');
+  var p = '<div class="plbl">' + t.plbl + '</div>' + t.q;
+  if(s2on){ p += '<div class="attached"><b>' + t.dlbl + '</b><br>' + t.doc + '</div>'; }
+  document.getElementById('s2prompt').innerHTML = p;
+  var a = document.getElementById('s2ans');
+  a.className = 'ansbox' + (s2on ? ' ok' : '');
+  a.innerHTML = '<div class="albl">' + t.albl + '</div>' +
+                '<div class="atxt">' + (s2on ? t.onA : t.offA) + '</div>' +
+                '<div class="averd">' + (s2on ? t.onV : t.offV) + '</div>';
+}
+
+/* =========================================================
+   SCÈNE 3 — la fenêtre de contexte
+   ========================================================= */
+function fmt(n){
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, LG()==='en' ? ',' : ' ');
+}
+function drawS3(){
+  var t = S3T[LG()], L = LG();
+  var box = document.getElementById('s3docs');
+  box.innerHTML = '';
+  var used = 0;
+  S3DOCS.forEach(function(d,i){
+    if(d.on) used += d.tok;
+    var row = document.createElement('div');
+    row.className = 'docrow' + (d.on ? ' on' : '');
+    row.innerHTML = '<div class="box">' + (d.on ? '✓' : '') + '</div>' +
+                    '<div>' + d[L] + '</div>' +
+                    '<div class="tk">' + fmt(d.tok) + '</div>';
+    row.onclick = function(ev){ ev.stopPropagation(); d.on = !d.on; drawS3(); };
+    box.appendChild(row);
+  });
+  var pct = used / WIN * 100;
+  var bar = document.getElementById('s3bar');
+  bar.classList.toggle('over', pct > 100);
+  bar.querySelector('i').style.width = Math.min(100, pct) + '%';
+  document.getElementById('s3cap').textContent = t.cap;
+  var v = pct > 100 ? t.v4 : (pct >= 95 ? t.v3 : (pct >= 60 ? t.v2 : t.v1));
+  var vd = document.getElementById('s3verd');
+  vd.className = 'winverd' + (pct > 100 ? ' bad' : '');
+  vd.innerHTML = '<b>' + fmt(used) + '</b> ' + t.used + ' — <b>' +
+                 (Math.round(pct * 10) / 10).toString().replace('.', LG()==='en' ? '.' : ',') +
+                 '&nbsp;%</b> ' + t.win + ' ' + v;
+}
+
+/* =========================================================
+   SCÈNE 5 — la carte des sens
+   ========================================================= */
+var M = {ox:96, oy:258, sc:178};
+function pos(w){
+  var th = w.a * Math.PI / 180;
+  return { x: M.ox + Math.cos(th) * w.r * M.sc, y: M.oy - Math.sin(th) * w.r * M.sc,
+           cx: Math.cos(th) * w.r, cy: Math.sin(th) * w.r };
+}
+/* Place une étiquette à droite ou à gauche du point, et la décale
+   verticalement tant qu'elle en chevauche une déjà posée. */
+var placed = [];
+function placeLabel(px, py, txt, right){
+  var w = txt.length * 7.2 + 5, y0 = py + 4;
+  for(var k = 0; k < 40; k++){
+    var y = y0 + (k === 0 ? 0 : Math.ceil(k/2) * 14 * (k % 2 ? 1 : -1));
+    var x = right ? px + 8 : px - 8 - w;
+    var box = {x0:x, y0:y - 9, x1:x + w, y1:y + 3};
+    var hit = placed.some(function(b){
+      return box.x0 < b.x1 && b.x0 < box.x1 && box.y0 < b.y1 && b.y0 < box.y1;
+    });
+    if(!hit){ placed.push(box); return y; }
+  }
+  return y0;
+}
+function drawS5(){
+  var t = S5T[LG()], L = LG(), svg = document.getElementById('s5svg');
+  var s = '';
+  placed = [];
+  s += '<line class="ax" x1="' + M.ox + '" y1="' + M.oy + '" x2="' + (M.ox + M.sc + 16) + '" y2="' + M.oy + '"/>';
+  s += '<line class="ax" x1="' + M.ox + '" y1="' + M.oy + '" x2="' + M.ox + '" y2="' + (M.oy - M.sc - 16) + '"/>';
+  s += '<path class="arc" d="M ' + (M.ox + M.sc) + ' ' + M.oy + ' A ' + M.sc + ' ' + M.sc + ' 0 0 0 ' + M.ox + ' ' + (M.oy - M.sc) + '"/>';
+  var sel = WORDS[s5sel], ps = pos(sel);
+  s += '<line class="ray" x1="' + M.ox + '" y1="' + M.oy + '" x2="' + ps.x.toFixed(1) + '" y2="' + ps.y.toFixed(1) + '"/>';
+  var nb = nearest(s5sel);
+  nb.forEach(function(n){
+    var p = pos(WORDS[n.i]);
+    s += '<line class="nbray" x1="' + M.ox + '" y1="' + M.oy + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) + '"/>';
+  });
+  WORDS.forEach(function(w,i){
+    var p = pos(w), on = (i === s5sel);
+    var isnb = nb.some(function(n){ return n.i === i; });
+    s += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + (on ? 6 : (isnb ? 4.5 : 3.5)) +
+         '" fill="' + CCOL[w.c] + '" opacity="' + (on || isnb ? 1 : .6) + '" style="cursor:pointer" data-w="' + i + '"/>';
+    var right = w.a <= 45;
+    var ly = placeLabel(p.x, p.y, w[L], right);
+    s += '<text x="' + (right ? p.x + 8 : p.x - 8).toFixed(1) + '" y="' + ly.toFixed(1) +
+         '" text-anchor="' + (right ? 'start' : 'end') + '" class="' + (on ? 'on' : '') +
+         '" style="cursor:pointer" data-w="' + i + '">' + w[L] + '</text>';
+  });
+  s += '<text x="' + (M.ox + M.sc - 6) + '" y="' + (M.oy + 16) + '" opacity=".6">x</text>';
+  s += '<text x="' + (M.ox - 14) + '" y="' + (M.oy - M.sc - 4) + '" opacity=".6">y</text>';
+  svg.innerHTML = s;
+  [].slice.call(svg.querySelectorAll('[data-w]')).forEach(function(el){
+    el.onclick = function(ev){ ev.stopPropagation(); s5sel = +el.getAttribute('data-w'); drawS5(); };
+  });
+
+  document.getElementById('s5h').textContent = t.h;
+  document.getElementById('s5vec').innerHTML =
+    '<b>' + sel[L] + '</b> &nbsp;<span style="color:' + CCOL[sel.c] + '">● ' + CLUST[L][sel.c] + '</span><br>' +
+    t.vec + ' = ( ' + num(ps.cx) + ' ; ' + num(ps.cy) + ' )';
+  var h = '<div class="mh" style="margin-top:.3rem">' + t.nb + '</div>';
+  nb.forEach(function(n){
+    h += '<div class="nbrow"><div>' + WORDS[n.i][L] + '</div><span>' + num(n.s) + '</span></div>';
+  });
+  document.getElementById('s5nb').innerHTML = h;
+  document.getElementById('s5hint').textContent = t.hint;
+}
+function num(v){ return (Math.round(v * 100) / 100).toFixed(2).replace('.', LG()==='en' ? '.' : ','); }
+function nearest(i){
+  var out = [];
+  WORDS.forEach(function(w,j){
+    if(j === i) return;
+    out.push({ i:j, s: Math.cos((WORDS[i].a - w.a) * Math.PI / 180) });
+  });
+  out.sort(function(a,b){ return b.s - a.s; });
+  return out.slice(0, 3);
+}
+
+/* =========================================================
+   SCÈNE 6 — deux flèches, un angle
+   ========================================================= */
+var V = {ox:40, oy:240, sc:205};
+var s6ia = 0, s6ib = 1;
+function fillSel(id){
+  var sel = document.getElementById(id), L = LG(), keep = sel.selectedIndex;
+  sel.innerHTML = WORDS.map(function(w,i){ return '<option value="' + i + '">' + w[L] + '</option>'; }).join('');
+  if(keep >= 0) sel.selectedIndex = keep;
+}
+function drawS6(){
+  var t = S6T[LG()], L = LG();
+  fillSel('s6a'); fillSel('s6b');
+  document.getElementById('s6a').value = s6ia;
+  document.getElementById('s6b').value = s6ib;
+  var A = WORDS[s6ia], B = WORDS[s6ib];
+  var pa = { x: V.ox + Math.cos(A.a * Math.PI/180) * A.r * V.sc, y: V.oy - Math.sin(A.a * Math.PI/180) * A.r * V.sc };
+  var pb = { x: V.ox + Math.cos(B.a * Math.PI/180) * B.r * V.sc, y: V.oy - Math.sin(B.a * Math.PI/180) * B.r * V.sc };
+  var s = '';
+  s += '<line class="ax" x1="' + V.ox + '" y1="' + V.oy + '" x2="' + (V.ox + V.sc + 14) + '" y2="' + V.oy + '"/>';
+  s += '<line class="ax" x1="' + V.ox + '" y1="' + V.oy + '" x2="' + V.ox + '" y2="' + (V.oy - V.sc - 14) + '"/>';
+  s += '<path class="arc" d="M ' + (V.ox + V.sc) + ' ' + V.oy + ' A ' + V.sc + ' ' + V.sc + ' 0 0 0 ' + V.ox + ' ' + (V.oy - V.sc) + '"/>';
+  /* arc de l'angle entre les deux */
+  var ra = 54, lo = Math.min(A.a, B.a), hi = Math.max(A.a, B.a);
+  s += '<path d="M ' + (V.ox + Math.cos(lo*Math.PI/180)*ra).toFixed(1) + ' ' + (V.oy - Math.sin(lo*Math.PI/180)*ra).toFixed(1) +
+       ' A ' + ra + ' ' + ra + ' 0 0 0 ' + (V.ox + Math.cos(hi*Math.PI/180)*ra).toFixed(1) + ' ' + (V.oy - Math.sin(hi*Math.PI/180)*ra).toFixed(1) +
+       '" fill="none" stroke="#6c6355" stroke-width="1.4"/>';
+  s += arrow(pa, '#123bab') + arrow(pb, '#b5301f');
+  s += '<text x="' + (pa.x + 7).toFixed(1) + '" y="' + (pa.y + 3).toFixed(1) + '" style="fill:#123bab;font-weight:bold">' + A[L] + '</text>';
+  s += '<text x="' + (pb.x + 7).toFixed(1) + '" y="' + (pb.y + 3).toFixed(1) + '" style="fill:#b5301f;font-weight:bold">' + B[L] + '</text>';
+  document.getElementById('s6svg').innerHTML = s;
+
+  var d = Math.abs(A.a - B.a), cos = Math.cos(d * Math.PI / 180);
+  document.getElementById('s6line').innerHTML =
+    t.ang + ' : <b>' + Math.round(d) + '°</b> &nbsp;·&nbsp; ' + t.cos + ' : <b>' + num(cos) + '</b>';
+  document.getElementById('s6bar').style.width = Math.max(0, cos * 100) + '%';
+  var v = cos > .97 ? t.v1 : (cos > .85 ? t.v2 : (cos > .5 ? t.v3 : t.v4));
+  document.getElementById('s6verd').innerHTML = v;
+}
+function arrow(p, col){
+  return '<line x1="' + V.ox + '" y1="' + V.oy + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) +
+         '" stroke="' + col + '" stroke-width="2.2"/>' +
+         '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4" fill="' + col + '"/>';
+}
+document.getElementById('s6a').onchange = function(){ s6ia = +this.value; drawS6(); };
+document.getElementById('s6b').onchange = function(){ s6ib = +this.value; drawS6(); };
+
+/* =========================================================
+   SCÈNE 7 — mots-clés contre sens
+   ========================================================= */
+function norm(s){
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+function toks(s){
+  return norm(s).split(/[^a-z0-9]+/).filter(function(w){
+    return w.length >= 4 && STOP[LG()].indexOf(w) < 0;
+  });
+}
+function kwSearch(q){
+  var qt = toks(q), out = [];
+  CORPUS[LG()].forEach(function(p,i){
+    var pt = toks(p), hits = qt.filter(function(w){ return pt.indexOf(w) >= 0; });
+    if(hits.length) out.push({ i:i, n:hits.length, words:hits });
+  });
+  out.sort(function(a,b){ return b.n - a.n; });
+  return out.slice(0, 3);
+}
+function hl(txt, words){
+  if(!words || !words.length) return txt;
+  return txt.split(/(\s+)/).map(function(piece){
+    var w = norm(piece).replace(/[^a-z0-9]/g, '');
+    return words.indexOf(w) >= 0 ? '<mark>' + piece + '</mark>' : piece;
+  }).join('');
+}
+function drawS7(){
+  var t = S7T[LG()], L = LG(), C = CORPUS[L], Q = QUERIES[L];
+  var qb = document.getElementById('s7qb');
+  qb.innerHTML = '';
+  Q.forEach(function(o,i){
+    var b = document.createElement('button');
+    b.className = 'qb' + (i === s7q ? ' on' : '');
+    b.textContent = o.q;
+    b.onclick = function(ev){ ev.stopPropagation(); s7q = i; drawS7(); };
+    qb.appendChild(b);
+  });
+  document.getElementById('s7h1').textContent = t.h1;
+  document.getElementById('s7how1').textContent = t.how1;
+  document.getElementById('s7h2').textContent = t.h2;
+  document.getElementById('s7how2').textContent = t.how2;
+
+  var kw = kwSearch(Q[s7q].q), h1 = '';
+  if(!kw.length){ h1 = '<div class="none">' + t.none + '</div>'; }
+  else kw.forEach(function(r){
+    h1 += '<div class="hit"><span class="sc">' + r.n + ' ' +
+          (L==='en' ? (r.n>1?'words':'word') : (r.n>1?'mots':'mot')) + '</span><br>' +
+          hl(C[r.i], r.words) + '</div>';
+  });
+  document.getElementById('s7r1').innerHTML = h1;
+
+  var h2 = '', any = false;
+  Q[s7q].sem.forEach(function(pair){
+    var weak = pair[1] < SEUIL;
+    if(!weak) any = true;
+    h2 += '<div class="hit' + (weak ? ' weak' : '') + '"><span class="sc">' + num(pair[1]) + '</span><br>' +
+          C[pair[0]] + '</div>';
+  });
+  if(!any) h2 += '<div class="none">' + t.below + '</div>';
+  document.getElementById('s7r2').innerHTML = h2;
+  document.getElementById('s7verd').innerHTML = Q[s7q].v;
+}
+
+/* =========================================================
+   REDESSIN GLOBAL (appelé aussi au changement de langue)
+   ========================================================= */
+function redrawAll(){ drawS2(); drawS3(); drawS5(); drawS6(); drawS7(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Chercher avant de répondre`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`Retrieve before answering`,  hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · The neuron and its tuning`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`It knows nothing<br>about <em>our school</em>`,
+  's0.line':`Last lesson ended on a promise: giving the model a piece of information it has <strong style="color:#fff">never learnt</strong>, without touching a single one of its parameters. That is the whole point of this lesson — and it is what separates a model from a real tool.`,
+  's0.kick':`Context · window · meaning · vectors · RAG`,
+
+  /* --- 1 · trois endroits --- */
+  's1.eye':`The distinction that dismantles a myth`,
+  's1.t':`Three very<br>different places`,
+  's1.lead':`When an AI answers you, the information it uses can come from three places. Most misunderstandings about AI come from confusing them.`,
+  's1.c1':`<h3>What it has learnt</h3>
+          <div class="sub">in the weights</div>
+          <p>Frozen at training time. Billions of pages digested, of which <b>nothing is stored</b>: all that is left are numbers.</p>
+          <p class="ex">no date · no source · no fix without retraining</p>`,
+  's1.c2':`<h3>What we put in its context</h3>
+          <div class="sub">in the question</div>
+          <p>What you have just written, plus any attached documents. <b>Re-read word for word</b> for every answer.</p>
+          <p class="ex">exact · dated · quotable — but limited in size, and forgotten afterwards</p>`,
+  's1.c3':`<h3>What it goes and fetches</h3>
+          <div class="sub">with a tool</div>
+          <p>A search, a document store, an API. The model <b>knows</b> nothing more: we bring it text.</p>
+          <p class="ex">and that text lands… in its context</p>`,
+  's1.note':`The claim “it searches the Internet” is <b>false by default</b> and <b>true on request</b>: a bare model searches nothing. Above all, notice where the last two paths lead — <b>to the context</b>. So that is where we must start.`,
+
+  /* --- 2 · coller l'information --- */
+  's2.eye':`Step 1 · the simplest thing that works`,
+  's2.t':`Paste the information<br>into the question`,
+  's2.lead':`The most direct way to teach a model something: write it into the question. It <b>remembers</b> nothing — but while it writes, it has the text in front of it.`,
+  's2.note':`Same model, same weights, same parameters: nothing has been retrained. Only the <b>question</b> changed. <b>That is already RAG — done by hand.</b>`,
+
+  /* --- 3 · la fenêtre --- */
+  's3.eye':`But there is a limit`,
+  's3.t':`The context<br>window`,
+  's3.lead':`Everything the model reads at once — your question, the history, the attached documents — must fit in a maximum size, counted in <b>tokens</b> (lesson 3). Tick what to attach.`,
+  's3.c1':`<h3>What it costs</h3>
+          <div class="sub">every single question</div>
+          <p>The model <b>re-reads the whole context</b> for every answer. Twice the attached text: twice the computation, a slower and costlier answer.</p>`,
+  's3.c2':`<h3>Lost in the middle</h3>
+          <div class="sub">a big window ≠ good reading</div>
+          <p>Measurements show it repeatedly: information placed <b>in the middle</b> of a very long context is retrieved less reliably than at the start or the end.</p>`,
+  's3.note':`So we cannot paste everything — and the school's 2,000 pages would not fit anyway. We must <b>pick the three useful paragraphs</b>. How do we find them?`,
+
+  /* --- 4 · mots-clés --- */
+  's4.eye':`First idea · Ctrl+F`,
+  's4.t':`Keywords<br>are not enough`,
+  's4.lead':`Finding an exact word in 2,000 pages is easy: computers have done it for fifty years. The trouble is that a student's question almost never uses <b>the words of the document</b>.`,
+  's4.tbl':`<thead><tr><th>The student's question</th><th>Word searched</th><th>What the rules say</th><th>Found?</th></tr></thead>
+        <tbody>
+          <tr><td>“I broke my lunch <b>badge</b>”</td><td>badge, lunch</td><td>“loss of the <b>canteen access card</b>…”</td><td style="color:var(--alarm)"><b>no</b></td></tr>
+          <tr><td>“do my parents have to <b>call in</b>?”</td><td>call</td><td>“any absence must be <b>justified</b>…”</td><td style="color:var(--alarm)"><b>no</b></td></tr>
+          <tr><td>“can I <b>take</b> a dessert away?”</td><td>take</td><td>“<b>taking</b> food out of the dining hall is prohibited”</td><td style="color:var(--alarm)"><b>no</b></td></tr>
+          <tr><td>“when does it <b>stop</b>?”</td><td>stop</td><td>“lessons <b>end</b>…”</td><td style="color:var(--alarm)"><b>no</b></td></tr>
+          <tr><td>“is the canteen <b>open</b> on <b>Wednesday</b>?”</td><td>open, Wednesday</td><td>“the documentation centre is <b>open</b>… except on <b>Wednesday</b>”</td><td style="color:var(--alarm)"><b>yes — but that is the library</b></td></tr>
+        </tbody>`,
+  's4.note':`Two sentences can say <b>the same thing without sharing a single word</b>. And two sentences can share all their words while talking about different things. Searching for <b>strings of characters</b> is searching beside the point. We must search for <b>meaning</b>.`,
+
+  /* --- 5 · des mots aux nombres --- */
+  's5.eye':`The pivot of the lesson`,
+  's5.t':`From words<br>to numbers`,
+  's5.lead':`A computer does not compare meanings: it compares numbers. The whole trick is to give every word a <b>position</b> — and to arrange things so that words with close meanings land in close positions. <b>Click a word.</b>`,
+  's5.note':`This vector of numbers is called an <b>embedding</b>. Nobody placed these points by hand: the positions were <b>learnt</b>, with the machinery of the previous lesson, over billions of sentences — words that appear in the same contexts end up in the same place.`,
+
+  /* --- 6 · la distance de sens --- */
+  's6.eye':`Measuring a resemblance`,
+  's6.t':`Two close meanings,<br>two aligned arrows`,
+  's6.lead':`Once words have become points, “resembling each other” becomes a question of geometry. We compare the <b>direction</b> of the two arrows from the origin: aligned, the meanings are close; perpendicular, they have nothing to do with each other.`,
+  's6.c1':`<h3>Why the angle</h3>
+          <div class="sub">and not the length</div>
+          <p>A rare word has a shorter arrow than a frequent one. Looking only at <b>direction</b> makes them comparable. This alignment score has a name: <b>cosine similarity</b>. <b>1</b> = same direction, <b>0</b> = perpendicular, unrelated.</p>`,
+  's6.c2':`<h3>What the map exaggerates</h3>
+          <div class="sub">in all honesty</div>
+          <p>Here everything is reduced to <b>two</b> numbers; a real model uses <b>1,536, sometimes several thousand</b>. Its scores are far more tightly packed — you compare scores <b>with each other</b>, you do not read them as marks out of 1.</p>`,
+
+  /* --- 7 · chercher par le sens --- */
+  's7.eye':`Putting it together`,
+  's7.t':`Searching by meaning`,
+  's7.lead':`Eight extracts from the school rules, and one student's question. On the left we search for <b>the words</b>; on the right, for <b>the meaning</b>. Pick a question.`,
+
+  /* --- 8 · le RAG --- */
+  's8.eye':`The name for all this`,
+  's8.t':`R · A · G`,
+  's8.lead':`<i>Retrieval-Augmented Generation</i>. Three words that describe exactly the chain we have just built by hand.`,
+  's8.b1':`<div class="n">1 · split</div>
+          <div class="t">Into passages</div>
+          <div class="d">The documents are cut into chunks of a few sentences.</div>
+          <div class="v">2,000 pages → 7,000 passages</div>`,
+  's8.b2':`<div class="n">2 · embed</div>
+          <div class="t">Into positions</div>
+          <div class="d">Each passage becomes a vector, stored in a vector database.</div>
+          <div class="v">7,000 × 1,536 numbers</div>`,
+  's8.b3':`<div class="n">3 · retrieve</div>
+          <div class="t">The closest ones</div>
+          <div class="d">The question becomes a vector too; we keep the best-aligned passages.</div>
+          <div class="v">top 3 to 5</div>`,
+  's8.b4':`<div class="n">4 · answer</div>
+          <div class="t">In the context</div>
+          <div class="d">The passages are pasted in with the question. The model writes — and quotes.</div>
+          <div class="v">≈ 1,200 tokens attached</div>`,
+  's8.split':`Steps <b>①</b> and <b>②</b> are done <b>once and for all</b>, in advance: that is the <b>indexing</b>. Steps <b>③</b> and <b>④</b> are redone <b>for every question</b>, in a few tenths of a second.`,
+  's8.note':`Look where the result of step ③ lands: <b>in the context</b>, exactly as in scene 3. RAG adds <b>not one gram of knowledge</b> to the model — it puts the right document in front of it, at the right moment.`,
+
+  /* --- 9 · RAG ou fine-tuning --- */
+  's9.eye':`Do not confuse them · recall from block 3`,
+  's9.t':`Teaching it,<br>or showing it`,
+  's9.lead':`The lesson “how does an AI learn?” introduced <b>fine-tuning</b>: retraining a model on chosen data. RAG touches <b>no</b> parameter at all. The two do not serve the same purpose.`,
+  's9.tbl':`<thead><tr><th></th><th>Fine-tuning</th><th>RAG</th></tr></thead>
+        <tbody>
+          <tr><td><b>what changes</b></td><td>the model's parameters</td><td>the context, for each question</td></tr>
+          <tr><td><b>what it costs</b></td><td>hours of computation, a GPU</td><td>a few cents and an index</td></tr>
+          <tr><td><b>fixing a mistake</b></td><td>retrain everything</td><td>replace one file</td></tr>
+          <tr><td><b>citing a source</b></td><td>impossible</td><td>natural — you know which passage</td></tr>
+          <tr><td><b>good for</b></td><td>style, format, a trade's vocabulary</td><td>facts, figures, anything that changes</td></tr>
+          <tr><td><b>and for our school?</b></td><td style="color:var(--muted)">no</td><td style="color:var(--green)"><b>yes</b></td></tr>
+        </tbody>`,
+  's9.note':`A simple rule: <b>fine-tuning changes the way it speaks, RAG changes what it speaks about.</b>`,
+
+  /* --- 10 · les limites --- */
+  's10.eye':`The limits, honestly`,
+  's10.t':`Four ways<br>to be wrong anyway`,
+  's10.c1':`<h3>The passage is not found</h3>
+          <div class="sub">step ③ failed</div>
+          <p>A badly phrased question, or information scattered over ten pages. The model answers all the same — <b>without saying it received nothing</b>.</p>
+          <p class="ex">that is the trap in “canteen, Wednesday?”</p>`,
+  's10.c2':`<h3>The document is wrong</h3>
+          <div class="sub">or out of date</div>
+          <p>RAG is <b>faithful to its source</b>: it copies the error with total confidence. Last year's rules give wrong answers, impeccably cited.</p>
+          <p class="ex">garbage in, garbage out</p>`,
+  's10.c3':`<h3>The split cut badly</h3>
+          <div class="sub">step ① failed</div>
+          <p>A truncated table, a sentence severed from its “<b>unless…</b>”. The retrieved passage is correct and the answer is false.</p>
+          <p class="ex">the worst case: invisible on reading</p>`,
+  's10.c4':`<h3>The model embroiders</h3>
+          <div class="sub">step ④ failed</div>
+          <p>It does have the passage, but fills in with what it already “knows”. Hence the value of <b>demanding a citation</b>: then you can check.</p>
+          <p class="ex">“answer only from the extracts”</p>`,
+  's10.note':`RAG greatly reduces hallucinations; it does not remove them. And it <b>moves the responsibility</b>: the quality of the answer becomes <b>the quality of your documents</b>.`,
+
+  /* --- 11 · charnière --- */
+  's11.eye':`The question that opens what follows`,
+  's11.q':`What if it<br><em>fetched</em><br>on its own?`,
+  's11.a':`So far, <b>we</b> have done the searching for it: we choose the documents, we put them in front of it. A genuinely useful assistant should notice <b>by itself</b> that something is missing — and go and get it. For that it needs <b>tools</b>; and for it to use them, we need to know how two machines talk to each other.`,
+  's11.next':`Next lesson · The Internet, the Web and APIs`,
+
+  /* --- 12 · activité --- */
+  's12.tag':`Lesson activity · 25 minutes · in groups of four`,
+  's12.t':`You are<br>the <em>vector database</em>`,
+  's12.sub':`Building a RAG without a computer. You are the ones running step ③.`,
+  's12.l1':`<b>The corpus.</b> Take a real school document (the rules, a page of the website, this week's lunch menus). <b>Cut it</b> into passages of three or four sentences, numbered: that is step ①. How many do you get?`,
+  's12.l2':`<b>The questions.</b> Write <b>five questions</b> a Year-10 student would really ask. Rule of the game: <b>you may not use the words of the document</b>. That is the whole point.`,
+  's12.l3':`<b>The swap.</b> Give your five questions to the next group — <b>not</b> your document. You get theirs, along with their split corpus.`,
+  's12.l4':`<b>Retrieve.</b> For each question received, pick the <b>three passages</b> you would hand to the model. You have just done step ③ by hand, by judgement.`,
+  's12.l5':`<b>Answer</b> using <b>only</b> those three passages, and quote their numbers. If the answer is not in them, write so: that <b>is</b> the right answer.`,
+  's12.l6':`<b>The debrief.</b> Hand the papers back to the group that wrote the questions: only they can mark them. For each failure, name the cause from scene 10 — <b>passage not found</b>, <b>wrong document</b>, <b>bad split</b>, or <b>embroidery</b>.`,
+
+  /* --- 13 · récap --- */
+  'rc.eye':`End of lesson`,
+  'rc.title':`What I must <span>remember</span>`,
+  'rc.i1':`The information an AI uses comes from <b>three places</b>: what it has <b>learnt</b> (frozen in the weights), what we put in its <span class="hl">context</span>, and what it <b>goes and fetches</b>. The last two end up in the same place: the context.`,
+  'rc.i2':`The <span class="hl">context window</span> is the amount of text readable at once, counted in tokens. Large, but not infinite — and the fuller it gets, the slower, the costlier, and the worse-read in the middle.`,
+  'rc.i3':`Searching by <b>keyword</b> fails as soon as the question does not use the words of the document. We must search for <b>meaning</b>.`,
+  'rc.i4':`An <span class="hl">embedding</span> turns a word, a sentence or a paragraph into a <b>list of numbers</b> — a position. Close meanings, close positions. Those positions were <b>learnt</b>, not written by hand.`,
+  'rc.i5':`Resemblance is measured by the <b>angle</b> between two vectors (<span class="hl">cosine similarity</span>): 1 = same direction, 0 = unrelated.`,
+  'rc.i6':`<span class="hl">RAG</span> is the chain <b>split → embed → retrieve → answer</b>. It adds no knowledge to the model: it puts the right passage in front of it.`,
+  'rc.i7':`<b>Fine-tuning ≠ RAG</b>: one changes the <b>way it speaks</b>, the other <b>what it speaks about</b>. And RAG does not remove errors — it makes them depend on your documents.`,
+  'rc.v1':`<b>Context</b>Everything the model reads to produce an answer: question, history, attached documents.`,
+  'rc.v2':`<b>Context window</b>The maximum size of that context, in tokens.`,
+  'rc.v3':`<b>Embedding</b>The vector of numbers that represents the meaning of a text.`,
+  'rc.v4':`<b>Cosine similarity</b>The alignment score of two vectors, between 0 and 1.`,
+  'rc.v5':`<b>Vector database</b>The database that stores embeddings and retrieves the closest ones.`,
+  'rc.v6':`<b>RAG</b>Retrieve passages, then answer from them.`,
+  'rc.key':`Next step: <b>how one machine calls another — the Internet, the Web and APIs.</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>
