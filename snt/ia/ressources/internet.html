@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Internet, le Web et les API</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- s2 : l'adresse et le trajet ---------- */
+  .urlbar{font-family:var(--mono);font-size:clamp(.78rem,1.6vw,1.05rem);line-height:1.2;
+    background:rgba(233,228,216,.06);border:1px solid rgba(233,228,216,.26);
+    padding:.5rem .6rem;overflow-x:auto;white-space:nowrap}
+  .urlbar i{font-style:normal;padding:.06em .12em;border-bottom:3px solid transparent}
+  .urlbar i.p{color:#a9a294;border-bottom-color:#a9a294}
+  .urlbar i.h{color:#7fa0ff;border-bottom-color:var(--signal)}
+  .urlbar i.c{color:#4cc98a;border-bottom-color:var(--green)}
+  .urlbar i.q{color:#e0b24c;border-bottom-color:#e0b24c}
+  .ulegend{display:flex;flex-wrap:wrap;gap:.2rem .9rem;margin:.3rem 0 .5rem;
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.07em;text-transform:uppercase}
+  .ulegend span{color:var(--muted)}
+  .ulegend span b{font-weight:normal}
+  .ulegend .p b{color:#a9a294}.ulegend .h b{color:#7fa0ff}
+  .ulegend .c b{color:#4cc98a}.ulegend .q b{color:#e0b24c}
+  .trip{display:grid;gap:.22rem}
+  .trow{display:grid;grid-template-columns:1.45rem 9.5rem 1fr;gap:.55rem;align-items:baseline;
+    border-bottom:1px dashed rgba(233,228,216,.16);padding:.22rem 0}
+  .trow .n{font-family:var(--mono);font-size:.68rem;color:var(--signal);border:1px solid var(--signal);
+    width:1.35rem;height:1.35rem;display:flex;align-items:center;justify-content:center;line-height:1}
+  .trow .w{font-family:var(--display);text-transform:uppercase;font-size:clamp(.68rem,1.25vw,.82rem);
+    color:#e9e4d8;line-height:1.15}
+  .trow .v{font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.8rem);color:#c9c2b2;line-height:1.4}
+  .trow .v em{font-style:normal;color:#7fa0ff}
+  .trow .v s{text-decoration:none;color:#ff8a72}
+
+  /* ---------- s3 : les trois générations ---------- */
+  .gen{display:grid;gap:.3rem}
+  .grow{display:grid;grid-template-columns:9.5rem 1fr 1fr 6.5rem;gap:.6rem;align-items:start;
+    border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:.4rem .55rem}
+  .grow .gn{font-family:var(--display);text-transform:uppercase;font-size:clamp(.7rem,1.3vw,.86rem);
+    line-height:1.1;color:var(--signal-dk)}
+  .grow .gd{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;color:var(--muted);margin-top:.12rem}
+  .grow .gc{font-size:clamp(.74rem,1.3vw,.9rem);line-height:1.35;color:#4a4436}
+  .grow .gc b{color:var(--ink)}
+  .grow .gc code{font-family:var(--mono);font-size:.92em;color:var(--signal-dk)}
+  .grow .gv{font-family:var(--mono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;
+    line-height:1.3;text-align:right}
+  .gv.ok{color:var(--green)}.gv.mid{color:#9a7b14}.gv.no{color:var(--alarm)}
+  .ghead{display:grid;grid-template-columns:9.5rem 1fr 1fr 6.5rem;gap:.6rem;
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);padding:0 .55rem .15rem}
+  .ghead span:last-child{text-align:right}
+
+  /* ---------- s4 : deux emballages ---------- */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.6rem,1.8vw,1.2rem);align-items:start}
+  .wrap2{border:1px solid rgba(233,228,216,.22);background:rgba(233,228,216,.04);padding:.5rem .6rem}
+  .wrap2 h4{font-family:var(--display);text-transform:uppercase;font-size:clamp(.74rem,1.4vw,.94rem);
+    color:#fff;line-height:1.1}
+  .wrap2 .how{font-family:var(--mono);font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);margin:.1rem 0 .4rem}
+  .mock{background:#f4f1ea;color:#2a2620;border:1px solid rgba(0,0,0,.3);font-family:Arial,Helvetica,sans-serif;
+    font-size:.68rem;line-height:1.3;overflow:hidden}
+  .mock .mb{background:#2b3a66;color:#fff;padding:.2rem .4rem;font-size:.62rem;letter-spacing:.04em}
+  .mock .mn{background:#e2ddd2;padding:.14rem .4rem;font-size:.56rem;color:#6a6355;border-bottom:1px solid rgba(0,0,0,.12)}
+  .mock .mc{padding:.4rem}
+  .mock .mbig{font-size:1.55rem;font-weight:bold;line-height:1;color:#1b2b55}
+  .mock .msm{font-size:.62rem;color:#5c564a}
+  .mock .mad{margin-top:.35rem;border:1px dashed #b9b2a2;background:#eceadf;color:#8a8372;
+    text-align:center;padding:.3rem;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase}
+  .mock .mf{background:#e2ddd2;padding:.14rem .4rem;font-size:.52rem;color:#8a8372}
+  .jsonb{font-family:var(--mono);font-size:clamp(.64rem,1.2vw,.78rem);line-height:1.5;
+    background:rgba(0,0,0,.3);border:1px solid rgba(233,228,216,.22);padding:.45rem .55rem;
+    color:#c9c2b2;white-space:pre;overflow-x:auto}
+  .jsonb .k{color:#7fa0ff}.jsonb .s{color:#4cc98a}.jsonb .nb{color:#e0b24c}
+  .wt{font-family:var(--mono);font-size:.66rem;color:var(--muted);margin-top:.35rem;line-height:1.5}
+  .wt b{color:#ff8a72}
+  .wt.good b{color:#4cc98a}
+
+  /* ---------- s5 : appeler un modèle ---------- */
+  .callwrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
+    gap:clamp(.6rem,1.8vw,1.2rem);align-items:start}
+  .codebox .g{color:var(--muted)}
+  .codebox .s{color:var(--green)}
+  .ctab{width:100%;border-collapse:collapse;font-family:var(--mono);
+    font-size:clamp(.66rem,1.2vw,.78rem);background:var(--paper);border:1px solid rgba(0,0,0,.2)}
+  .ctab th{background:var(--paper-2);text-align:left;padding:.22rem .5rem;color:var(--signal-dk);
+    font-size:.78em;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(0,0,0,.2)}
+  .ctab td{padding:.18rem .5rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .ctab tr.cur td{background:rgba(31,92,255,.1);color:var(--ink);font-weight:bold}
+  .ctab td.r{text-align:right}
+  .ctot{font-family:var(--mono);font-size:clamp(.72rem,1.3vw,.86rem);color:var(--signal-dk);margin-top:.3rem}
+  .ctot b{font-size:1.2em}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem}
+
+  /* ---------- s6 : les trois façons ---------- */
+  .depwrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+    gap:clamp(.6rem,1.8vw,1.2rem);align-items:center}
+  .depsvg{background:rgba(233,228,216,.04);border:1px solid rgba(233,228,216,.2);
+    width:100%;height:auto;display:block}
+  .depsvg text{font-family:'Courier New',monospace;font-size:10px;fill:#c9c2b2}
+  .depsvg text.ttl{font-family:'Archivo Black','Arial Black',sans-serif;font-size:9px;fill:#e9e4d8;letter-spacing:.06em}
+  .depsvg .zone{fill:rgba(233,228,216,.05);stroke:rgba(233,228,216,.28);stroke-width:1}
+  .depsvg .zone.off{fill:rgba(233,228,216,.02);stroke:rgba(233,228,216,.12);stroke-dasharray:4 4}
+  .depsvg .mdl{fill:rgba(31,92,255,.22);stroke:var(--signal);stroke-width:1.6}
+  .deprows{display:grid;gap:.2rem;align-content:start}
+  .drw{display:grid;grid-template-columns:8.6rem 1fr;gap:.5rem;align-items:baseline;
+    border-bottom:1px dashed rgba(233,228,216,.16);padding:.18rem 0}
+  .drw .dk{font-family:var(--mono);font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .drw .dv{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.3;color:#c9c2b2}
+  .drw .dv b{color:#fff}
+  .drw .dv.y{color:#4cc98a}.drw .dv.n{color:#ff8a72}
+
+  /* ---------- s7 : la taille ---------- */
+  .szwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(.6rem,1.8vw,1.3rem);align-items:start}
+  .szctl{display:grid;gap:.35rem}
+  .szctl .row{display:grid;grid-template-columns:7.4rem 1fr;gap:.5rem;align-items:center}
+  .szctl .row span{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted)}
+  .szctl select{font-family:var(--mono);font-size:.84rem;padding:.26rem .35rem;width:100%;
+    background:var(--paper);border:1px solid rgba(0,0,0,.3);color:var(--ink)}
+  .szout{font-family:var(--mono);font-size:clamp(.74rem,1.4vw,.92rem);color:#4a4436;line-height:1.6;
+    border:1px solid rgba(0,0,0,.2);background:var(--paper-2);padding:.4rem .55rem}
+  .szout b{color:var(--signal-dk);font-size:1.35em}
+  .machines{display:grid;gap:.2rem}
+  .mach{display:grid;grid-template-columns:1.15rem 1fr auto;gap:.5rem;align-items:center;
+    font-size:clamp(.74rem,1.3vw,.9rem);color:#4a4436;border-bottom:1px dashed rgba(0,0,0,.14);padding:.2rem 0}
+  .mach .ic{width:1.05rem;height:1.05rem;border:1.5px solid rgba(0,0,0,.3);display:flex;
+    align-items:center;justify-content:center;font-size:.72rem;line-height:1;color:#fff}
+  .mach.ok .ic{background:var(--green);border-color:var(--green)}
+  .mach.no .ic{background:var(--alarm);border-color:var(--alarm)}
+  .mach .cap{font-family:var(--mono);font-size:.66rem;color:var(--muted)}
+  .mach.no{opacity:.55}
+
+  /* ---------- s9 : le comparatif ---------- */
+  .tbl td.y{color:var(--green);font-weight:bold}
+  .tbl td.n{color:var(--alarm);font-weight:bold}
+  .tbl td.m{color:#9a7b14;font-weight:bold}
+  .tbl th:first-child,.tbl td:first-child{background:var(--paper-2)}
+
+  /* ---------- calage projection 1280×720 ---------- */
+  #s2 .trow{padding:.18rem 0}
+  #s3 .grow{padding:.34rem .5rem}
+  #s4 .wrap2{padding:.42rem .5rem}
+  #s5 .card p{font-size:clamp(.74rem,1.26vw,.88rem);line-height:1.34}
+  #s7 .mach{padding:.16rem 0}
+  #s12 .rc-list li{font-size:clamp(.77rem,1.38vw,.96rem);line-height:1.32}
+  #s12 .rc-list{gap:.3rem}
+  #s12 .rc-voc{gap:.35rem;margin-top:.55rem}
+  #s12 .rc-term{padding:.38rem .6rem;font-size:clamp(.74rem,1.3vw,.88rem)}
+  #s12 .rc-key{font-size:clamp(.88rem,1.7vw,1.12rem);padding-top:.5rem;margin-top:.55rem}
+  @media (max-width:900px){
+    .two,.callwrap,.depwrap,.szwrap{grid-template-columns:1fr}
+    .grow,.ghead{grid-template-columns:1fr}
+    .ghead{display:none}
+    .grow .gv{text-align:left}
+    .trow{grid-template-columns:1.45rem 1fr}
+    .trow .w{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="chercher.html" data-i18n="s0.back">◂ Séance précédente · Chercher avant de répondre</a>
+    <div class="rain">GET &nbsp; 200 &nbsp; { } &nbsp; 404</div>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Comment deux machines<br><em>se parlent</em></h1>
+    <p class="line" data-i18n="s0.line">La séance dernière, <strong style="color:#fff">nous</strong> cherchions les documents à sa place. Pour qu'un assistant aille les chercher lui-même, il doit savoir frapper à la porte d'autres machines. Ces portes ont un nom&nbsp;: les <strong style="color:#fff">API</strong>. Et avant d'y arriver, il faut remettre deux mots à leur place&nbsp;: Internet et le Web.</p>
+    <div class="kick" data-i18n="s0.kick">Internet · Web · URL · API · JSON · où tourne le modèle</div>
+  </div>
+
+  <!-- ============ 1 · INTERNET ≠ LE WEB ============ -->
+  <div class="pane light pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Deux mots qu'on confond tous les jours</div>
+    <h2 class="stitle" data-i18n="s1.t">Internet n'est<br>pas le Web</h2>
+    <p class="lead" data-i18n="s1.lead">On les emploie l'un pour l'autre, et c'est une erreur utile à corriger&nbsp;: tout le reste de la séance en dépend. L'un est un <b>réseau</b>, l'autre est un <b>service qui circule dessus</b>. Comme la route et l’autocar.</p>
+
+    <div class="mid">
+      <div class="cards c2" style="max-width:76ch;margin-left:auto;margin-right:auto">
+        <div class="card" data-i18n="s1.c1">
+          <h3>Internet</h3>
+          <div class="sub">l'infrastructure · 1969 →</div>
+          <p>Des <b>câbles</b>, des antennes, des routeurs, et une convention pour découper les messages en <b>paquets</b> et les adresser. Internet ne sait pas ce qu'il transporte&nbsp;: il transporte.</p>
+          <p class="ex">adresses IP · paquets · routage</p>
+        </div>
+        <div class="card good" data-i18n="s1.c2">
+          <h3>Le Web</h3>
+          <div class="sub">un service parmi d'autres · 1991 →</div>
+          <p>Un système de <b>pages liées entre elles</b>, inventé trente ans plus tard, qui voyage dans les tuyaux d'Internet. Des adresses (URL), un langage de page (HTML), une façon de demander (HTTP).</p>
+          <p class="ex">URL · HTTP · HTML · liens</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s1.note">Dans les mêmes tuyaux circulent aussi le <b>courrier électronique</b>, la <b>visioconférence</b>, les <b>jeux en ligne</b>, les applications de votre téléphone — et les <b>API</b>, dans un instant. Aucun de ces services n'est «&nbsp;le Web&nbsp;». Dire «&nbsp;je vais sur Internet&nbsp;» quand on ouvre un navigateur, c'est dire «&nbsp;je vais sur la route&nbsp;» quand on prend le bus.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · D'UNE ADRESSE À UNE PAGE ============ -->
+  <div class="pane dark pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation ① · ce qui se passe quand on tape une adresse</div>
+    <h2 class="stitle" data-i18n="s2.t">Une adresse,<br>cinq étapes</h2>
+    <p class="lead" data-i18n="s2.lead">Une <b>URL</b> n'est pas un nom de site&nbsp;: c'est une phrase en quatre morceaux, et chacun sert à quelque chose. Choisissez une adresse, puis lisez le trajet.</p>
+
+    <div class="mid">
+      <div class="qbtns" id="s2btns"></div>
+      <div class="urlbar" id="s2url"></div>
+      <div class="ulegend">
+        <span class="p" data-i18n="s2.lg1"><b>■</b> protocole — comment on parle</span>
+        <span class="h" data-i18n="s2.lg2"><b>■</b> nom de domaine — à qui on parle</span>
+        <span class="c" data-i18n="s2.lg3"><b>■</b> chemin — quoi, chez lui</span>
+        <span class="q" data-i18n="s2.lg4"><b>■</b> paramètres — des précisions</span>
+      </div>
+      <div class="trip" id="s2trip"></div>
+      <p class="verd" id="s2verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · LES TROIS GÉNÉRATIONS DU WEB ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Manipulation ② · trente ans de Web en un tableau</div>
+    <h2 class="stitle" data-i18n="s3.t">URL, mots-clés,<br>intention</h2>
+    <p class="lead" data-i18n="s3.lead">Le Web n'a pas changé de tuyaux, il a changé de <b>façon de poser la question</b>. Choisissez un besoin, et regardez comment chaque génération s'y prend.</p>
+
+    <div class="mid">
+      <div class="qbtns" id="s3btns"></div>
+      <div class="ghead">
+        <span data-i18n="s3.h1">Génération</span><span data-i18n="s3.h2">Ce que tu fais</span>
+        <span data-i18n="s3.h3">Ce que tu obtiens</span><span data-i18n="s3.h4">Verdict</span>
+      </div>
+      <div class="gen" id="s3gen"></div>
+      <p class="verd" id="s3verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · DEUX EMBALLAGES ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Manipulation ③ · la même information, deux publics</div>
+    <h2 class="stitle" data-i18n="s4.t">Qu'est-ce<br>qu'une API&nbsp;?</h2>
+    <p class="lead" data-i18n="s4.lead">Un même serveur peut répondre de deux façons&nbsp;: une <b>page</b>, faite pour des yeux, ou des <b>données nues</b>, faites pour un programme. La seconde porte, c'est une <b>API</b> — <i>application programming interface</i>, l'interface par laquelle un programme s'adresse à un autre.</p>
+
+    <div class="mid">
+      <div class="qbtns" id="s4btns"></div>
+      <div class="two">
+        <div class="wrap2">
+          <h4 data-i18n="s4.hl">Pour un humain</h4>
+          <div class="how" id="s4reql"></div>
+          <div class="mock" id="s4mock"></div>
+          <div class="wt" id="s4wl"></div>
+        </div>
+        <div class="wrap2">
+          <h4 data-i18n="s4.hr">Pour un programme</h4>
+          <div class="how" id="s4reqr"></div>
+          <div class="jsonb" id="s4json"></div>
+          <div class="wt good" id="s4wr"></div>
+        </div>
+      </div>
+      <p class="verd" data-i18n="s4.note">Même donnée, deux emballages. La page porte un menu, une publicité, une mise en page qui changera l'an prochain&nbsp;; le <b>JSON</b> ne porte que l'information, et garde la même forme — c'est un <b>contrat</b>. Un programme peut s'y fier&nbsp;; sur une page, il devrait deviner une mise en page.</p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · APPELER UN MODÈLE ============ -->
+  <div class="pane light pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Manipulation ④ · l'API d'un modèle, et sa mémoire de poisson</div>
+    <h2 class="stitle" data-i18n="s5.t">Appeler un modèle</h2>
+    <p class="lead" data-i18n="s5.lead">Un modèle de langage s'appelle exactement comme la météo&nbsp;: on envoie du JSON, on reçoit du JSON. Avec une surprise&nbsp;: l'API <b>ne garde rien</b> entre deux appels. Cliquez pour poursuivre la conversation et regardez ce qui part sur le réseau.</p>
+
+    <div class="mid">
+      <div class="btnrow">
+        <button class="bigbtn nostep" id="s5next" data-i18n="s5.b1">Message suivant ▶</button>
+        <button class="bigbtn off nostep" id="s5reset" data-i18n="s5.b2">Recommencer</button>
+      </div>
+      <div class="callwrap">
+        <div>
+          <div class="codebox" id="s5code"></div>
+        </div>
+        <div>
+          <table class="ctab" id="s5tab"></table>
+          <div class="ctot" id="s5tot"></div>
+          <div class="card warn" style="margin-top:.5rem" data-i18n="s5.c1">
+            <h3>Pas de mémoire</h3>
+            <div class="sub">le modèle est sans état</div>
+            <p>À chaque appel, le programme <b>renvoie tout l'historique</b>. Le modèle relit la conversation entière comme s'il la découvrait, puis prédit la suite — et oublie aussitôt.</p>
+            <p>Ce qu'un chat appelle «&nbsp;mémoire&nbsp;» est donc une fonction de <b>l'application</b>, pas du modèle. On y revient à la séance suivante.</p>
+          </div>
+        </div>
+      </div>
+      <p class="verd" id="s5verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · LES TROIS FAÇONS ============ -->
+  <div class="pane dark pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Manipulation ⑤ · la question la plus concrète de la séance</div>
+    <h2 class="stitle" data-i18n="s6.t">Où est le modèle&nbsp;?</h2>
+    <p class="lead" data-i18n="s6.lead">On peut interroger la même IA de trois façons, et ce n'est pas un détail de confort&nbsp;: à chaque fois, <b>votre texte ne va pas au même endroit</b>, et ce n'est pas la même machine qui calcule.</p>
+
+    <div class="mid">
+      <div class="qbtns" id="s6btns"></div>
+      <div class="depwrap">
+        <svg class="depsvg" id="s6svg" viewBox="0 0 560 192" role="img"></svg>
+        <div class="deprows" id="s6rows"></div>
+      </div>
+      <p class="verd" id="s6verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · LA TAILLE ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">Manipulation ⑥ · pourquoi tout le monde ne l'a pas chez soi</div>
+    <h2 class="stitle" data-i18n="s7.t">Combien ça pèse&nbsp;?</h2>
+    <p class="lead" data-i18n="s7.lead">«&nbsp;Sur ma machine&nbsp;» suppose que le modèle y tienne. Les <b>paramètres</b> de la séance précédente sont des nombres&nbsp;: il suffit de compter les octets, comme au chapitre du codage. Choisissez un modèle et une précision.</p>
+
+    <div class="mid">
+      <div class="szwrap">
+        <div class="szctl">
+          <div class="row">
+            <span data-i18n="s7.k1">Modèle</span>
+            <select id="s7m"></select>
+          </div>
+          <div class="row">
+            <span data-i18n="s7.k2">Précision</span>
+            <select id="s7p"></select>
+          </div>
+          <div class="szout" id="s7out"></div>
+          <div class="card" data-i18n="s7.c1">
+            <h3>Quantifier</h3>
+            <div class="sub">le même arbitrage qu'au bloc 3</div>
+            <p>Garder moins de chiffres par paramètre allège le fichier d'autant. C'est exactement le choix fait pour une photo ou un son&nbsp;: <b>moins d'octets, un peu moins de fidélité</b>.</p>
+            <p>Jusqu'à 8 ou 4 bits, la perte est faible. En dessous, le modèle se dégrade visiblement.</p>
+          </div>
+        </div>
+        <div>
+          <div class="machines" id="s7mach"></div>
+          <p class="verd" id="s7verd"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 8 · LIBRE OU PAS ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Un mot dont on abuse</div>
+    <h2 class="stitle" data-i18n="s8.t">«&nbsp;Ouvert&nbsp;»&nbsp;:<br>trois degrés</h2>
+    <p class="lead" data-i18n="s8.lead">Pour télécharger un modèle, encore faut-il qu'on vous le donne. Mais «&nbsp;ouvert&nbsp;» n'est pas un oui ou un non&nbsp;: c'est un curseur à plusieurs crans, et le mot sert souvent d'argument de vente.</p>
+
+    <div class="mid">
+      <div class="cards c3" style="max-width:96ch;margin-left:auto;margin-right:auto">
+        <div class="card warn" data-i18n="s8.c1">
+          <h3>Fermé</h3>
+          <div class="sub">on n'a que la porte</div>
+          <p>Le modèle reste chez son éditeur. Vous l'appelez par son <b>API</b>, c'est tout. Impossible de le télécharger, de l'inspecter, ni de le garder&nbsp;: il peut changer ou disparaître du jour au lendemain.</p>
+          <p class="ex">accès : API · poids : non · données : non</p>
+        </div>
+        <div class="card" data-i18n="s8.c2">
+          <h3>Poids ouverts</h3>
+          <div class="sub">le cas le plus fréquent</div>
+          <p>Le fichier des <b>paramètres</b> est téléchargeable. Vous pouvez le faire tourner chez vous, l'étudier, le modifier. Mais les <b>données d'entraînement</b> restent secrètes, et la licence peut interdire des usages.</p>
+          <p class="ex">accès : téléchargement · poids : oui · données : non</p>
+        </div>
+        <div class="card good" data-i18n="s8.c3">
+          <h3>Vraiment libre</h3>
+          <div class="sub">rare</div>
+          <p>Poids, <b>code</b> d'entraînement, <b>description des données</b> et licence libre. On peut non seulement s'en servir, mais <b>refaire</b> le modèle et vérifier ce qu'il a lu.</p>
+          <p class="ex">accès : tout · poids : oui · données : documentées</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s8.note">Trois pièges de vocabulaire. <b>Poids ouverts n'est pas open source</b>&nbsp;: sans les données ni le code, on ne peut pas refaire le modèle, seulement l'utiliser. <b>Ouvert n'est pas gratuit</b>&nbsp;: le fichier est gratuit, l'électricité et la machine ne le sont pas. Et <b>fermé n'est pas forcément meilleur</b>&nbsp;: l'écart s'est beaucoup réduit.</p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · LE COMPARATIF ============ -->
+  <div class="pane light pad" id="s9">
+    <div class="eyebrow" data-i18n="s9.eye">La synthèse — à recopier dans le cahier</div>
+    <h2 class="stitle" data-i18n="s9.t">Trois chemins,<br>trois compromis</h2>
+    <p class="lead" data-i18n="s9.lead">Aucune des trois colonnes n'est «&nbsp;la bonne&nbsp;». Chacune échange quelque chose contre autre chose&nbsp;: c'est le propre d'un choix technique.</p>
+
+    <div class="mid">
+      <table class="tbl" data-i18n="s9.tbl">
+        <tr><th></th><th>Site web</th><th>API</th><th>Sur ma machine</th></tr>
+        <tr><td><b>Qui calcule</b></td><td>un data center</td><td>un data center</td><td class="y">mon appareil</td></tr>
+        <tr><td><b>Où sont les poids</b></td><td>chez l'éditeur</td><td>chez l'éditeur</td><td class="y">sur mon disque</td></tr>
+        <tr><td><b>Qui voit mon texte</b></td><td class="n">l'éditeur</td><td class="n">l'éditeur</td><td class="y">personne</td></tr>
+        <tr><td><b>Sans réseau</b></td><td class="n">non</td><td class="n">non</td><td class="y">oui</td></tr>
+        <tr><td><b>Taille du modèle</b></td><td class="y">la plus grande</td><td class="y">la plus grande</td><td class="m">ce qui tient</td></tr>
+        <tr><td><b>Ce qu'on paie</b></td><td>un abonnement</td><td>à l'usage, par million de tokens</td><td class="m">du matériel, puis de l'électricité</td></tr>
+        <tr><td><b>Qui choisit la version</b></td><td class="n">l'éditeur</td><td class="m">on épingle une version</td><td class="y">moi, et elle ne bouge plus</td></tr>
+        <tr><td><b>Pour un programme</b></td><td class="n">non prévu</td><td class="y">c'est fait pour</td><td class="y">oui, en local</td></tr>
+        <tr><td><b>Mise en place</b></td><td class="y">aucune</td><td class="m">un peu de code, une clé</td><td class="n">installation et matériel</td></tr>
+      </table>
+      <p class="verd" data-i18n="s9.note">Un exemple pour fixer les idées&nbsp;: le lycée veut un assistant qui réponde sur le <b>règlement intérieur</b>. Par l'API, c'est en service la semaine prochaine, mais les questions des élèves sortent de l'établissement. En local, rien ne sort — mais il faut une machine, et le modèle sera plus petit, donc plus maladroit. <b>Le choix est autant juridique que technique.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 10 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s10">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s10.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s10.q">Et s'il frappait<br>à ces portes<br><em>lui-même</em>&nbsp;?</div>
+    <p class="a" data-i18n="s10.a">Nous savons maintenant qu'une machine peut en appeler une autre avec trois lignes de code. Rien n'empêche de donner cette possibilité <b>au modèle</b>&nbsp;: lui décrire les portes disponibles — une recherche, une calculatrice, l'agenda du lycée — et le laisser choisir laquelle ouvrir. C'est ce qu'on appelle un <b>outil</b>. Et c'est à partir de là qu'un assistant devient un véritable logiciel, avec des couches qu'on peut nommer une par une.</p>
+    <div class="next" data-i18n="s10.next">Séance suivante · Au crible : anatomie d'un assistant</div>
+  </div>
+
+  <!-- ============ 11 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s11">
+    <div class="tag" data-i18n="s11.tag">Activité de la séance · 30 minutes · par groupes de trois ou quatre</div>
+    <h2 data-i18n="s11.t">Vous êtes<br>l'<em>API</em> du lycée</h2>
+    <p class="sub" data-i18n="s11.sub">Sur papier, sans ordinateur. L'objectif n'est pas d'écrire du code&nbsp;: c'est de découvrir qu'une API est d'abord une <b>décision</b>.</p>
+    <ol class="steps">
+      <li data-i18n="s11.l1"><b>Le service.</b> Choisissez une information du lycée&nbsp;: les menus de la cantine, les horaires du CDI, les salles libres, les résultats du tournoi. Une seule.</li>
+      <li data-i18n="s11.l2"><b>La page.</b> Dessinez en trente secondes la <b>page web</b> que vous feriez pour un élève&nbsp;: titre, mise en page, ce qui est gros, ce qui est petit.</li>
+      <li data-i18n="s11.l3"><b>Le JSON.</b> Écrivez maintenant la <b>réponse pour un programme</b>. Vous choisissez les noms des champs et leur découpage&nbsp;: <code>date</code>, <code>plat</code>, <code>vegetarien</code>… Attention&nbsp;: ces noms sont un <b>contrat</b>, on ne les changera plus.</li>
+      <li data-i18n="s11.l4"><b>L'épreuve du voisin.</b> Échangez vos JSON — <b>pas</b> vos pages. Écrivez <b>trois questions</b> auxquelles le JSON reçu permet de répondre, et <b>une</b> à laquelle il ne permet pas.</li>
+      <li data-i18n="s11.l5"><b>La négociation.</b> Rendez la quatrième question à son auteur. Faut-il ajouter un champ&nbsp;? Lequel&nbsp;? Qui devra mettre à jour quoi&nbsp;? C'est exactement le travail d'une équipe technique.</li>
+      <li data-i18n="s11.l6"><b>Le bilan.</b> Le lycée veut un assistant qui réponde sur ce service. Choisissez <b>site web, API ou local</b> d'après le tableau de la scène&nbsp;9, et défendez votre choix en deux phrases — dont une sur les <b>données des élèves</b>.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 12 · RÉCAP ============ -->
+  <div class="pane light pad" id="s12">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 10 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Internet, le Web <span>et les API</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1"><span class="hl">Internet</span> est le réseau — des câbles et des paquets. Le <span class="hl">Web</span> est un service qui circule dedans, inventé trente ans plus tard. Le courrier, la visio et les API y circulent aussi.</li>
+      <li data-i18n="rc.i2">Une <span class="hl">URL</span> se lit en quatre morceaux&nbsp;: <b>protocole</b>, <b>nom de domaine</b>, <b>chemin</b>, <b>paramètres</b>. Le <span class="hl">DNS</span> traduit le nom en adresse, puis <span class="hl">HTTP</span> transporte la demande et la réponse.</li>
+      <li data-i18n="rc.i3">Le Web a connu trois générations&nbsp;: <span class="hl">URL</span> (je connais l'adresse) → <span class="hl">mots-clés</span> (je cherche des pages) → <span class="hl">intention</span> (je formule ma demande). Elles ne se remplacent pas, elles s'empilent.</li>
+      <li data-i18n="rc.i4">Une <span class="hl">API</span> est une porte faite pour les programmes&nbsp;: mêmes données, sans mise en page. Le format habituel est le <span class="hl">JSON</span>, mille fois plus léger qu'une page — et stable, c'est un <b>contrat</b>.</li>
+      <li data-i18n="rc.i5">L'API d'un modèle est <span class="hl">sans état</span>&nbsp;: elle ne garde rien. Le programme <b>renvoie tout l'historique</b> à chaque appel — d'où le coût qui grimpe, et d'où le fait que la «&nbsp;mémoire&nbsp;» est une fonction de l'application.</li>
+      <li data-i18n="rc.i6">Trois façons d'interroger une IA&nbsp;: <span class="hl">site web</span>, <span class="hl">API</span>, <span class="hl">sur sa machine</span>. Elles diffèrent sur qui calcule, où sont les poids, qui voit le texte, et ce qu'on paie.</li>
+      <li data-i18n="rc.i7">Un modèle pèse <b>paramètres × octets par paramètre</b>, poids que la <span class="hl">quantification</span> divise. Et <span class="hl">ouvert</span> est un curseur — fermé, poids ouverts, vraiment libre — jamais un interrupteur.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>URL</b>L’adresse d’une ressource.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>DNS</b>L’annuaire des noms de domaine.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>HTTP</b>Le protocole du Web.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>API</b>La porte faite pour les programmes.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>JSON</b>Le format de données des API.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Sans état</b>Aucun souvenir d’un appel au suivant.</div>
+      <div class="rc-term" data-i18n="rc.v7"><b>Poids ouverts</b>Les paramètres, pas les données.</div>
+      <div class="rc-term" data-i18n="rc.v8"><b>Quantification</b>Moins de bits par paramètre.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>passer un assistant au crible — le modèle, le contexte, les outils, la mémoire, le multimodal, les interfaces.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 12;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.closest && e.target.closest('#langsw,select') && (e.key===' '||e.key==='Enter')) return;
+  if(e.target && e.target.matches && e.target.matches('select')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+/* curLang est déclaré en var : les widgets ci-dessous tournent AVANT le bloc i18n
+   et lisent cette variable. Avec let, ils lèveraient une ReferenceError. */
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+
+/* petits utilitaires partagés */
+function fnum(x, d){
+  var s = x.toFixed(d === undefined ? 1 : d);
+  return (LG() === 'fr') ? s.replace('.', ',') : s;
+}
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   SCÈNE 2 — une adresse, cinq étapes
+   ========================================================= */
+var S2 = {
+  fr:{
+    w:['Annuaire · DNS','Connexion','Requête','Réponse','Affichage'],
+    btn:['Une page du lycée','Un moteur de recherche','Un service météo'],
+    urls:[
+      { seg:['https://','www.lycee-exemple.fr','/cdi/horaires.html',''],
+        v:['«&nbsp;www.lycee-exemple.fr&nbsp;» n’est pas une adresse de machine. Le DNS la traduit&nbsp;: <em>92.243.18.7</em>',
+           'ouverture d’un canal chiffré vers <em>92.243.18.7</em>, port <em>443</em>',
+           '<em>GET</em> /cdi/horaires.html',
+           '<em>200 OK</em> &middot; type <em>text/html</em> &middot; 14 ko',
+           'le navigateur lit le HTML, va chercher images et styles, puis dessine la page'],
+        n:'Le serveur envoie un <b>fichier</b>&nbsp;; c’est le navigateur qui en fait une page. Personne, dans ce trajet, ne comprend ce que la page raconte.' },
+      { seg:['https://','www.moteur-exemple.fr','/recherche','?q=horaires+cdi+lycee'],
+        v:['<em>www.moteur-exemple.fr</em> &rarr; <em>142.250.75.78</em>',
+           'canal chiffré, port <em>443</em>',
+           '<em>GET</em> /recherche?q=horaires+cdi+lycee',
+           '<em>200 OK</em> &middot; <em>text/html</em> &middot; 210 ko (dont la moitié de publicité et de scripts)',
+           'une liste de liens, classés par un algorithme que vous ne voyez pas'],
+        n:'Vos mots-clés voyagent <b>dans l’URL</b>, après le point d’interrogation. C’est la deuxième génération du Web — la scène suivante.' },
+      { seg:['https://','api.meteo-exemple.fr','/v1/prevision','?ville=strasbourg&jours=3'],
+        v:['<em>api.meteo-exemple.fr</em> &rarr; <em>51.158.22.4</em>',
+           'canal chiffré, port <em>443</em>',
+           '<em>GET</em> /v1/prevision?ville=strasbourg&amp;jours=3',
+           '<em>200 OK</em> &middot; type <em>application/json</em> &middot; 0,4 ko',
+           'rien à dessiner&nbsp;: la réponse n’est pas une page, c’est un <s>paquet de données brutes</s>'],
+        n:'Regardez le sous-domaine (<b>api.</b>) et le type de réponse (<b>application/json</b>)&nbsp;: cette adresse n’est pas faite pour vos yeux. Vous venez de voir une <b>API</b> de l’extérieur.' }
+    ]
+  },
+  en:{
+    w:['Directory · DNS','Connection','Request','Response','Display'],
+    btn:['A school page','A search engine','A weather service'],
+    urls:[
+      { seg:['https://','www.example-school.fr','/library/hours.html',''],
+        v:['&ldquo;www.example-school.fr&rdquo; is not a machine address. DNS translates it: <em>92.243.18.7</em>',
+           'an encrypted channel opens to <em>92.243.18.7</em>, port <em>443</em>',
+           '<em>GET</em> /library/hours.html',
+           '<em>200 OK</em> &middot; type <em>text/html</em> &middot; 14 kB',
+           'the browser reads the HTML, fetches images and styles, then draws the page'],
+        n:'The server sends a <b>file</b>; the browser is what turns it into a page. Nobody along that trip understands what the page says.' },
+      { seg:['https://','www.example-search.fr','/search','?q=library+hours+school'],
+        v:['<em>www.example-search.fr</em> &rarr; <em>142.250.75.78</em>',
+           'encrypted channel, port <em>443</em>',
+           '<em>GET</em> /search?q=library+hours+school',
+           '<em>200 OK</em> &middot; <em>text/html</em> &middot; 210 kB (half of it ads and scripts)',
+           'a list of links, ranked by an algorithm you never see'],
+        n:'Your keywords travel <b>inside the URL</b>, after the question mark. That is the second generation of the Web — the next scene.' },
+      { seg:['https://','api.example-weather.fr','/v1/forecast','?city=strasbourg&days=3'],
+        v:['<em>api.example-weather.fr</em> &rarr; <em>51.158.22.4</em>',
+           'encrypted channel, port <em>443</em>',
+           '<em>GET</em> /v1/forecast?city=strasbourg&amp;days=3',
+           '<em>200 OK</em> &middot; type <em>application/json</em> &middot; 0.4 kB',
+           'nothing to draw: the answer is not a page, it is a <s>packet of raw data</s>'],
+        n:'Look at the subdomain (<b>api.</b>) and the response type (<b>application/json</b>): this address was not made for your eyes. You have just seen an <b>API</b> from the outside.' }
+    ]
+  }
+};
+var s2i = 0;
+function drawS2(){
+  var t = S2[LG()], u = t.urls[s2i];
+  pickbtns('s2btns', t.btn, s2i, function(i){ s2i = i; drawS2(); });
+  var cls = ['p','h','c','q'];
+  document.getElementById('s2url').innerHTML = u.seg.map(function(sg,i){
+    return sg ? '<i class="' + cls[i] + '">' + sg + '</i>' : '';
+  }).join('');
+  document.getElementById('s2trip').innerHTML = u.v.map(function(v,i){
+    return '<div class="trow"><div class="n">' + (i+1) + '</div>' +
+           '<div class="w">' + t.w[i] + '</div><div class="v">' + v + '</div></div>';
+  }).join('');
+  document.getElementById('s2verd').innerHTML = u.n;
+}
+
+/* =========================================================
+   SCÈNE 3 — URL, mots-clés, intention
+   ========================================================= */
+var S3 = {
+  fr:{
+    gens:[ {n:'Web documentaire',d:'1991 &rarr; · l’URL'},
+           {n:'Moteurs de recherche',d:'1998 &rarr; · les mots-clés'},
+           {n:'Web à l’ère de l’IA',d:'2023 &rarr; · l’intention'} ],
+    btn:['L’adresse du lycée','Les horaires du CDI','Pourquoi le ciel est bleu'],
+    needs:[
+      { rows:[
+          {a:'Vous demandez l’adresse à quelqu’un, ou vous la lisez sur un papier, puis vous la tapez.', b:'La <b>bonne page</b>, du premier coup — si vous avez l’adresse exacte.', v:'parfait', c:'ok'},
+          {a:'Vous tapez <code>lycée + nom de la ville</code>.', b:'Le bon lien, presque toujours en premier.', v:'ça marche', c:'ok'},
+          {a:'Vous demandez&nbsp;: «&nbsp;quelle est l’adresse du site du lycée&nbsp;?&nbsp;»', b:'Une adresse, formulée avec aplomb — et parfois <b>inventée de toutes pièces</b>.', v:'à vérifier', c:'no'} ],
+        n:'Pour une information <b>courte et exacte</b>, la génération la plus ancienne est encore la plus sûre. Un modèle ne retient pas les adresses&nbsp;: il les reconstitue, et une URL plausible n’existe pas forcément.' },
+      { rows:[
+          {a:'Il faut déjà connaître le site, puis fouiller le menu&nbsp;: Vie scolaire, CDI, Informations pratiques…', b:'Vous y arrivez, en cinq ou six clics.', v:'laborieux', c:'mid'},
+          {a:'Vous tapez <code>horaires cdi lycée</code>.', b:'Une liste de pages. <b>À vous</b> de les ouvrir et de lire.', v:'il faut lire', c:'mid'},
+          {a:'Vous posez la question en français.', b:'Une réponse en une phrase — <b>à condition</b> qu’il ait lu la bonne page.', v:'rapide, fragile', c:'mid'} ],
+        n:'C’est le cas intéressant&nbsp;: la troisième génération est la plus <b>rapide</b> et la plus <b>fragile</b>. Sans accès à la page, elle brode — exactement le problème que le <b>RAG</b> de la séance 9 vient réparer.' },
+      { rows:[
+          {a:'Aucune adresse ne répond à cette demande. Il n’existe pas d’URL «&nbsp;pour un enfant de huit ans&nbsp;».', b:'Rien.', v:'impossible', c:'no'},
+          {a:'Vous tapez <code>pourquoi le ciel est bleu</code>.', b:'Dix pages correctes, aucune écrite pour un enfant de huit ans.', v:'à adapter', c:'mid'},
+          {a:'Vous précisez le public et la longueur dans votre demande.', b:'Une explication <b>sur mesure</b>, immédiatement, et vous pouvez la faire reformuler.', v:'sur mesure', c:'ok'} ],
+        n:'Ici la nouveauté n’est pas de <b>trouver</b> l’information — elle était déjà trouvable. C’est de la <b>reformuler pour vous</b>. Les trois générations ne se remplacent donc pas&nbsp;: elles s’empilent, et il faut savoir laquelle ouvrir.' }
+    ]
+  },
+  en:{
+    gens:[ {n:'Document Web',d:'1991 &rarr; · the URL'},
+           {n:'Search engines',d:'1998 &rarr; · keywords'},
+           {n:'Web in the AI era',d:'2023 &rarr; · intent'} ],
+    btn:['The school’s address','The library hours','Why the sky is blue'],
+    needs:[
+      { rows:[
+          {a:'You ask someone for the address, or read it off a leaflet, then type it in.', b:'The <b>right page</b>, first try — if you have the exact address.', v:'perfect', c:'ok'},
+          {a:'You type <code>school + town name</code>.', b:'The right link, nearly always first.', v:'works fine', c:'ok'},
+          {a:'You ask: &ldquo;what is the school website’s address?&rdquo;', b:'An address, stated with confidence — and sometimes <b>made up entirely</b>.', v:'check it', c:'no'} ],
+        n:'For a <b>short, exact</b> piece of information, the oldest generation is still the safest. A model does not store addresses: it reconstructs them, and a plausible URL need not exist.' },
+      { rows:[
+          {a:'You must already know the site, then dig through the menu: School life, Library, Practical information…', b:'You get there, in five or six clicks.', v:'tedious', c:'mid'},
+          {a:'You type <code>library hours school</code>.', b:'A list of pages. <b>You</b> have to open and read them.', v:'reading required', c:'mid'},
+          {a:'You ask the question in plain language.', b:'A one-sentence answer — <b>provided</b> it has read the right page.', v:'fast, fragile', c:'mid'} ],
+        n:'This is the interesting case: the third generation is the <b>fastest</b> and the <b>most fragile</b>. With no access to the page it improvises — exactly the problem <b>RAG</b> fixed in lesson 9.' },
+      { rows:[
+          {a:'No address answers this. There is no URL &ldquo;for an eight-year-old&rdquo;.', b:'Nothing.', v:'impossible', c:'no'},
+          {a:'You type <code>why is the sky blue</code>.', b:'Ten correct pages, none written for an eight-year-old.', v:'needs adapting', c:'mid'},
+          {a:'You state the audience and the length in your request.', b:'A <b>tailored</b> explanation, instantly, and you can have it rephrased.', v:'tailored', c:'ok'} ],
+        n:'Here the novelty is not <b>finding</b> the information — it was already findable. It is <b>rephrasing it for you</b>. So the three generations do not replace each other: they stack, and the skill is knowing which door to open.' }
+    ]
+  }
+};
+var s3i = 0;
+function drawS3(){
+  var t = S3[LG()], nd = t.needs[s3i];
+  pickbtns('s3btns', t.btn, s3i, function(i){ s3i = i; drawS3(); });
+  document.getElementById('s3gen').innerHTML = nd.rows.map(function(r,i){
+    return '<div class="grow"><div><div class="gn">' + t.gens[i].n + '</div>' +
+           '<div class="gd">' + t.gens[i].d + '</div></div>' +
+           '<div class="gc">' + r.a + '</div><div class="gc">' + r.b + '</div>' +
+           '<div class="gv ' + r.c + '">' + r.v + '</div></div>';
+  }).join('');
+  document.getElementById('s3verd').innerHTML = nd.n;
+}
+
+/* =========================================================
+   SCÈNE 4 — la même information, deux emballages
+   ========================================================= */
+var S4 = {
+  fr:{
+    btn:['Météo','Prochains bus','Dictionnaire'],
+    reql:'ce que tape un humain',
+    reqr:'ce qu’envoie un programme',
+    wl:'page complète&nbsp;: <b>%K ko</b> &middot; menu, publicité, polices, scripts',
+    wr:'données seules&nbsp;: <b>%K ko</b> — environ <b>%R fois</b> plus léger',
+    sv:[
+      { url:'www.meteo-exemple.fr/strasbourg',
+        api:'api.meteo-exemple.fr/v1/meteo?ville=strasbourg',
+        mock:'<div class="mb">MÉTÉO-EXEMPLE.FR</div>' +
+             '<div class="mn">Accueil &middot; Régions &middot; Montagne &middot; Vidéos &middot; Mon compte</div>' +
+             '<div class="mc"><div class="msm">Strasbourg &middot; aujourd’hui, 14 h</div>' +
+             '<div class="mbig">7&nbsp;°C</div>' +
+             '<div class="msm">Couvert &middot; vent 22 km/h &middot; pluie 1,4 mm</div>' +
+             '<div class="mad">emplacement publicitaire</div></div>' +
+             '<div class="mf">Mentions légales &middot; Cookies &middot; Nous contacter</div>',
+        json:'{\n  "ville": "Strasbourg",\n  "temperature_c": 7,\n  "ciel": "couvert",\n  "vent_kmh": 22,\n  "pluie_mm": 1.4\n}',
+        kol:184, kor:0.12 },
+      { url:'www.transports-exemple.fr/arret/lycee',
+        api:'api.transports-exemple.fr/v1/passages?arret=lycee',
+        mock:'<div class="mb">TRANSPORTS-EXEMPLE.FR</div>' +
+             '<div class="mn">Lignes &middot; Plans &middot; Tarifs &middot; Travaux &middot; Alertes</div>' +
+             '<div class="mc"><div class="msm">Arrêt Lycée &middot; ligne L4, direction Centre</div>' +
+             '<div class="mbig">4 min</div>' +
+             '<div class="msm">puis 07:54, 08:06, 08:18</div>' +
+             '<div class="mad">emplacement publicitaire</div></div>' +
+             '<div class="mf">Plan du site &middot; Accessibilité</div>',
+        json:'{\n  "arret": "Lycée",\n  "ligne": "L4",\n  "direction": "Centre",\n  "passages": ["07:42", "07:54", "08:06", "08:18"]\n}',
+        kol:96, kor:0.16 },
+      { url:'www.dico-exemple.fr/mot/entropie',
+        api:'api.dico-exemple.fr/v1/mot/entropie',
+        mock:'<div class="mb">DICO-EXEMPLE.FR</div>' +
+             '<div class="mn">Définitions &middot; Conjugaison &middot; Synonymes &middot; Jeux</div>' +
+             '<div class="mc"><div class="mbig" style="font-size:1.1rem">entropie</div>' +
+             '<div class="msm">nom féminin &middot; du grec <i>entropê</i>, retour</div>' +
+             '<div class="msm" style="margin-top:.25rem">1. Grandeur qui mesure le désordre d’un système.<br>2. <i>Par extension</i>&nbsp;: dégradation inéluctable.</div>' +
+             '<div class="mad">emplacement publicitaire</div></div>' +
+             '<div class="mf">À propos &middot; Abonnement sans publicité</div>',
+        json:'{\n  "mot": "entropie",\n  "nature": "nom féminin",\n  "etymologie": "grec entropê, retour",\n  "definitions": [\n    "grandeur qui mesure le désordre d’un système",\n    "par extension : dégradation inéluctable"\n  ]\n}',
+        kol:310, kor:0.31 }
+    ]
+  },
+  en:{
+    btn:['Weather','Next buses','Dictionary'],
+    reql:'what a human types',
+    reqr:'what a program sends',
+    wl:'full page: <b>%K kB</b> &middot; menu, ads, fonts, scripts',
+    wr:'data only: <b>%K kB</b> — about <b>%R times</b> lighter',
+    sv:[
+      { url:'www.example-weather.fr/strasbourg',
+        api:'api.example-weather.fr/v1/weather?city=strasbourg',
+        mock:'<div class="mb">EXAMPLE-WEATHER.FR</div>' +
+             '<div class="mn">Home &middot; Regions &middot; Mountains &middot; Videos &middot; My account</div>' +
+             '<div class="mc"><div class="msm">Strasbourg &middot; today, 2 pm</div>' +
+             '<div class="mbig">7&nbsp;°C</div>' +
+             '<div class="msm">Overcast &middot; wind 22 km/h &middot; rain 1.4 mm</div>' +
+             '<div class="mad">advertising slot</div></div>' +
+             '<div class="mf">Legal notice &middot; Cookies &middot; Contact us</div>',
+        json:'{\n  "city": "Strasbourg",\n  "temperature_c": 7,\n  "sky": "overcast",\n  "wind_kmh": 22,\n  "rain_mm": 1.4\n}',
+        kol:184, kor:0.12 },
+      { url:'www.example-transit.fr/stop/school',
+        api:'api.example-transit.fr/v1/departures?stop=school',
+        mock:'<div class="mb">EXAMPLE-TRANSIT.FR</div>' +
+             '<div class="mn">Lines &middot; Maps &middot; Fares &middot; Works &middot; Alerts</div>' +
+             '<div class="mc"><div class="msm">School stop &middot; line L4, towards Centre</div>' +
+             '<div class="mbig">4 min</div>' +
+             '<div class="msm">then 07:54, 08:06, 08:18</div>' +
+             '<div class="mad">advertising slot</div></div>' +
+             '<div class="mf">Site map &middot; Accessibility</div>',
+        json:'{\n  "stop": "School",\n  "line": "L4",\n  "towards": "Centre",\n  "departures": ["07:42", "07:54", "08:06", "08:18"]\n}',
+        kol:96, kor:0.16 },
+      { url:'www.example-dict.fr/word/entropy',
+        api:'api.example-dict.fr/v1/word/entropy',
+        mock:'<div class="mb">EXAMPLE-DICT.FR</div>' +
+             '<div class="mn">Definitions &middot; Conjugation &middot; Synonyms &middot; Games</div>' +
+             '<div class="mc"><div class="mbig" style="font-size:1.1rem">entropy</div>' +
+             '<div class="msm">noun &middot; from Greek <i>entropê</i>, a turning back</div>' +
+             '<div class="msm" style="margin-top:.25rem">1. A quantity measuring the disorder of a system.<br>2. <i>By extension</i>: inevitable decline.</div>' +
+             '<div class="mad">advertising slot</div></div>' +
+             '<div class="mf">About &middot; Ad-free subscription</div>',
+        json:'{\n  "word": "entropy",\n  "part_of_speech": "noun",\n  "etymology": "Greek entropê, a turning back",\n  "definitions": [\n    "a quantity measuring the disorder of a system",\n    "by extension: inevitable decline"\n  ]\n}',
+        kol:310, kor:0.31 }
+    ]
+  }
+};
+var s4i = 0;
+function colorJson(txt){
+  return txt
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/"([a-z_]+)":/g, '"<span class="k">$1</span>":')
+    .replace(/: ("[^"]*")/g, ': <span class="s">$1</span>')
+    .replace(/: (-?\d+(?:\.\d+)?)/g, ': <span class="nb">$1</span>');
+}
+function drawS4(){
+  var t = S4[LG()], sv = t.sv[s4i];
+  pickbtns('s4btns', t.btn, s4i, function(i){ s4i = i; drawS4(); });
+  document.getElementById('s4reql').textContent = t.reql + ' · ' + sv.url;
+  document.getElementById('s4reqr').textContent = t.reqr + ' · GET ' + sv.api;
+  document.getElementById('s4mock').innerHTML = sv.mock;
+  document.getElementById('s4json').innerHTML = colorJson(sv.json);
+  var ratio = Math.round(sv.kol / sv.kor / 50) * 50;
+  document.getElementById('s4wl').innerHTML = t.wl.replace('%K', fnum(sv.kol, 0));
+  document.getElementById('s4wr').innerHTML =
+    t.wr.replace('%K', fnum(sv.kor, 2)).replace('%R', fnum(ratio, 0).replace(/(\d)(\d{3})$/, '$1 $2'));
+}
+
+/* =========================================================
+   SCÈNE 5 — appeler un modèle, qui ne retient rien
+   ========================================================= */
+var S5 = {
+  fr:{
+    sys:'Tu es un assistant pédagogique pour un lycée.', systk:14,
+    msg:[ {r:'user', t:'Bonjour, tu peux m’aider à réviser&nbsp;?', tk:11},
+          {r:'assistant', t:'Bien sûr. Sur quel chapitre&nbsp;?', tk:9},
+          {r:'user', t:'La fonction logarithme.', tk:7},
+          {r:'assistant', t:'Commençons par sa définition…', tk:14},
+          {r:'user', t:'Et sa dérivée&nbsp;?', tk:6} ],
+    th:['Appel','Messages renvoyés','Tokens en entrée','Cumul'],
+    tot:'Facturé en entrée depuis le début&nbsp;: <b>%T tokens</b>',
+    verd:[ 'Premier appel&nbsp;: la consigne du lycée, puis la question. Rien d’étonnant.',
+           'Deuxième appel&nbsp;: le programme a <b>tout renvoyé</b> — la consigne, la première question, et même la réponse que le modèle avait produite. Il la relit comme s’il la découvrait.',
+           'Troisième appel&nbsp;: <b>55 tokens en entrée pour une question de 6 tokens</b>. Dans une conversation de trente échanges, on renvoie des dizaines de milliers de tokens à <b>chaque</b> message. C’est là que part la facture — et c’est là que la <b>fenêtre de contexte</b> de la séance 9 finit par saturer.' ],
+    nw:'nouveau'
+  },
+  en:{
+    sys:'You are a teaching assistant for a secondary school.', systk:14,
+    msg:[ {r:'user', t:'Hello, can you help me revise?', tk:11},
+          {r:'assistant', t:'Of course. Which chapter?', tk:9},
+          {r:'user', t:'The logarithm function.', tk:7},
+          {r:'assistant', t:'Let us start from its definition…', tk:14},
+          {r:'user', t:'And its derivative?', tk:6} ],
+    th:['Call','Messages resent','Input tokens','Running total'],
+    tot:'Billed as input so far: <b>%T tokens</b>',
+    verd:[ 'First call: the school’s instruction, then the question. Nothing surprising.',
+           'Second call: the program resent <b>everything</b> — the instruction, the first question, and even the answer the model itself produced. It reads it again as if for the first time.',
+           'Third call: <b>55 input tokens for a 6-token question</b>. In a thirty-turn conversation you resend tens of thousands of tokens with <b>every</b> message. That is where the bill comes from — and where lesson 9’s <b>context window</b> eventually fills up.' ],
+    nw:'new'
+  }
+};
+var s5c = 1;
+function s5in(c, t){
+  var n = t.systk;
+  for(var i = 0; i <= 2*c - 2; i++) n += t.msg[i].tk;
+  return n;
+}
+function drawS5(){
+  var t = S5[LG()], last = 2*s5c - 2;
+  var code = '<span class="g">POST https://api.exemple.fr/v1/messages</span>\n{\n' +
+    '  "<span class="k">model</span>": "modele-5",\n' +
+    '  "<span class="k">max_tokens</span>": 400,\n' +
+    '  "<span class="k">system</span>": "' + t.sys + '",\n' +
+    '  "<span class="k">messages</span>": [\n';
+  for(var i = 0; i <= last; i++){
+    var m = t.msg[i], isnew = (i === last && s5c > 1);
+    code += '    { "<span class="k">role</span>": "' + m.r + '", "<span class="k">content</span>": "' +
+            m.t.replace(/&nbsp;/g, ' ') + '" }' + (i < last ? ',' : '') +
+            (isnew ? '   <span class="s">◀ ' + t.nw + '</span>' : '') + '\n';
+  }
+  code += '  ]\n}';
+  document.getElementById('s5code').innerHTML = code;
+
+  var rows = '<tr><th>' + t.th.join('</th><th>') + '</th></tr>', cum = 0;
+  for(var c = 1; c <= 3; c++){
+    var inn = s5in(c, t); cum += inn;
+    rows += '<tr' + (c === s5c ? ' class="cur"' : '') + '><td>' + c + '</td>' +
+            '<td class="r">' + (2*c - 1) + '</td><td class="r">' + inn + '</td>' +
+            '<td class="r">' + (c <= s5c ? cum : '—') + '</td></tr>';
+  }
+  document.getElementById('s5tab').innerHTML = rows;
+  var shown = 0;
+  for(var k = 1; k <= s5c; k++) shown += s5in(k, t);
+  document.getElementById('s5tot').innerHTML = t.tot.replace('%T', shown);
+  document.getElementById('s5verd').innerHTML = t.verd[s5c - 1];
+  document.getElementById('s5next').disabled = (s5c >= 3);
+  document.getElementById('s5next').style.opacity = (s5c >= 3) ? '.45' : '1';
+}
+document.getElementById('s5next').onclick = function(){ if(s5c < 3){ s5c++; drawS5(); } };
+document.getElementById('s5reset').onclick = function(){ s5c = 1; drawS5(); };
+
+/* =========================================================
+   SCÈNE 6 — où est le modèle ?
+   ========================================================= */
+function ar(x1,y1,x2,y2,col){
+  var a = Math.atan2(y2-y1, x2-x1), L = 8, W = 4.4;
+  var ax = x2 - Math.cos(a)*L, ay = y2 - Math.sin(a)*L;
+  return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + ax.toFixed(1) + '" y2="' + ay.toFixed(1) +
+         '" stroke="' + col + '" stroke-width="2"/>' +
+         '<polygon points="' + x2 + ',' + y2 + ' ' +
+           (ax + Math.sin(a)*W).toFixed(1) + ',' + (ay - Math.cos(a)*W).toFixed(1) + ' ' +
+           (ax - Math.sin(a)*W).toFixed(1) + ',' + (ay + Math.cos(a)*W).toFixed(1) +
+         '" fill="' + col + '"/>';
+}
+var S6 = {
+  fr:{
+    btn:['Par un site web','Par une API','Sur ma machine'],
+    z:['Mon appareil','Internet','Le data center de l’éditeur'],
+    net:'paquets · routeurs',
+    unused:'non utilisé',
+    mdl:'LE MODÈLE', mdlsub:'des milliards de paramètres',
+    up:'ma question', down:'la réponse',
+    k:['Le calcul','Les poids','Mon texte','Sans réseau','Ce que je paie'],
+    modes:[
+      { dev:'un navigateur', loc:false,
+        v:['chez l’éditeur, sur ses cartes graphiques','chez l’éditeur, je n’y ai pas accès',
+           'part sur le réseau et arrive chez l’éditeur','impossible','un abonnement mensuel, ou rien'],
+        c:['','','n','n',''],
+        n:'Le chemin le plus simple, et celui qu’on utilise tous&nbsp;: <b>zéro installation</b>, le modèle le plus gros, la dernière version. En échange, <b>tout ce que je tape sort de chez moi</b>, et je ne choisis ni le modèle ni le moment où il change.' },
+      { dev:'mon programme', loc:false, key:'+ clé d’API',
+        v:['chez l’éditeur, sur ses cartes graphiques','chez l’éditeur, je n’y ai pas accès',
+           'part sur le réseau, accompagné d’une clé qui m’identifie','impossible','à l’usage, par million de tokens'],
+        c:['','','n','n',''],
+        n:'Techniquement identique au site web&nbsp;: c’est la même machine qui calcule. Ce qui change, c’est <b>qui pose la question</b> — un programme, et non un humain. C’est la seule façon de <b>construire</b> quelque chose avec un modèle, et c’est ce qui rend les outils et les agents possibles.' },
+      { dev:'mon programme', loc:true,
+        v:['sur mon appareil, avec ma propre puce','sur mon disque dur, dans un fichier que j’ai téléchargé',
+           'ne sort jamais de la machine','ça marche, même en avion','du matériel une fois, puis de l’électricité'],
+        c:['','','y','y',''],
+        n:'Le modèle est un <b>fichier</b> comme un autre. Rien ne sort, rien ne se périme, personne ne coupe le service. Mais c’est <b>ma</b> machine qui calcule&nbsp;: le modèle sera plus petit, donc moins savant et plus lent — la scène suivante dit à quel point.' }
+    ]
+  },
+  en:{
+    btn:['Through a website','Through an API','On my own machine'],
+    z:['My device','The Internet','The provider’s data centre'],
+    net:'packets · routers',
+    unused:'not used',
+    mdl:'THE MODEL', mdlsub:'billions of parameters',
+    up:'my question', down:'the answer',
+    k:['The computing','The weights','My text','Offline','What I pay'],
+    modes:[
+      { dev:'a browser', loc:false,
+        v:['at the provider’s, on its graphics cards','at the provider’s, out of my reach',
+           'leaves over the network and lands at the provider’s','impossible','a monthly subscription, or nothing'],
+        c:['','','n','n',''],
+        n:'The simplest route, and the one we all use: <b>zero setup</b>, the biggest model, the latest version. In exchange, <b>everything I type leaves my home</b>, and I choose neither the model nor the moment it changes.' },
+      { dev:'my program', loc:false, key:'+ API key',
+        v:['at the provider’s, on its graphics cards','at the provider’s, out of my reach',
+           'leaves over the network, with a key identifying me','impossible','per use, by the million tokens'],
+        c:['','','n','n',''],
+        n:'Technically identical to the website: the same machine does the computing. What changes is <b>who asks</b> — a program, not a human. It is the only way to <b>build</b> something with a model, and it is what makes tools and agents possible.' },
+      { dev:'my program', loc:true,
+        v:['on my device, with my own chip','on my hard drive, in a file I downloaded',
+           'never leaves the machine','works, even on a plane','hardware once, then electricity'],
+        c:['','','y','y',''],
+        n:'The model is a <b>file</b> like any other. Nothing leaves, nothing expires, nobody cuts the service off. But <b>my</b> machine does the computing: the model will be smaller, so less knowledgeable and slower — the next scene says by how much.' }
+    ]
+  }
+};
+var s6i = 0;
+function drawS6(){
+  var t = S6[LG()], m = t.modes[s6i];
+  pickbtns('s6btns', t.btn, s6i, function(i){ s6i = i; drawS6(); });
+  var off = m.loc ? ' off' : '';
+  var s = '';
+  s += '<rect class="zone" x="8" y="30" width="170" height="160"/>';
+  s += '<rect class="zone' + off + '" x="196" y="30" width="168" height="160"/>';
+  s += '<rect class="zone' + off + '" x="382" y="30" width="170" height="160"/>';
+  s += '<text class="ttl" x="93" y="22" text-anchor="middle">' + t.z[0].toUpperCase() + '</text>';
+  s += '<text class="ttl" x="280" y="22" text-anchor="middle" opacity="' + (m.loc ? '.35' : '1') + '">' + t.z[1].toUpperCase() + '</text>';
+  s += '<text class="ttl" x="467" y="22" text-anchor="middle" opacity="' + (m.loc ? '.35' : '1') + '">' + t.z[2].toUpperCase() + '</text>';
+  /* l'appareil */
+  var dy = m.loc ? 46 : 58;
+  s += '<rect x="28" y="' + dy + '" width="130" height="34" fill="rgba(233,228,216,.1)" stroke="#a9a294" stroke-width="1.2"/>';
+  s += '<text x="93" y="' + (dy + 21) + '" text-anchor="middle" fill="#e9e4d8">' + m.dev + '</text>';
+  /* le modèle */
+  var mx = m.loc ? 23 : 397, my = m.loc ? 110 : 58;
+  s += '<rect class="mdl" x="' + mx + '" y="' + my + '" width="140" height="46"/>';
+  s += '<text class="ttl" x="' + (mx+70) + '" y="' + (my+20) + '" text-anchor="middle" fill="#7fa0ff">' + t.mdl + '</text>';
+  s += '<text x="' + (mx+70) + '" y="' + (my+35) + '" text-anchor="middle" fill="#9db4ff" style="font-size:9px">' + t.mdlsub + '</text>';
+  if(m.loc){
+    s += ar(72, 82, 72, 106, '#1f5cff');
+    s += ar(114, 106, 114, 84, '#4cc98a');
+    s += '<text x="280" y="110" text-anchor="middle" opacity=".45">' + t.unused + '</text>';
+    s += '<text x="467" y="110" text-anchor="middle" opacity=".45">' + t.unused + '</text>';
+    s += '<text x="93" y="174" text-anchor="middle" fill="#9db4ff">' + t.up + ' ⇅ ' + t.down + '</text>';
+  } else {
+    for(var g = 0; g < 7; g++){
+      var gx = 206 + g * 25;
+      s += '<line x1="' + gx + '" y1="46" x2="' + gx + '" y2="162" stroke="rgba(233,228,216,.1)" stroke-width="1" stroke-dasharray="3 5"/>';
+    }
+    /* aller : une flèche droite, l'étiquette au-dessus */
+    s += ar(160, 75, 393, 75, '#1f5cff');
+    s += '<text x="277" y="68" text-anchor="middle" fill="#7fa0ff">' + t.up + (m.key ? ' ' + m.key : '') + '</text>';
+    /* retour : il redescend, traverse, et remonte vers l'appareil */
+    s += '<polyline points="467,106 467,140 93,140" fill="none" stroke="#4cc98a" stroke-width="2"/>';
+    s += ar(93, 140, 93, 96, '#4cc98a');
+    s += '<text x="277" y="133" text-anchor="middle" fill="#4cc98a">' + t.down + '</text>';
+    s += '<text x="280" y="176" text-anchor="middle" opacity=".5">' + t.net + '</text>';
+  }
+  document.getElementById('s6svg').innerHTML = s;
+  document.getElementById('s6rows').innerHTML = t.k.map(function(k,i){
+    return '<div class="drw"><div class="dk">' + k + '</div>' +
+           '<div class="dv ' + m.c[i] + '">' + m.v[i] + '</div></div>';
+  }).join('');
+  document.getElementById('s6verd').innerHTML = m.n;
+}
+
+/* =========================================================
+   SCÈNE 7 — combien ça pèse ?
+   ========================================================= */
+var S7 = {
+  fr:{
+    m:['« de poche » · 0,5 milliard','petit · 3 milliards','moyen · 8 milliards',
+       'grand · 70 milliards','très grand · 400 milliards'],
+    p:['16 bits · 2 octets par paramètre','8 bits · 1 octet par paramètre','4 bits · un demi-octet'],
+    calc:'%P milliards de paramètres<br>× %B octet%S par paramètre<br>= <b>%G Go</b>',
+    mc:['Un téléphone récent','Le PC de la salle informatique','Un PC avec une bonne carte graphique',
+        'Un serveur de calcul','Une grappe de serveurs'],
+    cap:['~4 Go','~8 Go','~24 Go','~160 Go','au-delà'],
+    ok:'Ça tient sur <b>%M</b> — et sur tout ce qui est plus gros. Comptez tout de même <b>20&nbsp;% de marge</b>&nbsp;: la conversation en cours occupe aussi de la mémoire.',
+    no:'<b>Aucune machine à votre portée ne suffit&nbsp;:</b> il faut une <b>grappe de serveurs</b>. Un tel modèle ne tourne qu’en répartissant ses paramètres sur <b>plusieurs cartes à la fois</b>. Voilà pourquoi les plus gros modèles ne sont accessibles que par une <b>API</b>&nbsp;: personne ne les héberge chez soi.'
+  },
+  en:{
+    m:['pocket-sized · 0.5 billion','small · 3 billion','medium · 8 billion',
+       'large · 70 billion','very large · 400 billion'],
+    p:['16-bit · 2 bytes per parameter','8-bit · 1 byte per parameter','4-bit · half a byte'],
+    calc:'%P billion parameters<br>× %B byte%S per parameter<br>= <b>%G GB</b>',
+    mc:['A recent phone','The computer-room PC','A PC with a good graphics card',
+        'A single compute server','A cluster of servers'],
+    cap:['~4 GB','~8 GB','~24 GB','~160 GB','beyond'],
+    ok:'It fits on <b>%M</b> — and on anything larger. Still allow <b>20% headroom</b>: the ongoing conversation takes memory too.',
+    no:'<b>No machine within your reach is enough:</b> it takes a <b>cluster of servers</b>. Such a model only runs by spreading its parameters across <b>several cards at once</b>. That is why the biggest models are reachable only through an <b>API</b>: nobody runs them at home.'
+  }
+};
+var S7P = [0.5, 3, 8, 70, 400];
+var S7B = [2, 1, 0.5];
+var S7C = [4, 8, 24, 160, 1e9];
+var s7m = 2, s7p = 0;
+function fillsel(id, arr, cur){
+  var e = document.getElementById(id);
+  e.innerHTML = arr.map(function(l,i){ return '<option value="' + i + '">' + l + '</option>'; }).join('');
+  e.value = cur;
+}
+function drawS7(){
+  var t = S7[LG()];
+  fillsel('s7m', t.m, s7m); fillsel('s7p', t.p, s7p);
+  var go = S7P[s7m] * S7B[s7p];
+  document.getElementById('s7out').innerHTML = t.calc
+    .replace('%P', fnum(S7P[s7m], S7P[s7m] < 1 ? 1 : 0))
+    .replace('%B', fnum(S7B[s7p], S7B[s7p] < 1 ? 1 : 0))
+    .replace('%S', S7B[s7p] >= 2 ? 's' : '')
+    .replace('%G', fnum(go, go < 10 ? 1 : 0));
+  var first = -1;
+  document.getElementById('s7mach').innerHTML = t.mc.map(function(name,i){
+    var fits = (go <= S7C[i]);
+    if(fits && first < 0 && i < 4) first = i;
+    return '<div class="mach ' + (fits ? 'ok' : 'no') + '"><div class="ic">' + (fits ? '✓' : '✕') + '</div>' +
+           '<div>' + name + '</div><div class="cap">' + t.cap[i] + '</div></div>';
+  }).join('');
+  document.getElementById('s7verd').innerHTML =
+    (first >= 0) ? t.ok.replace('%M', t.mc[first].toLowerCase()) : t.no;
+}
+document.getElementById('s7m').onchange = function(){ s7m = +this.value; drawS7(); };
+document.getElementById('s7p').onchange = function(){ s7p = +this.value; drawS7(); };
+
+/* =========================================================
+   REDESSIN GLOBAL (appelé aussi au changement de langue)
+   ========================================================= */
+function redrawAll(){ drawS2(); drawS3(); drawS4(); drawS5(); drawS6(); drawS7(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Internet, le Web et les API`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`The Internet, the Web and APIs`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · Retrieve before answering`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`How two machines<br><em>talk to each other</em>`,
+  's0.line':`Last lesson, <strong style="color:#fff">we</strong> did the searching on its behalf. For an assistant to fetch documents itself, it must know how to knock on other machines' doors. Those doors have a name: <strong style="color:#fff">APIs</strong>. And before we get there, two words need putting back in their place: the Internet and the Web.`,
+  's0.kick':`Internet · Web · URL · API · JSON · where the model runs`,
+
+  /* --- 1 · internet ≠ web --- */
+  's1.eye':`Two words we mix up every day`,
+  's1.t':`The Internet<br>is not the Web`,
+  's1.lead':`We use one for the other, and it is a mistake worth fixing: everything else in this lesson depends on it. One is a <b>network</b>, the other is a <b>service travelling on it</b>. Like the road and the coach.`,
+  's1.c1':`<h3>The Internet</h3>
+          <div class="sub">the infrastructure · 1969 →</div>
+          <p>Cables, aerials, routers, and an agreement on how to cut messages into <b>packets</b> and address them. The Internet does not know what it carries: it carries.</p>
+          <p class="ex">IP addresses · packets · routing</p>`,
+  's1.c2':`<h3>The Web</h3>
+          <div class="sub">one service among many · 1991 →</div>
+          <p>A system of <b>pages linked to one another</b>, invented thirty years later, travelling through the Internet's pipes. Addresses (URLs), a page language (HTML), a way of asking (HTTP).</p>
+          <p class="ex">URL · HTTP · HTML · links</p>`,
+  's1.note':`Through the same pipes also travel <b>email</b>, <b>video calls</b>, <b>online games</b>, the apps on your phone — and <b>APIs</b>, in a moment. None of these services is &ldquo;the Web&rdquo;. Saying &ldquo;I am going on the Internet&rdquo; when you open a browser is like saying &ldquo;I am going on the road&rdquo; when you take the bus.`,
+
+  /* --- 2 · une adresse, cinq étapes --- */
+  's2.eye':`Manipulation ① · what happens when you type an address`,
+  's2.t':`One address,<br>five steps`,
+  's2.lead':`A <b>URL</b> is not a site's name: it is a sentence in four parts, and each part does a job. Pick an address, then read the journey.`,
+  's2.lg1':`<b>■</b> scheme — how we talk`,
+  's2.lg2':`<b>■</b> domain name — who we talk to`,
+  's2.lg3':`<b>■</b> path — what, at their end`,
+  's2.lg4':`<b>■</b> parameters — some details`,
+
+  /* --- 3 · trois générations --- */
+  's3.eye':`Manipulation ② · thirty years of Web in one table`,
+  's3.t':`URL, keywords,<br>intent`,
+  's3.lead':`The Web did not change its pipes, it changed the <b>way you ask</b>. Pick a need, and watch how each generation goes about it.`,
+  's3.h1':`Generation`, 's3.h2':`What you do`, 's3.h3':`What you get`, 's3.h4':`Verdict`,
+
+  /* --- 4 · deux emballages --- */
+  's4.eye':`Manipulation ③ · the same information, two audiences`,
+  's4.t':`What is<br>an API?`,
+  's4.lead':`One and the same server can answer in two ways: a <b>page</b>, made for eyes, or <b>bare data</b>, made for a program. That second door is an <b>API</b> — application programming interface, the interface through which one program addresses another.`,
+  's4.hl':`For a human`,
+  's4.hr':`For a program`,
+  's4.note':`Same data, two wrappings. The page carries a menu, an advert, a layout that will change next year; the <b>JSON</b> carries only the information, and keeps the same shape — it is a <b>contract</b>. A program can rely on it; on a page, it would have to guess at a layout.`,
+
+  /* --- 5 · appeler un modèle --- */
+  's5.eye':`Manipulation ④ · a model's API, and its goldfish memory`,
+  's5.t':`Calling a model`,
+  's5.lead':`A language model is called exactly like the weather: you send JSON, you get JSON back. With one surprise: the API <b>keeps nothing</b> between two calls. Click to continue the conversation and watch what goes over the network.`,
+  's5.b1':`Next message ▶`,
+  's5.b2':`Start over`,
+  's5.c1':`<h3>No memory</h3>
+          <div class="sub">the model is stateless</div>
+          <p>On every call, the program <b>resends the whole history</b>. The model rereads the entire conversation as if discovering it, predicts what comes next — and forgets at once.</p>
+          <p>So what a chat calls &ldquo;memory&rdquo; is a feature of <b>the application</b>, not of the model. More on that next lesson.</p>`,
+
+  /* --- 6 · où est le modèle --- */
+  's6.eye':`Manipulation ⑤ · the most concrete question of the lesson`,
+  's6.t':`Where is the model?`,
+  's6.lead':`The same AI can be queried in three ways, and this is no mere matter of convenience: each time, <b>your text does not go to the same place</b>, and it is not the same machine doing the computing.`,
+
+  /* --- 7 · la taille --- */
+  's7.eye':`Manipulation ⑥ · why not everyone has one at home`,
+  's7.t':`How much does<br>it weigh?`,
+  's7.lead':`&ldquo;On my machine&rdquo; assumes the model fits there. The <b>parameters</b> from last lesson are numbers: it is enough to count the bytes, as in the chapter on encoding. Pick a model and a precision.`,
+  's7.k1':`Model`, 's7.k2':`Precision`,
+  's7.c1':`<h3>Quantising</h3>
+          <div class="sub">the same trade-off as in block 3</div>
+          <p>Keeping fewer digits per parameter makes the file lighter by just as much. It is exactly the choice made for a photo or a sound: <b>fewer bytes, slightly less fidelity</b>.</p>
+          <p>Down to 8 or 4 bits the loss is small. Below that, the model degrades visibly.</p>`,
+
+  /* --- 8 · libre ou pas --- */
+  's8.eye':`A word we overuse`,
+  's8.t':`&ldquo;Open&rdquo;:<br>three degrees`,
+  's8.lead':`To download a model, someone has to hand it over. But &ldquo;open&rdquo; is not a yes or a no: it is a slider with several notches, and the word is often used as a sales pitch.`,
+  's8.c1':`<h3>Closed</h3>
+          <div class="sub">only the door</div>
+          <p>The model stays with its publisher. You call it through its <b>API</b>, and that is all. You cannot download it, inspect it, or keep it: it may change or vanish overnight.</p>
+          <p class="ex">access: API · weights: no · data: no</p>`,
+  's8.c2':`<h3>Open weights</h3>
+          <div class="sub">the commonest case</div>
+          <p>The <b>parameter</b> file can be downloaded. You can run it at home, study it, modify it. But the <b>training data</b> stays secret, and the licence may forbid certain uses.</p>
+          <p class="ex">access: download · weights: yes · data: no</p>`,
+  's8.c3':`<h3>Genuinely free</h3>
+          <div class="sub">rare</div>
+          <p>Weights, training <b>code</b>, a <b>description of the data</b> and a free licence. You can not only use it but <b>rebuild</b> it, and check what it has read.</p>
+          <p class="ex">access: everything · weights: yes · data: documented</p>`,
+  's8.note':`Three traps of vocabulary. <b>Open weights is not open source</b>: without the data or the code, you cannot rebuild the model, only use it. <b>Open is not free</b>: the file costs nothing, the electricity and the machine do. And <b>closed is not necessarily better</b>: the gap has narrowed a great deal.`,
+
+  /* --- 9 · le comparatif --- */
+  's9.eye':`The synthesis — to copy into your notes`,
+  's9.t':`Three routes,<br>three trade-offs`,
+  's9.lead':`None of the three columns is &ldquo;the right one&rdquo;. Each trades something for something else: that is what a technical choice is.`,
+  's9.tbl':`<tr><th></th><th>Website</th><th>API</th><th>On my machine</th></tr>
+        <tr><td><b>Who computes</b></td><td>a data centre</td><td>a data centre</td><td class="y">my device</td></tr>
+        <tr><td><b>Where the weights are</b></td><td>at the publisher's</td><td>at the publisher's</td><td class="y">on my disk</td></tr>
+        <tr><td><b>Who sees my text</b></td><td class="n">the publisher</td><td class="n">the publisher</td><td class="y">nobody</td></tr>
+        <tr><td><b>Offline</b></td><td class="n">no</td><td class="n">no</td><td class="y">yes</td></tr>
+        <tr><td><b>Model size</b></td><td class="y">the largest</td><td class="y">the largest</td><td class="m">whatever fits</td></tr>
+        <tr><td><b>What you pay</b></td><td>a subscription</td><td>per use, by the million tokens</td><td class="m">hardware, then electricity</td></tr>
+        <tr><td><b>Who picks the version</b></td><td class="n">the publisher</td><td class="m">you pin a version</td><td class="y">me, and it never moves</td></tr>
+        <tr><td><b>For a program</b></td><td class="n">not intended</td><td class="y">that is the point</td><td class="y">yes, locally</td></tr>
+        <tr><td><b>Setting up</b></td><td class="y">nothing</td><td class="m">a little code, a key</td><td class="n">installation and hardware</td></tr>`,
+  's9.note':`One example to fix ideas: the school wants an assistant that answers questions about the <b>school rules</b>. Through the API it is live next week, but the pupils' questions leave the building. Locally nothing leaves — but you need a machine, and the model will be smaller, hence clumsier. <b>The choice is as much legal as technical.</b>`,
+
+  /* --- 10 · charnière --- */
+  's10.eye':`The question that opens what follows`,
+  's10.q':`What if it knocked<br>on those doors<br><em>itself</em>?`,
+  's10.a':`We now know that one machine can call another in three lines of code. Nothing stops us giving that ability to <b>the model</b>: describe the available doors to it — a search, a calculator, the school timetable — and let it choose which to open. That is what we call a <b>tool</b>. And from there an assistant becomes a real piece of software, with layers we can name one by one.`,
+  's10.next':`Next lesson · Under the microscope: anatomy of an assistant`,
+
+  /* --- 11 · activité --- */
+  's11.tag':`Lesson activity · 30 minutes · in groups of three or four`,
+  's11.t':`You are<br>the school's <em>API</em>`,
+  's11.sub':`On paper, no computers. The aim is not to write code: it is to discover that an API is first of all a <b>decision</b>.`,
+  's11.l1':`<b>The service.</b> Choose one piece of school information: the canteen menus, the library hours, the free rooms, the tournament results. Just one.`,
+  's11.l2':`<b>The page.</b> Sketch in thirty seconds the <b>web page</b> you would build for a pupil: title, layout, what is big, what is small.`,
+  's11.l3':`<b>The JSON.</b> Now write the <b>answer for a program</b>. You choose the field names and how to split things up: <code>date</code>, <code>dish</code>, <code>vegetarian</code>… Careful: those names are a <b>contract</b>, they will not change again.`,
+  's11.l4':`<b>The neighbour's test.</b> Swap JSON — <b>not</b> pages. Write <b>three questions</b> the JSON you received can answer, and <b>one</b> it cannot.`,
+  's11.l5':`<b>The negotiation.</b> Hand the fourth question back to its author. Should a field be added? Which one? Who will have to update what? This is exactly what a technical team does.`,
+  's11.l6':`<b>The verdict.</b> The school wants an assistant answering about this service. Pick <b>website, API or local</b> from the table in scene 9, and defend your choice in two sentences — one of them about <b>pupils' data</b>.`,
+
+  /* --- 12 · récap --- */
+  'rc.eye':`Lesson 10 · what to remember`,
+  'rc.t':`The Internet, the Web <span>and APIs</span>`,
+  'rc.i1':`The <span class="hl">Internet</span> is the network — cables and packets. The <span class="hl">Web</span> is a service travelling inside it, invented thirty years later. Email, video calls and APIs travel there too.`,
+  'rc.i2':`A <span class="hl">URL</span> reads in four parts: <b>scheme</b>, <b>domain name</b>, <b>path</b>, <b>parameters</b>. <span class="hl">DNS</span> turns the name into an address, then <span class="hl">HTTP</span> carries the request and the answer.`,
+  'rc.i3':`The Web has had three generations: <span class="hl">URL</span> (I know the address) → <span class="hl">keywords</span> (I look for pages) → <span class="hl">intent</span> (I state my request). They do not replace each other, they stack.`,
+  'rc.i4':`An <span class="hl">API</span> is a door made for programs: the same data, with no layout. The usual format is <span class="hl">JSON</span>, a thousand times lighter than a page — and stable, which makes it a <b>contract</b>.`,
+  'rc.i5':`A model's API is <span class="hl">stateless</span>: it keeps nothing. The program <b>resends the whole history</b> on every call — hence the rising cost, and hence the fact that &ldquo;memory&rdquo; is a feature of the application.`,
+  'rc.i6':`Three ways to query an AI: <span class="hl">website</span>, <span class="hl">API</span>, <span class="hl">on your own machine</span>. They differ on who computes, where the weights are, who sees the text, and what you pay.`,
+  'rc.i7':`A model weighs <b>parameters × bytes per parameter</b>, a weight <span class="hl">quantising</span> divides. And <span class="hl">open</span> is a slider — closed, open weights, genuinely free — never a switch.`,
+  'rc.v1':`<b>URL</b>A resource’s address.`,
+  'rc.v2':`<b>DNS</b>The directory of domain names.`,
+  'rc.v3':`<b>HTTP</b>The Web’s protocol.`,
+  'rc.v4':`<b>API</b>The door made for programs.`,
+  'rc.v5':`<b>JSON</b>The data format of APIs.`,
+  'rc.v6':`<b>Stateless</b>No recollection from one call to the next.`,
+  'rc.v7':`<b>Open weights</b>The parameters, not the data.`,
+  'rc.v8':`<b>Quantising</b>Fewer bits per parameter.`,
+  'rc.key':`Next step: <b>putting an assistant under the microscope — the model, the context, the tools, the memory, the multimodal, the interfaces.</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>

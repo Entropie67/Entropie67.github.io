@@ -106,7 +106,7 @@
     </div>
 
     <div class="pl-state">
-      <span class="pl-pill"><b>9</b> séances prêtes</span>
+      <span class="pl-pill"><b>10</b> séances prêtes</span>
       <span class="pl-pill"><b>7</b> blocs</span>
       <span class="pl-pill">Narration de l'année : <b>émerveillement → démontage → reconstruction</b></span>
     </div>
@@ -203,18 +203,20 @@
             <h3>Connecter l'IA au monde <span style="color:var(--accent-snt);font-size:.8rem">★ morceau vedette</span></h3>
             <div class="pl-q">« Il faut aller chercher l'information. Où, et comment ? »</div>
           </div>
-          <span class="pl-status st-part">1 séance prête · à compléter</span>
+          <span class="pl-status st-part">2 séances prêtes · à compléter</span>
         </div>
         <div class="pl-chips">
           <span class="pl-chip key">RAG</span><span class="pl-chip">embeddings — en usage réel</span>
           <span class="pl-chip">Internet ≠ Web</span><span class="pl-chip">le Web à l'ère de l'IA</span>
-          <span class="pl-chip">API</span><span class="pl-chip">outils</span>
+          <span class="pl-chip">API</span><span class="pl-chip">où tourne le modèle</span><span class="pl-chip">poids ouverts</span><span class="pl-chip">outils</span>
           <span class="pl-chip key">agents</span>
         </div>
         <div class="pl-links">
           <a class="pl-link" href="ressources/chercher.html">▶ Chercher avant de répondre</a>
+          <a class="pl-link" href="ressources/internet.html">▶ Internet, le Web et les API</a>
         </div>
         <p class="pl-note"><b>Ouverture du bloc</b> — la séance «&nbsp;chercher avant de répondre&nbsp;» répond à la question de sortie du bloc 3 et pose les trois endroits où vit une information (<em>appris · contexte · cherché</em>). Les <b>embeddings</b> y passent de l'intuition à l'usage&nbsp;: carte des sens, puis une vraie parenthèse sur la <b>notion de distance</b> (Manhattan, euclidienne, cosinus — trois réponses pour les deux mêmes points), et le choix de l'angle pour le sens — puis le <b>RAG</b> en quatre temps, sa différence d'avec le fine-tuning, et ses quatre façons d'échouer. Elle se referme sur&nbsp;: <em>«&nbsp;et s'il allait chercher tout seul&nbsp;?&nbsp;»</em> — d'où la suite&nbsp;: Internet, le Web et les API.</p>
+        <p class="pl-note"><b>La séance 10</b> — «&nbsp;Internet, le Web et les API&nbsp;» remet les deux mots à leur place, lit une <b>URL</b> en quatre morceaux et suit le trajet d'une requête, parcourt les <b>trois générations</b> du Web sur un même besoin, puis ouvre la porte des programmes&nbsp;: une <b>API</b>, le <b>JSON</b>, et l'API d'un modèle qui est <b>sans état</b> — d'où le coût qui grimpe et la «&nbsp;mémoire&nbsp;» qui n'est pas dans le modèle. Elle se termine sur la question la plus concrète du bloc : <b>site web, API ou sur ma machine</b> — avec le poids d'un modèle en octets, la <b>quantification</b> et les trois degrés d'«&nbsp;ouvert&nbsp;». Charnière : <em>«&nbsp;et s'il frappait à ces portes lui-même&nbsp;?&nbsp;»</em> → les <b>outils</b>.</p>
         <p class="pl-note"><b>La progression technique</b> — chaque étape ajoute une brique :<br>
           ① une page Web <code>GET → serveur → HTML</code> · ② une API <code>requête JSON → réponse JSON</code> ·
           ③ une API de LLM <code>prompt → modèle → réponse</code> · ④ un LLM avec outils <code>le modèle choisit un outil</code> ·
@@ -344,7 +346,13 @@
           <tr><td>RAG</td><td class="lvl"><b>Comprendre le principe</b></td></tr>
           <tr><td>Fine-tuning</td><td class="lvl"><b>Savoir le distinguer</b> du RAG</td></tr>
           <tr><td>Attention / Transformer</td><td class="lvl"><b>Aperçu</b> seulement</td></tr>
+          <tr><td>Internet ≠ Web</td><td class="lvl"><b>Savoir distinguer</b></td></tr>
+          <tr><td>URL, DNS, HTTP</td><td class="lvl"><b>Comprendre et lire</b></td></tr>
           <tr><td>API</td><td class="lvl"><b>Comprendre + manipuler</b></td></tr>
+          <tr><td>JSON</td><td class="lvl"><b>Lire</b>, et nommer ses champs</td></tr>
+          <tr><td>Où tourne le modèle (site · API · local)</td><td class="lvl"><b>Comprendre et argumenter</b></td></tr>
+          <tr><td>Poids d'un modèle, quantification</td><td class="lvl"><b>Ordre de grandeur</b>, calcul simple</td></tr>
+          <tr><td>Ouvert / poids ouverts / fermé</td><td class="lvl"><b>Savoir distinguer</b></td></tr>
           <tr><td>Agent</td><td class="lvl"><b>Comprendre l'architecture</b></td></tr>
           <tr><td>Recommandation</td><td class="lvl"><b>Comprendre + expérimenter</b></td></tr>
         </tbody>
