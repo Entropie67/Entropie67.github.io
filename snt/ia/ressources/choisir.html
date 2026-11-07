@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quel rapport je veux avoir</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- s1 : les phrases qu'on entend ---------- */
+  .claimbox{border-left:4px solid var(--alarm);background:var(--paper-2);padding:.55rem .8rem;margin-bottom:.45rem}
+  .claimbox .cq{font-family:var(--serif);font-size:clamp(.92rem,1.75vw,1.2rem);color:var(--ink);
+    line-height:1.32;font-style:italic}
+  .vdict{display:inline-block;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;
+    text-transform:uppercase;padding:.2rem .45rem;border:1px solid currentColor;margin-bottom:.35rem}
+  .vdict.f{color:var(--alarm)}
+  .vdict.p{color:#8a6a10}
+  .vdict.o{color:var(--signal-dk)}
+  .srcs{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;color:var(--muted);margin-top:.35rem}
+
+  /* ---------- s2 : le fil rouge ---------- */
+  .thread{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.4rem;
+    max-width:98ch;margin:.3rem auto}
+  .tnode{flex:1 1 9.5rem;max-width:13rem;border:1px solid rgba(233,228,216,.22);
+    background:rgba(233,228,216,.04);padding:.45rem .55rem}
+  .tnode .tn{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:.12rem}
+  .tnode .tt{font-family:var(--display);text-transform:uppercase;font-size:clamp(.72rem,1.22vw,.86rem);
+    line-height:1.08;color:#e9e4d8;margin-bottom:.15rem}
+  .tnode .td{font-family:var(--serif);font-size:clamp(.68rem,1.14vw,.79rem);color:#a9a294;line-height:1.3}
+
+  /* ---------- s3 : le positionnement ---------- */
+  .scale{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .45rem;justify-content:center}
+  .sc{cursor:pointer;font-family:var(--mono);font-size:.64rem;letter-spacing:.04em;text-transform:uppercase;
+    padding:.42rem .7rem;border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);
+    color:#c9c2b2;transition:.15s;max-width:14rem;line-height:1.25;text-align:center}
+  .sc:hover{border-color:var(--signal)}
+  .sc.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .args{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.5rem;margin-top:.3rem}
+  .arg{border:1px solid rgba(233,228,216,.2);background:rgba(233,228,216,.04);padding:.45rem .65rem}
+  .arg .h{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;
+    margin-bottom:.14rem}
+  .arg.pro .h{color:#7fe0ac}
+  .arg.con .h{color:#ff8a72}
+  .arg p{font-family:var(--serif);font-size:clamp(.75rem,1.28vw,.9rem);color:#cfc8b8;line-height:1.34}
+  .arg p b{color:#fff}
+
+  /* ---------- s10 : le bilan de l'année ---------- */
+  .yr{display:grid;grid-template-columns:repeat(auto-fit,minmax(10.5rem,1fr));gap:.4rem;
+    max-width:98ch;margin:.3rem auto}
+  .yrb{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:.42rem .55rem}
+  .yrb .n{font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--signal-dk)}
+  .yrb .t{font-family:var(--serif);font-size:clamp(.74rem,1.22vw,.88rem);color:#3a352c;line-height:1.3}
+
+  /* ---------- resserrements de projection ---------- */
+  #s10 .rc-list{gap:.26rem}
+  #s10 .rc-list li{font-size:clamp(.76rem,1.35vw,.91rem);line-height:1.33}
+  #s10 .rc-voc{gap:.35rem}
+  #s10 .rc-term{font-size:.71rem;padding:.38rem .52rem}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="droit.html" data-i18n="s0.back">◂ Séance précédente · Ce que dit la loi</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA · dernière séance</div>
+    <h1 class="big" data-i18n="s0.big">Dix-huit séances.<br>Une seule <em>question</em><br>vous reste.</h1>
+    <p class="line" data-i18n="s0.line">Vous savez ce qu'il y a dans la boîte, ce que ça coûte, ce que dit la loi. Tout cela était <strong style="color:#fff">vérifiable</strong>. Ce qui reste ne l'est pas&nbsp;: <strong style="color:#fff">quel rapport vous voulez avoir avec ces outils.</strong> Cette séance ne vous donnera pas la réponse — elle vous donne de quoi la défendre.</p>
+    <div class="kick" data-i18n="s0.kick">Réviser · se situer · distinguer faits et valeurs · débattre</div>
+  </div>
+
+  <!-- ============ 1 · LES PHRASES QU'ON ENTEND ============ -->
+  <div class="pane light pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Manipulation · dix phrases, et ce qu'on peut en dire</div>
+    <h2 class="stitle" data-i18n="s1.t">Tout ce que vous<br>pouvez corriger</h2>
+    <p class="lead" data-i18n="s1.lead">Voici dix phrases que vous entendrez cette semaine. Après dix-huit séances, vous pouvez répondre à chacune — et dire <b>d'où vient votre réponse</b>. C'est la révision de l'année.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s1btns"></div>
+      <div class="claimbox" id="s1q"></div>
+      <div id="s1a"></div>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LE FIL ROUGE ============ -->
+  <div class="pane dark pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">L'année en une page</div>
+    <h2 class="stitle" data-i18n="s2.t">Une seule chose,<br>huit transformations</h2>
+    <p class="lead" data-i18n="s2.lead">Si vous ne deviez retenir qu'un schéma, c'est celui-ci. Tout le cours suit <b>l'information</b> — depuis le moment où elle devient des nombres jusqu'à celui où elle vous revient, classée.</p>
+
+    <div class="mid">
+      <div class="thread" data-i18n="s2.thread">
+        <div class="tnode"><div class="tn">séances 1 à 4</div><div class="tt">Devenir des nombres</div><div class="td">tokens, pixels, tranches sonores&nbsp;: tout entre sous la même forme</div></div>
+        <div class="tnode"><div class="tn">séances 5 à 7</div><div class="tt">Être stockée</div><div class="td">bits et octets, puis la question de savoir ce qu'est une donnée, et à qui elle est</div></div>
+        <div class="tnode"><div class="tn">séances 8 et 9</div><div class="tt">Devenir des paramètres</div><div class="td">des milliards de boutons réglés par descente de gradient&nbsp;: c'est ça, « apprendre »</div></div>
+        <div class="tnode"><div class="tn">séances 10 et 11</div><div class="tt">Être retrouvée</div><div class="td">ce que le modèle n'a pas appris, il faut aller le chercher&nbsp;: RAG, API</div></div>
+        <div class="tnode"><div class="tn">séance 12</div><div class="tt">Entrer dans le contexte</div><div class="td">tout ce qu'il lit à cet instant — et qui repart à chaque message</div></div>
+        <div class="tnode"><div class="tn">séances 13 et 14</div><div class="tt">Passer par vous</div><div class="td">formuler, itérer, vérifier — et savoir quand ne pas ouvrir</div></div>
+        <div class="tnode"><div class="tn">séances 15 et 16</div><div class="tt">Être classée</div><div class="td">un score, un tri, et des contenus qui n'ont peut-être jamais existé</div></div>
+        <div class="tnode"><div class="tn">séances 17 et 18</div><div class="tt">Coûter, et être encadrée</div><div class="td">de l'énergie, du travail, de la concentration — et un droit qui arrive après</div></div>
+      </div>
+      <p class="chain-note" data-i18n="s2.note">Une seule phrase traverse les dix-huit&nbsp;: <b>à aucun moment la machine ne comprend ce qu'elle manipule.</b> Elle transforme des nombres selon des règles que nous avons écrites, avec des paramètres que nous n'avons pas choisis un par un. Tout le reste — l'impression d'intelligence, la fluidité, la confiance — vient de nous.</p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · OÙ VOUS SITUEZ-VOUS ============ -->
+  <div class="pane dark pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Manipulation · six affirmations, aucune bonne réponse</div>
+    <h2 class="stitle" data-i18n="s3.t">Et vous,<br>vous en pensez quoi ?</h2>
+    <p class="lead" data-i18n="s3.lead">Positionnez-vous d'abord, <b>sans réfléchir longtemps</b>. Vous verrez ensuite les deux meilleurs arguments de chaque côté — pas pour vous faire changer d'avis, pour que votre avis tienne debout.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s3btns"></div>
+      <div class="claimbox" id="s3q" style="border-left-color:var(--signal)"></div>
+      <div class="scale nostep" id="s3scale"></div>
+      <div id="s3args"></div>
+    </div>
+  </div>
+
+  <!-- ============ 4 · FAITS ET VALEURS ============ -->
+  <div class="pane light pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">L'outil le plus utile de l'année</div>
+    <h2 class="stitle" data-i18n="s4.t">Deux désaccords<br>qu'on confond toujours</h2>
+    <p class="lead" data-i18n="s4.lead">La plupart des discussions sur l'IA s'enlisent parce qu'on mélange deux choses différentes. Les séparer ne règle pas le désaccord — mais ça permet enfin de savoir sur quoi il porte.</p>
+
+    <div class="mid">
+      <div class="cards c2" style="max-width:96ch;margin-left:auto;margin-right:auto">
+        <div class="card" data-i18n="s4.c1">
+          <h3>Un désaccord de fait</h3>
+          <div class="sub">« est-ce que c'est vrai ? »</div>
+          <p>«&nbsp;Un détecteur d'IA est fiable.&nbsp;» «&nbsp;Une requête consomme autant qu'une douche.&nbsp;» «&nbsp;Le modèle va chercher sur Internet.&nbsp;»</p>
+          <p class="ex">Ça se <b>tranche</b>&nbsp;: on cherche, on mesure, on cite. Et il y a une bonne réponse, même si on ne l'a pas encore.</p>
+        </div>
+        <div class="card good" data-i18n="s4.c2">
+          <h3>Un désaccord de valeur</h3>
+          <div class="sub">« qu'est-ce qui compte ? »</div>
+          <p>«&nbsp;Faut-il interdire l'IA aux devoirs&nbsp;?&nbsp;» «&nbsp;Vaut-il mieux un outil moins bon mais libre&nbsp;?&nbsp;» «&nbsp;Le progrès vaut-il cette consommation&nbsp;?&nbsp;»</p>
+          <p class="ex">Ça se <b>discute</b>&nbsp;: on expose ce qu'on met en premier. Il n'y a pas de bonne réponse — mais il y a des <b>arguments meilleurs que d'autres</b>.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s4.note">Le réflexe&nbsp;: devant un désaccord, demandez-vous <b>lequel des deux c'est</b>. Si c'est un fait, arrêtez de débattre et allez vérifier. Si c'est une valeur, arrêtez de chercher la preuve et dites ce que vous mettez en premier. <b>La moitié des disputes sur l'IA sont des désaccords de valeur déguisés en désaccords de fait</b> — et l'autre moitié l'inverse.</p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · DES MÉTIERS ============ -->
+  <div class="pane light pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Ce que ce cours ouvre</div>
+    <h2 class="stitle" data-i18n="s5.t">Quatre métiers<br>que vous ne connaissiez pas</h2>
+    <p class="lead" data-i18n="s5.lead">On parle toujours de «&nbsp;travailler dans l'IA&nbsp;» comme s'il s'agissait d'écrire des modèles. C'est une petite partie. Les métiers qui recrutent le plus sont à côté — et plusieurs n'existaient pas il y a cinq ans.</p>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card" data-i18n="s5.c1">
+          <h3>Qualité des données</h3>
+          <div class="sub">séances 7 et 17</div>
+          <p>Construire, documenter et vérifier les corpus. C'est là que se jouent les biais, et c'est le poste le plus demandé — <b>bien plus que celui qui entraîne le modèle</b>.</p>
+        </div>
+        <div class="card" data-i18n="s5.c2">
+          <h3>Audit d'algorithmes</h3>
+          <div class="sub">séance 18</div>
+          <p>Mesurer les sorties d'un système, groupe par groupe, et produire les preuves que le règlement exige. Métier nouveau, à mi-chemin entre statistique et droit.</p>
+        </div>
+        <div class="card" data-i18n="s5.c3">
+          <h3>Intégration</h3>
+          <div class="sub">séances 11 et 12</div>
+          <p>Brancher un modèle sur les outils et les données d'une organisation. L'essentiel du travail n'est pas le modèle&nbsp;: c'est tout ce qu'il y a autour — les cinq couches de la séance 12.</p>
+        </div>
+        <div class="card" data-i18n="s5.c4">
+          <h3>Dans votre métier</h3>
+          <div class="sub">le cas le plus probable</div>
+          <p>Infirmier, juriste, graphiste, agriculteur, professeur&nbsp;: l'usage éclairé dans un métier qui n'est pas l'informatique. <b>C'est la situation de l'immense majorité d'entre vous</b> — et c'est exactement ce que cette année a préparé.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s5.note">Ce qu'il faut pour les trois premiers&nbsp;: des <b>maths</b> (statistique, un peu d'algèbre linéaire), de la <b>programmation</b> — et, pour deux d'entre eux, du droit ou des sciences sociales. En première, <b>NSI</b> et <b>maths</b> ouvrent la porte&nbsp;; mais le quatrième cas n'en demande aucun des deux.</p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · CE QU'ON NE VOUS A PAS DIT ============ -->
+  <div class="pane dark pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Rigueur · les simplifications assumées</div>
+    <h2 class="stitle" data-i18n="s6.t">Ce qu'on vous a<br>caché, exprès</h2>
+    <p class="lead" data-i18n="s6.lead">Un cours honnête doit finir en disant où il a simplifié. Quatre choses importantes ont été passées sous silence ou arrondies — les voici, avec ce qu'il faut savoir pour aller plus loin.</p>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card" data-i18n="s6.c1">
+          <h3>L'attention</h3>
+          <div class="sub">le cœur des modèles actuels</div>
+          <p>On a dit «&nbsp;des couches de neurones&nbsp;». En réalité les modèles de langage reposent sur une opération précise, l'<b>attention</b>, qui laisse chaque mot regarder tous les autres. C'est le contenu d'un article de 2017 qui a tout changé.</p>
+        </div>
+        <div class="card" data-i18n="s6.c2">
+          <h3>L'apprentissage par renforcement</h3>
+          <div class="sub">séance 17, scène 6</div>
+          <p>L'étape où des humains comparent des réponses est une <b>famille entière</b> d'apprentissage — celle des programmes qui jouent au go, qui pilotent, qui optimisent. On l'a seulement effleurée.</p>
+        </div>
+        <div class="card" data-i18n="s6.c3">
+          <h3>L'interprétabilité</h3>
+          <div class="sub">le chantier ouvert</div>
+          <p>On a dit «&nbsp;personne ne sait à quoi sert ce bouton&nbsp;». C'est vrai — mais toute une recherche essaie d'y voir clair, et commence à identifier des <b>circuits</b> à l'intérieur des modèles.</p>
+        </div>
+        <div class="card" data-i18n="s6.c4">
+          <h3>Les chiffres de 2026</h3>
+          <div class="sub">la simplification la plus dangereuse</div>
+          <p>Tailles de modèles, coûts, performances&nbsp;: tout ce qui est chiffré dans ce cours sera <b>faux dans deux ans</b>. Les mécanismes, eux, tiendront. <b>Retenez les mécanismes, vérifiez les chiffres.</b></p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s6.note">Et une simplification plus profonde, qui n'est pas technique&nbsp;: ce cours a décrit l'IA comme une suite d'objets à comprendre. C'est aussi, et peut-être surtout, une <b>industrie</b>, avec des intérêts, une concurrence et des récits intéressés. <b>Quand quelqu'un vous explique l'IA, demandez-vous toujours ce qu'il vend.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · TROIS QUESTIONS OUVERTES ============ -->
+  <div class="pane dark pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">Ce que personne ne sait</div>
+    <h2 class="stitle" data-i18n="s7.t">Trois questions<br>sans réponse</h2>
+    <p class="lead" data-i18n="s7.lead">Pour finir, trois questions où l'honnêteté consiste à dire «&nbsp;on ne sait pas&nbsp;» — et à savoir <b>pourquoi</b> on ne sait pas, ce qui n'est pas la même chose qu'ignorer.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s7.c1">
+          <h3>Est-ce que ça « comprend » ?</h3>
+          <div class="sub">une question mal posée</div>
+          <p>Le problème n'est pas de mesurer&nbsp;: c'est qu'on n'a pas de définition de «&nbsp;comprendre&nbsp;» qui mette tout le monde d'accord <b>avant</b> de regarder la machine. Les désaccords sur cette phrase sont souvent des désaccords sur le mot.</p>
+          <p class="ex">question de définition, pas de mesure</p>
+        </div>
+        <div class="card" data-i18n="s7.c2">
+          <h3>Quel effet sur l'emploi ?</h3>
+          <div class="sub">des études, des sens opposés</div>
+          <p>Les travaux existent et ne convergent pas&nbsp;: certaines tâches disparaissent, d'autres se créent, et les gains de productivité mesurés varient énormément selon les métiers. <b>Toute prédiction chiffrée sur dix ans est une opinion.</b></p>
+          <p class="ex">question de fait, mais pas encore tranchée</p>
+        </div>
+        <div class="card" data-i18n="s7.c3">
+          <h3>Qui doit décider ?</h3>
+          <div class="sub">la seule qui vous appartient</div>
+          <p>Quelques entreprises, des États, des utilisateurs&nbsp;? Ce n'est pas une question technique du tout, et aucune donnée ne la tranchera. <b>Elle se tranche par la discussion et par le vote</b> — et c'est pour ça que ce cours existe.</p>
+          <p class="ex">question de valeur, entièrement</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s7.note">Remarquez que les trois ne sont pas du même type — c'est exactement la distinction de la scène&nbsp;4. <b>Savoir dire «&nbsp;je ne sais pas, et voici pourquoi personne ne sait&nbsp;» est le résultat le plus solide de l'année.</b> C'est beaucoup plus difficile, et beaucoup plus utile, que d'avoir un avis sur tout.</p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · CLÔTURE ============ -->
+  <div class="pane dark hinge" id="s8">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s8.eye">Fin du parcours</div>
+    <div class="q" data-i18n="s8.q">Vous ne saurez<br>pas tout. Vous<br>saurez <em>demander</em>.</div>
+    <p class="a" data-i18n="s8.a">Dans deux ans, la moitié des chiffres de ce cours seront faux et des outils que personne n'a encore nommés seront dans toutes les poches. Ce qui restera, c'est la série de questions&nbsp;: <b>sur quelles données&nbsp;? pour rendre quel nombre grand&nbsp;? mesuré par qui&nbsp;? vérifiable comment&nbsp;? et à qui ça profite&nbsp;?</b> Vous les avez maintenant, et elles ne se périment pas. <b>Le reste, c'est de la mise à jour.</b></p>
+    <div class="next" data-i18n="s8.next">Il reste le débat — et c'est à vous ▸</div>
+  </div>
+
+  <!-- ============ 9 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s9">
+    <div class="tag" data-i18n="s9.tag">Activité finale · 55 minutes · classe entière</div>
+    <h2 data-i18n="s9.t">Le <em>débat</em>,<br>mais avec des règles</h2>
+    <p class="sub" data-i18n="s9.sub">Une seule règle change tout&nbsp;: on commence par défendre l'avis qu'on n'a pas. C'est la seule manière de savoir si on a compris l'autre camp.</p>
+    <ol class="steps">
+      <li data-i18n="s9.l1"><b>Le vote secret.</b> Sur les six affirmations de la scène&nbsp;3, chacun note sa position sur un papier. On dépouille et on affiche la répartition — <b>sans les noms</b>.</li>
+      <li data-i18n="s9.l2"><b>La sujet retenu.</b> On garde l'affirmation la plus <b>partagée</b> (pas la plus consensuelle)&nbsp;: c'est celle qui apprendra le plus.</li>
+      <li data-i18n="s9.l3"><b>L'inversion.</b> Deux équipes&nbsp;: chacune défend <b>la position opposée à celle de ses membres</b>. Quinze minutes de préparation, trois arguments maximum, écrits.</li>
+      <li data-i18n="s9.l4"><b>Le tri préalable.</b> Avant de parler, chaque équipe classe ses arguments&nbsp;: <b>fait</b> ou <b>valeur</b> (scène 4). Un argument de fait doit venir avec une source, sinon il ne compte pas.</li>
+      <li data-i18n="s9.l5"><b>Le débat.</b> Dix minutes. La classe arbitre non pas qui a raison, mais <b>qui a utilisé des faits vérifiables</b> et qui a confondu les deux registres.</li>
+      <li data-i18n="s9.l6"><b>Le second vote.</b> On revote sur la même affirmation. Qui a bougé&nbsp;? Et surtout&nbsp;: <b>qui peut maintenant formuler l'argument adverse le plus fort&nbsp;?</b> C'est le seul critère de réussite de la séance.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 10 · RÉCAP DE L'ANNÉE ============ -->
+  <div class="pane light pad" id="s10">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 19 · et bilan de l'année</div>
+    <h2 class="rc-title" data-i18n="rc.t">Ce qui <span>ne se périme pas</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">À aucun moment la machine ne <b>comprend</b> ce qu'elle manipule. Elle transforme des nombres selon des règles écrites par nous, avec des paramètres que personne n'a choisis un par un.</li>
+      <li data-i18n="rc.i2">Deux mécanismes génératifs seulement&nbsp;: <b>prédire le jeton suivant</b> (texte, son) et <b>retirer du bruit</b> (image). Le reste est de l'ingénierie autour.</li>
+      <li data-i18n="rc.i3">Apprendre, c'est faire descendre un <b>nombre</b> en réglant des paramètres. Ce nombre est choisi par des gens&nbsp;: c'est là que se jouent les biais, et l'engagement des réseaux.</li>
+      <li data-i18n="rc.i4">Un assistant, c'est un modèle <b>plus cinq couches</b>. Devant une réponse fausse, nommez la couche avant d'accuser l'intelligence.</li>
+      <li data-i18n="rc.i5">On n'optimise que ce qu'on <b>mesure</b>&nbsp;: le temps passé est mesuré, l'ennui et la vérité ne le sont pas.</li>
+      <li data-i18n="rc.i6">La <span class="hl">vérification</span> est la compétence centrale&nbsp;: le fait, le raisonnement, la question posée. Et pour une information&nbsp;: remonter, chercher ailleurs, se regarder soi.</li>
+      <li data-i18n="rc.i7">Distinguer un désaccord de <span class="hl">fait</span> d'un désaccord de <span class="hl">valeur</span>. Le premier se tranche, le second se discute — et les confondre fait tourner en rond.</li>
+      <li data-i18n="rc.i8">Savoir dire <b>«&nbsp;je ne sais pas, et voici pourquoi personne ne sait&nbsp;»</b>. C'est plus difficile et plus utile que d'avoir un avis sur tout.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Les cinq questions</b>Quelles données&nbsp;? quel nombre&nbsp;? mesuré par qui&nbsp;? vérifiable comment&nbsp;? à qui ça profite&nbsp;?</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Fait</b>Ça se tranche. On cherche, on cite.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Valeur</b>Ça se discute. On dit ce qui compte.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Mécanisme</b>Ça dure. Les chiffres, non.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Et la question qui vous suit&nbsp;: <b>après cette heure-là, qu'est-ce que je sais faire que je ne savais pas faire avant ?</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 10;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.matches && e.target.matches('input,select')) return;
+  if(e.target && e.target.closest && e.target.closest('#langsw') && (e.key===' '||e.key==='Enter')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,input,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   SCÈNE 1 — dix phrases, et ce qu'on peut en dire
+   v : 0 = faux · 1 = en partie · 2 = mal posé
+   ========================================================= */
+var S1 = {
+  fr:{
+    btn:['1','2','3','4','5','6','7','8','9','10'],
+    vd:['Faux','En partie seulement','Question mal posée'],
+    src:'Où c’est traité&nbsp;: ',
+    items:[
+      { q:'« L’IA comprend ce qu’elle dit. »', v:2,
+        a:'Avant de répondre, il faut dire ce que «&nbsp;comprendre&nbsp;» veut dire — et c’est là que les gens ne sont pas d’accord. Ce qu’on peut affirmer sans discussion&nbsp;: le modèle <b>prédit le jeton suivant</b> à partir de régularités, et rien dans le mécanisme ne ressemble à une représentation du monde. Dire «&nbsp;non, c’est juste des statistiques&nbsp;» est aussi rapide que l’inverse.',
+        s:'séances 3 et 9' },
+      { q:'« Quand je lui pose une question, il va chercher sur Internet. »', v:0,
+        a:'Par défaut, <b>non</b>&nbsp;: il répond hors ligne, avec ce qu’il a appris, figé à une date. Certains assistants ont <b>en plus</b> un outil de recherche — mais c’est une couche branchée autour, et vous pouvez vérifier s’il l’a utilisé en demandant la source.',
+        s:'séances 10, 11 et 12' },
+      { q:'« C’est une boîte noire, personne ne sait comment ça marche. »', v:1,
+        a:'Le <b>mécanisme</b> est entièrement connu&nbsp;: on l’a écrit en entier, de la multiplication au pas de gradient. Ce qu’on ignore, c’est le <b>sens de chaque paramètre</b>, parce que personne ne les a posés un par un. <b>Ignorance du sens, pas du mécanisme</b> — la nuance change tout le débat.',
+        s:'séance 9, scène 10' },
+      { q:'« Pour repérer une image générée, il suffit de compter les doigts. »', v:0,
+        a:'Vrai jusqu’en 2024, <b>faux depuis</b>. Tous les indices qui portent sur l’image se périment en quelques mois, puisque c’est exactement ce que les modèles s’améliorent à corriger. Ce qui ne se périme pas&nbsp;: remonter à la source, chercher ailleurs.',
+        s:'séance 16' },
+      { q:'« Une requête à une IA consomme autant qu’une bouteille d’eau. »', v:0,
+        a:'Ce type de chiffre est presque toujours <b>recopié sans source</b>. Les valeurs sérieuses sont des <b>fourchettes larges</b>, et une question courte est de l’ordre d’une recherche web. L’erreur n’est pas de s’inquiéter&nbsp;: c’est de citer un chiffre sans savoir d’où il vient.',
+        s:'séance 17, scènes 2 et 3' },
+      { q:'« L’algorithme m’enferme dans une bulle. »', v:1,
+        a:'La <b>concentration</b> existe et se mesure&nbsp;: c’est la boucle de rétroaction. Mais l’enfermement total est rare, plusieurs études trouvent même une exposition <b>plus</b> variée chez les usagers des réseaux, et la part de l’algorithme face à nos propres clics n’est pas tranchée.',
+        s:'séance 15, scènes 5 et 6' },
+      { q:'« L’IA, c’est un vide juridique. »', v:0,
+        a:'Faux depuis le début&nbsp;: données personnelles, droit d’auteur et droit à l’image s’appliquaient déjà, quel que soit l’outil. Et depuis 2024 un règlement européen encadre les <b>usages</b> en quatre niveaux. Ce qui manque vraiment&nbsp;: l’énergie, l’annotation, la concentration.',
+        s:'séance 18' },
+      { q:'« Un détecteur dit que ce devoir a été écrit par une IA. »', v:0,
+        a:'Un score de détecteur <b>n’est pas une preuve</b>. Sur le texte, il n’y a aucune marque à détecter&nbsp;: l’outil devine à partir du style, et ses erreurs frappent systématiquement les mêmes — ceux qui écrivent dans une langue qui n’est pas la leur.',
+        s:'séance 16, scène 5' },
+      { q:'« L’IA apprend toute seule. »', v:0,
+        a:'À chaque étape, des gens&nbsp;: <b>annoter</b> les données, <b>comparer</b> les réponses pendant des mois, <b>modérer</b> le pire. Le ton d’un assistant, ses refus, sa politesse sont des choix humains. «&nbsp;Sans intervention humaine&nbsp;» veut dire «&nbsp;sans intervention humaine visible&nbsp;».',
+        s:'séance 17, scène 6' },
+      { q:'« Ça va remplacer les professeurs, les médecins, les avocats. »', v:2,
+        a:'La phrase mélange une question de fait non tranchée (les études existent et divergent) et une question de valeur (qu’est-ce qu’on <b>veut</b> automatiser&nbsp;?). Ce qu’on sait&nbsp;: les tâches se recomposent plus qu’elles ne disparaissent, et <b>toute prédiction chiffrée à dix ans est une opinion</b>.',
+        s:'séances 14 et 19' }
+    ]
+  },
+  en:{
+    btn:['1','2','3','4','5','6','7','8','9','10'],
+    vd:['False','Only partly','Badly posed'],
+    src:'Where it is covered: ',
+    items:[
+      { q:'&ldquo;AI understands what it says.&rdquo;', v:2,
+        a:'Before answering you have to say what &ldquo;understand&rdquo; means — and that is where people disagree. What can be asserted without argument: the model <b>predicts the next token</b> from regularities, and nothing in the mechanism resembles a representation of the world. Saying &ldquo;no, it is just statistics&rdquo; is as hasty as the opposite.',
+        s:'lessons 3 and 9' },
+      { q:'&ldquo;When I ask it a question, it searches the Internet.&rdquo;', v:0,
+        a:'By default, <b>no</b>: it answers offline, with what it learnt, frozen at a date. Some assistants <b>also</b> have a search tool — but that is a layer bolted on, and you can check whether it used it by asking for the source.',
+        s:'lessons 10, 11 and 12' },
+      { q:'&ldquo;It is a black box, nobody knows how it works.&rdquo;', v:1,
+        a:'The <b>mechanism</b> is entirely known: we wrote all of it, from the multiplication to the gradient step. What is unknown is the <b>meaning of each parameter</b>, because nobody set them one by one. <b>Ignorance of meaning, not of mechanism</b> — the distinction changes the whole debate.',
+        s:'lesson 9, scene 10' },
+      { q:'&ldquo;To spot a generated image, just count the fingers.&rdquo;', v:0,
+        a:'True until 2024, <b>false since</b>. Every clue about the image itself goes stale within months, because that is exactly what models get better at fixing. What does not go stale: tracing the source, looking elsewhere.',
+        s:'lesson 16' },
+      { q:'&ldquo;One AI request uses as much as a bottle of water.&rdquo;', v:0,
+        a:'Figures of this kind are almost always <b>copied with no source</b>. Serious values are <b>wide ranges</b>, and a short question is of the order of a web search. The error is not being concerned: it is quoting a figure without knowing where it came from.',
+        s:'lesson 17, scenes 2 and 3' },
+      { q:'&ldquo;The algorithm locks me in a bubble.&rdquo;', v:1,
+        a:'<b>Concentration</b> is real and measurable: it is the feedback loop. But total enclosure is rare, several studies even find <b>more</b> varied exposure among social media users, and the algorithm’s share against our own clicks is not settled.',
+        s:'lesson 15, scenes 5 and 6' },
+      { q:'&ldquo;AI is a legal void.&rdquo;', v:0,
+        a:'False from the start: personal data, copyright and image rights already applied, whatever the tool. And since 2024 a European regulation frames <b>uses</b> in four levels. What is genuinely missing: energy, annotation work, concentration.',
+        s:'lesson 18' },
+      { q:'&ldquo;A detector says this homework was written by an AI.&rdquo;', v:0,
+        a:'A detector score <b>is not proof</b>. In text there is no mark to detect: the tool guesses from style, and its errors systematically hit the same people — those writing in a language that is not their own.',
+        s:'lesson 16, scene 5' },
+      { q:'&ldquo;AI learns all by itself.&rdquo;', v:0,
+        a:'At every step, people: <b>annotating</b> the data, <b>comparing</b> answers for months, <b>moderating</b> the worst. An assistant’s tone, its refusals, its politeness are human choices. &ldquo;With no human intervention&rdquo; means &ldquo;with no visible human intervention&rdquo;.',
+        s:'lesson 17, scene 6' },
+      { q:'&ldquo;It will replace teachers, doctors, lawyers.&rdquo;', v:2,
+        a:'The sentence mixes an unsettled factual question (studies exist and diverge) with a question of value (what do we <b>want</b> to automate?). What we do know: tasks recompose more than they disappear, and <b>any ten-year numerical prediction is an opinion</b>.',
+        s:'lessons 14 and 19' }
+    ]
+  }
+};
+var s1i = 0;
+function drawS1(){
+  var t = S1[LG()], k = t.items[s1i];
+  pickbtns('s1btns', t.btn, s1i, function(i){ s1i = i; drawS1(); });
+  document.getElementById('s1q').innerHTML = '<div class="cq">' + k.q + '</div>';
+  document.getElementById('s1a').innerHTML =
+    '<span class="vdict ' + ['f','p','o'][k.v] + '">' + t.vd[k.v] + '</span>' +
+    '<p class="verd" style="border-top:0;margin-top:0;padding-top:0">' + k.a + '</p>' +
+    '<div class="srcs">' + t.src + k.s + '</div>';
+}
+
+/* =========================================================
+   SCÈNE 3 — six affirmations, aucune bonne réponse
+   ========================================================= */
+var S3 = {
+  fr:{
+    btn:['1','2','3','4','5','6'],
+    scale:['Pas du tout d’accord','Plutôt pas','Plutôt d’accord','Tout à fait d’accord'],
+    ask:'Positionnez-vous — puis les arguments apparaissent.',
+    pro:'Pour', con:'Contre',
+    items:[
+      { q:'« Utiliser une IA pour un devoir noté devrait être interdit. »',
+        p:'Un devoir est la <b>trace d’un entraînement</b>, pas un produit&nbsp;: une note obtenue sans vous fausse le réglage, et c’est vous qui le payez au contrôle suivant.',
+        c:'L’interdiction générale est <b>invérifiable</b> (les détecteurs ne prouvent rien) et frappe d’abord ceux qui s’en servent pour compenser une difficulté. Mieux vaut une règle par tâche, et la transparence.' },
+      { q:'« Je préfère un outil que je peux faire tourner chez moi, même s’il est moins bon. »',
+        p:'Rien ne sort de chez vous, personne ne peut fermer le service ni changer les <b>instructions système</b> sans vous prévenir. C’est le seul contrepoids réel à la concentration.',
+        c:'Un modèle local est plus faible, consomme votre propre matériel, et vous prive des outils branchés autour. <b>L’indépendance a un coût technique réel</b>, pas seulement symbolique.' },
+      { q:'« Les réseaux devraient proposer l’ordre chronologique par défaut. »',
+        p:'Le classement optimise un nombre qui n’est pas votre intérêt. L’ordre chronologique est <b>vérifiable</b>&nbsp;: on peut savoir pourquoi on voit ce qu’on voit.',
+        c:'Sans classement, le volume rend le fil inutilisable, et les comptes qui publient le plus écrasent les autres. <b>Ne pas trier est aussi un choix</b>, aux effets non neutres.' },
+      { q:'« Entraîner un modèle sur des œuvres sans accord devrait être interdit ou payant. »',
+        p:'Sans ces œuvres, pas de modèle&nbsp;: la valeur produite vient en partie du travail d’autrui, qui n’est ni cité ni rémunéré.',
+        c:'Apprendre d’œuvres existantes est ce que font aussi les humains, et un droit trop strict profiterait surtout aux <b>très grandes entreprises</b>, seules capables de payer. L’effet réel serait plus de concentration.' },
+      { q:'« Il faudrait limiter la consommation des centres de données, même si ça ralentit le progrès. »',
+        p:'L’effet est <b>local et immédiat</b> (eau, réseau électrique, terrains), alors que les bénéfices sont diffus et futurs. Une limite oblige à arbitrer explicitement.',
+        c:'La même énergie sert déjà à la vidéo et au stockage&nbsp;: isoler l’IA est arbitraire. Et une limite européenne ne ferait que <b>déplacer</b> les calculs là où l’électricité est plus carbonée.' },
+      { q:'« Je ferais confiance à un diagnostic médical assisté par IA. »',
+        p:'Sur certaines tâches précises — lire une radio, trier des images — les performances mesurées sont au niveau des spécialistes, et <b>constantes</b>, sans fatigue.',
+        c:'Un modèle produit du plausible et ne sait pas qu’il ignore. Le cadre légal impose d’ailleurs un <b>recours humain</b>&nbsp;: ce n’est pas une précaution de principe, c’est le point faible connu.' }
+    ]
+  },
+  en:{
+    btn:['1','2','3','4','5','6'],
+    scale:['Strongly disagree','Rather not','Rather agree','Strongly agree'],
+    ask:'Take a position — then the arguments appear.',
+    pro:'For', con:'Against',
+    items:[
+      { q:'&ldquo;Using AI for marked homework should be banned.&rdquo;',
+        p:'Homework is the <b>trace of a training session</b>, not a product: a mark obtained without you throws off the setting, and you pay for it at the next test.',
+        c:'A blanket ban is <b>unenforceable</b> (detectors prove nothing) and hits first those who use it to compensate for a difficulty. Better a rule per task, plus transparency.' },
+      { q:'&ldquo;I would rather have a tool I can run at home, even if it is worse.&rdquo;',
+        p:'Nothing leaves your machine, nobody can shut the service down or change the <b>system instructions</b> without telling you. It is the only real counterweight to concentration.',
+        c:'A local model is weaker, uses your own hardware, and deprives you of the tools bolted around it. <b>Independence has a real technical cost</b>, not just a symbolic one.' },
+      { q:'&ldquo;Social networks should offer chronological order by default.&rdquo;',
+        p:'Ranking optimises a number that is not your interest. Chronological order is <b>checkable</b>: you can know why you see what you see.',
+        c:'With no ranking, sheer volume makes the feed unusable, and the accounts that post most drown the rest. <b>Not sorting is also a choice</b>, with effects of its own.' },
+      { q:'&ldquo;Training a model on works without consent should be banned or paid for.&rdquo;',
+        p:'Without those works, no model: the value produced comes partly from other people’s labour, which is neither credited nor paid.',
+        c:'Learning from existing works is what humans do too, and an overly strict right would mainly benefit the <b>very largest companies</b>, the only ones able to pay. The real effect would be more concentration.' },
+      { q:'&ldquo;Data-centre consumption should be capped, even if it slows progress.&rdquo;',
+        p:'The effect is <b>local and immediate</b> (water, grid, land), while the benefits are diffuse and future. A cap forces the trade-off to be made explicitly.',
+        c:'The same energy already goes to video and storage: singling out AI is arbitrary. And a European cap would merely <b>move</b> the computation to where electricity is dirtier.' },
+      { q:'&ldquo;I would trust an AI-assisted medical diagnosis.&rdquo;',
+        p:'On certain narrow tasks — reading a scan, triaging images — measured performance matches specialists, and is <b>constant</b>, without fatigue.',
+        c:'A model produces the plausible and does not know what it does not know. The law requires <b>human recourse</b> precisely for that: not a precaution of principle, but the known weak point.' }
+    ]
+  }
+};
+var s3i = 0;
+var s3pos = [-1,-1,-1,-1,-1,-1];
+function drawS3(){
+  var t = S3[LG()], k = t.items[s3i], p = s3pos[s3i];
+  pickbtns('s3btns', t.btn, s3i, function(i){ s3i = i; drawS3(); });
+  document.getElementById('s3q').innerHTML = '<div class="cq">' + k.q + '</div>';
+  document.getElementById('s3scale').innerHTML = t.scale.map(function(l,i){
+    return '<button class="sc nostep' + (i === p ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s3scale .sc')).forEach(function(b){
+    b.onclick = function(){ s3pos[s3i] = +b.dataset.i; drawS3(); };
+  });
+  document.getElementById('s3args').innerHTML = (p < 0)
+    ? '<p class="verd">' + t.ask + '</p>'
+    : '<div class="args"><div class="arg pro"><div class="h">' + t.pro + '</div><p>' + k.p + '</p></div>' +
+      '<div class="arg con"><div class="h">' + t.con + '</div><p>' + k.c + '</p></div></div>';
+}
+
+/* =========================================================
+   REDESSIN GLOBAL
+   ========================================================= */
+function redrawAll(){ drawS1(); drawS3(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Quel rapport je veux avoir`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`The relationship I want`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · What the law says`,
+  's0.tag':`SNT · AI Course · final lesson`,
+  's0.big':`Eighteen lessons.<br>One <em>question</em><br>is left.`,
+  's0.line':`You know what is inside the box, what it costs, what the law says. All of that was <strong style="color:#fff">checkable</strong>. What is left is not: <strong style="color:#fff">what relationship you want to have with these tools.</strong> This lesson will not give you the answer — it gives you what you need to defend one.`,
+  's0.kick':`Revise · take a position · tell facts from values · argue`,
+
+  /* --- 1 · les phrases --- */
+  's1.eye':`Hands on · ten sentences, and what can be said about them`,
+  's1.t':`Everything you<br>can now correct`,
+  's1.lead':`Here are ten sentences you will hear this week. After eighteen lessons you can answer every one of them — and say <b>where your answer comes from</b>. This is the year's revision.`,
+
+  /* --- 2 · le fil rouge --- */
+  's2.eye':`The year on one page`,
+  's2.t':`One single thing,<br>eight transformations`,
+  's2.lead':`If you were to keep only one diagram, it is this one. The whole course follows <b>information</b> — from the moment it becomes numbers to the moment it comes back to you, ranked.`,
+  's2.thread':`
+        <div class="tnode"><div class="tn">lessons 1 to 4</div><div class="tt">Becoming numbers</div><div class="td">tokens, pixels, sound slices: everything enters in the same form</div></div>
+        <div class="tnode"><div class="tn">lessons 5 to 7</div><div class="tt">Being stored</div><div class="td">bits and bytes, then the question of what data is, and whose it is</div></div>
+        <div class="tnode"><div class="tn">lessons 8 and 9</div><div class="tt">Becoming parameters</div><div class="td">billions of knobs set by gradient descent: that is what &ldquo;learning&rdquo; is</div></div>
+        <div class="tnode"><div class="tn">lessons 10 and 11</div><div class="tt">Being retrieved</div><div class="td">what the model did not learn has to be fetched: RAG, APIs</div></div>
+        <div class="tnode"><div class="tn">lesson 12</div><div class="tt">Entering the context</div><div class="td">everything it reads at this instant — and that goes again with every message</div></div>
+        <div class="tnode"><div class="tn">lessons 13 and 14</div><div class="tt">Passing through you</div><div class="td">frame it, iterate, check — and know when not to open it</div></div>
+        <div class="tnode"><div class="tn">lessons 15 and 16</div><div class="tt">Being ranked</div><div class="td">a score, a sort, and content that may never have existed</div></div>
+        <div class="tnode"><div class="tn">lessons 17 and 18</div><div class="tt">Costing, and being framed</div><div class="td">energy, labour, concentration — and a law that arrives afterwards</div></div>
+      `,
+  's2.note':`One sentence runs through all eighteen: <b>at no point does the machine understand what it handles.</b> It transforms numbers according to rules we wrote, with parameters we did not choose one by one. All the rest — the impression of intelligence, the fluency, the trust — comes from us.`,
+
+  /* --- 3 · positionnement --- */
+  's3.eye':`Hands on · six statements, no right answer`,
+  's3.t':`And you,<br>what do you think?`,
+  's3.lead':`Take a position first, <b>without thinking too long</b>. You will then see the two best arguments on each side — not to change your mind, but so that your mind can stand up.`,
+
+  /* --- 4 · faits et valeurs --- */
+  's4.eye':`The most useful tool of the year`,
+  's4.t':`Two disagreements<br>that always get mixed up`,
+  's4.lead':`Most discussions about AI get stuck because two different things are conflated. Separating them does not settle the disagreement — but it finally shows what it is about.`,
+  's4.c1':`
+          <h3>A disagreement of fact</h3>
+          <div class="sub">&ldquo;is it true?&rdquo;</div>
+          <p>&ldquo;An AI detector is reliable.&rdquo; &ldquo;A request uses as much as a shower.&rdquo; &ldquo;The model searches the Internet.&rdquo;</p>
+          <p class="ex">This is <b>settled</b>: you look it up, you measure, you cite. And there is a right answer, even if we do not have it yet.</p>
+        `,
+  's4.c2':`
+          <h3>A disagreement of value</h3>
+          <div class="sub">&ldquo;what matters?&rdquo;</div>
+          <p>&ldquo;Should AI be banned for homework?&rdquo; &ldquo;Is a worse but free tool better?&rdquo; &ldquo;Is progress worth that consumption?&rdquo;</p>
+          <p class="ex">This is <b>argued</b>: you set out what you put first. There is no right answer — but there are <b>better and worse arguments</b>.</p>
+        `,
+  's4.note':`The reflex: faced with a disagreement, ask yourself <b>which of the two it is</b>. If it is a fact, stop arguing and go and check. If it is a value, stop looking for proof and say what you put first. <b>Half the quarrels about AI are disagreements of value dressed up as disagreements of fact</b> — and the other half the reverse.`,
+
+  /* --- 5 · des métiers --- */
+  's5.eye':`What this course opens up`,
+  's5.t':`Four jobs you<br>had not heard of`,
+  's5.lead':`People always talk about &ldquo;working in AI&rdquo; as if it meant writing models. That is a small part of it. The jobs that recruit most are next door — and several did not exist five years ago.`,
+  's5.c1':`
+          <h3>Data quality</h3>
+          <div class="sub">lessons 7 and 17</div>
+          <p>Building, documenting and checking corpora. This is where biases are decided, and it is the most in-demand role — <b>far more than the one that trains the model</b>.</p>
+        `,
+  's5.c2':`
+          <h3>Algorithm auditing</h3>
+          <div class="sub">lesson 18</div>
+          <p>Measuring a system's outputs, group by group, and producing the evidence the regulation demands. A new trade, halfway between statistics and law.</p>
+        `,
+  's5.c3':`
+          <h3>Integration</h3>
+          <div class="sub">lessons 11 and 12</div>
+          <p>Plugging a model into an organisation's tools and data. Most of the work is not the model: it is everything around it — lesson 12's five layers.</p>
+        `,
+  's5.c4':`
+          <h3>Inside your own trade</h3>
+          <div class="sub">the likeliest case</div>
+          <p>Nurse, lawyer, designer, farmer, teacher: informed use in a job that is not computing. <b>This is where the vast majority of you will be</b> — and it is exactly what this year prepared.</p>
+        `,
+  's5.note':`What the first three take: <b>mathematics</b> (statistics, a little linear algebra), <b>programming</b> — and, for two of them, law or social science. In sixth form, <b>computing</b> and <b>maths</b> open the door; but the fourth case needs neither.`,
+
+  /* --- 6 · ce qu'on ne vous a pas dit --- */
+  's6.eye':`Rigour · the deliberate simplifications`,
+  's6.t':`What we hid<br>from you, on purpose`,
+  's6.lead':`An honest course has to end by saying where it simplified. Four important things were left out or rounded off — here they are, with what you need to go further.`,
+  's6.c1':`
+          <h3>Attention</h3>
+          <div class="sub">the heart of today's models</div>
+          <p>We said &ldquo;layers of neurons&rdquo;. In reality language models rest on one precise operation, <b>attention</b>, which lets every word look at all the others. It is the content of a 2017 paper that changed everything.</p>
+        `,
+  's6.c2':`
+          <h3>Reinforcement learning</h3>
+          <div class="sub">lesson 17, scene 6</div>
+          <p>The step where humans compare answers belongs to a <b>whole family</b> of learning — the one behind programs that play go, that steer, that optimise. We only touched on it.</p>
+        `,
+  's6.c3':`
+          <h3>Interpretability</h3>
+          <div class="sub">the open worksite</div>
+          <p>We said &ldquo;nobody knows what that knob does&rdquo;. True — but a whole field is trying to see inside, and is beginning to identify <b>circuits</b> within models.</p>
+        `,
+  's6.c4':`
+          <h3>The 2026 figures</h3>
+          <div class="sub">the most dangerous simplification</div>
+          <p>Model sizes, costs, performances: everything numerical in this course will be <b>wrong in two years</b>. The mechanisms will hold. <b>Keep the mechanisms, re-check the figures.</b></p>
+        `,
+  's6.note':`And a deeper simplification, which is not technical: this course described AI as a set of objects to understand. It is also, and perhaps mainly, an <b>industry</b>, with interests, competition and self-serving stories. <b>When someone explains AI to you, always ask yourself what they are selling.</b>`,
+
+  /* --- 7 · trois questions ouvertes --- */
+  's7.eye':`What nobody knows`,
+  's7.t':`Three questions<br>with no answer`,
+  's7.lead':`To finish, three questions where honesty means saying &ldquo;we do not know&rdquo; — and knowing <b>why</b> we do not know, which is not the same as being ignorant.`,
+  's7.c1':`
+          <h3>Does it &ldquo;understand&rdquo;?</h3>
+          <div class="sub">a badly posed question</div>
+          <p>The problem is not measurement: it is that we have no definition of &ldquo;understand&rdquo; that everyone accepts <b>before</b> looking at the machine. Disagreements about this sentence are often disagreements about the word.</p>
+          <p class="ex">a question of definition, not of measurement</p>
+        `,
+  's7.c2':`
+          <h3>What effect on jobs?</h3>
+          <div class="sub">studies exist, and diverge</div>
+          <p>The research exists and does not converge: some tasks vanish, others appear, and measured productivity gains vary enormously by trade. <b>Any ten-year numerical prediction is an opinion.</b></p>
+          <p class="ex">a question of fact, but not yet settled</p>
+        `,
+  's7.c3':`
+          <h3>Who should decide?</h3>
+          <div class="sub">the only one that is yours</div>
+          <p>A few companies, states, users? This is not a technical question at all, and no data will settle it. <b>It is settled by argument and by voting</b> — and that is why this course exists.</p>
+          <p class="ex">entirely a question of value</p>
+        `,
+  's7.note':`Notice that the three are not of the same kind — exactly the distinction of scene 4. <b>Being able to say &ldquo;I do not know, and here is why nobody knows&rdquo; is the sturdiest result of the year.</b> It is much harder, and much more useful, than having an opinion about everything.`,
+
+  /* --- 8 · clôture --- */
+  's8.eye':`End of the course`,
+  's8.q':`You will not know<br>everything. You will<br>know what to <em>ask</em>.`,
+  's8.a':`In two years, half the figures in this course will be wrong and tools nobody has named yet will be in every pocket. What will remain is the set of questions: <b>on what data? to make which number large? measured by whom? checkable how? and who benefits?</b> You have them now, and they do not go stale. <b>The rest is an update.</b>`,
+  's8.next':`The debate is left — and it is yours ▸`,
+
+  /* --- 9 · activité --- */
+  's9.tag':`Final activity · 55 minutes · whole class`,
+  's9.t':`The <em>debate</em>,<br>but with rules`,
+  's9.sub':`One rule changes everything: you begin by defending the view you do not hold. It is the only way to find out whether you understood the other side.`,
+  's9.l1':`<b>The secret vote.</b> On the six statements of scene 3, each writes their position on a slip. Count and display the spread — <b>with no names</b>.`,
+  's9.l2':`<b>The chosen motion.</b> Keep the most <b>divided</b> statement (not the most consensual): that is the one that will teach the most.`,
+  's9.l3':`<b>The swap.</b> Two teams: each defends <b>the position opposite to its members'</b>. Fifteen minutes' preparation, three arguments maximum, written down.`,
+  's9.l4':`<b>Sorting first.</b> Before speaking, each team classes its arguments: <b>fact</b> or <b>value</b> (scene 4). A factual argument must come with a source, or it does not count.`,
+  's9.l5':`<b>The debate.</b> Ten minutes. The class judges not who is right, but <b>who used checkable facts</b> and who mixed the two registers.`,
+  's9.l6':`<b>The second vote.</b> Vote again on the same statement. Who moved? And above all: <b>who can now state the strongest opposing argument?</b> That is the only measure of success.`,
+
+  /* --- 10 · récap de l'année --- */
+  'rc.eye':`Lesson 19 · and the year in review`,
+  'rc.t':`What <span>does not go stale</span>`,
+  'rc.i1':`At no point does the machine <b>understand</b> what it handles. It transforms numbers by rules we wrote, with parameters nobody set one by one.`,
+  'rc.i2':`Only two generative mechanisms: <b>predict the next token</b> (text, sound) and <b>remove noise</b> (image). The rest is engineering around them.`,
+  'rc.i3':`Learning is bringing a <b>number</b> down by tuning parameters. That number is chosen by people: that is where biases, and social-network engagement, are decided.`,
+  'rc.i4':`An assistant is a model <b>plus five layers</b>. Faced with a wrong answer, name the layer before blaming the intelligence.`,
+  'rc.i5':`You only optimise what you <b>measure</b>: time spent is measured; boredom and truth are not.`,
+  'rc.i6':`<span class="hl">Checking</span> is the central skill: the fact, the reasoning, the question asked. And for information: trace back, look elsewhere, look at yourself.`,
+  'rc.i7':`Tell a disagreement of <span class="hl">fact</span> from a disagreement of <span class="hl">value</span>. The first is settled, the second argued — and confusing them goes in circles.`,
+  'rc.i8':`Be able to say <b>&ldquo;I do not know, and here is why nobody knows&rdquo;</b>. Harder, and more useful, than having an opinion about everything.`,
+  'rc.v1':`<b>The five questions</b>What data? which number? measured by whom? checkable how? who benefits?`,
+  'rc.v2':`<b>Fact</b>Settled. You look it up, you cite.`,
+  'rc.v3':`<b>Value</b>Argued. You say what matters.`,
+  'rc.v4':`<b>Mechanism</b>It lasts. The figures do not.`,
+  'rc.key':`And the question that follows you: <b>after that hour, what can I do that I could not do before?</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>

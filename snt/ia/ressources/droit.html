@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ce que dit la loi</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- s2 : les quatre niveaux de risque ---------- */
+  .lvls{display:grid;gap:.26rem;margin:.4rem 0 .2rem}
+  .lvl{display:grid;grid-template-columns:11rem minmax(0,1fr);gap:.6rem;align-items:center;
+    border:1px solid rgba(0,0,0,.14);background:var(--paper-2);padding:.34rem .55rem;
+    opacity:.5;transition:.2s}
+  .lvl.hit{opacity:1;border-width:2px}
+  .lvl .ln{font-family:var(--display);text-transform:uppercase;font-size:clamp(.7rem,1.22vw,.84rem);
+    line-height:1.08}
+  .lvl .lo{font-family:var(--serif);font-size:clamp(.72rem,1.24vw,.87rem);color:#4a4436;line-height:1.3}
+  .lvl.k0{border-left:4px solid var(--alarm)}      .lvl.k0 .ln{color:var(--alarm)}
+  .lvl.k1{border-left:4px solid #b08a1e}           .lvl.k1 .ln{color:#8a6a10}
+  .lvl.k2{border-left:4px solid var(--signal-dk)}  .lvl.k2 .ln{color:var(--signal-dk)}
+  .lvl.k3{border-left:4px solid var(--green)}      .lvl.k3 .ln{color:#0d6b3a}
+
+  .casebox{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.5rem .75rem;margin-bottom:.4rem}
+  .casebox .ct{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.18rem}
+  .casebox p{font-family:var(--serif);font-size:clamp(.82rem,1.46vw,1rem);color:#3a352c;line-height:1.38}
+  .ansrow{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.35rem}
+  .ans{cursor:pointer;font-family:var(--mono);font-size:.64rem;letter-spacing:.05em;text-transform:uppercase;
+    padding:.4rem .66rem;border:1px solid rgba(0,0,0,.28);background:var(--paper);color:#4a4436;transition:.15s}
+  .ans:hover{border-color:var(--signal-dk)}
+  .ans.ok{background:rgba(18,146,79,.18);border-color:var(--green);color:#0d6b3a}
+  .ans.no{background:rgba(181,48,31,.14);border-color:var(--alarm);color:var(--alarm)}
+
+  /* ---------- listes à deux colonnes (s5, s8) ---------- */
+  .twoc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(.6rem,2vw,1.4rem);align-items:start}
+  .mdl{display:grid;gap:.4rem}
+  .mdrow{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:.45rem .7rem}
+  .mdrow .h{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.14rem}
+  .mdrow p{font-family:var(--serif);font-size:clamp(.77rem,1.3vw,.93rem);color:#4a4436;line-height:1.36}
+  .mdrow b{color:var(--ink)}
+  .pane.dark .mdrow{border-color:rgba(233,228,216,.2);background:rgba(233,228,216,.04)}
+  .pane.dark .mdrow .h{color:var(--signal)}
+  .pane.dark .mdrow p{color:#cfc8b8}
+  .pane.dark .mdrow b{color:#fff}
+
+  /* ---------- s4 : les droits, en liste ---------- */
+  .lst{display:grid;gap:.26rem}
+  .lrow{display:grid;grid-template-columns:1.2rem minmax(0,1fr);gap:.5rem;align-items:start;
+    font-family:var(--serif);font-size:clamp(.77rem,1.32vw,.93rem);line-height:1.34}
+  .lrow .mk{font-family:var(--mono);font-size:.78rem;line-height:1.3}
+  .lst.yes .mk{color:var(--green)}
+  .lst.no .mk{color:var(--alarm)}
+
+  /* ---------- resserrements de projection ---------- */
+  #s2 .lead{font-size:clamp(.84rem,1.5vw,1rem);line-height:1.4}
+  #s11 .rc-list{gap:.26rem}
+  #s11 .rc-list li{font-size:clamp(.76rem,1.35vw,.91rem);line-height:1.33}
+  #s11 .rc-voc{gap:.35rem}
+  #s11 .rc-term{font-size:.71rem;padding:.38rem .52rem}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="cout.html" data-i18n="s0.back">◂ Séance précédente · Ce que ça coûte vraiment</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Ce n'est pas<br>un <em>vide</em><br>juridique.</h1>
+    <p class="line" data-i18n="s0.line">La phrase qu'on entend le plus souvent est fausse depuis le début. La plupart des usages de l'IA tombaient <strong style="color:#fff">déjà</strong> sous des règles existantes — données personnelles, droit d'auteur, droit à l'image. Et depuis 2024, l'Europe a ajouté un texte <strong style="color:#fff">spécifique</strong>, qui s'applique par étapes.</p>
+    <div class="kick" data-i18n="s0.kick">RGPD · règlement sur l'IA · droit d'auteur · votre image · ce qui manque</div>
+  </div>
+
+  <!-- ============ 1 · CE QUI S'APPLIQUAIT DÉJÀ ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Avant tout texte sur l'IA</div>
+    <h2 class="stitle" data-i18n="s1.t">Trois droits<br>qui existaient déjà</h2>
+    <p class="lead" data-i18n="s1.lead">Un outil nouveau ne crée pas un territoire sans loi. Il arrive dans un monde où trois ensembles de règles s'appliquent, quel que soit l'outil employé.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s1.c1">
+          <h3>Les données personnelles</h3>
+          <div class="sub">RGPD · depuis 2018</div>
+          <p>Toute information qui permet d'identifier quelqu'un est encadrée&nbsp;: il faut une <b>base légale</b> pour la traiter, et la personne a des droits sur elle. L'outil employé n'y change rien.</p>
+        </div>
+        <div class="card" data-i18n="s1.c2">
+          <h3>Le droit d'auteur</h3>
+          <div class="sub">très ancien</div>
+          <p>Une œuvre appartient à celui qui l'a faite. Ce qui est discuté aujourd'hui n'est pas ce principe&nbsp;: c'est <b>son application</b> à l'entraînement et aux productions. Scène 5.</p>
+        </div>
+        <div class="card" data-i18n="s1.c3">
+          <h3>Votre image, votre voix</h3>
+          <div class="sub">droit de la personne</div>
+          <p>Publier un montage représentant quelqu'un sans son accord est un <b>délit</b> en France depuis bien avant l'IA. La loi a simplement été précisée en 2024. Scène 6.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s1.note">Retenez l'ordre des questions&nbsp;: <b>d'abord «&nbsp;qu'est-ce que je fais&nbsp;?&nbsp;», ensuite «&nbsp;avec quel outil&nbsp;?&nbsp;».</b> Diffuser une photo truquée d'un camarade, c'est la même infraction que le montage soit fait avec des ciseaux, un logiciel de retouche ou un modèle de diffusion.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LES QUATRE NIVEAUX ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation · huit usages à classer</div>
+    <h2 class="stitle" data-i18n="s2.t">Le règlement européen :<br>quatre niveaux</h2>
+    <p class="lead" data-i18n="s2.lead">Le <b>règlement sur l'IA</b> (adopté en 2024, applicable par étapes) ne régule pas la technique&nbsp;: il régule les <b>usages</b>, selon le risque qu'ils font courir aux personnes. Classez.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s2btns"></div>
+      <div class="casebox" id="s2case"></div>
+      <div class="ansrow nostep" id="s2ans"></div>
+      <div class="lvls" id="s2lvls"></div>
+      <p class="verd" id="s2verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · CE QUI EST INTERDIT ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Le haut de la pyramide</div>
+    <h2 class="stitle" data-i18n="s3.t">Ce qui est<br>purement interdit</h2>
+    <p class="lead" data-i18n="s3.lead">Quelques usages sont bannis en Europe, pas encadrés&nbsp;: <b>interdits</b>, depuis février 2025. Trois d'entre eux vous concernent directement.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card warn" data-i18n="s3.c1">
+          <h3>Lire les émotions à l'école</h3>
+          <div class="sub">et au travail</div>
+          <p>Un système qui prétend déduire par webcam si un élève est attentif, stressé ou ennuyé est <b>interdit</b> dans les établissements. Double raison&nbsp;: c'est intrusif, et <b>ça ne marche pas</b> — l'expression du visage ne donne pas l'état intérieur.</p>
+        </div>
+        <div class="card warn" data-i18n="s3.c2">
+          <h3>La notation sociale</h3>
+          <div class="sub">« score de citoyen »</div>
+          <p>Évaluer les personnes d'après leur comportement général pour leur ouvrir ou fermer des droits&nbsp;: interdit, quelle que soit la qualité du modèle.</p>
+        </div>
+        <div class="card warn" data-i18n="s3.c3">
+          <h3>Moissonner les visages</h3>
+          <div class="sub">sans ciblage</div>
+          <p>Constituer une base de reconnaissance faciale en aspirant massivement des photos sur le Web ou des caméras&nbsp;: interdit. C'est ce qui a valu des sanctions à plusieurs entreprises.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s3.note">Remarquez la logique&nbsp;: ce n'est <b>jamais la technique</b> qui est interdite. La même reconnaissance de visages est parfaitement légale pour déverrouiller votre téléphone. <b>Ce qui est interdit, c'est un usage sur des personnes, sans leur accord, avec un effet sur leurs droits.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · VOS DONNÉES ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Ce que vous pouvez exiger</div>
+    <h2 class="stitle" data-i18n="s4.t">Vos données,<br>vos droits</h2>
+    <p class="lead" data-i18n="s4.lead">Quand vous écrivez à un assistant, vous fournissez des données personnelles — les vôtres, et souvent celles d'autres personnes (séance 13). Voici ce que la loi vous donne, et ce qu'elle ne vous donne pas.</p>
+
+    <div class="mid">
+      <div class="twoc">
+        <div>
+          <div class="plbl" data-i18n="s4.lbl1">Ce que vous pouvez demander</div>
+          <div class="lst yes" data-i18n="s4.yes">
+            <div class="lrow"><div class="mk">✓</div><div><b>Accéder</b> aux données détenues sur vous, et en obtenir une copie</div></div>
+            <div class="lrow"><div class="mk">✓</div><div><b>Faire corriger</b> ce qui est faux</div></div>
+            <div class="lrow"><div class="mk">✓</div><div><b>Faire effacer</b> votre compte et son historique</div></div>
+            <div class="lrow"><div class="mk">✓</div><div><b>Refuser</b> que vos conversations servent à l'entraînement — c'est un réglage, souvent activé par défaut</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>Ne pas subir une <b>décision entièrement automatisée</b> ayant un effet important sur vous, sans recours humain</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="plbl" data-i18n="s4.lbl2">Les limites réelles</div>
+          <div class="lst no" data-i18n="s4.no">
+            <div class="lrow"><div class="mk">✗</div><div>Effacer votre historique <b>ne retire pas</b> ce qui a déjà servi à entraîner un modèle&nbsp;: les poids ne se «&nbsp;désapprennent&nbsp;» pas (séance 9)</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>Un service hébergé hors d'Europe reste tenu par le RGPD s'il vise des Européens — mais <b>le faire respecter est plus long</b></div></div>
+            <div class="lrow"><div class="mk">✗</div><div>En France, <b>avant 15 ans</b>, l'inscription à un service en ligne requiert l'accord d'un parent&nbsp;: la plupart des services ne le vérifient pas</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>Vos droits portent sur <b>vos</b> données&nbsp;: coller le message d'un camarade, c'est disposer des données d'un autre</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s4.note">Le geste concret de cette scène&nbsp;: allez dans les réglages de l'assistant que vous utilisez et cherchez la ligne «&nbsp;<b>améliorer le modèle pour tous</b>&nbsp;» ou «&nbsp;utiliser mes conversations pour l'entraînement&nbsp;». Vous saurez en trente secondes ce qui se passe avec ce que vous écrivez.</p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · LE DROIT D'AUTEUR ============ -->
+  <div class="pane dark pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Deux questions, pas une</div>
+    <h2 class="stitle" data-i18n="s5.t">Le droit d'auteur,<br>des deux côtés</h2>
+    <p class="lead" data-i18n="s5.lead">On mélange constamment deux questions juridiques différentes&nbsp;: ce qui <b>entre</b> dans l'entraînement, et ce qui <b>sort</b> du modèle. Elles n'ont ni la même réponse ni le même degré de certitude.</p>
+
+    <div class="mid">
+      <div class="twoc">
+        <div class="mdl">
+          <div class="mdrow" data-i18n="s5.a1"><div class="h">En entrée · l'entraînement</div>
+            <p>Le droit européen autorise la <b>fouille de textes et de données</b>, y compris sur des œuvres protégées — mais les ayants droit peuvent s'y <b>opposer</b> explicitement. En pratique, cette opposition est difficile à exprimer et difficile à vérifier.</p></div>
+          <div class="mdrow" data-i18n="s5.a2"><div class="h">Et ailleurs</div>
+            <p>Aux États-Unis, la question se joue devant les tribunaux au cas par cas. <b>Plusieurs procès majeurs sont en cours&nbsp;; aucun n'a encore fixé de règle générale.</b> Dire «&nbsp;c'est légal&nbsp;» ou «&nbsp;c'est du vol&nbsp;» est, aujourd'hui, prématuré dans les deux sens.</p></div>
+          <div class="mdrow" data-i18n="s5.a3"><div class="h">Ce qui est déjà clair</div>
+            <p>Le règlement européen oblige les fournisseurs de grands modèles à publier un <b>résumé suffisamment détaillé</b> des contenus d'entraînement. C'est une obligation de transparence, pas une autorisation.</p></div>
+        </div>
+        <div class="mdl">
+          <div class="mdrow" data-i18n="s5.b1"><div class="h">En sortie · ce que vous générez</div>
+            <p>En France comme en Europe, une œuvre est protégée si elle porte l'empreinte d'une <b>personnalité humaine</b>. Une image obtenue en tapant une phrase, sans autre apport, n'est en général <b>protégée par personne</b> — ni par vous, ni par l'éditeur du modèle.</p></div>
+          <div class="mdrow" data-i18n="s5.b2"><div class="h">Mais vous pouvez quand même être en tort</div>
+            <p>Si la production <b>ressemble trop</b> à une œuvre existante, c'est une contrefaçon — exactement comme un dessin fait à la main. <b>Le fait que ce soit une machine qui l'ait produite n'est pas une excuse.</b></p></div>
+          <div class="mdrow" data-i18n="s5.b3"><div class="h">Le style, encore</div>
+            <p>Imiter la <b>manière</b> d'un artiste n'est pas en soi une contrefaçon, parce qu'un style n'est pas protégé. C'est juridiquement établi, et c'est précisément ce que beaucoup d'illustrateurs contestent.</p></div>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s5.note">Ce qu'il faut savoir dire&nbsp;: <b>la question de l'entraînement n'est pas tranchée, celle de la sortie l'est davantage.</b> Et pour un devoir&nbsp;: si vous utilisez une image générée, dites-le — ce n'est pas une obligation légale, c'est l'honnêteté de la séance 14.</p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · VOTRE IMAGE ============ -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">La scène qui peut servir demain</div>
+    <h2 class="stitle" data-i18n="s6.t">Un montage de<br>quelqu'un : c'est un délit</h2>
+    <p class="lead" data-i18n="s6.lead">C'est la partie la plus concrète de la séance, et celle qui risque le plus de servir. En France, publier un montage représentant une personne sans son consentement est une <b>infraction pénale</b> — la loi l'a précisé en 2024 pour viser explicitement les contenus générés par IA.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card warn" data-i18n="s6.c1">
+          <h3>Ce qui est puni</h3>
+          <div class="sub">sans qu'il faille un préjudice</div>
+          <p>Diffuser un montage — image, vidéo ou <b>voix</b> — d'une personne identifiable, sans son accord, quand il n'est pas évident qu'il s'agit d'un montage. Les peines sont <b>aggravées</b> si le contenu est à caractère sexuel.</p>
+        </div>
+        <div class="card warn" data-i18n="s6.c2">
+          <h3>Qui est responsable</h3>
+          <div class="sub">le point que tout le monde rate</div>
+          <p>Celui qui fabrique, mais aussi <b>celui qui diffuse</b> — y compris en le transférant dans un groupe. «&nbsp;Je n'ai fait que partager&nbsp;» n'est pas une défense, et «&nbsp;c'était pour rire&nbsp;» non plus.</p>
+        </div>
+        <div class="card good" data-i18n="s6.c3">
+          <h3>Si ça vous arrive</h3>
+          <div class="sub">dans cet ordre</div>
+          <p><b>1.</b> Conserver les preuves (captures, dates, qui a envoyé quoi) — <b>avant</b> de bloquer.<br><b>2.</b> En parler à un adulte&nbsp;: parent, professeur, CPE.<br><b>3.</b> Signaler à la plateforme.<br><b>4.</b> Une plainte est possible, et le 3018 existe pour ça.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s6.note">Et une remarque qui boucle avec la séance 16&nbsp;: puisque le faux est devenu facile, <b>les preuves comptent plus qu'avant</b>. Garder les traces n'est pas de la paranoïa, c'est ce qui permet de ne pas se retrouver dans la position de devoir prouver un négatif.</p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · LE BIAIS ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">Rappel du bloc 3, vu du droit</div>
+    <h2 class="stitle" data-i18n="s7.t">Un biais peut être<br>une discrimination</h2>
+    <p class="lead" data-i18n="s7.lead">Vous savez d'où viennent les biais&nbsp;: des données, qui portent la trace des décisions passées (séance 8). Le droit ajoute quelque chose que la technique ne dit pas&nbsp;: <b>à partir d'un certain usage, un biais n'est plus un défaut, c'est une infraction.</b></p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s7.c1">
+          <h3>Le droit existant</h3>
+          <div class="sub">bien avant l'IA</div>
+          <p>Refuser un emploi, un logement ou un crédit en raison de l'origine, du sexe, de l'âge ou du handicap est illégal. <b>Que la décision vienne d'un humain ou d'un modèle ne change rien</b> — et «&nbsp;c'est l'algorithme&nbsp;» n'exonère personne.</p>
+        </div>
+        <div class="card" data-i18n="s7.c2">
+          <h3>Ce que le règlement ajoute</h3>
+          <div class="sub">pour les usages à haut risque</div>
+          <p>Documenter les données, mesurer les performances <b>par groupe</b>, prévoir une supervision humaine, et conserver des journaux. Autrement dit&nbsp;: <b>il faut pouvoir montrer qu'on a cherché le biais</b>.</p>
+        </div>
+        <div class="card warn" data-i18n="s7.c3">
+          <h3>Ce qui reste difficile</h3>
+          <div class="sub">honnêtement</div>
+          <p>Un biais ne se voit pas dans le code&nbsp;: il faut <b>mesurer les sorties</b>, groupe par groupe, et il faut donc disposer de ces catégories — ce que le droit, par ailleurs, restreint. <b>Cette tension n'est pas résolue.</b></p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s7.note">La formule à retenir&nbsp;: <b>un modèle n'est pas un alibi.</b> Une décision prise par un système reste imputable à celui qui l'a déployée, et c'est à lui d'expliquer, de corriger, et de prévoir un recours humain.</p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · CE QUE LA LOI NE RÈGLE PAS ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Rigueur · les angles morts</div>
+    <h2 class="stitle" data-i18n="s8.t">Ce que le droit<br>ne règle pas</h2>
+    <p class="lead" data-i18n="s8.lead">Une séance honnête sur la loi doit dire où elle s'arrête. Quatre sujets de cette année ne sont, à ce jour, presque pas couverts.</p>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card warn" data-i18n="s8.c1">
+          <h3>L'énergie et l'eau</h3>
+          <div class="sub">séance 17</div>
+          <p>Le règlement demande une <b>déclaration</b> de consommation pour les très gros modèles, et rien de plus&nbsp;: aucun plafond, aucun seuil. Les centres de données relèvent du droit de l'environnement ordinaire, décidé localement.</p>
+        </div>
+        <div class="card warn" data-i18n="s8.c2">
+          <h3>Le travail d'annotation</h3>
+          <div class="sub">séance 17</div>
+          <p>Il se fait le plus souvent <b>hors d'Europe</b>, par sous-traitance. Le droit du travail européen ne s'y applique pas, et aucune obligation de transparence sur la chaîne de sous-traitance n'existe.</p>
+        </div>
+        <div class="card warn" data-i18n="s8.c3">
+          <h3>La concentration</h3>
+          <div class="sub">séance 17</div>
+          <p>Elle relève du droit de la concurrence&nbsp;: des procédures existent, mais elles durent des années — <b>à l'échelle de ce secteur, c'est très long</b>.</p>
+        </div>
+        <div class="card warn" data-i18n="s8.c4">
+          <h3>Et la portée</h3>
+          <div class="sub">le plus structurel</div>
+          <p>Un règlement européen s'applique en Europe. Il pèse parce que le marché est grand — mais <b>il ne décide pas de ce qui se fait ailleurs</b>, où sont entraînés la plupart des modèles que vous utilisez.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s8.note">Dernier point, et c'est le plus important&nbsp;: <b>le droit arrive toujours après</b>. Entre une pratique et sa régulation, il s'écoule des années — et c'est précisément pendant ces années-là que les usages s'installent. <b>Ce qui veut dire qu'une partie des règles ne sera pas écrite par des législateurs, mais par ce que les gens auront accepté entre-temps.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s9">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s9.eye">La question qui ferme l'année</div>
+    <div class="q" data-i18n="s9.q">Et <em>vous</em>,<br>vous en faites<br>quoi&nbsp;?</div>
+    <p class="a" data-i18n="s9.a">La loi fixe un plancher&nbsp;: ce qui est interdit, ce qui doit être déclaré, ce qui ouvre un recours. Elle ne dira jamais ce qu'il est <b>bon</b> de faire — ni si vous devez faire relire vos textes, ni ce que vous acceptez de confier, ni ce qu'une société gagne ou perd à automatiser telle tâche. Ces questions-là n'ont pas de réponse technique&nbsp;: elles se discutent. <b>Il reste une séance pour ça, et c'est la vôtre.</b></p>
+    <div class="next" data-i18n="s9.next">Séance suivante · Quel rapport je veux avoir</div>
+  </div>
+
+  <!-- ============ 10 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s10">
+    <div class="tag" data-i18n="s10.tag">Activité de la séance · 40 minutes · par trois</div>
+    <h2 data-i18n="s10.t">Le <em>règlement</em><br>de l'établissement</h2>
+    <p class="sub" data-i18n="s10.sub">Un exercice de droit appliqué&nbsp;: votre lycée veut écrire sa charte sur l'IA. Vous la rédigez, puis vous la passez à l'épreuve des faits.</p>
+    <ol class="steps">
+      <li data-i18n="s10.l1"><b>L'état des lieux.</b> Votre établissement a-t-il déjà une règle écrite&nbsp;? Cherchez dans le règlement intérieur. Si oui, dit-elle quoi exactement&nbsp;? Si non, notez-le&nbsp;: c'est le cas le plus fréquent.</li>
+      <li data-i18n="s10.l2"><b>Les quatre cas.</b> Pour chacun, autorisé, encadré ou interdit — et <b>pourquoi</b>&nbsp;: faire relire un texte qu'on a écrit&nbsp;; faire rédiger une introduction&nbsp;; générer des exercices pour réviser&nbsp;; traduire un texte en langue vivante.</li>
+      <li data-i18n="s10.l3"><b>Le piège.</b> Un élève utilise un assistant pour <b>compenser un trouble de l'écriture</b>. Votre règle le pénalise-t-elle&nbsp;? Faut-il la réécrire&nbsp;? Cette question vaut la moitié de l'activité.</li>
+      <li data-i18n="s10.l4"><b>La preuve.</b> Comment votre règle est-elle vérifiable&nbsp;? Interdisez-vous l'usage d'un détecteur (séance 16)&nbsp;? Si oui, que met-on à la place&nbsp;?</li>
+      <li data-i18n="s10.l5"><b>La charte.</b> Rédigez-la&nbsp;: <b>dix lignes maximum</b>, applicables à toutes les matières. Elle doit tenir sur une page affichée en salle.</li>
+      <li data-i18n="s10.l6"><b>Le contrôle.</b> Échangez avec un autre groupe. Trouvez <b>trois situations</b> que leur charte ne tranche pas. Puis corrigez la vôtre avec ce qu'ils ont trouvé sur vous.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 11 · RÉCAP ============ -->
+  <div class="pane light pad" id="s11">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 18 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Ce que dit <span>la loi</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">Il n'y a <b>pas de vide juridique</b>&nbsp;: données personnelles, droit d'auteur et droit à l'image s'appliquaient déjà. Première question&nbsp;: «&nbsp;qu'est-ce que je fais&nbsp;?&nbsp;», pas «&nbsp;avec quel outil&nbsp;?&nbsp;».</li>
+      <li data-i18n="rc.i2">Le <span class="hl">règlement européen sur l'IA</span> régule les <b>usages</b>, pas la technique, en quatre niveaux&nbsp;: interdit, haut risque, transparence, minimal.</li>
+      <li data-i18n="rc.i3">Sont <b>interdits</b> notamment&nbsp;: la reconnaissance des émotions <b>à l'école</b> et au travail, la notation sociale, et le moissonnage non ciblé de visages.</li>
+      <li data-i18n="rc.i4">Sur vos données&nbsp;: accès, rectification, effacement, <b>refus de l'entraînement</b> (un réglage à aller chercher), et pas de décision automatisée importante sans recours humain.</li>
+      <li data-i18n="rc.i5">Effacer son historique <b>ne retire pas</b> ce qui a déjà servi à entraîner&nbsp;: les poids ne se désapprennent pas.</li>
+      <li data-i18n="rc.i6">Droit d'auteur&nbsp;: la question de l'<b>entraînement n'est pas tranchée</b>&nbsp;; en sortie, une production sans apport humain n'est en général protégée par personne — mais elle peut être une <b>contrefaçon</b>.</li>
+      <li data-i18n="rc.i7">Diffuser un <b>montage</b> de quelqu'un sans son accord est un <b>délit</b> en France, y compris pour celui qui ne fait que partager. Conserver les preuves, en parler à un adulte, signaler.</li>
+      <li data-i18n="rc.i8">Un biais peut être une <b>discrimination illégale</b>&nbsp;: «&nbsp;c'est l'algorithme&nbsp;» n'exonère personne. Et la loi ne couvre presque pas l'énergie, l'annotation, ni la concentration.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>RGPD</b>Le droit des données personnelles.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Haut risque</b>Autorisé, mais sous conditions lourdes.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Transparence</b>Dire que c'est une IA, ou que c'est généré.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Contrefaçon</b>Trop ressemblant à une œuvre existante.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Montage</b>Diffusé sans accord : un délit.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Recours humain</b>Pouvoir demander à être réexaminé.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>la loi dit le plancher. Reste à décider ce qu'on fait au-dessus — et ça, ça se discute.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 11;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.matches && e.target.matches('input,select')) return;
+  if(e.target && e.target.closest && e.target.closest('#langsw') && (e.key===' '||e.key==='Enter')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,input,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   SCÈNE 2 — classer huit usages dans les quatre niveaux
+   ========================================================= */
+var S2 = {
+  fr:{
+    btn:['1','2','3','4','5','6','7','8'],
+    tag:'Usage',
+    lvl:[
+      ['Interdit',      'banni en Europe, quelle que soit la qualité du système'],
+      ['Haut risque',   'autorisé, mais : documentation, mesure des biais, supervision humaine, journaux'],
+      ['Transparence',  'autorisé, à condition de prévenir : « vous parlez à une IA », « ceci est généré »'],
+      ['Risque minimal','aucune obligation particulière — la très grande majorité des usages']
+    ],
+    cases:[
+      { c:'Le filtre anti-spam de votre messagerie, qui décide quels courriers vont dans le dossier indésirable.',
+        g:3, r:'Risque minimal. C’est de l’IA depuis vingt ans, l’enjeu pour les personnes est faible, et <b>aucune obligation particulière</b> ne s’applique. Rappel utile&nbsp;: <b>l’immense majorité des usages est ici</b> — le règlement ne concerne pas tout.' },
+      { c:'Un logiciel qui corrige et note automatiquement les copies d’un examen.',
+        g:1, r:'Haut risque. L’<b>éducation</b> est explicitement listée&nbsp;: tout ce qui conditionne l’accès à une formation ou l’évaluation des élèves. Ce n’est pas interdit — mais il faut documenter, mesurer les écarts entre groupes, et garantir une <b>supervision humaine</b>.' },
+      { c:'Un assistant de discussion sur le site d’un service client.',
+        g:2, r:'Transparence. Il doit être <b>évident que vous parlez à une machine</b>. C’est tout&nbsp;: pas de documentation lourde, juste l’obligation de ne pas vous laisser croire que c’est un humain.' },
+      { c:'Un système qui attribue à chaque habitant une note de comportement, utilisée pour l’accès à des services.',
+        g:0, r:'Interdit. C’est la <b>notation sociale</b>, nommément bannie. Aucune condition ne la rend acceptable&nbsp;: ce n’est pas une question de fiabilité du modèle, c’est une question de ce qu’on accepte de faire aux personnes.' },
+      { c:'Un générateur d’images, dont les productions doivent pouvoir être reconnues comme artificielles.',
+        g:2, r:'Transparence. Le règlement impose de <b>marquer les contenus générés</b> dans un format lisible par les machines — c’est exactement la provenance de la séance 16, rendue obligatoire.' },
+      { c:'Un logiciel qui trie automatiquement les candidatures reçues pour un emploi.',
+        g:1, r:'Haut risque. L’<b>emploi</b> est listé au même titre que l’éducation. Et rappelez-vous la scène 7&nbsp;: si le tri reproduit une discrimination, l’employeur en répond — «&nbsp;c’est l’algorithme&nbsp;» n’est pas une défense.' },
+      { c:'Un système installé dans une salle de classe, qui déduit par webcam si les élèves sont attentifs.',
+        g:0, r:'Interdit. La <b>reconnaissance des émotions en éducation</b> est explicitement bannie — comme au travail. Deux raisons tiennent ensemble&nbsp;: c’est intrusif, et <b>la prémisse scientifique est fausse</b>.' },
+      { c:'Le correcteur orthographique de votre traitement de texte.',
+        g:3, r:'Risque minimal. Il n’y a <b>aucune obligation</b>. C’est un bon rappel final&nbsp;: le règlement ne dit pas «&nbsp;l’IA est dangereuse&nbsp;», il dit «&nbsp;voici les quelques usages où les droits des personnes sont en jeu&nbsp;».' }
+    ],
+    ask:'Classez cet usage.',
+    bad:'Non. '
+  },
+  en:{
+    btn:['1','2','3','4','5','6','7','8'],
+    tag:'Use case',
+    lvl:[
+      ['Prohibited',  'banned in Europe, whatever the quality of the system'],
+      ['High risk',   'allowed, but: documentation, bias measurement, human oversight, logs'],
+      ['Transparency','allowed, provided you are told: &ldquo;you are talking to an AI&rdquo;, &ldquo;this was generated&rdquo;'],
+      ['Minimal risk','no particular obligation — the vast majority of uses']
+    ],
+    cases:[
+      { c:'Your mailbox’s spam filter, deciding which messages go to the junk folder.',
+        g:3, r:'Minimal risk. This has been AI for twenty years, the stakes for people are low, and <b>no particular obligation</b> applies. A useful reminder: <b>the vast majority of uses sit here</b> — the regulation does not cover everything.' },
+      { c:'Software that automatically marks and grades exam papers.',
+        g:1, r:'High risk. <b>Education</b> is explicitly listed: anything conditioning access to a course or the assessment of pupils. It is not banned — but you must document, measure gaps between groups, and guarantee <b>human oversight</b>.' },
+      { c:'A chat assistant on a customer service website.',
+        g:2, r:'Transparency. It must be <b>obvious that you are talking to a machine</b>. That is all: no heavy documentation, just the duty not to let you believe it is a human.' },
+      { c:'A system giving every inhabitant a behaviour score, used to grant access to services.',
+        g:0, r:'Prohibited. This is <b>social scoring</b>, banned by name. No condition makes it acceptable: it is not a question of how reliable the model is, it is a question of what we agree to do to people.' },
+      { c:'An image generator, whose output must be recognisable as artificial.',
+        g:2, r:'Transparency. The regulation requires <b>marking generated content</b> in a machine-readable format — exactly lesson 16’s provenance, made compulsory.' },
+      { c:'Software that automatically sorts job applications.',
+        g:1, r:'High risk. <b>Employment</b> is listed alongside education. And remember scene 7: if the sorting reproduces a discrimination, the employer answers for it — &ldquo;it was the algorithm&rdquo; is not a defence.' },
+      { c:'A system installed in a classroom that infers from webcam whether pupils are paying attention.',
+        g:0, r:'Prohibited. <b>Emotion recognition in education</b> is explicitly banned — as at work. Two reasons hold together: it is intrusive, and <b>the scientific premise is false</b>.' },
+      { c:'The spell-checker in your word processor.',
+        g:3, r:'Minimal risk. There is <b>no obligation at all</b>. A good closing reminder: the regulation does not say &ldquo;AI is dangerous&rdquo;, it says &ldquo;here are the few uses where people’s rights are at stake&rdquo;.' }
+    ],
+    ask:'Classify this use.',
+    bad:'No. '
+  }
+};
+var s2i = 0;
+var s2pick = [-1,-1,-1,-1,-1,-1,-1,-1];
+function drawS2(){
+  var t = S2[LG()], k = t.cases[s2i], p = s2pick[s2i];
+  pickbtns('s2btns', t.btn, s2i, function(i){ s2i = i; drawS2(); });
+  document.getElementById('s2case').innerHTML =
+    '<div class="ct">' + t.tag + ' ' + (s2i+1) + '</div><p>' + k.c + '</p>';
+  document.getElementById('s2ans').innerHTML = t.lvl.map(function(l,i){
+    var cls = '';
+    if(p >= 0){
+      if(i === k.g) cls = ' ok';
+      else if(i === p) cls = ' no';
+    }
+    return '<button class="ans nostep' + cls + '" data-i="' + i + '">' + l[0] + '</button>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s2ans .ans')).forEach(function(b){
+    b.onclick = function(){ s2pick[s2i] = +b.dataset.i; drawS2(); };
+  });
+  document.getElementById('s2lvls').innerHTML = t.lvl.map(function(l,i){
+    return '<div class="lvl k' + i + (p >= 0 && i === k.g ? ' hit' : '') + '">' +
+      '<div class="ln">' + l[0] + '</div><div class="lo">' + l[1] + '</div></div>';
+  }).join('');
+  document.getElementById('s2verd').innerHTML =
+    p < 0 ? t.ask : ((p === k.g ? '' : t.bad) + k.r);
+}
+
+/* =========================================================
+   REDESSIN GLOBAL
+   ========================================================= */
+function redrawAll(){ drawS2(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Ce que dit la loi`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`What the law says`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · What it really costs`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`This is not<br>a legal <em>void</em>.`,
+  's0.line':`The sentence you hear most often has been wrong from the start. Most uses of AI <strong style="color:#fff">already</strong> fell under existing rules — personal data, copyright, image rights. And since 2024 Europe has added a <strong style="color:#fff">specific</strong> text, applying in stages.`,
+  's0.kick':`GDPR · the AI Act · copyright · your image · what is missing`,
+
+  /* --- 1 · ce qui s'appliquait déjà --- */
+  's1.eye':`Before any AI-specific text`,
+  's1.t':`Three bodies of law<br>that already existed`,
+  's1.lead':`A new tool does not create a lawless territory. It arrives in a world where three sets of rules apply, whatever tool is used.`,
+  's1.c1':`
+          <h3>Personal data</h3>
+          <div class="sub">GDPR · since 2018</div>
+          <p>Any information that identifies someone is regulated: you need a <b>legal basis</b> to process it, and the person has rights over it. The tool used changes nothing.</p>
+        `,
+  's1.c2':`
+          <h3>Copyright</h3>
+          <div class="sub">very old</div>
+          <p>A work belongs to whoever made it. What is being argued about today is not that principle: it is <b>its application</b> to training and to outputs. Scene 5.</p>
+        `,
+  's1.c3':`
+          <h3>Your image, your voice</h3>
+          <div class="sub">rights of the person</div>
+          <p>Publishing a composite depicting someone without their consent has been a <b>criminal offence</b> in France since long before AI. The law was simply clarified in 2024. Scene 6.</p>
+        `,
+  's1.note':`Remember the order of the questions: <b>first &ldquo;what am I doing?&rdquo;, then &ldquo;with what tool?&rdquo;</b> Circulating a doctored photo of a classmate is the same offence whether the montage was made with scissors, a retouching program or a diffusion model.`,
+
+  /* --- 2 · les quatre niveaux --- */
+  's2.eye':`Hands on · eight uses to classify`,
+  's2.t':`The European regulation:<br>four levels`,
+  's2.lead':`The <b>AI Act</b> (adopted in 2024, applying in stages) does not regulate the technology: it regulates <b>uses</b>, according to the risk they create for people. Classify them.`,
+
+  /* --- 3 · ce qui est interdit --- */
+  's3.eye':`The top of the pyramid`,
+  's3.t':`What is simply<br>forbidden`,
+  's3.lead':`A few uses are banned in Europe, not regulated: <b>forbidden</b>, since February 2025. Three of them concern you directly.`,
+  's3.c1':`
+          <h3>Reading emotions at school</h3>
+          <div class="sub">and at work</div>
+          <p>A system claiming to infer from webcam whether a pupil is attentive, stressed or bored is <b>banned</b> in schools. For two reasons at once: it is intrusive, and <b>it does not work</b> — a facial expression does not give an inner state.</p>
+        `,
+  's3.c2':`
+          <h3>Social scoring</h3>
+          <div class="sub">&ldquo;citizen score&rdquo;</div>
+          <p>Rating people on their general behaviour in order to grant or withhold rights: banned, whatever the quality of the model.</p>
+        `,
+  's3.c3':`
+          <h3>Scraping faces</h3>
+          <div class="sub">untargeted</div>
+          <p>Building a facial recognition database by mass-harvesting photos from the Web or from cameras: banned. This is what earned several companies their penalties.</p>
+        `,
+  's3.note':`Notice the logic: it is <b>never the technology</b> that is banned. The very same face recognition is perfectly legal to unlock your phone. <b>What is banned is a use on people, without their consent, with an effect on their rights.</b>`,
+
+  /* --- 4 · vos données --- */
+  's4.eye':`What you can demand`,
+  's4.t':`Your data,<br>your rights`,
+  's4.lead':`When you write to an assistant you supply personal data — your own, and often other people's (lesson 13). Here is what the law gives you, and what it does not.`,
+  's4.lbl1':`What you can ask for`,
+  's4.lbl2':`The real limits`,
+  's4.yes':`
+            <div class="lrow"><div class="mk">✓</div><div><b>Access</b> the data held about you, and get a copy</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>Have what is <b>wrong corrected</b></div></div>
+            <div class="lrow"><div class="mk">✓</div><div>Have your account and its history <b>erased</b></div></div>
+            <div class="lrow"><div class="mk">✓</div><div><b>Refuse</b> to let your conversations feed training — a setting, often on by default</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>Not be subject to a <b>fully automated decision</b> with a significant effect on you, with no human recourse</div></div>
+          `,
+  's4.no':`
+            <div class="lrow"><div class="mk">✗</div><div>Deleting your history <b>does not remove</b> what has already trained a model: weights do not &ldquo;unlearn&rdquo; (lesson 9)</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>A service hosted outside Europe is still bound by the GDPR if it targets Europeans — but <b>enforcement takes longer</b></div></div>
+            <div class="lrow"><div class="mk">✗</div><div>In France, <b>under 15</b>, signing up to an online service needs a parent's consent: most services do not check</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>Your rights cover <b>your</b> data: pasting a classmate's message means handling somebody else's</div></div>
+          `,
+  's4.note':`The concrete step from this scene: go into the settings of the assistant you use and look for the line &ldquo;<b>improve the model for everyone</b>&rdquo; or &ldquo;use my conversations for training&rdquo;. In thirty seconds you will know what happens to what you write.`,
+
+  /* --- 5 · le droit d'auteur --- */
+  's5.eye':`Two questions, not one`,
+  's5.t':`Copyright,<br>on both sides`,
+  's5.lead':`Two different legal questions get constantly mixed up: what <b>goes into</b> training, and what <b>comes out of</b> the model. They have neither the same answer nor the same degree of certainty.`,
+  's5.a1':`<div class="h">Input · training</div>
+            <p>European law allows <b>text and data mining</b>, including on protected works — but rights holders may explicitly <b>opt out</b>. In practice that opt-out is hard to express and hard to verify.</p>`,
+  's5.a2':`<div class="h">And elsewhere</div>
+            <p>In the United States the question is being fought case by case in the courts. <b>Several major cases are under way; none has yet set a general rule.</b> Saying &ldquo;it is legal&rdquo; or &ldquo;it is theft&rdquo; is, today, premature in both directions.</p>`,
+  's5.a3':`<div class="h">What is already clear</div>
+            <p>The European regulation requires providers of large models to publish a <b>sufficiently detailed summary</b> of their training content. That is a transparency duty, not an authorisation.</p>`,
+  's5.b1':`<div class="h">Output · what you generate</div>
+            <p>In France as in Europe, a work is protected if it bears the stamp of a <b>human personality</b>. An image obtained by typing a sentence, with no other input, is generally <b>protected by nobody</b> — not by you, not by the model's publisher.</p>`,
+  's5.b2':`<div class="h">But you can still be in the wrong</div>
+            <p>If the output <b>resembles</b> an existing work too closely, it is an infringement — exactly as a hand-drawn copy would be. <b>The fact that a machine produced it is not an excuse.</b></p>`,
+  's5.b3':`<div class="h">Style, again</div>
+            <p>Imitating an artist's <b>manner</b> is not in itself infringement, because a style is not protected. That is legally settled, and it is precisely what many illustrators contest.</p>`,
+  's5.note':`What you should be able to say: <b>the training question is unsettled, the output question rather less so.</b> And for homework: if you use a generated image, say so — not a legal duty, but the honesty of lesson 14.`,
+
+  /* --- 6 · votre image --- */
+  's6.eye':`The scene that may be useful tomorrow`,
+  's6.t':`A composite of someone:<br>that is an offence`,
+  's6.lead':`This is the most concrete part of the lesson, and the likeliest to be needed. In France, publishing a composite depicting a person without their consent is a <b>criminal offence</b> — the law was clarified in 2024 to cover AI-generated content explicitly.`,
+  's6.c1':`
+          <h3>What is punished</h3>
+          <div class="sub">with no need for harm</div>
+          <p>Circulating a composite — image, video or <b>voice</b> — of an identifiable person, without their consent, where it is not obvious that it is a composite. Penalties are <b>increased</b> where the content is sexual.</p>
+        `,
+  's6.c2':`
+          <h3>Who is liable</h3>
+          <div class="sub">the point everyone misses</div>
+          <p>Whoever makes it, but also <b>whoever circulates it</b> — including forwarding it into a group. &ldquo;I only shared it&rdquo; is not a defence, and neither is &ldquo;it was a joke&rdquo;.</p>
+        `,
+  's6.c3':`
+          <h3>If it happens to you</h3>
+          <div class="sub">in this order</div>
+          <p><b>1.</b> Keep the evidence (screenshots, dates, who sent what) — <b>before</b> blocking.<br><b>2.</b> Tell an adult: a parent, a teacher, a head of year.<br><b>3.</b> Report it to the platform.<br><b>4.</b> A complaint is possible, and in France the 3018 helpline exists for this.</p>
+        `,
+  's6.note':`And a remark that loops back to lesson 16: now that fakery is easy, <b>evidence matters more than it used to</b>. Keeping records is not paranoia, it is what stops you ending up having to prove a negative.`,
+
+  /* --- 7 · le biais --- */
+  's7.eye':`Block 3 revisited, from the legal side`,
+  's7.t':`A bias can be<br>a discrimination`,
+  's7.lead':`You know where biases come from: from data, which carries the trace of past decisions (lesson 8). The law adds something the technology does not say: <b>beyond a certain use, a bias is no longer a flaw, it is an offence.</b>`,
+  's7.c1':`
+          <h3>Existing law</h3>
+          <div class="sub">long before AI</div>
+          <p>Refusing someone a job, a home or a loan on grounds of origin, sex, age or disability is illegal. <b>Whether the decision comes from a human or a model changes nothing</b> — and &ldquo;it was the algorithm&rdquo; exonerates nobody.</p>
+        `,
+  's7.c2':`
+          <h3>What the regulation adds</h3>
+          <div class="sub">for high-risk uses</div>
+          <p>Document the data, measure performance <b>by group</b>, provide human oversight, and keep logs. In other words: <b>you must be able to show that you looked for the bias</b>.</p>
+        `,
+  's7.c3':`
+          <h3>What remains hard</h3>
+          <div class="sub">honestly</div>
+          <p>A bias is not visible in the code: you have to <b>measure the outputs</b>, group by group — which means holding those categories, something the law otherwise restricts. <b>That tension is not resolved.</b></p>
+        `,
+  's7.note':`The formula to remember: <b>a model is not an alibi.</b> A decision made by a system remains attributable to whoever deployed it, and it is up to them to explain, to correct, and to provide human recourse.`,
+
+  /* --- 8 · ce que la loi ne règle pas --- */
+  's8.eye':`Rigour · the blind spots`,
+  's8.t':`What the law<br>does not settle`,
+  's8.lead':`An honest lesson about the law has to say where it stops. Four topics from this year are, to date, barely covered at all.`,
+  's8.c1':`
+          <h3>Energy and water</h3>
+          <div class="sub">lesson 17</div>
+          <p>The regulation asks for a <b>declaration</b> of consumption for very large models, and nothing more: no ceiling, no threshold. Data centres fall under ordinary environmental law, decided locally.</p>
+        `,
+  's8.c2':`
+          <h3>Annotation work</h3>
+          <div class="sub">lesson 17</div>
+          <p>It is mostly done <b>outside Europe</b>, through subcontracting. European labour law does not apply, and no transparency duty on the subcontracting chain exists.</p>
+        `,
+  's8.c3':`
+          <h3>Concentration</h3>
+          <div class="sub">lesson 17</div>
+          <p>That falls under competition law: procedures exist, but they take years — <b>which, at the pace of this sector, is very long</b>.</p>
+        `,
+  's8.c4':`
+          <h3>And its reach</h3>
+          <div class="sub">the most structural point</div>
+          <p>A European regulation applies in Europe. It carries weight because the market is large — but <b>it does not decide what happens elsewhere</b>, where most of the models you use are trained.</p>
+        `,
+  's8.note':`One last point, and it is the most important: <b>the law always arrives afterwards</b>. Years pass between a practice and its regulation — and it is precisely during those years that habits settle. <b>Which means part of the rules will not be written by legislators, but by what people will have accepted in the meantime.</b>`,
+
+  /* --- 9 · charnière --- */
+  's9.eye':`The question that closes the year`,
+  's9.q':`And <em>you</em>,<br>what do you<br>do with it?`,
+  's9.a':`The law sets a floor: what is forbidden, what must be declared, what opens a right of recourse. It will never say what it is <b>good</b> to do — not whether you should have your writing reviewed, not what you agree to hand over, not what a society gains or loses by automating a given task. Those questions have no technical answer: they are argued. <b>There is one lesson left for that, and it is yours.</b>`,
+  's9.next':`Next lesson · The relationship I want`,
+
+  /* --- 10 · activité --- */
+  's10.tag':`Activity for this lesson · 40 minutes · in threes`,
+  's10.t':`The school's<br><em>charter</em>`,
+  's10.sub':`An exercise in applied law: your school wants to write its AI charter. You draft it, then you test it against reality.`,
+  's10.l1':`<b>The state of play.</b> Does your school already have a written rule? Look in the school rules. If so, what exactly does it say? If not, note that: it is the commonest case.`,
+  's10.l2':`<b>The four cases.</b> For each: allowed, conditional or forbidden — and <b>why</b>: having a text you wrote reviewed; having an introduction written for you; generating exercises to revise; translating a text in a language class.`,
+  's10.l3':`<b>The snag.</b> A pupil uses an assistant to <b>compensate for a writing disability</b>. Does your rule penalise them? Does it need rewriting? This question is worth half the activity.`,
+  's10.l4':`<b>The evidence.</b> How is your rule checkable? Do you forbid the use of a detector (lesson 16)? If so, what replaces it?`,
+  's10.l5':`<b>The charter.</b> Write it: <b>ten lines maximum</b>, applicable in every subject. It must fit on one page pinned up in a classroom.`,
+  's10.l6':`<b>The stress test.</b> Swap with another group. Find <b>three situations</b> their charter does not settle. Then correct yours with what they found in it.`,
+
+  /* --- 11 · récap --- */
+  'rc.eye':`Lesson 18 · to remember`,
+  'rc.t':`What <span>the law says</span>`,
+  'rc.i1':`There is <b>no legal void</b>: personal data, copyright and image rights already applied. First question: &ldquo;what am I doing?&rdquo;, not &ldquo;with what tool?&rdquo;`,
+  'rc.i2':`The <span class="hl">European AI Act</span> regulates <b>uses</b>, not technology, in four levels: prohibited, high risk, transparency, minimal.`,
+  'rc.i3':`Among the <b>prohibited</b>: emotion recognition <b>at school</b> and at work, social scoring, and untargeted scraping of faces.`,
+  'rc.i4':`On your data: access, rectification, erasure, <b>refusing training</b> (a setting to go and find), and no significant automated decision without human recourse.`,
+  'rc.i5':`Deleting your history <b>does not remove</b> what has already trained a model: weights do not unlearn.`,
+  'rc.i6':`Copyright: the <b>training question is unsettled</b>; on output, a production with no human input is generally protected by nobody — but it can still be an <b>infringement</b>.`,
+  'rc.i7':`Circulating a <b>composite</b> of someone without consent is an <b>offence</b> in France, including for whoever merely shares it. Keep the evidence, tell an adult, report it.`,
+  'rc.i8':`A bias can be an <b>illegal discrimination</b>: &ldquo;it was the algorithm&rdquo; exonerates nobody. And the law barely covers energy, annotation work, or concentration.`,
+  'rc.v1':`<b>GDPR</b>The law of personal data.`,
+  'rc.v2':`<b>High risk</b>Allowed, but under heavy conditions.`,
+  'rc.v3':`<b>Transparency</b>Saying it is an AI, or that it was generated.`,
+  'rc.v4':`<b>Infringement</b>Too close to an existing work.`,
+  'rc.v5':`<b>Composite</b>Circulated without consent: an offence.`,
+  'rc.v6':`<b>Human recourse</b>Being able to ask for a review.`,
+  'rc.key':`Next step: <b>the law sets the floor. What we do above it is still to be decided — and that is argued, not computed.</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>

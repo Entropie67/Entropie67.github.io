@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ce que ça coûte vraiment</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- s2 : le comparateur d'énergie ---------- */
+  .ebars{display:grid;gap:.34rem;max-width:72ch;margin:.2rem auto .3rem;width:100%}
+  .erow{display:grid;grid-template-columns:19ch minmax(0,1fr) 8ch;gap:.6rem;align-items:center}
+  .erow .el{font-family:var(--mono);font-size:clamp(.64rem,1.1vw,.76rem);color:#5a5345;line-height:1.25}
+  .erow .eb{height:15px;background:var(--paper-2);border:1px solid rgba(0,0,0,.2);position:relative}
+  .erow .eb i{display:block;height:100%;background:var(--signal-dk);transition:width .3s}
+  .erow .eb u{position:absolute;top:-2px;bottom:-2px;border-left:1px dashed rgba(0,0,0,.45);
+    border-right:1px dashed rgba(0,0,0,.45);text-decoration:none}
+  .erow .ev{font-family:var(--mono);font-size:.7rem;color:var(--ink);text-align:right}
+  .erow.sel .eb i{background:var(--alarm)}
+  .erow.sel .el{color:var(--ink);font-weight:bold}
+  .pane.dark .erow .el{color:#a9a294}
+  .pane.dark .erow .eb{background:rgba(233,228,216,.08);border-color:rgba(233,228,216,.22)}
+  .pane.dark .erow .ev{color:#e9e4d8}
+
+  /* ---------- s4 : entraîner ou utiliser ---------- */
+  .stepr{display:flex;align-items:center;gap:.6rem;justify-content:center;margin:.5rem 0 .3rem;
+    font-family:var(--mono);font-size:.68rem;color:#a9a294;flex-wrap:wrap}
+  .stepr input[type=range]{width:clamp(150px,30vw,340px);accent-color:var(--signal)}
+  .stepr b{color:#7fa0ff;min-width:11ch;text-align:left}
+  .vsbar{display:grid;gap:.34rem;max-width:58ch;margin:.1rem auto .3rem;width:100%}
+  .vsrow{display:grid;grid-template-columns:13ch minmax(0,1fr) 9ch;gap:.6rem;align-items:center}
+  .vsrow .vl{font-family:var(--mono);font-size:clamp(.64rem,1.1vw,.76rem);color:#a9a294}
+  .vsrow .vb{height:17px;background:rgba(233,228,216,.08);border:1px solid rgba(233,228,216,.22)}
+  .vsrow .vb i{display:block;height:100%;transition:width .3s}
+  .vsrow.tr .vb i{background:#6c9eff}
+  .vsrow.inf .vb i{background:#ff6a4d}
+  .vsrow .vv{font-family:var(--mono);font-size:.7rem;color:#e9e4d8;text-align:right}
+
+  /* ---------- listes à deux colonnes ---------- */
+  .twoc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(.6rem,2vw,1.4rem);align-items:start}
+  .lst{display:grid;gap:.26rem}
+  .lrow{display:grid;grid-template-columns:1.2rem minmax(0,1fr);gap:.5rem;align-items:start;
+    font-family:var(--serif);font-size:clamp(.77rem,1.32vw,.93rem);line-height:1.34}
+  .lrow .mk{font-family:var(--mono);font-size:.8rem;line-height:1.25}
+  .lst.yes .mk{color:var(--green)}
+  .lst.no .mk{color:var(--alarm)}
+
+  /* ---------- s8 : les gestes, par ordre de grandeur ---------- */
+  .ctrl{display:grid;gap:.26rem}
+  .crow{display:grid;grid-template-columns:minmax(0,1fr) 10rem;gap:.6rem;align-items:center;
+    border:1px solid rgba(233,228,216,.2);background:rgba(233,228,216,.04);padding:.36rem .6rem}
+  .crow p{font-family:var(--serif);font-size:clamp(.75rem,1.28vw,.9rem);color:#cfc8b8;line-height:1.32}
+  .crow p b{color:#fff}
+  .crow .ef{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
+    text-align:center;padding:.22rem .3rem;border:1px solid currentColor;line-height:1.2}
+  .crow .ef.a{color:#7fe0ac}
+  .crow .ef.b{color:#ffd166}
+  .crow .ef.c{color:#ff8a72}
+
+  /* ---------- resserrements de projection ---------- */
+  #s11 .rc-list{gap:.26rem}
+  #s11 .rc-list li{font-size:clamp(.76rem,1.35vw,.91rem);line-height:1.33}
+  #s11 .rc-voc{gap:.35rem}
+  #s11 .rc-term{font-size:.71rem;padding:.38rem .52rem}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="synthetique.html" data-i18n="s0.back">◂ Séance précédente · Ce qui n'a jamais eu lieu</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Ça ne vit pas<br>dans le <em>nuage</em>.<br>Ça vit quelque part.</h1>
+    <p class="line" data-i18n="s0.line">Seize séances passées à l'intérieur de la machine. Celle-ci sort du code et regarde les <strong style="color:#fff">bâtiments, l'électricité, l'eau et les gens</strong> — y compris ceux qu'on ne voit jamais. Avec une difficulté particulière&nbsp;: <strong style="color:#fff">les chiffres sérieux sont rares, et les chiffres qui circulent sont souvent faux.</strong></p>
+    <div class="kick" data-i18n="s0.kick">Énergie · eau · matériaux · travail caché · concentration</div>
+  </div>
+
+  <!-- ============ 1 · OÙ ÇA VIT ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Le mot « nuage » est une métaphore commerciale</div>
+    <h2 class="stitle" data-i18n="s1.t">Des hangars,<br>des puces, du courant</h2>
+    <p class="lead" data-i18n="s1.lead">Quand vous envoyez une requête (séance 11), elle part vers un <b>centre de données</b>&nbsp;: un bâtiment sans fenêtres, rempli d'armoires, qui consomme en continu et qu'il faut refroidir. Rien de tout cela n'est immatériel.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s1.c1">
+          <h3>Le bâtiment</h3>
+          <div class="sub">l'unité de base</div>
+          <p>Un grand centre de données consomme en permanence l'équivalent d'<b>une petite ville</b>. Il ne s'arrête jamais&nbsp;: à l'arrêt, il coûte autant en location de matériel qu'en marche.</p>
+        </div>
+        <div class="card" data-i18n="s1.c2">
+          <h3>La puce</h3>
+          <div class="sub">le composant qui compte</div>
+          <p>Les calculs d'IA tournent sur des <b>accélérateurs</b> spécialisés — des processeurs faits pour multiplier des matrices, exactement l'opération de la séance 9. Chacun consomme autant que plusieurs ordinateurs portables.</p>
+        </div>
+        <div class="card" data-i18n="s1.c3">
+          <h3>Le refroidissement</h3>
+          <div class="sub">la partie oubliée</div>
+          <p>Tout ce courant finit en <b>chaleur</b>. L'évacuer consomme encore de l'énergie, et selon la technique, de l'<b>eau</b>. On y revient à la scène 5.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s1.note">Deux remarques d'emblée&nbsp;: tout cela existait <b>bien avant l'IA</b> — vidéo, jeux en ligne, messageries, stockage de photos. Et la part de l'IA, aujourd'hui minoritaire dans la consommation des centres de données, <b>augmente vite</b>. Les deux phrases sont vraies en même temps, et il faut les tenir ensemble.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LE COMPARATEUR ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation · comparez des ordres de grandeur</div>
+    <h2 class="stitle" data-i18n="s2.t">Une requête,<br>combien ?</h2>
+    <p class="lead" data-i18n="s2.lead">Toutes les valeurs sont en <b>wattheures</b>, et toutes sont des <b>fourchettes</b> — les traits pointillés montrent l'incertitude. Cliquez une ligne pour la comparer aux autres.</p>
+
+    <div class="mid">
+      <div class="ebars nostep" id="s2bars"></div>
+      <p class="verd" id="s2verd"></p>
+      <p class="chain-note" style="font-size:.72rem" data-i18n="s2.note">Fourchettes d'ordre de grandeur issues de publications d'entreprises et de travaux académiques, arrondies. Elles dépendent du modèle, du matériel, de la longueur de la réponse et du pays. <b>La scène suivante explique pourquoi elles sont si larges — et c'est la scène importante.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · POURQUOI C'EST FLOU ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Rigueur · la scène la plus utile de la séance</div>
+    <h2 class="stitle" data-i18n="s3.t">Pourquoi personne<br>ne sait vraiment</h2>
+    <p class="lead" data-i18n="s3.lead">Vous allez croiser des chiffres très précis sur le coût d'une requête. Méfiez-vous&nbsp;: la précision y est presque toujours fausse. Trois raisons, et elles tiennent toutes.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card warn" data-i18n="s3.c1">
+          <h3>Les entreprises ne publient pas</h3>
+          <div class="sub">le verrou principal</div>
+          <p>Ni la taille exacte des modèles, ni le matériel, ni la consommation par requête. Quelques-unes ont commencé à publier des chiffres — <b>sur leurs propres modèles, avec leur propre méthode</b>, donc incomparables entre elles.</p>
+        </div>
+        <div class="card warn" data-i18n="s3.c2">
+          <h3>Ça dépend de tout</h3>
+          <div class="sub">il n'y a pas « une » valeur</div>
+          <p>Un petit modèle ou un gros&nbsp;? Une réponse de dix mots ou de mille&nbsp;? Un pays dont l'électricité est nucléaire ou au charbon&nbsp;? <b>Le même geste peut varier d'un facteur cent.</b></p>
+        </div>
+        <div class="card warn" data-i18n="s3.c3">
+          <h3>Les chiffres se recopient</h3>
+          <div class="sub">l'écho de la séance 16</div>
+          <p>Une estimation prudente devient un chiffre rond, puis un titre, puis une évidence — sans que personne ne remonte à la source. <b>Les comparaisons « une requête = une bouteille d'eau » sont presque toujours de cette famille.</b></p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s3.note">Le réflexe utile n'est donc pas de retenir un nombre. C'est de savoir <b>interroger</b> celui qu'on vous présente&nbsp;: de quand date-t-il&nbsp;? pour quel modèle&nbsp;? mesuré ou estimé&nbsp;? par qui&nbsp;? et est-ce qu'il inclut le refroidissement et la fabrication du matériel&nbsp;? <b>Cinq questions&nbsp;: la plupart des chiffres qui circulent n'en passent aucune.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · ENTRAÎNER OU UTILISER ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Manipulation · le croisement</div>
+    <h2 class="stitle" data-i18n="s4.t">Entraîner coûte cher.<br>Utiliser coûte souvent plus.</h2>
+    <p class="lead" data-i18n="s4.lead">L'entraînement est une dépense <b>unique et énorme</b>&nbsp;: celui de GPT-3 a été estimé à environ <b>1 300 MWh</b> — la consommation annuelle de quelques centaines de foyers. Une requête, elle, ne coûte presque rien. Mais il y en a beaucoup. Faites varier le nombre de requêtes par jour.</p>
+
+    <div class="mid">
+      <div class="vsbar" id="s4bars"></div>
+      <div class="stepr">
+        <span data-i18n="s4.lbl">Requêtes par jour</span>
+        <input type="range" id="s4r" min="0" max="9" value="4" class="nostep">
+        <b id="s4v"></b>
+      </div>
+      <p class="verd" id="s4verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · EAU ET MATIÈRE ============ -->
+  <div class="pane dark pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Ce qui ne se mesure pas en wattheures</div>
+    <h2 class="stitle" data-i18n="s5.t">De l'eau,<br>et des cailloux</h2>
+    <p class="lead" data-i18n="s5.lead">L'électricité n'est pas le seul coût physique. Deux autres comptent, et ils sont <b>locaux</b> — c'est-à-dire qu'ils tombent sur des gens précis, à un endroit précis.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s5.c1">
+          <h3>L'eau</h3>
+          <div class="sub">pour refroidir</div>
+          <p>Beaucoup de centres évaporent de l'eau pour se refroidir&nbsp;: c'est efficace et peu coûteux en électricité, mais l'eau est <b>consommée</b>, pas rendue. D'autres techniques n'en utilisent presque pas — et consomment plus de courant. <b>C'est un arbitrage, pas une fatalité.</b></p>
+        </div>
+        <div class="card warn" data-i18n="s5.c2">
+          <h3>Et où ?</h3>
+          <div class="sub">le vrai problème</div>
+          <p>Un centre de données en Islande et un centre de données dans une région en tension hydrique n'ont pas du tout le même effet. <b>La moyenne mondiale ne dit rien du conflit d'usage local</b>, qui est l'objet des oppositions qu'on voit apparaître.</p>
+        </div>
+        <div class="card" data-i18n="s5.c3">
+          <h3>Les matériaux</h3>
+          <div class="sub">le coût d'avant l'usage</div>
+          <p>Fabriquer une puce demande des métaux, de l'eau ultrapure et beaucoup d'énergie. Cette part-là est payée <b>une fois pour toutes, à la fabrication</b> — et elle est presque toujours absente des comparaisons.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s5.note">À retenir&nbsp;: quand on vous donne un coût, demandez <b>ce qu'il contient</b>. L'électricité du calcul seulement&nbsp;? Le refroidissement&nbsp;? La fabrication du matériel&nbsp;? Les trois chiffres peuvent différer d'un facteur deux ou trois — et comparer deux chiffres qui ne contiennent pas la même chose ne veut rien dire.</p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · LE TRAVAIL CACHÉ ============ -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Le coût dont on parle le moins</div>
+    <h2 class="stitle" data-i18n="s6.t">Il a fallu<br>des gens</h2>
+    <p class="lead" data-i18n="s6.lead">On dit qu'un modèle «&nbsp;apprend tout seul&nbsp;». C'est faux à trois endroits précis, et à chacun il y a des personnes payées — souvent très peu, souvent loin, rarement citées.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s6.c1">
+          <h3>Annoter</h3>
+          <div class="sub">séance 8</div>
+          <p>Étiqueter des images, transcrire, vérifier. C'est ce qui rend des données <b>utilisables</b>. Le travail est découpé en micro-tâches payées à la pièce, souvent dans des pays à bas salaires.</p>
+        </div>
+        <div class="card" data-i18n="s6.c2">
+          <h3>Évaluer les réponses</h3>
+          <div class="sub">l'étape qui rend un modèle « sympathique »</div>
+          <p>Après l'entraînement brut, des humains <b>comparent des réponses deux à deux</b> pendant des mois pour apprendre au modèle laquelle préférer. Le ton d'un assistant, sa politesse, ses refus&nbsp;: ce sont des choix humains, pas des propriétés du modèle.</p>
+        </div>
+        <div class="card warn" data-i18n="s6.c3">
+          <h3>Modérer</h3>
+          <div class="sub">le plus dur</div>
+          <p>Pour qu'un modèle refuse de produire certains contenus, il faut lui montrer lesquels. Des personnes passent donc leurs journées à <b>lire et regarder le pire</b>, pour quelques dollars de l'heure. Les séquelles sont documentées et ont donné lieu à des procès.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s6.note">C'est l'angle mort le plus net du discours sur l'IA&nbsp;: on présente comme <b>automatique</b> un dispositif qui repose, à chaque étape, sur un travail humain nombreux, peu payé et invisible. <b>«&nbsp;Sans intervention humaine&nbsp;» veut dire «&nbsp;sans intervention humaine visible&nbsp;».</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · QUI POSSÈDE QUOI ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">Une question de pouvoir, pas de technique</div>
+    <h2 class="stitle" data-i18n="s7.t">Très peu d'acteurs,<br>à chaque étage</h2>
+    <p class="lead" data-i18n="s7.lead">Construire un grand modèle demande des puces, des centres de données et des milliards. À chacun de ces trois étages, le nombre d'acteurs capables se compte sur les doigts d'une main.</p>
+
+    <div class="mid">
+      <div class="twoc">
+        <div>
+          <div class="plbl" data-i18n="s7.lbl1">Très concentré</div>
+          <div class="lst no" data-i18n="s7.no">
+            <div class="lrow"><div class="mk">●</div><div>la <b>conception</b> des accélérateurs : un acteur largement dominant</div></div>
+            <div class="lrow"><div class="mk">●</div><div>la <b>fabrication</b> des puces les plus fines : un fondeur, à Taïwan</div></div>
+            <div class="lrow"><div class="mk">●</div><div>une machine indispensable à cette gravure : <b>un seul fournisseur au monde</b></div></div>
+            <div class="lrow"><div class="mk">●</div><div>les <b>centres de données</b> à cette échelle : quelques entreprises</div></div>
+            <div class="lrow"><div class="mk">●</div><div>les <b>modèles frontières</b> : moins d'une dizaine d'équipes</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="plbl" data-i18n="s7.lbl2">Les contrepoids</div>
+          <div class="lst yes" data-i18n="s7.yes">
+            <div class="lrow"><div class="mk">✓</div><div>les modèles à <b>poids ouverts</b> (séance 11) : téléchargeables, exécutables chez soi</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>les <b>petits modèles</b>, de plus en plus capables, qui tiennent sur un téléphone</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>la recherche publique et les projets européens</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>des <b>corpus documentés</b>, qui disent sur quoi ils ont été entraînés</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>la régulation — l'objet de la séance suivante</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s7.note">Pourquoi ça vous concerne&nbsp;: une poignée d'entreprises décident des <b>instructions système</b> (séance 12), de ce qu'un modèle refuse, de ce qui est gratuit, et de ce qui ferme. <b>Dépendre d'un outil qu'on ne peut ni inspecter ni remplacer est un choix</b> — et c'est un choix qui se fait souvent sans être posé.</p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · LES GESTES QUI COMPTENT ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Des proportions, pas des injonctions</div>
+    <h2 class="stitle" data-i18n="s8.t">Ce qui change quelque<br>chose, et ce qui n'en change pas</h2>
+    <p class="lead" data-i18n="s8.lead">La question honnête n'est pas «&nbsp;faut-il arrêter&nbsp;?&nbsp;» mais «&nbsp;qu'est-ce qui pèse, et de combien&nbsp;?&nbsp;». Classé par effet réel, du plus utile au plus symbolique.</p>
+
+    <div class="mid">
+      <div class="ctrl" data-i18n="s8.rows">
+        <div class="crow"><p><b>Choisir le bon outil pour la tâche.</b> Demander une conversion d'unité à un grand modèle, c'est allumer un four pour griller du pain. Une recherche ou une calculatrice coûtent des ordres de grandeur de moins.</p><div class="ef a">effet réel</div></div>
+        <div class="crow"><p><b>Ne pas lancer dix fois la même génération.</b> Surtout pour des images ou des vidéos, qui coûtent bien plus qu'un texte.</p><div class="ef a">effet réel</div></div>
+        <div class="crow"><p><b>Préférer un petit modèle quand il suffit.</b> L'écart entre un petit et un très grand modèle se compte en dizaines de fois, pas en pourcents.</p><div class="ef a">effet réel</div></div>
+        <div class="crow"><p><b>Garder son matériel plus longtemps.</b> Pour un téléphone ou un ordinateur, la <b>fabrication</b> domine le total&nbsp;: c'est là que se joue l'essentiel, et ça n'a rien à voir avec l'IA.</p><div class="ef a">effet réel</div></div>
+        <div class="crow"><p><b>Dire « merci » ou non à un assistant.</b> Ça consomme — mais on parle d'une poignée de jetons. L'effet est réel et <b>négligeable</b> devant les lignes ci-dessus.</p><div class="ef b">marginal</div></div>
+        <div class="crow"><p><b>Fermer l'onglet, éteindre la nuit.</b> Un modèle ne tourne que quand on l'interroge. Le centre de données, lui, ne s'arrête pas parce que vous fermez l'onglet.</p><div class="ef c">symbolique</div></div>
+      </div>
+      <p class="chain-note" data-i18n="s8.note">Et la ligne la plus importante n'est pas dans le tableau, parce qu'elle n'est pas individuelle&nbsp;: <b>avec quelle électricité</b> ces centres fonctionnent-ils, et <b>où</b> sont-ils construits. Ce sont des décisions d'États et d'entreprises — et c'est précisément pour ça que la séance suivante parle de droit.</p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s9">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s9.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s9.q">Qui décide<br>de tout <em>ça</em>&nbsp;?</div>
+    <p class="a" data-i18n="s9.a">Énergie, eau, travail, concentration&nbsp;: chacun de ces coûts est le résultat de <b>décisions</b>, prises par des gens identifiables. Aucune n'est une conséquence de la physique. Il existe donc un endroit où ces décisions sont discutées, encadrées, parfois interdites — et c'est le seul outil collectif dont nous disposions. <b>Il s'appelle le droit, et il a beaucoup changé ces deux dernières années.</b></p>
+    <div class="next" data-i18n="s9.next">Séance suivante · Ce que dit la loi</div>
+  </div>
+
+  <!-- ============ 10 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s10">
+    <div class="tag" data-i18n="s10.tag">Activité de la séance · 40 minutes · par deux</div>
+    <h2 data-i18n="s10.t">La <em>traque</em><br>du chiffre</h2>
+    <p class="sub" data-i18n="s10.sub">Pas un débat sur l'écologie&nbsp;: un exercice de méthode. On prend un chiffre qui circule, et on essaie de le remonter jusqu'à sa source.</p>
+    <ol class="steps">
+      <li data-i18n="s10.l1"><b>Le chiffre.</b> Chaque binôme cherche une affirmation chiffrée sur le coût de l'IA — dans un article, une vidéo, un post. Notez-la <b>mot pour mot</b>, avec l'endroit où vous l'avez trouvée.</li>
+      <li data-i18n="s10.l2"><b>La remontée.</b> L'article cite-t-il une source&nbsp;? Cette source en cite-t-elle une&nbsp;? Continuez jusqu'à l'<b>original</b> — ou jusqu'au moment où la piste s'arrête. Comptez les étapes.</li>
+      <li data-i18n="s10.l3"><b>Les cinq questions.</b> Appliquez celles de la scène 3&nbsp;: de quand&nbsp;? quel modèle&nbsp;? mesuré ou estimé&nbsp;? par qui&nbsp;? ça contient quoi&nbsp;? Combien de réponses obtenez-vous&nbsp;?</li>
+      <li data-i18n="s10.l4"><b>Le verdict.</b> Trois réponses possibles&nbsp;: <b>sourcé et utilisable</b>, <b>plausible mais invérifiable</b>, <b>repris sans source</b>. Justifiez en une phrase.</li>
+      <li data-i18n="s10.l5"><b>La mise en commun.</b> Combien de chiffres de la classe tiennent dans la première catégorie&nbsp;? Y a-t-il des chiffres identiques trouvés par plusieurs binômes dans des articles différents&nbsp;?</li>
+      <li data-i18n="s10.l6"><b>La discussion.</b> Si presque aucun chiffre n'est solide, que peut-on dire quand même&nbsp;? <b>Un ordre de grandeur mal connu reste un ordre de grandeur</b> — à quelles conditions peut-on raisonner avec&nbsp;?</li>
+    </ol>
+  </div>
+
+  <!-- ============ 11 · RÉCAP ============ -->
+  <div class="pane light pad" id="s11">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 17 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Ce que ça <span>coûte vraiment</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">Le «&nbsp;nuage&nbsp;» est une métaphore&nbsp;: des bâtiments, des puces, du courant en continu, et de la chaleur à évacuer.</li>
+      <li data-i18n="rc.i2">Les chiffres par requête sont des <b>fourchettes larges</b>, pas des valeurs. Ils dépendent du modèle, de la longueur de la réponse, du matériel et du pays.</li>
+      <li data-i18n="rc.i3">Devant un chiffre, <b>cinq questions</b>&nbsp;: de quand&nbsp;? quel modèle&nbsp;? mesuré ou estimé&nbsp;? par qui&nbsp;? ça inclut quoi&nbsp;? La plupart n'en passent aucune.</li>
+      <li data-i18n="rc.i4">L'entraînement est une dépense unique et énorme&nbsp;; l'<span class="hl">inférence</span> est minuscule mais répétée — et finit par la dépasser largement.</li>
+      <li data-i18n="rc.i5">L'eau et les <b>matériaux</b> comptent aussi. Surtout, leur effet est <b>local</b>&nbsp;: la moyenne mondiale ne dit rien du conflit d'usage à l'endroit où le centre est construit.</li>
+      <li data-i18n="rc.i6">Rien n'est automatique&nbsp;: <b>annoter</b>, <b>évaluer les réponses</b> et <b>modérer</b> sont des métiers, souvent mal payés et invisibles. Le ton d'un assistant est un choix humain.</li>
+      <li data-i18n="rc.i7">À chaque étage — puces, centres, modèles — <b>très peu d'acteurs</b>. Les poids ouverts et les petits modèles sont les contrepoids existants.</li>
+      <li data-i18n="rc.i8">Ce qui pèse vraiment&nbsp;: <b>choisir l'outil adapté</b>, ne pas régénérer dix fois, garder son matériel. Dire «&nbsp;merci&nbsp;» ou fermer l'onglet, non.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Centre de données</b>Le bâtiment où vit le modèle.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Wattheure</b>L'unité pour comparer, pas pour trancher.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Inférence</b>Une utilisation, par opposition à l'entraînement.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Annotation</b>Le travail humain qui rend les données utilisables.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Modération</b>Montrer le pire, pour qu'il soit refusé.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Poids ouverts</b>Le principal contrepoids à la concentration.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>aucun de ces coûts n'est une loi de la physique. Qui décide, et comment ?</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 11;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.matches && e.target.matches('input,select')) return;
+  if(e.target && e.target.closest && e.target.closest('#langsw') && (e.key===' '||e.key==='Enter')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,input,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+function fnum(x, d){
+  var s = x.toFixed(d === undefined ? 0 : d);
+  s = s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (LG() === 'fr') ? s.replace('.', ',') : s.replace(/ /g, ',');
+}
+
+/* =========================================================
+   SCÈNE 2 — le comparateur, en échelle logarithmique
+   valeurs en wattheures : [bas, haut, repère]
+   ========================================================= */
+var S2V = [
+  [0.2, 0.6, 0.3],
+  [0.2, 3,   0.8],
+  [3,   30,  10],
+  [2,   50,  15],
+  [10,  20,  15],
+  [50,  200, 100],
+  [90,  120, 105],
+  [500, 700, 580]
+];
+var S2 = {
+  fr:{
+    lbl:['une recherche web','une question courte à un assistant','une réponse longue, gros modèle',
+         'générer une image','recharger un téléphone','1 h de vidéo en streaming',
+         'faire bouillir 1 litre d’eau','1 km en voiture thermique'],
+    ask:'Cliquez une ligne pour la prendre comme référence.',
+    cmp:'<b>%A</b> vaut environ <b>%N</b> × <b>%B</b>.',
+    same:'<b>%A</b> et <b>%B</b> sont du même ordre de grandeur.',
+    v:[
+      'La recherche web est le bon étalon&nbsp;: c’est le geste que tout le monde fait, et son coût est connu depuis longtemps.',
+      'Une question courte coûte <b>de l’ordre d’une recherche web</b> — peut-être deux ou trois fois plus. C’est très loin des comparaisons spectaculaires qu’on lit parfois.',
+      'Une réponse longue d’un très gros modèle, c’est une autre affaire&nbsp;: l’énergie dépend surtout du <b>nombre de jetons produits</b>. Faire court coûte peu&nbsp;; faire long coûte proportionnellement.',
+      'L’image coûte nettement plus qu’un texte court&nbsp;: c’est la <b>diffusion</b> de la séance 4, qui repasse plusieurs dizaines de fois sur toute l’image.',
+      'Rien à voir avec l’IA&nbsp;: c’est un repère du quotidien, pour fixer l’échelle.',
+      'Une heure de vidéo pèse <b>plus que cent questions</b> à un assistant. C’est le premier résultat qui devrait recadrer la discussion.',
+      'Le repère le plus parlant&nbsp;: une bouilloire. Comparez-le à la première ligne, puis à la dernière.',
+      'Un kilomètre en voiture dépasse tout le reste du tableau. <b>Ce n’est pas une raison de ne rien faire</b> — c’est une raison de faire porter l’effort où il pèse.'
+    ]
+  },
+  en:{
+    lbl:['one web search','a short question to an assistant','a long answer, large model',
+         'generating one image','charging a phone','1 h of streamed video',
+         'boiling 1 litre of water','1 km in a petrol car'],
+    ask:'Click a row to take it as the reference.',
+    cmp:'<b>%A</b> is about <b>%N</b> × <b>%B</b>.',
+    same:'<b>%A</b> and <b>%B</b> are of the same order of magnitude.',
+    v:[
+      'Web search is the right yardstick: everyone does it, and its cost has been known for a long time.',
+      'A short question costs <b>roughly one web search</b> — maybe two or three times more. That is a very long way from the spectacular comparisons one sometimes reads.',
+      'A long answer from a very large model is another matter: the energy depends mostly on the <b>number of tokens produced</b>. Being brief costs little; being long costs proportionally.',
+      'An image costs clearly more than a short text: it is lesson 4’s <b>diffusion</b>, passing over the whole image several dozen times.',
+      'Nothing to do with AI: an everyday landmark, to set the scale.',
+      'One hour of video weighs <b>more than a hundred questions</b> to an assistant. This is the first result that ought to reframe the discussion.',
+      'The most telling landmark: a kettle. Compare it with the first row, then with the last.',
+      'One kilometre by car outweighs everything else in the table. <b>That is not a reason to do nothing</b> — it is a reason to put the effort where it weighs.'
+    ]
+  }
+};
+var s2sel = 0;
+function lpos(v){
+  var lo = Math.log10(0.1), hi = Math.log10(1000);
+  return Math.max(0, Math.min(100, (Math.log10(v) - lo) / (hi - lo) * 100));
+}
+function drawS2(){
+  var t = S2[LG()];
+  document.getElementById('s2bars').innerHTML = S2V.map(function(v,i){
+    var a = lpos(v[0]), b = lpos(v[1]);
+    return '<div class="erow nostep' + (i === s2sel ? ' sel' : '') + '" data-i="' + i + '">' +
+      '<div class="el">' + t.lbl[i] + '</div>' +
+      '<div class="eb"><i style="width:' + lpos(v[2]).toFixed(1) + '%"></i>' +
+        '<u style="left:' + a.toFixed(1) + '%;width:' + (b-a).toFixed(1) + '%"></u></div>' +
+      '<div class="ev">' + (v[2] < 1 ? fnum(v[2], 1) : fnum(v[2])) + '&nbsp;Wh</div></div>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s2bars .erow')).forEach(function(e){
+    e.onclick = function(){ s2sel = +e.dataset.i; drawS2(); };
+  });
+  var ref = S2V[s2sel][2];
+  var others = S2V.map(function(v,i){ return { i:i, r:v[2]/ref }; })
+                  .filter(function(o){ return o.i !== s2sel; })
+                  .sort(function(a,b){ return b.r - a.r; });
+  var top = others[0];
+  var line = (top.r > 1.6)
+    ? t.cmp.replace('%A', t.lbl[top.i]).replace('%N', top.r >= 10 ? fnum(top.r) : fnum(top.r, 1)).replace('%B', t.lbl[s2sel])
+    : t.same.replace('%A', t.lbl[top.i]).replace('%B', t.lbl[s2sel]);
+  document.getElementById('s2verd').innerHTML = t.v[s2sel] + ' ' + line;
+}
+
+/* =========================================================
+   SCÈNE 4 — entraîner (une fois) contre utiliser (un an)
+   ========================================================= */
+var S4N = [1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 5e8, 1e9, 5e9, 1e10];
+var TRAIN_KWH = 1.3e6;      /* ~1 300 MWh, estimation publiée pour GPT-3 */
+var PER_REQ_KWH = 0.0008;   /* 0,8 Wh : le repère de la scène 2 */
+var S4 = {
+  fr:{
+    tr:'entraînement (une fois)', inf:'utilisation (un an)',
+    unit:['mille','million','milliard'],
+    v:[
+      'À ce niveau d’usage, l’entraînement domine très largement&nbsp;: le coût est <b>concentré au départ</b>, une seule fois.',
+      'Les deux se rapprochent. Le basculement se situe autour de <b>4 à 5 millions de requêtes par jour</b> — un chiffre qu’un service grand public atteint en quelques semaines.',
+      'L’utilisation a dépassé l’entraînement, et l’écart se creuse <b>chaque année</b>, alors que l’entraînement, lui, a été payé une fois. C’est le résultat à retenir&nbsp;: <b>à grande échelle, c’est l’usage qui coûte, pas la fabrication du modèle.</b>'
+    ],
+    note:'Les deux valeurs sont fragiles&nbsp;: l’entraînement cité est celui de GPT-3 (2020), bien plus petit que les modèles actuels, et les 0,8 Wh par requête sont le centre d’une fourchette large. <b>Le croisement exact est incertain&nbsp;; le fait qu’il existe ne l’est pas.</b>'
+  },
+  en:{
+    tr:'training (once)', inf:'use (one year)',
+    unit:['thousand','million','billion'],
+    v:[
+      'At this level of use, training dominates by a long way: the cost is <b>concentrated at the start</b>, once.',
+      'The two are converging. The crossover sits at around <b>4 to 5 million requests a day</b> — a figure a consumer service reaches within weeks.',
+      'Use has overtaken training, and the gap widens <b>every year</b>, while training was paid for once. This is the result to remember: <b>at scale, it is the usage that costs, not the making of the model.</b>'
+    ],
+    note:'Both figures are fragile: the training cited is GPT-3’s (2020), far smaller than today’s models, and 0.8 Wh per request is the middle of a wide range. <b>The exact crossover is uncertain; that there is one is not.</b>'
+  }
+};
+var s4i = 4;
+function bigN(n){
+  var t = S4[LG()];
+  if(n >= 1e9) return fnum(n/1e9) + ' ' + t.unit[2] + 's';
+  if(n >= 1e6) return fnum(n/1e6) + ' ' + t.unit[1] + 's';
+  return fnum(n/1e3) + ' ' + t.unit[0];
+}
+function drawS4(){
+  var t = S4[LG()];
+  var n = S4N[s4i];
+  var inf = n * PER_REQ_KWH * 365;
+  var mx = Math.max(TRAIN_KWH, inf);
+  var rows = [['tr', t.tr, TRAIN_KWH], ['inf', t.inf, inf]];
+  document.getElementById('s4bars').innerHTML = rows.map(function(r){
+    return '<div class="vsrow ' + r[0] + '"><div class="vl">' + r[1] + '</div>' +
+      '<div class="vb"><i style="width:' + (r[2]/mx*100).toFixed(1) + '%"></i></div>' +
+      '<div class="vv">' + fnum(r[2]/1000) + '&nbsp;MWh</div></div>';
+  }).join('');
+  document.getElementById('s4v').textContent = bigN(n);
+  var k = inf < TRAIN_KWH*0.5 ? 0 : (inf < TRAIN_KWH*2 ? 1 : 2);
+  document.getElementById('s4verd').innerHTML = t.v[k] + ' <i style="opacity:.65">' + t.note + '</i>';
+}
+document.getElementById('s4r').oninput = function(){ s4i = +this.value; drawS4(); };
+
+/* =========================================================
+   REDESSIN GLOBAL
+   ========================================================= */
+function redrawAll(){ drawS2(); drawS4(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Ce que ça coûte vraiment`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`What it really costs`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · What never happened`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`It does not live<br>in the <em>cloud</em>.<br>It lives somewhere.`,
+  's0.line':`Sixteen lessons spent inside the machine. This one steps out of the code and looks at the <strong style="color:#fff">buildings, the electricity, the water and the people</strong> — including the ones we never see. With one particular difficulty: <strong style="color:#fff">serious figures are rare, and the figures in circulation are often wrong.</strong>`,
+  's0.kick':`Energy · water · materials · hidden labour · concentration`,
+
+  /* --- 1 · où ça vit --- */
+  's1.eye':`&ldquo;Cloud&rdquo; is a marketing metaphor`,
+  's1.t':`Sheds,<br>chips, current`,
+  's1.lead':`When you send a request (lesson 11), it travels to a <b>data centre</b>: a windowless building full of racks, drawing power continuously and needing to be cooled. None of this is immaterial.`,
+  's1.c1':`
+          <h3>The building</h3>
+          <div class="sub">the basic unit</div>
+          <p>A large data centre permanently draws the equivalent of <b>a small town</b>. It never stops: idle, it costs as much in equipment rental as when running.</p>
+        `,
+  's1.c2':`
+          <h3>The chip</h3>
+          <div class="sub">the component that matters</div>
+          <p>AI runs on specialised <b>accelerators</b> — processors built to multiply matrices, exactly the operation of lesson 9. Each one draws as much as several laptops.</p>
+        `,
+  's1.c3':`
+          <h3>The cooling</h3>
+          <div class="sub">the forgotten part</div>
+          <p>All that current ends up as <b>heat</b>. Removing it costs more energy, and depending on the technique, <b>water</b>. Scene 5 comes back to this.</p>
+        `,
+  's1.note':`Two remarks straight away: all of this existed <b>long before AI</b> — video, online games, messaging, photo storage. And AI's share, today a minority of data-centre consumption, <b>is growing fast</b>. Both sentences are true at once, and both have to be held together.`,
+
+  /* --- 2 · le comparateur --- */
+  's2.eye':`Hands on · compare orders of magnitude`,
+  's2.t':`One request,<br>how much?`,
+  's2.lead':`All values are in <b>watt-hours</b>, and all are <b>ranges</b> — the dashed marks show the uncertainty. Click a row to compare it with the others.`,
+  's2.note':`Order-of-magnitude ranges drawn from company publications and academic work, rounded. They depend on the model, the hardware, the length of the answer and the country. <b>The next scene explains why they are so wide — and that is the important scene.</b>`,
+
+  /* --- 3 · pourquoi c'est flou --- */
+  's3.eye':`Rigour · the most useful scene of the lesson`,
+  's3.t':`Why nobody<br>really knows`,
+  's3.lead':`You are going to meet very precise figures for the cost of a request. Be suspicious: the precision is almost always false. Three reasons, and all three hold.`,
+  's3.c1':`
+          <h3>Companies do not publish</h3>
+          <div class="sub">the main lock</div>
+          <p>Not the exact size of the models, nor the hardware, nor the consumption per request. A few have started to publish figures — <b>for their own models, with their own method</b>, so not comparable with each other.</p>
+        `,
+  's3.c2':`
+          <h3>It depends on everything</h3>
+          <div class="sub">there is no single value</div>
+          <p>A small model or a large one? A ten-word answer or a thousand-word one? A country on nuclear power or on coal? <b>The same gesture can vary by a factor of a hundred.</b></p>
+        `,
+  's3.c3':`
+          <h3>Figures get copied</h3>
+          <div class="sub">the echo from lesson 16</div>
+          <p>A cautious estimate becomes a round number, then a headline, then common sense — with nobody tracing it back. <b>Comparisons like &ldquo;one request = one bottle of water&rdquo; are almost always of this family.</b></p>
+        `,
+  's3.note':`So the useful reflex is not to memorise a number. It is to know how to <b>question</b> the one you are shown: how old is it? for which model? measured or estimated? by whom? and does it include cooling and the manufacture of the hardware? <b>Five questions: most circulating figures pass none of them.</b>`,
+
+  /* --- 4 · entraîner ou utiliser --- */
+  's4.eye':`Hands on · the crossover`,
+  's4.t':`Training is expensive.<br>Use is often more so.`,
+  's4.lead':`Training is a <b>single enormous</b> outlay: GPT-3's has been estimated at around <b>1,300 MWh</b> — a few hundred households' annual consumption. One request costs almost nothing. But there are a lot of them. Vary the number of requests per day.`,
+  's4.lbl':`Requests per day`,
+
+  /* --- 5 · eau et matière --- */
+  's5.eye':`What is not measured in watt-hours`,
+  's5.t':`Water,<br>and rock`,
+  's5.lead':`Electricity is not the only physical cost. Two others count, and they are <b>local</b> — meaning they land on particular people, in a particular place.`,
+  's5.c1':`
+          <h3>Water</h3>
+          <div class="sub">for cooling</div>
+          <p>Many centres evaporate water to cool down: efficient and cheap in electricity, but the water is <b>consumed</b>, not returned. Other techniques use almost none — and draw more current. <b>It is a trade-off, not a fate.</b></p>
+        `,
+  's5.c2':`
+          <h3>And where?</h3>
+          <div class="sub">the real problem</div>
+          <p>A data centre in Iceland and one in a water-stressed region do not have remotely the same effect. <b>The global average says nothing about the local conflict over use</b>, which is what the emerging opposition is actually about.</p>
+        `,
+  's5.c3':`
+          <h3>Materials</h3>
+          <div class="sub">the cost paid before use</div>
+          <p>Making a chip takes metals, ultrapure water and a great deal of energy. That part is paid <b>once and for all, at manufacture</b> — and it is almost always missing from comparisons.</p>
+        `,
+  's5.note':`Remember this: when you are given a cost, ask <b>what is inside it</b>. The electricity of the computation only? The cooling? The manufacture of the hardware? The three figures can differ by a factor of two or three — and comparing two numbers that do not contain the same things means nothing.`,
+
+  /* --- 6 · le travail caché --- */
+  's6.eye':`The cost least talked about`,
+  's6.t':`It took<br>people`,
+  's6.lead':`People say a model &ldquo;learns by itself&rdquo;. That is false in three precise places, and at each of them there are people being paid — often very little, often far away, rarely named.`,
+  's6.c1':`
+          <h3>Annotating</h3>
+          <div class="sub">lesson 8</div>
+          <p>Labelling images, transcribing, checking. This is what makes data <b>usable</b>. The work is cut into micro-tasks paid by the piece, often in low-wage countries.</p>
+        `,
+  's6.c2':`
+          <h3>Rating the answers</h3>
+          <div class="sub">the step that makes a model &ldquo;nice&rdquo;</div>
+          <p>After raw training, humans <b>compare answers two at a time</b>, for months, to teach the model which to prefer. An assistant's tone, its politeness, its refusals: these are human choices, not properties of the model.</p>
+        `,
+  's6.c3':`
+          <h3>Moderating</h3>
+          <div class="sub">the hardest</div>
+          <p>For a model to refuse certain content, it has to be shown that content. So people spend their days <b>reading and watching the worst</b>, for a few dollars an hour. The after-effects are documented and have led to lawsuits.</p>
+        `,
+  's6.note':`This is the sharpest blind spot in the discourse about AI: a system presented as <b>automatic</b> rests, at every step, on numerous, poorly paid, invisible human work. <b>&ldquo;With no human intervention&rdquo; means &ldquo;with no visible human intervention&rdquo;.</b>`,
+
+  /* --- 7 · qui possède quoi --- */
+  's7.eye':`A question of power, not of technique`,
+  's7.t':`Very few players,<br>at every floor`,
+  's7.lead':`Building a large model takes chips, data centres and billions. At each of those three floors, the number of players capable of it can be counted on one hand.`,
+  's7.lbl1':`Highly concentrated`,
+  's7.lbl2':`The counterweights`,
+  's7.no':`
+            <div class="lrow"><div class="mk">●</div><div><b>designing</b> the accelerators: one largely dominant player</div></div>
+            <div class="lrow"><div class="mk">●</div><div><b>manufacturing</b> the finest chips: one foundry, in Taiwan</div></div>
+            <div class="lrow"><div class="mk">●</div><div>a machine essential to that lithography: <b>a single supplier worldwide</b></div></div>
+            <div class="lrow"><div class="mk">●</div><div><b>data centres</b> at that scale: a handful of companies</div></div>
+            <div class="lrow"><div class="mk">●</div><div><b>frontier models</b>: fewer than ten teams</div></div>
+          `,
+  's7.yes':`
+            <div class="lrow"><div class="mk">✓</div><div><b>open-weights</b> models (lesson 11): downloadable, runnable at home</div></div>
+            <div class="lrow"><div class="mk">✓</div><div><b>small models</b>, increasingly capable, that fit on a phone</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>public research and European projects</div></div>
+            <div class="lrow"><div class="mk">✓</div><div><b>documented corpora</b>, which state what they were trained on</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>regulation — the subject of the next lesson</div></div>
+          `,
+  's7.note':`Why it concerns you: a handful of companies decide the <b>system instructions</b> (lesson 12), what a model refuses, what is free, and what gets shut down. <b>Depending on a tool you can neither inspect nor replace is a choice</b> — and it is one that often gets made without being put.`,
+
+  /* --- 8 · les gestes --- */
+  's8.eye':`Proportions, not instructions`,
+  's8.t':`What changes something,<br>and what does not`,
+  's8.lead':`The honest question is not &ldquo;should we stop?&rdquo; but &ldquo;what weighs, and by how much?&rdquo; Ranked by real effect, from most useful to most symbolic.`,
+  's8.rows':`
+        <div class="crow"><p><b>Pick the right tool for the job.</b> Asking a large model to convert a unit is lighting a furnace to toast bread. A search or a calculator cost orders of magnitude less.</p><div class="ef a">real effect</div></div>
+        <div class="crow"><p><b>Do not run the same generation ten times.</b> Especially for images or video, which cost far more than text.</p><div class="ef a">real effect</div></div>
+        <div class="crow"><p><b>Prefer a small model when it is enough.</b> The gap between a small and a very large model is measured in tens of times, not percent.</p><div class="ef a">real effect</div></div>
+        <div class="crow"><p><b>Keep your hardware longer.</b> For a phone or a computer, <b>manufacture</b> dominates the total: that is where most of it is decided, and it has nothing to do with AI.</p><div class="ef a">real effect</div></div>
+        <div class="crow"><p><b>Saying &ldquo;thank you&rdquo; to an assistant, or not.</b> It does consume — but we are talking about a handful of tokens. The effect is real and <b>negligible</b> next to the rows above.</p><div class="ef b">marginal</div></div>
+        <div class="crow"><p><b>Closing the tab, switching off at night.</b> A model only runs when you query it. The data centre does not stop because you closed the tab.</p><div class="ef c">symbolic</div></div>
+      `,
+  's8.note':`And the most important line is not in the table, because it is not an individual one: <b>which electricity</b> those centres run on, and <b>where</b> they are built. Those are decisions by states and companies — which is precisely why the next lesson is about law.`,
+
+  /* --- 9 · charnière --- */
+  's9.eye':`The question that opens the next lesson`,
+  's9.q':`Who decides<br>all <em>that</em>?`,
+  's9.a':`Energy, water, labour, concentration: each of these costs is the result of <b>decisions</b>, taken by identifiable people. None of them follows from physics. So there is a place where those decisions are debated, framed, sometimes forbidden — and it is the only collective tool we have. <b>It is called the law, and it has changed a great deal in the past two years.</b>`,
+  's9.next':`Next lesson · What the law says`,
+
+  /* --- 10 · activité --- */
+  's10.tag':`Activity for this lesson · 40 minutes · in pairs`,
+  's10.t':`Hunting<br>the <em>figure</em>`,
+  's10.sub':`Not a debate about the environment: an exercise in method. Take a figure that is circulating, and try to trace it back to its source.`,
+  's10.l1':`<b>The figure.</b> Each pair finds one numerical claim about the cost of AI — in an article, a video, a post. Write it down <b>word for word</b>, with where you found it.`,
+  's10.l2':`<b>The trace-back.</b> Does the article cite a source? Does that source cite one? Keep going to the <b>original</b> — or to the point where the trail stops. Count the steps.`,
+  's10.l3':`<b>The five questions.</b> Apply the ones from scene 3: how old? which model? measured or estimated? by whom? what does it include? How many answers do you get?`,
+  's10.l4':`<b>The verdict.</b> Three possible answers: <b>sourced and usable</b>, <b>plausible but unverifiable</b>, <b>repeated with no source</b>. Justify in one sentence.`,
+  's10.l5':`<b>Pooling.</b> How many of the class's figures fall into the first category? Are there identical figures found by several pairs in different articles?`,
+  's10.l6':`<b>The discussion.</b> If almost no figure is solid, what can still be said? <b>A poorly known order of magnitude is still an order of magnitude</b> — under what conditions can you reason with one?`,
+
+  /* --- 11 · récap --- */
+  'rc.eye':`Lesson 17 · to remember`,
+  'rc.t':`What it <span>really costs</span>`,
+  'rc.i1':`The &ldquo;cloud&rdquo; is a metaphor: buildings, chips, continuous current, and heat to get rid of.`,
+  'rc.i2':`Per-request figures are <b>wide ranges</b>, not values. They depend on the model, the length of the answer, the hardware and the country.`,
+  'rc.i3':`Faced with a figure, <b>five questions</b>: how old? which model? measured or estimated? by whom? what does it include? Most pass none.`,
+  'rc.i4':`Training is a single enormous outlay; <span class="hl">inference</span> is tiny but repeated — and ends up far outweighing it.`,
+  'rc.i5':`Water and <b>materials</b> count too. Above all their effect is <b>local</b>: the global average says nothing about the conflict over use where the centre is built.`,
+  'rc.i6':`Nothing is automatic: <b>annotating</b>, <b>rating answers</b> and <b>moderating</b> are jobs, often badly paid and invisible. An assistant's tone is a human choice.`,
+  'rc.i7':`At every floor — chips, centres, models — <b>very few players</b>. Open weights and small models are the existing counterweights.`,
+  'rc.i8':`What really weighs: <b>choosing the right tool</b>, not regenerating ten times, keeping your hardware. Saying &ldquo;thank you&rdquo; or closing the tab, no.`,
+  'rc.v1':`<b>Data centre</b>The building where the model lives.`,
+  'rc.v2':`<b>Watt-hour</b>The unit for comparing, not for settling.`,
+  'rc.v3':`<b>Inference</b>One use, as opposed to training.`,
+  'rc.v4':`<b>Annotation</b>The human work that makes data usable.`,
+  'rc.v5':`<b>Moderation</b>Being shown the worst, so it gets refused.`,
+  'rc.v6':`<b>Open weights</b>The main counterweight to concentration.`,
+  'rc.key':`Next step: <b>none of these costs is a law of physics. Who decides, and how?</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>
