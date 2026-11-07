@@ -1,0 +1,18 @@
+{
+  "name": "snt-ia-teaser",
+  "private": true,
+  "description": "Teaser motion design du cours SNT IA (Remotion)",
+  "scripts": {
+    "studio": "remotion studio src/index.jsx",
+    "render": "remotion render src/index.jsx Teaser out/teaser.mp4",
+    "render:probas": "remotion render src/index.jsx Probas out/probas.mp4",
+    "still": "remotion still src/index.jsx Probas out/still.png"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.541",
+    "@remotion/google-fonts": "^4.0.541",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.541"
+  }
+}
