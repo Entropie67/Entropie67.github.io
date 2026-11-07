@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ce qui n’a jamais eu lieu</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- lignes de comparaison (s2) ---------- */
+  .mdl{display:grid;gap:.4rem}
+  .mdrow{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:.45rem .7rem}
+  .mdrow .h{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.15rem}
+  .mdrow p{font-family:var(--serif);font-size:clamp(.78rem,1.32vw,.94rem);color:#4a4436;line-height:1.38}
+  .mdrow b{color:var(--ink)}
+  .pane.dark .mdrow{border-color:rgba(233,228,216,.2);background:rgba(233,228,216,.04)}
+  .pane.dark .mdrow .h{color:var(--signal)}
+  .pane.dark .mdrow p{color:#cfc8b8}
+  .pane.dark .mdrow b{color:#fff}
+  .twoc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(.6rem,2vw,1.3rem);align-items:start}
+
+  /* ---------- s4 : les indices, et leur verdict ---------- */
+  .ctrl{display:grid;gap:.26rem}
+  .crow{display:grid;grid-template-columns:minmax(0,1fr) 10rem;gap:.6rem;align-items:center;
+    border:1px solid rgba(233,228,216,.2);background:rgba(233,228,216,.04);padding:.36rem .6rem}
+  .crow p{font-family:var(--serif);font-size:clamp(.75rem,1.28vw,.9rem);color:#cfc8b8;line-height:1.32}
+  .crow p b{color:#fff}
+  .crow .ef{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
+    text-align:center;padding:.22rem .3rem;border:1px solid currentColor;line-height:1.2}
+  .crow .ef.a{color:#7fe0ac}
+  .crow .ef.b{color:#ffd166}
+  .crow .ef.c{color:#ff8a72}
+
+  /* ---------- s9 : les six cas ---------- */
+  .casebox{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.6rem .8rem;margin-bottom:.45rem}
+  .casebox .ct{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.2rem}
+  .casebox p{font-family:var(--serif);font-size:clamp(.82rem,1.48vw,1rem);color:#3a352c;line-height:1.4}
+  .ansrow{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.4rem}
+  .ans{cursor:pointer;font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;
+    padding:.42rem .7rem;border:1px solid rgba(0,0,0,.28);background:var(--paper);
+    color:#4a4436;transition:.15s}
+  .ans:hover{border-color:var(--signal-dk)}
+  .ans.ok{background:rgba(18,146,79,.18);border-color:var(--green);color:#0d6b3a}
+  .ans.no{background:rgba(181,48,31,.14);border-color:var(--alarm);color:var(--alarm)}
+
+  /* ---------- s1 : les trois chiffres ---------- */
+  .stats{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(.7rem,3vw,2.2rem);margin:.4rem 0 .5rem}
+  .stat{text-align:center;min-width:9rem}
+  .stat b{display:block;font-family:var(--display);font-size:clamp(1.5rem,4.2vw,2.6rem);
+    line-height:1;color:var(--signal)}
+  .stat span{display:block;margin-top:.3rem;font-family:var(--mono);font-size:.64rem;
+    letter-spacing:.08em;color:#a9a294;line-height:1.35;max-width:18ch;margin-left:auto;margin-right:auto}
+
+  /* ---------- resserrements de projection ---------- */
+  #s12 .rc-list{gap:.26rem}
+  #s12 .rc-list li{font-size:clamp(.75rem,1.34vw,.9rem);line-height:1.32}
+  #s12 .rc-voc{gap:.35rem}
+  #s12 .rc-term{font-size:.71rem;padding:.38rem .52rem}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="fil.html" data-i18n="s0.back">◂ Séance précédente · Qui choisit ce que je vois ?</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Et si ça<br>n'avait jamais<br><em>eu lieu</em>&nbsp;?</h1>
+    <p class="line" data-i18n="s0.line">La séance précédente a montré comment une machine <strong style="color:#fff">range</strong> ce qui retient l'attention. Celle-ci ajoute l'autre moitié&nbsp;: une machine qui <strong style="color:#fff">fabrique</strong> ce qui retient l'attention, en quantité illimitée. Ce qui change n'est pas la possibilité du faux — elle est très ancienne. C'est son <strong style="color:#fff">prix</strong>.</p>
+    <div class="kick" data-i18n="s0.kick">Contenus synthétiques · bots · deepfakes · provenance · réflexes</div>
+  </div>
+
+  <!-- ============ 1 · LE PRIX A CHANGÉ ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Ce qui a vraiment changé</div>
+    <h2 class="stitle" data-i18n="s1.t">Le faux a toujours existé.<br>Il coûtait cher.</h2>
+    <p class="lead" data-i18n="s1.lead">Truquer une photo se faisait déjà en 1920 — Staline faisait effacer ses rivaux des clichés officiels. Ce qui est nouveau n'est ni la technique ni l'intention&nbsp;: c'est qu'une opération qui demandait un studio, des jours et de l'argent en demande désormais <b>quelques secondes et rien du tout</b>.</p>
+
+    <div class="mid">
+      <div class="stats" data-i18n="s1.stats">
+        <div class="stat"><b>~0 €</b><span>le coût d'une image convaincante</span></div>
+        <div class="stat"><b>secondes</b><span>le temps de production</span></div>
+        <div class="stat"><b>illimité</b><span>le nombre de variantes</span></div>
+      </div>
+      <div class="cards c3">
+        <div class="card" data-i18n="s1.c1">
+          <h3>Ce n'est pas la qualité</h3>
+          <div class="sub">le malentendu courant</div>
+          <p>Un bon faussaire humain faisait déjà mieux qu'un modèle de 2026. Mais il en faisait <b>un</b>, et il fallait le payer.</p>
+        </div>
+        <div class="card warn" data-i18n="s1.c2">
+          <h3>C'est le débit</h3>
+          <div class="sub">le vrai basculement</div>
+          <p>Dix mille variantes d'un même message, chacune adaptée à un public, publiées par dix mille comptes. <b>Aucune n'a besoin d'être excellente&nbsp;: il suffit qu'il y en ait beaucoup.</b></p>
+        </div>
+        <div class="card" data-i18n="s1.c3">
+          <h3>Et la cible a changé</h3>
+          <div class="sub">conséquence de la séance 15</div>
+          <p>Ce débit arrive dans un système qui classe par <b>attention retenue</b>. Les deux machines se rencontrent — et aucune des deux n'a d'avis sur la vérité.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2 · QUATRE CHOSES QU'ON APPELLE « FAUX » ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation · quatre objets différents</div>
+    <h2 class="stitle" data-i18n="s2.t">« C'est une IA »<br>ne veut rien dire</h2>
+    <p class="lead" data-i18n="s2.lead">On range sous le même mot quatre choses qui n'ont ni le même coût, ni le même but, ni les mêmes parades. Les confondre, c'est se tromper de réflexe.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s2btns"></div>
+      <div class="twoc">
+        <div class="mdl" id="s2out"></div>
+        <div>
+          <div class="plbl" data-i18n="s2.lbl">Le réflexe adapté</div>
+          <p class="verd" id="s2verd" style="border-top:0;margin-top:0;padding-top:0"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3 · POURQUOI ÇA MARCHE ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Ce n'est pas un problème technique</div>
+    <h2 class="stitle" data-i18n="s3.t">On ne vérifie pas<br>ce qui nous arrange</h2>
+    <p class="lead" data-i18n="s3.lead">Un faux ne réussit presque jamais parce qu'il est parfait. Il réussit parce qu'il arrive au bon moment, chez quelqu'un que ça confirme, dans un fil qui va vite. Quatre mécanismes, aucun n'est nouveau — l'IA les alimente simplement en continu.</p>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card warn" data-i18n="s3.c1">
+          <h3>La confirmation</h3>
+          <div class="sub">le facteur dominant</div>
+          <p>Ce qui confirme ce qu'on pense déjà est accepté <b>sans examen</b>. Ce qui contredit est examiné sévèrement. Nous faisons tous les deux, et nous ne le sentons pas.</p>
+        </div>
+        <div class="card warn" data-i18n="s3.c2">
+          <h3>La vitesse</h3>
+          <div class="sub">séance 15</div>
+          <p>Le partage prend une seconde, la vérification dix minutes. Dans un fil classé par réaction, <b>le faux circule avant que le vrai soit vérifié</b>.</p>
+        </div>
+        <div class="card warn" data-i18n="s3.c3">
+          <h3>La répétition</h3>
+          <div class="sub">effet de vérité illusoire</div>
+          <p>Une affirmation entendue plusieurs fois paraît plus vraie — <b>même quand on sait qu'elle est fausse</b>. C'est mesuré depuis les années 1970, et c'est exactement ce que le débit permet.</p>
+        </div>
+        <div class="card warn" data-i18n="s3.c4">
+          <h3>Le démenti qui amplifie</h3>
+          <div class="sub">le piège le plus courant</div>
+          <p>Partager pour dénoncer, c'est <b>partager</b>. Le système ne lit pas votre commentaire&nbsp;: il compte votre interaction, et montre la publication à d'autres.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s3.note">Autrement dit&nbsp;: <b>le point faible n'est pas l'image, c'est le trajet.</b> Travailler sur la détection de l'image, c'est courir après un progrès technique sans fin. Travailler sur le trajet — ralentir, remonter, ne pas relayer — ne se périme jamais.</p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · LES INDICES ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Ce qui marche, ce qui ne marche plus</div>
+    <h2 class="stitle" data-i18n="s4.t">Les conseils<br>se périment</h2>
+    <p class="lead" data-i18n="s4.lead">Les «&nbsp;astuces pour repérer une IA&nbsp;» qui circulent datent souvent de 2023 et ne valent plus rien. Voici le même tableau, à jour — et surtout, la ligne de partage entre ce qui vieillit et ce qui ne vieillit pas.</p>
+
+    <div class="mid">
+      <div class="ctrl" data-i18n="s4.rows">
+        <div class="crow"><p><b>Compter les doigts, chercher les dents bizarres.</b> Vrai jusqu'en 2024, faux depuis. Les modèles récents passent ces tests sans difficulté.</p><div class="ef c">périmé</div></div>
+        <div class="crow"><p><b>Chercher les reflets incohérents, les ombres impossibles.</b> Encore utile parfois sur des productions bâclées — mais plus du tout fiable comme preuve.</p><div class="ef b">fragile</div></div>
+        <div class="crow"><p><b>Lancer une recherche d'image inversée.</b> Si la photo circule depuis 2019 avec une autre légende, c'est réglé en dix secondes.</p><div class="ef a">solide</div></div>
+        <div class="crow"><p><b>Remonter à la source première.</b> Qui a publié en premier&nbsp;? Ce compte existe-t-il depuis longtemps&nbsp;? Qu'a-t-il publié d'autre&nbsp;?</p><div class="ef a">solide</div></div>
+        <div class="crow"><p><b>Chercher la même information ailleurs.</b> Un événement réel laisse <b>plusieurs</b> traces indépendantes. Un faux en laisse une seule, recopiée.</p><div class="ef a">solide</div></div>
+        <div class="crow"><p><b>Faire confiance à un « détecteur d'IA ».</b> Voir la scène suivante&nbsp;: c'est le conseil le plus répandu et le plus dangereux.</p><div class="ef c">à éviter</div></div>
+      </div>
+      <p class="chain-note" data-i18n="s4.note">La ligne de partage est nette&nbsp;: les indices qui portent sur <b>l'image elle-même</b> se périment en quelques mois, parce que c'est exactement ce que les modèles s'améliorent à corriger. Les indices qui portent sur <b>le trajet de l'information</b> — qui, quand, où ailleurs — ne se périment pas, parce qu'ils ne dépendent pas de la technique.</p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · LES DÉTECTEURS ============ -->
+  <div class="pane dark pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Le conseil le plus répandu, et le plus dangereux</div>
+    <h2 class="stitle" data-i18n="s5.t">« Un détecteur<br>d'IA a dit que… »</h2>
+    <p class="lead" data-i18n="s5.lead">Des outils promettent de dire si un texte ou une image a été produit par une IA. Ils sont utilisés, y compris dans des établissements scolaires, pour accuser des élèves. Voici ce qu'on sait d'eux — et c'est la scène la plus importante de la séance pour vous.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card warn" data-i18n="s5.c1">
+          <h3>Sur le texte : peu fiable</h3>
+          <div class="sub">le cas le plus documenté</div>
+          <p>Il n'existe <b>aucune marque</b> dans un texte généré&nbsp;: les détecteurs devinent à partir du style. OpenAI a publié son propre détecteur en 2023, puis l'a <b>retiré</b> six mois plus tard pour manque de fiabilité.</p>
+        </div>
+        <div class="card warn" data-i18n="s5.c2">
+          <h3>Et il se trompe toujours dans le même sens</h3>
+          <div class="sub">le point décisif</div>
+          <p>Les textes jugés «&nbsp;écrits par une IA&nbsp;» à tort sont massivement ceux de personnes qui écrivent dans une <b>langue qui n'est pas la leur</b>, ou dans un style scolaire appliqué. <b>Les faux positifs frappent les mêmes élèves.</b></p>
+        </div>
+        <div class="card" data-i18n="s5.c3">
+          <h3>Sur l'image : un peu mieux</h3>
+          <div class="sub">mais fragile aussi</div>
+          <p>Certains générateurs insèrent un <b>filigrane invisible</b>, détectable par leur éditeur. Ça fonctionne — jusqu'à une capture d'écran, un recadrage ou une recompression, qui l'effacent souvent.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s5.note">La règle qui en découle est simple et vaut dans les deux sens&nbsp;: <b>un score de détecteur n'est pas une preuve.</b> Ni pour accuser quelqu'un, ni pour se rassurer. Si on vous l'oppose un jour, demandez le taux de faux positifs de l'outil&nbsp;: la question est rarement posée, et rarement répondue.</p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · LA PROVENANCE ============ -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Le renversement du problème</div>
+    <h2 class="stitle" data-i18n="s6.t">Signer le vrai,<br>plutôt que traquer le faux</h2>
+    <p class="lead" data-i18n="s6.lead">Puisque détecter le faux est une course perdue d'avance, l'industrie prend le problème par l'autre bout&nbsp;: <b>certifier l'authentique</b>. C'est la direction prise depuis 2023, et vous allez la voir apparaître dans vos applications.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card good" data-i18n="s6.c1">
+          <h3>Une signature à la prise de vue</h3>
+          <div class="sub">C2PA, « Content Credentials »</div>
+          <p>L'appareil photo signe l'image à la seconde où elle est prise&nbsp;: date, appareil, et chaque modification ultérieure. Un peu comme un <b>cachet de la poste</b> qu'on ne peut pas imiter.</p>
+        </div>
+        <div class="card good" data-i18n="s6.c2">
+          <h3>Un marquage à la génération</h3>
+          <div class="sub">l'autre bout de la chaîne</div>
+          <p>Symétriquement, les générateurs marquent ce qu'ils produisent. L'étiquette «&nbsp;créé avec l'IA&nbsp;» que vous voyez apparaître vient souvent de là.</p>
+        </div>
+        <div class="card warn" data-i18n="s6.c3">
+          <h3>La limite, honnêtement</h3>
+          <div class="sub">elle est grande</div>
+          <p>Une <b>capture d'écran efface tout</b>. Et l'absence de signature ne prouve rien&nbsp;: l'immense majorité des images vraies n'en ont pas. Ça marque le vrai, ça ne démasque pas le faux.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s6.note">À retenir dans ce sens-là, donc&nbsp;: <b>une signature présente et valide est une bonne nouvelle&nbsp;; une signature absente n'est pas une mauvaise nouvelle.</b> C'est l'inverse exact de la façon dont on utilise spontanément un détecteur.</p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · LE DIVIDENDE DU MENTEUR ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">L'effet de second tour</div>
+    <h2 class="stitle" data-i18n="s7.t">Le vrai devient<br>niable</h2>
+    <p class="lead" data-i18n="s7.lead">Voici le dommage le plus profond, et il ne demande <b>aucun faux</b>. À partir du moment où tout <i>pourrait</i> être fabriqué, il suffit d'affirmer qu'une preuve gênante l'a été. Les chercheurs appellent ça le <b>dividende du menteur</b>.</p>
+
+    <div class="mid">
+      <div class="cards c2" style="max-width:96ch;margin-left:auto;margin-right:auto">
+        <div class="card warn" data-i18n="s7.c1">
+          <h3>Avant</h3>
+          <div class="sub">une asymétrie confortable</div>
+          <p>Une vidéo d'un fait vous accusait&nbsp;: il fallait l'expliquer. La charge de la preuve pesait sur celui qu'on filmait, parce que truquer coûtait trop cher pour être crédible.</p>
+        </div>
+        <div class="card warn" data-i18n="s7.c2">
+          <h3>Maintenant</h3>
+          <div class="sub">l'asymétrie s'inverse</div>
+          <p>Il suffit de dire «&nbsp;c'est une IA&nbsp;». La charge de la preuve passe à <b>celui qui montre</b> — et prouver qu'une vidéo est authentique est bien plus difficile que de semer le doute.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s7.note">Ce basculement ne concerne pas que les personnalités publiques. Il concerne une photo partagée dans un groupe de classe, un enregistrement, une capture d'écran. <b>Il vaut dans les deux sens&nbsp;: on peut vous attribuer ce que vous n'avez pas fait, et vous pouvez être accusé de nier ce que vous avez fait.</b> D'où l'importance de la provenance — et des témoins.</p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · TROIS RÉFLEXES ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Ce qui tient, quel que soit le progrès technique</div>
+    <h2 class="stitle" data-i18n="s8.t">Trois réflexes,<br>trente secondes</h2>
+    <p class="lead" data-i18n="s8.lead">Aucun des trois ne regarde l'image. Tous les trois portent sur le <b>trajet</b> — c'est pour ça qu'ils ne se périment pas.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card good" data-i18n="s8.c1">
+          <h3>1 · Remonter</h3>
+          <div class="sub">pas au partage : à la source</div>
+          <p>Qui l'a publié en <b>premier</b>&nbsp;? Depuis quand ce compte existe-t-il, et qu'a-t-il publié d'autre&nbsp;? Un compte créé il y a trois semaines qui ne publie que sur un seul sujet, c'est déjà une réponse.</p>
+        </div>
+        <div class="card good" data-i18n="s8.c2">
+          <h3>2 · Chercher ailleurs</h3>
+          <div class="sub">recherche inversée, autre média</div>
+          <p>Un fait réel laisse <b>plusieurs traces indépendantes</b>. Si une seule source existe, et que tout le reste la recopie, ce n'est pas une confirmation&nbsp;: c'est un écho.</p>
+        </div>
+        <div class="card good" data-i18n="s8.c3">
+          <h3>3 · Se regarder soi</h3>
+          <div class="sub">le plus efficace, et le moins fait</div>
+          <p>«&nbsp;Est-ce que ça m'arrange&nbsp;? Est-ce que ça m'indigne&nbsp;?&nbsp;» Si oui, <b>ralentir</b>. L'émotion est précisément ce qui a été optimisé — par le classement comme par celui qui a fabriqué le contenu.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s8.note">Et une règle de sortie&nbsp;: <b>dans le doute, on ne relaie pas — même pour dénoncer.</b> Si vous voulez alerter, décrivez sans republier, ou renvoyez vers la vérification, pas vers l'original. Le système compte vos interactions, pas vos intentions.</p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · SIX CAS ============ -->
+  <div class="pane light pad" id="s9">
+    <div class="eyebrow" data-i18n="s9.eye">Manipulation · six situations, trois conduites</div>
+    <h2 class="stitle" data-i18n="s9.t">À vous<br>de trancher</h2>
+    <p class="lead" data-i18n="s9.lead">Pour chacune, une seule conduite tient. Attention&nbsp;: dans la plupart des cas, la bonne réponse n'est pas de décider si c'est vrai — c'est de savoir <b>ce qu'on peut affirmer</b>.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s9btns"></div>
+      <div class="casebox" id="s9case"></div>
+      <div class="ansrow nostep" id="s9ans"></div>
+      <p class="verd" id="s9verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 10 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s10">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s10.eye">La question qui ouvre le dernier bloc</div>
+    <div class="q" data-i18n="s10.q">Vous savez<br>comment ça marche.<br>Et <em>maintenant</em>&nbsp;?</div>
+    <p class="a" data-i18n="s10.a">Seize séances pour démonter l'objet&nbsp;: les jetons, le bruit, les données, le neurone, les couches, les outils, le classement, le faux. Vous savez désormais répondre à presque toutes les phrases qu'on entend sur l'IA — et dire, pour chacune, <b>si elle a été mesurée</b>. Reste la seule chose qu'aucun modèle ne décidera à votre place&nbsp;: <b>ce qu'on en fait, collectivement.</b> Le travail, l'école, l'énergie, la loi, et ce qu'on accepte d'automatiser.</p>
+    <div class="next" data-i18n="s10.next">Bloc suivant · Quels choix face à l'IA&nbsp;?</div>
+  </div>
+
+  <!-- ============ 11 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s11">
+    <div class="tag" data-i18n="s11.tag">Activité de la séance · 45 minutes · par deux, puis en classe</div>
+    <h2 data-i18n="s11.t">La <em>cellule</em><br>de vérification</h2>
+    <p class="sub" data-i18n="s11.sub">On ne devient pas méfiant en écoutant dire qu'il faut l'être. On le devient en enquêtant une fois, pour de vrai, avec un protocole.</p>
+    <ol class="steps">
+      <li data-i18n="s11.l1"><b>Le dossier.</b> Le professeur distribue six éléments — images, vidéos courtes, captures d'écran. Certains sont authentiques, certains non, certains sont <b>vrais mais sortis de leur contexte</b>. Personne ne sait lesquels.</li>
+      <li data-i18n="s11.l2"><b>Le pari.</b> Avant toute recherche, chaque binôme note son verdict et sa <b>confiance sur dix</b>. Deux minutes, pas plus. On garde la feuille.</li>
+      <li data-i18n="s11.l3"><b>L'enquête.</b> Quinze minutes, avec les trois réflexes de la scène 8 — et <b>interdiction formelle</b> d'utiliser un détecteur d'IA. Notez chaque étape&nbsp;: ce que vous avez cherché, où, ce que vous avez trouvé.</li>
+      <li data-i18n="s11.l4"><b>Le verdict révisé.</b> Trois réponses possibles seulement&nbsp;: <b>authentique</b>, <b>fabriqué</b>, ou <b>je ne peux pas conclure</b>. La troisième est une bonne réponse&nbsp;: elle doit être justifiée, pas excusée.</li>
+      <li data-i18n="s11.l5"><b>La correction.</b> Comparez aux paris du début. Sur lesquels étiez-vous le plus sûr&nbsp;? Y a-t-il un lien entre votre confiance initiale et le fait que l'élément vous arrangeait&nbsp;?</li>
+      <li data-i18n="s11.l6"><b>Le protocole de classe.</b> Ensemble, rédigez en <b>cinq lignes</b> la procédure que la classe s'engage à suivre avant de relayer quoi que ce soit. Elle doit tenir sur un post-it, sinon personne ne l'appliquera.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 12 · RÉCAP ============ -->
+  <div class="pane light pad" id="s12">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 16 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Ce qui n'a <span>jamais eu lieu</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">Le faux est très ancien. Ce qui a changé, ce n'est pas sa <b>qualité</b>, c'est son <b>prix</b>&nbsp;: donc son <span class="hl">débit</span>. Dix mille variantes valent mieux qu'un chef-d'œuvre.</li>
+      <li data-i18n="rc.i2">Quatre objets différents sous un seul mot&nbsp;: contenu <span class="hl">synthétique</span> ordinaire, <span class="hl">faux comptes</span>, <span class="hl">deepfakes</span>, et <b>vrai sorti de son contexte</b> — le plus efficace des quatre, et il ne demande aucune IA.</li>
+      <li data-i18n="rc.i3">Un faux ne réussit pas parce qu'il est parfait&nbsp;: parce qu'il <b>confirme</b>, qu'il va <b>vite</b>, qu'il se <b>répète</b>, et qu'on le relaie pour le dénoncer.</li>
+      <li data-i18n="rc.i4">Les indices qui portent sur l'image <b>se périment en quelques mois</b>&nbsp;: compter les doigts ne sert plus à rien. Les indices qui portent sur le <b>trajet</b> ne se périment pas.</li>
+      <li data-i18n="rc.i5">Un <span class="hl">détecteur d'IA</span> n'est pas une preuve — ni pour accuser, ni pour se rassurer. Sur le texte, ses erreurs frappent toujours les mêmes&nbsp;: ceux qui écrivent dans une langue étrangère.</li>
+      <li data-i18n="rc.i6">Le mouvement actuel est de <b>signer le vrai</b> plutôt que de traquer le faux (<span class="hl">provenance</span>). Une signature valide est une bonne nouvelle&nbsp;; son absence ne prouve rien.</li>
+      <li data-i18n="rc.i7">Effet de second tour&nbsp;: quand tout pourrait être fabriqué, <b>le vrai devient niable</b>. C'est le <span class="hl">dividende du menteur</span>, et il ne demande aucun faux.</li>
+      <li data-i18n="rc.i8">Trois réflexes, trente secondes&nbsp;: <b>remonter</b> à la source, <b>chercher ailleurs</b>, <b>se regarder soi</b>. Et dans le doute, on ne relaie pas — même pour dénoncer.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Contenu synthétique</b>Produit par un modèle, trompeur ou non.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Deepfake</b>Un visage ou une voix remplacés.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Décontextualisation</b>Du vrai, à la mauvaise date.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Provenance</b>Signer l'authentique à la source.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Faux positif</b>Accusé à tort par un détecteur.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Dividende du menteur</b>Nier le vrai parce que le faux existe.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>vous savez comment ça marche. Reste ce qu'on en fait — et ce choix-là n'est pas technique.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 12;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.matches && e.target.matches('input,select')) return;
+  if(e.target && e.target.closest && e.target.closest('#langsw') && (e.key===' '||e.key==='Enter')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,input,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   SCÈNE 2 — quatre objets sous un seul mot
+   ========================================================= */
+var S2 = {
+  fr:{
+    btn:['Contenu synthétique ordinaire','Faux compte / bot','Deepfake','Vrai, sorti de son contexte'],
+    rows:[
+      [['Comment c’est fait','Un texte, une image ou une vidéo <b>entièrement générés</b>, souvent sans intention de tromper : illustration, remplissage, publicité.'],
+       ['Ce que ça coûte','Quelques centimes. Des sites entiers en publient des milliers par jour pour capter de la publicité.'],
+       ['Le vrai problème','Pas le mensonge : la <b>saturation</b>. Le vrai devient plus difficile à trouver, noyé sous le volume.']],
+      [['Comment c’est fait','Un profil crédible — photo générée, historique écrit par un modèle — qui publie et commente sans personne derrière.'],
+       ['Ce que ça coûte','Presque rien à l’unité. L’intérêt est d’en avoir <b>des milliers</b> qui se citent entre eux.'],
+       ['Le vrai problème','Fabriquer une <b>fausse unanimité</b>. On ne vous ment pas sur un fait : on vous ment sur le nombre de gens qui le pensent.']],
+      [['Comment c’est fait','Le visage ou la voix d’une personne réelle, remplacés dans une vidéo ou un enregistrement. Quelques minutes de voix suffisent.'],
+       ['Ce que ça coûte','Encore un peu de travail pour un résultat vraiment convaincant — mais plus aucun studio, plus aucun budget.'],
+       ['Le vrai problème','L’usage majoritaire, de très loin, n’est <b>pas</b> politique : c’est le harcèlement, l’humiliation et l’arnaque — souvent contre des particuliers.']],
+      [['Comment c’est fait','<b>Aucune IA.</b> Une vraie photo, un vrai extrait — mais d’un autre pays, d’une autre année, ou coupé avant la phrase qui change tout.'],
+       ['Ce que ça coûte','Zéro. Un copier-coller et une légende.'],
+       ['Le vrai problème','C’est la forme <b>la plus répandue et la plus efficace</b>. Aucun détecteur d’IA ne la verra jamais : il n’y a rien à détecter.']]
+    ],
+    v:[
+      '<b>Ne pas chercher le mensonge.</b> Chercher la <b>source</b> : qui publie ça, et pourquoi. Un site qui produit cinquante articles par jour sur tous les sujets n’a pas de rédaction.',
+      '<b>Regarder le compte, pas la publication.</b> Date de création, régularité, variété des sujets, interactions réelles. Un compte de trois semaines qui ne parle que d’un seul sujet est une réponse en soi.',
+      '<b>Remonter à l’origine.</b> Une déclaration importante existe ailleurs, filmée par d’autres, à une date vérifiable. Si elle n’existe qu’en un seul exemplaire et sur un seul compte, méfiance.',
+      '<b>Recherche d’image inversée</b>, et vérification de la date. C’est le réflexe le plus rentable de toute la séance — parce que c’est le cas le plus fréquent, et le seul qui se règle en dix secondes.'
+    ]
+  },
+  en:{
+    btn:['Ordinary synthetic content','Fake account / bot','Deepfake','Real, out of context'],
+    rows:[
+      [['How it is made','A text, image or video <b>entirely generated</b>, often with no intent to deceive: illustration, filler, advertising.'],
+       ['What it costs','A few pennies. Whole websites publish thousands a day to capture advertising.'],
+       ['The real problem','Not the lie: <b>saturation</b>. The true becomes harder to find, drowned under the volume.']],
+      [['How it is made','A credible profile — generated photo, history written by a model — that posts and comments with nobody behind it.'],
+       ['What it costs','Almost nothing each. The point is to have <b>thousands</b> of them quoting one another.'],
+       ['The real problem','Manufacturing <b>false unanimity</b>. You are not being lied to about a fact: you are being lied to about how many people think it.']],
+      [['How it is made','A real person’s face or voice, replaced in a video or a recording. A few minutes of speech is enough.'],
+       ['What it costs','Still some work for a truly convincing result — but no studio and no budget any more.'],
+       ['The real problem','The majority use, by a very long way, is <b>not</b> political: it is harassment, humiliation and fraud — often against private individuals.']],
+      [['How it is made','<b>No AI at all.</b> A real photo, a real clip — but from another country, another year, or cut just before the sentence that changes everything.'],
+       ['What it costs','Nothing. A copy-paste and a caption.'],
+       ['The real problem','It is the <b>commonest and most effective</b> form. No AI detector will ever see it: there is nothing to detect.']]
+    ],
+    v:[
+      '<b>Do not look for the lie.</b> Look for the <b>source</b>: who is publishing this, and why. A site producing fifty articles a day on every subject has no newsroom.',
+      '<b>Look at the account, not the post.</b> Creation date, regularity, variety of topics, real interactions. A three-week-old account that only ever talks about one subject is an answer in itself.',
+      '<b>Go back to the origin.</b> An important statement exists elsewhere, filmed by others, on a checkable date. If it exists in one copy on one account, be suspicious.',
+      '<b>Reverse image search</b>, and check the date. This is the highest-value reflex in the whole lesson — because it is the commonest case, and the only one settled in ten seconds.'
+    ]
+  }
+};
+var s2i = 3;
+function drawS2(){
+  var t = S2[LG()];
+  pickbtns('s2btns', t.btn, s2i, function(i){ s2i = i; drawS2(); });
+  document.getElementById('s2out').innerHTML = t.rows[s2i].map(function(r){
+    return '<div class="mdrow"><div class="h">' + r[0] + '</div><p>' + r[1] + '</p></div>';
+  }).join('');
+  document.getElementById('s2verd').innerHTML = t.v[s2i];
+}
+
+/* =========================================================
+   SCÈNE 9 — six situations
+   ========================================================= */
+var S9 = {
+  fr:{
+    btn:['1','2','3','4','5','6'],
+    ans:['C’est sûrement vrai','Je ne peux pas conclure','C’est sûrement fabriqué'],
+    tag:'Situation',
+    cases:[
+      { c:'Une photo d’inondation spectaculaire circule avec la légende « chez nous, ce matin ». Elle est nette, rien ne cloche visuellement.',
+        g:1, r:'Rien dans l’image ne permet de conclure — c’est précisément le point de la scène 4. <b>Une recherche inversée</b> règle la question en dix secondes, et dans ce genre de cas elle ramène très souvent une vraie photo… prise ailleurs, des années plus tôt.' },
+      { c:'Un compte créé il y a trois semaines, 4 000 abonnés, publie exclusivement sur un seul sujet polémique, vingt fois par jour.',
+        g:2, r:'Ici on peut conclure, non pas sur le contenu mais sur le <b>compte</b>&nbsp;: rythme impossible pour une personne, création récente, sujet unique. C’est le profil typique d’un compte automatisé — et vous l’avez établi <b>sans regarder une seule publication</b>.' },
+      { c:'Un détecteur en ligne annonce « 94 % de probabilité que ce texte soit écrit par une IA ». Le texte est le devoir d’un camarade.',
+        g:1, r:'Un score de détecteur <b>n’est pas une preuve</b> (scène 5). 94 % n’est pas 94 % de certitude, et ces outils se trompent systématiquement sur les mêmes profils. <b>On n’accuse personne là-dessus.</b> Si la question se pose vraiment, elle se règle en demandant à l’auteur d’expliquer son texte.' },
+      { c:'Une vidéo montre un responsable politique tenant des propos choquants. Elle est reprise par trois grands médias, qui citent la même conférence de presse filmée sous plusieurs angles.',
+        g:0, r:'Plusieurs traces <b>indépendantes</b>, plusieurs angles, un événement daté et public. C’est exactement ce qu’un faux ne produit pas&nbsp;: fabriquer la même scène sous cinq angles cohérents, filmée par cinq équipes, est hors de portée. <b>La multiplicité des sources reste le meilleur indice d’authenticité.</b>' },
+      { c:'Un enregistrement vous attribue des propos que vous n’avez jamais tenus. Il circule dans un groupe de classe.',
+        g:1, r:'Vous savez que c’est faux, mais vous ne pouvez pas le <b>prouver</b> — c’est le dividende du menteur dans l’autre sens (scène 7). La bonne conduite n’est pas de discuter dans le groupe&nbsp;: c’est de <b>conserver des traces</b> (captures, dates, qui a envoyé quoi) et d’en parler à un adulte. Ce type de fait relève du harcèlement, pas du débat.' },
+      { c:'Une photo porte une signature de provenance valide&nbsp;: appareil, date, aucune modification depuis la prise de vue.',
+        g:0, r:'Une signature <b>présente et valide</b> est une vraie information (scène 6)&nbsp;: elle dit que ce fichier sort bien de cet appareil, à cette date. Attention toutefois&nbsp;: elle certifie <b>la prise de vue, pas la légende</b>. Une photo authentique peut toujours être présentée comme montrant autre chose.' }
+    ],
+    ask:'Choisissez.',
+    bad:'Non. '
+  },
+  en:{
+    btn:['1','2','3','4','5','6'],
+    ans:['It is surely true','I cannot conclude','It is surely fabricated'],
+    tag:'Situation',
+    cases:[
+      { c:'A spectacular flood photo is circulating captioned &ldquo;here, this morning&rdquo;. It is sharp and nothing looks wrong.',
+        g:1, r:'Nothing in the image lets you conclude — that is exactly the point of scene 4. <b>A reverse image search</b> settles it in ten seconds, and in cases like this it very often returns a real photo… taken somewhere else, years earlier.' },
+      { c:'An account created three weeks ago, 4,000 followers, posts exclusively about one divisive subject, twenty times a day.',
+        g:2, r:'Here you can conclude, not from the content but from the <b>account</b>: an impossible rate for a person, recent creation, single subject. That is the typical profile of an automated account — and you established it <b>without looking at a single post</b>.' },
+      { c:'An online detector reports &ldquo;94% probability this text was written by an AI&rdquo;. The text is a classmate’s homework.',
+        g:1, r:'A detector score <b>is not proof</b> (scene 5). 94% is not 94% certainty, and these tools err systematically against the same profiles. <b>You accuse nobody on that basis.</b> If the question really arises, it is settled by asking the author to explain their text.' },
+      { c:'A video shows a politician saying something shocking. It is carried by three major news outlets, citing the same filmed press conference from several angles.',
+        g:0, r:'Several <b>independent</b> traces, several angles, a dated public event. That is exactly what a fake does not produce: manufacturing the same scene from five consistent angles, filmed by five crews, is out of reach. <b>Multiple sources remain the best indicator of authenticity.</b>' },
+      { c:'A recording attributes to you words you never said. It is circulating in a class group chat.',
+        g:1, r:'You know it is false, but you cannot <b>prove</b> it — that is the liar’s dividend the other way round (scene 7). The right move is not to argue in the group: it is to <b>keep records</b> (screenshots, dates, who sent what) and to tell an adult. This kind of thing is harassment, not debate.' },
+      { c:'A photo carries a valid provenance signature: camera, date, no modification since capture.',
+        g:0, r:'A signature that is <b>present and valid</b> is real information (scene 6): it says this file did come out of that camera, on that date. But careful: it certifies <b>the capture, not the caption</b>. An authentic photo can still be presented as showing something else.' }
+    ],
+    ask:'Choose.',
+    bad:'No. '
+  }
+};
+var s9i = 0;
+var s9pick = [-1,-1,-1,-1,-1,-1];
+function drawS9(){
+  var t = S9[LG()], k = t.cases[s9i], p = s9pick[s9i];
+  pickbtns('s9btns', t.btn, s9i, function(i){ s9i = i; drawS9(); });
+  document.getElementById('s9case').innerHTML =
+    '<div class="ct">' + t.tag + ' ' + (s9i+1) + '</div><p>' + k.c + '</p>';
+  document.getElementById('s9ans').innerHTML = t.ans.map(function(l,i){
+    var cls = '';
+    if(p >= 0){
+      if(i === k.g) cls = ' ok';
+      else if(i === p) cls = ' no';
+    }
+    return '<button class="ans nostep' + cls + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s9ans .ans')).forEach(function(b){
+    b.onclick = function(){ s9pick[s9i] = +b.dataset.i; drawS9(); };
+  });
+  document.getElementById('s9verd').innerHTML =
+    p < 0 ? t.ask : ((p === k.g ? '' : t.bad) + k.r);
+}
+
+/* =========================================================
+   REDESSIN GLOBAL
+   ========================================================= */
+function redrawAll(){ drawS2(); drawS9(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Ce qui n'a jamais eu lieu`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`What never happened`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · Who chooses what I see?`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`And what if it<br>never <em>happened</em><br>at all?`,
+  's0.line':`The previous lesson showed how a machine <strong style="color:#fff">arranges</strong> whatever holds attention. This one adds the other half: a machine that <strong style="color:#fff">manufactures</strong> whatever holds attention, without limit. What has changed is not that fakery is possible — it is very old. It is its <strong style="color:#fff">price</strong>.`,
+  's0.kick':`Synthetic content · bots · deepfakes · provenance · reflexes`,
+
+  /* --- 1 · le prix --- */
+  's1.eye':`What has really changed`,
+  's1.t':`Fakes have always existed.<br>They were expensive.`,
+  's1.lead':`Doctoring a photograph was already done in 1920 — Stalin had rivals erased from official pictures. What is new is neither the technique nor the intent: it is that an operation that once took a studio, days and money now takes <b>a few seconds and nothing at all</b>.`,
+  's1.stats':`
+        <div class="stat"><b>~0 €</b><span>the cost of a convincing image</span></div>
+        <div class="stat"><b>seconds</b><span>the time to produce it</span></div>
+        <div class="stat"><b>unlimited</b><span>the number of variants</span></div>
+      `,
+  's1.c1':`
+          <h3>It is not the quality</h3>
+          <div class="sub">the usual misunderstanding</div>
+          <p>A good human forger was already better than a 2026 model. But he made <b>one</b>, and he had to be paid.</p>
+        `,
+  's1.c2':`
+          <h3>It is the throughput</h3>
+          <div class="sub">the real tipping point</div>
+          <p>Ten thousand variants of one message, each tailored to an audience, posted by ten thousand accounts. <b>None of them needs to be excellent: there just need to be many.</b></p>
+        `,
+  's1.c3':`
+          <h3>And the target has changed</h3>
+          <div class="sub">consequence of lesson 15</div>
+          <p>That throughput lands in a system that ranks by <b>attention held</b>. The two machines meet — and neither has any view about truth.</p>
+        `,
+
+  /* --- 2 · quatre objets --- */
+  's2.eye':`Hands on · four different things`,
+  's2.t':`&ldquo;It's an AI&rdquo;<br>means nothing`,
+  's2.lead':`Four things with different costs, different purposes and different defences are filed under one word. Confusing them means reaching for the wrong reflex.`,
+  's2.lbl':`The fitting reflex`,
+
+  /* --- 3 · pourquoi ça marche --- */
+  's3.eye':`This is not a technical problem`,
+  's3.t':`We do not check<br>what suits us`,
+  's3.lead':`A fake almost never succeeds because it is perfect. It succeeds because it arrives at the right moment, with someone it confirms, in a fast-moving feed. Four mechanisms, none of them new — AI simply feeds them continuously.`,
+  's3.c1':`
+          <h3>Confirmation</h3>
+          <div class="sub">the dominant factor</div>
+          <p>Whatever confirms what we already think is accepted <b>without examination</b>. Whatever contradicts it is examined harshly. We all do both, and we do not feel it.</p>
+        `,
+  's3.c2':`
+          <h3>Speed</h3>
+          <div class="sub">lesson 15</div>
+          <p>Sharing takes a second, checking takes ten minutes. In a feed ranked by reaction, <b>the fake travels before the truth is checked</b>.</p>
+        `,
+  's3.c3':`
+          <h3>Repetition</h3>
+          <div class="sub">illusory truth effect</div>
+          <p>A statement heard several times feels truer — <b>even when you know it is false</b>. This has been measured since the 1970s, and it is exactly what throughput enables.</p>
+        `,
+  's3.c4':`
+          <h3>The denial that amplifies</h3>
+          <div class="sub">the commonest trap</div>
+          <p>Sharing to denounce is <b>sharing</b>. The system does not read your comment: it counts your interaction, and shows the post to others.</p>
+        `,
+  's3.note':`In other words: <b>the weak point is not the image, it is the journey.</b> Working on detecting the image means chasing an endless technical race. Working on the journey — slow down, trace back, do not relay — never goes out of date.`,
+
+  /* --- 4 · les indices --- */
+  's4.eye':`What works, and what no longer does`,
+  's4.t':`The advice<br>goes stale`,
+  's4.lead':`The &ldquo;tricks to spot an AI&rdquo; that circulate often date from 2023 and are worthless now. Here is the same table, updated — and above all, the dividing line between what ages and what does not.`,
+  's4.rows':`
+        <div class="crow"><p><b>Count the fingers, look for odd teeth.</b> True until 2024, false since. Recent models pass these tests without difficulty.</p><div class="ef c">obsolete</div></div>
+        <div class="crow"><p><b>Look for inconsistent reflections, impossible shadows.</b> Still occasionally useful on sloppy output — but no longer reliable as proof.</p><div class="ef b">fragile</div></div>
+        <div class="crow"><p><b>Run a reverse image search.</b> If the photo has been circulating since 2019 with another caption, it is settled in ten seconds.</p><div class="ef a">solid</div></div>
+        <div class="crow"><p><b>Trace back to the first source.</b> Who posted it first? How long has that account existed, and what else has it posted?</p><div class="ef a">solid</div></div>
+        <div class="crow"><p><b>Look for the same information elsewhere.</b> A real event leaves <b>several</b> independent traces. A fake leaves one, copied around.</p><div class="ef a">solid</div></div>
+        <div class="crow"><p><b>Trust an &ldquo;AI detector&rdquo;.</b> See the next scene: this is the most widespread and the most dangerous advice of all.</p><div class="ef c">avoid</div></div>
+      `,
+  's4.note':`The dividing line is sharp: clues about <b>the image itself</b> go stale in months, because that is precisely what models get better at fixing. Clues about <b>the journey of the information</b> — who, when, where else — do not go stale, because they do not depend on the technique.`,
+
+  /* --- 5 · les détecteurs --- */
+  's5.eye':`The most widespread advice, and the most dangerous`,
+  's5.t':`&ldquo;An AI detector<br>said that…&rdquo;`,
+  's5.lead':`Tools promise to tell you whether a text or an image was produced by an AI. They are in use, including in schools, to accuse pupils. Here is what is known about them — and this is the most important scene of the lesson for you.`,
+  's5.c1':`
+          <h3>On text: unreliable</h3>
+          <div class="sub">the best-documented case</div>
+          <p>There is <b>no mark</b> in a generated text: detectors guess from style. OpenAI published its own detector in 2023, then <b>withdrew it</b> six months later for lack of reliability.</p>
+        `,
+  's5.c2':`
+          <h3>And it always errs the same way</h3>
+          <div class="sub">the decisive point</div>
+          <p>The texts wrongly judged &ldquo;written by an AI&rdquo; are overwhelmingly those of people writing in a <b>language that is not their own</b>, or in a careful school style. <b>False positives hit the same pupils every time.</b></p>
+        `,
+  's5.c3':`
+          <h3>On images: a bit better</h3>
+          <div class="sub">but fragile too</div>
+          <p>Some generators embed an <b>invisible watermark</b>, detectable by their publisher. That works — until a screenshot, a crop or a recompression, which often erase it.</p>
+        `,
+  's5.note':`The resulting rule is simple and cuts both ways: <b>a detector score is not proof.</b> Not to accuse anyone, and not to reassure yourself. If one is ever used against you, ask for the tool's false-positive rate: the question is rarely asked, and rarely answered.`,
+
+  /* --- 6 · la provenance --- */
+  's6.eye':`Turning the problem round`,
+  's6.t':`Sign the real,<br>rather than hunt the fake`,
+  's6.lead':`Since detecting fakes is a race lost in advance, the industry is taking the problem from the other end: <b>certifying the authentic</b>. That is the direction taken since 2023, and you will see it appear in your apps.`,
+  's6.c1':`
+          <h3>A signature at capture</h3>
+          <div class="sub">C2PA, &ldquo;Content Credentials&rdquo;</div>
+          <p>The camera signs the image the second it is taken: date, device, and every later modification. Rather like a <b>postmark</b> that cannot be forged.</p>
+        `,
+  's6.c2':`
+          <h3>A mark at generation</h3>
+          <div class="sub">the other end of the chain</div>
+          <p>Symmetrically, generators mark what they produce. The &ldquo;made with AI&rdquo; label you are starting to see often comes from this.</p>
+        `,
+  's6.c3':`
+          <h3>The limit, honestly</h3>
+          <div class="sub">it is a big one</div>
+          <p>A <b>screenshot erases everything</b>. And the absence of a signature proves nothing: the vast majority of real images have none. It marks the real, it does not unmask the fake.</p>
+        `,
+  's6.note':`So remember it in this direction: <b>a signature that is present and valid is good news; an absent signature is not bad news.</b> That is the exact opposite of how people instinctively use a detector.`,
+
+  /* --- 7 · le dividende du menteur --- */
+  's7.eye':`The second-order effect`,
+  's7.t':`The real becomes<br>deniable`,
+  's7.lead':`Here is the deepest damage, and it requires <b>no fake at all</b>. Once everything <i>could</i> have been fabricated, it is enough to claim that an inconvenient piece of evidence was. Researchers call this the <b>liar's dividend</b>.`,
+  's7.c1':`
+          <h3>Before</h3>
+          <div class="sub">a comfortable asymmetry</div>
+          <p>A video of an event accused you: you had to explain it. The burden of proof lay on the person filmed, because faking cost too much to be credible.</p>
+        `,
+  's7.c2':`
+          <h3>Now</h3>
+          <div class="sub">the asymmetry flips</div>
+          <p>It is enough to say &ldquo;that's an AI&rdquo;. The burden of proof moves to <b>whoever is showing</b> — and proving a video is authentic is far harder than sowing doubt.</p>
+        `,
+  's7.note':`This shift does not only concern public figures. It concerns a photo shared in a class group, a recording, a screenshot. <b>And it cuts both ways: you can be credited with what you did not do, and you can be accused of denying what you did.</b> Hence the importance of provenance — and of witnesses.`,
+
+  /* --- 8 · trois réflexes --- */
+  's8.eye':`What holds, whatever the technical progress`,
+  's8.t':`Three reflexes,<br>thirty seconds`,
+  's8.lead':`None of the three looks at the image. All three are about the <b>journey</b> — which is why they do not go stale.`,
+  's8.c1':`
+          <h3>1 · Trace back</h3>
+          <div class="sub">not to the share: to the source</div>
+          <p>Who posted it <b>first</b>? How long has that account existed, and what else has it posted? An account created three weeks ago that only posts on one subject is already an answer.</p>
+        `,
+  's8.c2':`
+          <h3>2 · Look elsewhere</h3>
+          <div class="sub">reverse search, another outlet</div>
+          <p>A real event leaves <b>several independent traces</b>. If only one source exists and everything else copies it, that is not confirmation: it is an echo.</p>
+        `,
+  's8.c3':`
+          <h3>3 · Look at yourself</h3>
+          <div class="sub">the most effective, and the least done</div>
+          <p>&ldquo;Does this suit me? Does this outrage me?&rdquo; If so, <b>slow down</b>. Emotion is precisely what was optimised — both by the ranking and by whoever made the content.</p>
+        `,
+  's8.note':`And one exit rule: <b>when in doubt, do not relay — not even to denounce.</b> If you want to warn people, describe without reposting, or point to the fact-check rather than the original. The system counts your interactions, not your intentions.`,
+
+  /* --- 9 · six cas --- */
+  's9.eye':`Hands on · six situations, three ways to act`,
+  's9.t':`Your turn<br>to decide`,
+  's9.lead':`For each one, only one answer holds. Careful: in most cases the right answer is not to decide whether it is true — it is to know <b>what you are entitled to claim</b>.`,
+
+  /* --- 10 · charnière --- */
+  's10.eye':`The question that opens the final block`,
+  's10.q':`You know how<br>it works. And<br><em>now</em>?`,
+  's10.a':`Sixteen lessons spent taking the object apart: tokens, noise, data, the neuron, layers, tools, ranking, fakery. You can now answer almost any sentence you hear about AI — and say, for each one, <b>whether it has been measured</b>. What is left is the only thing no model will decide for you: <b>what we do with it, collectively.</b> Work, school, energy, the law, and what we agree to automate.`,
+  's10.next':`Next block · What choices do we face?`,
+
+  /* --- 11 · activité --- */
+  's11.tag':`Activity for this lesson · 45 minutes · in pairs, then as a class`,
+  's11.t':`The <em>verification</em><br>desk`,
+  's11.sub':`Nobody becomes careful by being told to be. You become careful by investigating once, for real, with a protocol.`,
+  's11.l1':`<b>The file.</b> The teacher hands out six items — images, short videos, screenshots. Some are authentic, some are not, some are <b>real but taken out of context</b>. Nobody knows which.`,
+  's11.l2':`<b>The bet.</b> Before any research, each pair writes down its verdict and its <b>confidence out of ten</b>. Two minutes, no more. Keep the sheet.`,
+  's11.l3':`<b>The investigation.</b> Fifteen minutes, using the three reflexes of scene 8 — and <b>no AI detector</b>, strictly. Note every step: what you searched for, where, what you found.`,
+  's11.l4':`<b>The revised verdict.</b> Only three answers allowed: <b>authentic</b>, <b>fabricated</b>, or <b>I cannot conclude</b>. The third is a good answer: it must be justified, not apologised for.`,
+  's11.l5':`<b>The marking.</b> Compare with the opening bets. Which were you most sure about? Is there a link between your initial confidence and the item suiting you?`,
+  's11.l6':`<b>The class protocol.</b> Together, write in <b>five lines</b> the procedure the class commits to before relaying anything. It must fit on a sticky note, or nobody will follow it.`,
+
+  /* --- 12 · récap --- */
+  'rc.eye':`Lesson 16 · to remember`,
+  'rc.t':`What never <span>happened</span>`,
+  'rc.i1':`Fakes are very old. What changed is not their <b>quality</b> but their <b>price</b>: hence their <span class="hl">throughput</span>. Ten thousand variants beat one masterpiece.`,
+  'rc.i2':`Four different objects under one word: ordinary <span class="hl">synthetic</span> content, <span class="hl">fake accounts</span>, <span class="hl">deepfakes</span>, and <b>real material out of context</b> — the most effective of the four, and it needs no AI.`,
+  'rc.i3':`A fake does not succeed by being perfect: it <b>confirms</b>, it is <b>fast</b>, it <b>repeats</b>, and people relay it in order to denounce it.`,
+  'rc.i4':`Clues about the image <b>go stale in months</b>: counting fingers is useless now. Clues about the <b>journey</b> do not go stale.`,
+  'rc.i5':`An <span class="hl">AI detector</span> is not proof — not to accuse, not to reassure. On text its errors always hit the same people: those writing in a foreign language.`,
+  'rc.i6':`The current move is to <b>sign the real</b> rather than hunt the fake (<span class="hl">provenance</span>). A valid signature is good news; its absence proves nothing.`,
+  'rc.i7':`Second-order effect: when everything could be fabricated, <b>the real becomes deniable</b>. That is the <span class="hl">liar's dividend</span>, and it needs no fake.`,
+  'rc.i8':`Three reflexes, thirty seconds: <b>trace back</b> to the source, <b>look elsewhere</b>, <b>look at yourself</b>. And when in doubt, do not relay — not even to denounce.`,
+  'rc.v1':`<b>Synthetic content</b>Made by a model, deceptive or not.`,
+  'rc.v2':`<b>Deepfake</b>A face or a voice replaced.`,
+  'rc.v3':`<b>Decontextualisation</b>Real material, wrong date.`,
+  'rc.v4':`<b>Provenance</b>Signing the authentic at source.`,
+  'rc.v5':`<b>False positive</b>Wrongly accused by a detector.`,
+  'rc.v6':`<b>Liar's dividend</b>Denying the real because fakes exist.`,
+  'rc.key':`Next step: <b>you know how it works. What is left is what we do with it — and that choice is not a technical one.</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>

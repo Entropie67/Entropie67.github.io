@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qui choisit ce que je vois ?</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- s2 : le fil classé ---------- */
+  .feed{display:grid;gap:.2rem;max-width:92ch;margin:0 auto;width:100%}
+  #s2 .lead{font-size:clamp(.84rem,1.5vw,1rem);line-height:1.4}
+  #s2 .verd{font-size:clamp(.8rem,1.4vw,.96rem);line-height:1.36;padding-top:.32rem;margin-top:.32rem}
+  .fit{display:grid;grid-template-columns:1.6rem minmax(0,1fr) 16.5rem 4rem;gap:.5rem;align-items:center;
+    border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:.24rem .5rem;transition:.25s}
+  .fit .rk{font-family:var(--display);font-size:clamp(.8rem,1.5vw,1rem);color:var(--muted);text-align:center}
+  .fit .tx{font-family:var(--serif);font-size:clamp(.76rem,1.3vw,.92rem);color:#3a352c;line-height:1.3}
+  .fit .tx i{font-style:normal;font-family:var(--mono);font-size:.58rem;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--muted);display:block;line-height:1.3}
+  .fit .mt{font-family:var(--mono);font-size:.6rem;color:var(--muted);line-height:1.3;white-space:nowrap}
+  .fit .sc{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);text-align:right}
+  .fit.top{border-color:var(--signal-dk);background:rgba(31,92,255,.09)}
+  .fit.top .rk{color:var(--signal-dk)}
+  .fit.hotc{border-left:4px solid var(--alarm)}
+
+  /* ---------- s5 : la boucle ---------- */
+  .dist{display:grid;gap:.34rem;max-width:52ch;margin:.2rem auto .3rem;width:100%}
+  .drow{display:grid;grid-template-columns:9.5ch minmax(0,1fr) 4.5ch;gap:.55rem;align-items:center}
+  .drow .dl{font-family:var(--mono);font-size:clamp(.64rem,1.1vw,.76rem);color:#a9a294}
+  .drow .db{height:15px;background:rgba(233,228,216,.08);border:1px solid rgba(233,228,216,.2)}
+  .drow .db i{display:block;height:100%;background:#6c9eff;transition:width .3s}
+  .drow.fav .db i{background:#ff6a4d}
+  .drow .dv{font-family:var(--mono);font-size:.68rem;color:#e9e4d8;text-align:right}
+  .stepr{display:flex;align-items:center;gap:.6rem;justify-content:center;margin:.5rem 0 .25rem;
+    font-family:var(--mono);font-size:.68rem;color:#a9a294;flex-wrap:wrap}
+  .stepr input[type=range]{width:clamp(150px,30vw,320px);accent-color:var(--signal)}
+  .stepr b{color:#7fa0ff;min-width:7ch;text-align:left}
+
+  /* ---------- s7 : mesuré / non mesuré ---------- */
+  .twoc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(.6rem,2vw,1.4rem);align-items:start}
+  .lst{display:grid;gap:.26rem}
+  .lrow{display:grid;grid-template-columns:1.2rem minmax(0,1fr);gap:.5rem;align-items:start;
+    font-family:var(--serif);font-size:clamp(.77rem,1.32vw,.93rem);line-height:1.34}
+  .lrow .mk{font-family:var(--mono);font-size:.8rem;line-height:1.25}
+  .lst.yes .mk{color:var(--green)}
+  .lst.no .mk{color:var(--alarm)}
+
+  /* ---------- s8 : les commandes ---------- */
+  .ctrl{display:grid;gap:.3rem}
+  .crow{display:grid;grid-template-columns:minmax(0,1fr) 9.5rem;gap:.6rem;align-items:center;
+    border:1px solid rgba(233,228,216,.2);background:rgba(233,228,216,.04);padding:.4rem .62rem}
+  .crow p{font-family:var(--serif);font-size:clamp(.76rem,1.3vw,.92rem);color:#cfc8b8;line-height:1.34}
+  .crow p b{color:#fff}
+  .crow .ef{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+    text-align:center;padding:.22rem .3rem;border:1px solid currentColor;line-height:1.2}
+  .crow .ef.a{color:#7fe0ac}
+  .crow .ef.b{color:#ffd166}
+  .crow .ef.c{color:#ff8a72}
+
+  /* ---------- resserrements de projection ---------- */
+  #s12 .rc-list{gap:.28rem}
+  #s12 .rc-list li{font-size:clamp(.76rem,1.36vw,.91rem);line-height:1.33}
+  #s12 .rc-voc{gap:.35rem}
+  #s12 .rc-term{font-size:.72rem;padding:.4rem .55rem}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="effort.html" data-i18n="s0.back">◂ Séance précédente · L'effort qu'on évite</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Vous n'avez<br>rien <em>choisi</em>.<br>Et pourtant.</h1>
+    <p class="line" data-i18n="s0.line">Quatorze séances pour apprendre à <strong style="color:#fff">décider</strong> quand ouvrir un assistant. Mais l'essentiel de votre temps d'écran ne ressemble pas à ça&nbsp;: vous ouvrez une application, et <strong style="color:#fff">ce qui apparaît a déjà été choisi</strong>. Par une IA — qui n'est pas du tout celle des quatorze séances précédentes.</p>
+    <div class="kick" data-i18n="s0.kick">Classement · signaux · objectif · boucle · ce qu'on peut régler</div>
+  </div>
+
+  <!-- ============ 1 · LE MUR A DISPARU ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Un changement qu'on n'a pas vu passer</div>
+    <h2 class="stitle" data-i18n="s1.t">Il n'y a plus<br>de « fil »</h2>
+    <p class="lead" data-i18n="s1.lead">Au départ, un réseau social affichait les messages de vos amis, du plus récent au plus ancien. Il n'y avait <b>rien à décider</b>. Puis le nombre de publications a dépassé ce qu'un humain peut lire — et il a fallu trancher.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s1.c1">
+          <h3>Avant : l'ordre</h3>
+          <div class="sub">jusque vers 2010</div>
+          <p>Tout ce à quoi vous êtes abonné, dans l'ordre d'arrivée. Prévisible, vérifiable&nbsp;: <b>si vous ne l'avez pas vu, c'est que vous n'avez pas fait défiler assez loin</b>.</p>
+        </div>
+        <div class="card" data-i18n="s1.c2">
+          <h3>Le problème</h3>
+          <div class="sub">le trop-plein</div>
+          <p>Quelques milliers de publications disponibles par jour, quelques dizaines réellement lues. <b>Quelqu'un doit choisir lesquelles.</b> Ne rien choisir, c'est déjà choisir — l'ordre chronologique est un classement comme un autre.</p>
+        </div>
+        <div class="card warn" data-i18n="s1.c3">
+          <h3>Après : le classement</h3>
+          <div class="sub">aujourd'hui, partout</div>
+          <p>Un modèle attribue un <b>score</b> à chaque publication candidate, et trie. Y compris sur des contenus de gens auxquels vous n'êtes <b>pas abonné</b> — c'est le changement le plus récent et le plus profond.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s1.note">Le mot «&nbsp;algorithme&nbsp;» sert à désigner ce tri, souvent comme s'il s'agissait d'une entité. C'est un <b>modèle d'apprentissage</b>, de la même grande famille que ceux des séances 8 et 9 — entraîné par descente de gradient, sur des données. Mais il ne génère rien&nbsp;: <b>il range</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LE CLASSEMENT ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation · changez l'objectif, regardez l'ordre</div>
+    <h2 class="stitle" data-i18n="s2.t">Huit publications,<br>quatre classements</h2>
+    <p class="lead" data-i18n="s2.lead">Les mêmes huit publications candidates, à la même seconde. Ce qui change, c'est <b>le nombre que le système cherche à rendre grand</b>. Rien d'autre.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s2btns"></div>
+      <div class="feed" id="s2feed"></div>
+      <p class="verd" id="s2verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · LES SIGNAUX ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Ce qui alimente le score</div>
+    <h2 class="stitle" data-i18n="s3.t">Ce qu'il sait<br>de vous</h2>
+    <p class="lead" data-i18n="s3.lead">Le score n'est pas calculé sur le contenu de la publication — ou très peu. Il est calculé sur des <b>signaux</b>, c'est-à-dire sur des comportements passés, les vôtres et ceux de millions d'autres.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s3.c1">
+          <h3>Ce que vous faites</h3>
+          <div class="sub">le plus riche, et de loin</div>
+          <p>Clics, temps passé sur chaque élément, vitesse de défilement, retours en arrière, pauses, volume activé, captures d'écran.</p>
+          <p class="ex">le signal le plus fort n'est pas le « j'aime » : c'est le <b>temps d'arrêt</b></p>
+        </div>
+        <div class="card" data-i18n="s3.c2">
+          <h3>Ce que vous êtes</h3>
+          <div class="sub">déclaré ou déduit</div>
+          <p>Âge, langue, appareil, lieu approximatif, heure de connexion. Et beaucoup de choses <b>déduites</b> que vous n'avez jamais déclarées.</p>
+          <p class="ex">la séance sur les données l'avait annoncé</p>
+        </div>
+        <div class="card" data-i18n="s3.c3">
+          <h3>Ce que font vos semblables</h3>
+          <div class="sub">filtrage collaboratif</div>
+          <p>«&nbsp;Les gens qui se comportent comme vous ont regardé ceci jusqu'au bout.&nbsp;» C'est la technique la plus ancienne et toujours la plus efficace.</p>
+          <p class="ex">vous êtes recommandé par des inconnus qui vous ressemblent</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s3.note">Remarquez ce qui n'est pas dans la liste&nbsp;: <b>ce que vous pensez du contenu</b>. Un système de recommandation ne sait pas si vous avez aimé, appris, ou regretté. Il sait que vous êtes <b>resté</b>. Et il ne peut optimiser que ce qu'il mesure.</p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · LA FONCTION DE COÛT, ENCORE ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Retour à la séance 9</div>
+    <h2 class="stitle" data-i18n="s4.t">Un nombre à rendre<br>grand. C'est tout.</h2>
+    <p class="lead" data-i18n="s4.lead">Vous connaissez déjà le mécanisme&nbsp;: on définit un nombre, et on règle des millions de paramètres pour le faire monter ou descendre. Ici le nombre s'appelle souvent <b>l'engagement</b>. Tout le reste en découle.</p>
+
+    <div class="mid">
+      <div class="chain">
+        <div class="cbox" data-i18n="s4.b1"><div class="n">on choisit</div><div class="t">un nombre mesurable</div><div class="v">temps passé, clics, partages, retours le lendemain</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox" data-i18n="s4.b2"><div class="n">on entraîne</div><div class="t">à le prédire</div><div class="v">« combien de temps restera-t-il sur cette vidéo&nbsp;? »</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox hot" data-i18n="s4.b3"><div class="n">on trie</div><div class="t">par prédiction décroissante</div><div class="v">le système ne cherche pas le meilleur contenu : le plus retenant</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox" data-i18n="s4.b4"><div class="n">on mesure</div><div class="t">et on recommence</div><div class="v">chaque jour, sur des milliards d'exemples frais</div></div>
+      </div>
+      <p class="chain-note" data-i18n="s4.note">Il n'y a <b>aucune intention cachée</b> dans la machine&nbsp;: elle fait exactement ce qu'on lui a demandé. Le problème, quand il y en a un, est dans le <b>choix du nombre</b> — et ce choix-là est fait par des gens, pas par un modèle. <b>Si le nombre est le temps passé, un contenu qui vous retient en vous agaçant vaut autant qu'un contenu qui vous retient en vous intéressant.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · LA BOUCLE ============ -->
+  <div class="pane dark pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Manipulation · faites tourner la boucle</div>
+    <h2 class="stitle" data-i18n="s5.t">Il vous montre<br>ce que vous regardez</h2>
+    <p class="lead" data-i18n="s5.lead">Un détail change tout&nbsp;: le système n'observe pas vos goûts, il observe vos <b>réactions à ce qu'il vous a lui-même montré</b>. Ce qu'il ne montre pas, il ne peut pas l'apprendre. Partez d'un intérêt à peine marqué et faites tourner.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s5btns"></div>
+      <div class="dist" id="s5dist"></div>
+      <div class="stepr">
+        <span data-i18n="s5.turn">Tours</span>
+        <input type="range" id="s5r" min="0" max="30" value="0" class="nostep">
+        <b id="s5v">0</b>
+      </div>
+      <p class="verd" id="s5verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · LA BULLE, VRAIMENT ? ============ -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Rigueur · l'expression la plus citée, et la moins vérifiée</div>
+    <h2 class="stitle" data-i18n="s6.t">« Bulle de filtre » :<br>ce que dit la recherche</h2>
+    <p class="lead" data-i18n="s6.lead">L'expression date de 2011 et elle est devenue une évidence de conversation&nbsp;: l'algorithme vous enfermerait dans vos idées. C'est <b>plausible</b>, c'est <b>partiellement mesuré</b>, et la réalité est plus intéressante que le slogan.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card good" data-i18n="s6.c1">
+          <h3>Plutôt bien établi</h3>
+          <div class="sub">plusieurs études convergentes</div>
+          <p>La boucle de la scène précédente existe&nbsp;: les recommandations <b>se concentrent</b> avec l'usage. Et l'exposition personnalisée <b>amplifie</b> des préférences déjà là.</p>
+        </div>
+        <div class="card warn" data-i18n="s6.c2">
+          <h3>Contredit, en partie</h3>
+          <div class="sub">le résultat qui surprend</div>
+          <p>Plusieurs travaux trouvent que les usagers des réseaux rencontrent en moyenne <b>plus</b> de sources différentes que les non-usagers. L'enfermement total est rare&nbsp;: il concerne surtout de <b>petits groupes très engagés</b>.</p>
+        </div>
+        <div class="card" data-i18n="s6.c3">
+          <h3>Non tranché</h3>
+          <div class="sub">le cœur du débat</div>
+          <p>Qui enferme qui&nbsp;? <b>L'algorithme</b>, ou <b>nos propres clics</b> qu'il se contente de suivre&nbsp;? Les deux agissent. Les expériences menées avec les plateformes elles-mêmes donnent des effets <b>réels mais plus petits qu'annoncé</b>.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s6.note">Donc&nbsp;: ni «&nbsp;c'est un mythe&nbsp;», ni «&nbsp;c'est prouvé&nbsp;». Ce qui est le mieux documenté n'est pas l'uniformité des contenus, c'est la <b>vitesse</b> à laquelle on arrive à l'extrême d'un sujet, et la <b>place prise par ce qui provoque une réaction</b>. Méfiez-vous d'une phrase qui explique tout&nbsp;: en général, elle n'a pas été mesurée.</p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · MESURÉ / NON MESURÉ ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">La vraie asymétrie</div>
+    <h2 class="stitle" data-i18n="s7.t">On n'optimise que<br>ce qu'on sait compter</h2>
+    <p class="lead" data-i18n="s7.lead">Toute la séance tient dans cette liste. À gauche, ce qu'un système peut mesurer sur vous, en continu, gratuitement. À droite, ce qui compte vraiment pour vous — et qu'il ne peut pas voir.</p>
+
+    <div class="mid">
+      <div class="twoc">
+        <div>
+          <div class="plbl" data-i18n="s7.lbl1">Mesuré, à la milliseconde</div>
+          <div class="lst yes" data-i18n="s7.yes">
+            <div class="lrow"><div class="mk">✓</div><div>le temps passé sur chaque élément</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>le fait d'avoir regardé jusqu'au bout</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>le clic, le partage, le commentaire</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>le retour le lendemain</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>la vitesse de défilement, les pauses</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="plbl" data-i18n="s7.lbl2">Jamais mesuré</div>
+          <div class="lst no" data-i18n="s7.no">
+            <div class="lrow"><div class="mk">✗</div><div>si vous avez <b>appris</b> quelque chose</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>si vous vous sentez <b>mieux</b> après</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>si vous <b>regrettez</b> l'heure passée</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>si c'était <b>vrai</b></div></div>
+            <div class="lrow"><div class="mk">✗</div><div>ce que vous auriez préféré voir</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s7.note">Ce n'est pas de la malveillance, c'est une <b>contrainte technique</b>&nbsp;: on ne peut pas faire descendre une fonction de coût sur un nombre qui n'existe pas. Certaines plateformes mesurent désormais une partie de la colonne de droite en <b>posant la question</b> («&nbsp;cette vidéo vous a-t-elle été utile&nbsp;?&nbsp;»). C'est cher, c'est lent, c'est rare — et c'est la seule voie connue.</p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · LES COMMANDES ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Ce que vous pouvez réellement faire</div>
+    <h2 class="stitle" data-i18n="s8.t">Six commandes,<br>trois efficacités</h2>
+    <p class="lead" data-i18n="s8.lead">Il existe des réglages. Ils ne se valent pas, et les plus visibles ne sont pas les plus efficaces. Classement honnête, par ce qu'ils changent vraiment.</p>
+
+    <div class="mid">
+      <div class="ctrl" data-i18n="s8.rows">
+        <div class="crow"><p><b>Passer en ordre chronologique</b>, quand l'application le propose. Souvent caché dans un sous-menu, et parfois réinitialisé à chaque ouverture.</p><div class="ef a">très efficace</div></div>
+        <div class="crow"><p><b>Se désabonner, couper, ne plus suivre.</b> Agit sur la réserve de candidats elle-même, donc en amont du classement.</p><div class="ef a">très efficace</div></div>
+        <div class="crow"><p><b>Ne pas s'arrêter.</b> Le temps d'arrêt est le signal numéro un&nbsp;: faire défiler sans ralentir est, concrètement, le vote le plus fort dont vous disposez.</p><div class="ef a">très efficace</div></div>
+        <div class="crow"><p><b>« Ne pas me recommander ça ».</b> Fonctionne, mais lentement et par thème&nbsp;: un signal parmi des milliers d'autres.</p><div class="ef b">partiellement</div></div>
+        <div class="crow"><p><b>Effacer son historique de visionnage.</b> Remet une partie du profil à zéro — qui se reconstitue en quelques jours d'usage normal.</p><div class="ef b">partiellement</div></div>
+        <div class="crow"><p><b>Mettre « je n'aime pas ».</b> C'est encore une interaction, donc encore un signal d'engagement. L'effet attendu n'est pas toujours celui qu'on obtient.</p><div class="ef c">peu ou pas</div></div>
+      </div>
+      <p class="chain-note" data-i18n="s8.note">Un septième levier, hors application&nbsp;: <b>décider à l'avance de ce qu'on vient faire</b>. Toutes les études d'usage convergent sur ce point — l'intention formulée avant d'ouvrir est ce qui résiste le mieux au classement. C'est aussi, exactement, la méthode de la séance 14.</p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · ET L'IA GÉNÉRATIVE ? ============ -->
+  <div class="pane dark pad" id="s9">
+    <div class="eyebrow" data-i18n="s9.eye">Le raccord avec le reste du cours</div>
+    <h2 class="stitle" data-i18n="s9.t">Jusqu'ici, aucun<br>modèle de langage</h2>
+    <p class="lead" data-i18n="s9.lead">Relisez les huit scènes précédentes&nbsp;: pas une fois il n'a été question de générer du texte. Le classement est une <b>autre</b> IA — plus ancienne, plus simple à décrire, et bien plus présente dans votre journée.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s9.c1">
+          <h3>Deux familles, un rappel</h3>
+          <div class="sub">bloc 1</div>
+          <p><b>Recommander</b> «&nbsp;que montrer ensuite&nbsp;?&nbsp;» et <b>générer</b> «&nbsp;créons un texte&nbsp;» sont deux usages de la même grande famille de techniques — mais deux modèles, deux objectifs, deux métiers.</p>
+        </div>
+        <div class="card" data-i18n="s9.c2">
+          <h3>Ce qu'elles partagent</h3>
+          <div class="sub">tout le bloc 3</div>
+          <p>Des <b>paramètres</b> réglés par descente de gradient, sur d'énormes quantités de données, pour faire descendre un nombre. Aucune compréhension du monde ni dans l'une ni dans l'autre.</p>
+        </div>
+        <div class="card warn" data-i18n="s9.c3">
+          <h3>Et maintenant, elles se croisent</h3>
+          <div class="sub">depuis 2023</div>
+          <p>L'IA générative arrive sur les réseaux <b>par l'autre bout</b>&nbsp;: elle ne classe pas, elle <b>fabrique</b> ce qui sera classé. Et elle le fabrique en quantité illimitée, à coût presque nul.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s9.note">C'est la rencontre des deux moitiés du cours&nbsp;: d'un côté un système qui range selon ce qui retient l'attention, de l'autre une machine capable de produire à l'infini ce qui retient l'attention. <b>La séance suivante traite exactement de ça.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 10 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s10">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s10.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s10.q">Et si ce qu'il<br>vous montre<br>n'existait <em>pas</em>&nbsp;?</div>
+    <p class="a" data-i18n="s10.a">Vous savez maintenant <b>comment</b> le tri se fait, et sur quel nombre. Toute la scène supposait pourtant une chose qui n'est plus garantie&nbsp;: que les publications candidates aient été écrites, filmées ou photographiées par <b>quelqu'un</b>. Un système qui range ce qui retient l'attention, et une machine qui produit à l'infini ce qui retient l'attention&nbsp;: la question n'est plus seulement «&nbsp;qui choisit&nbsp;?&nbsp;», c'est <b>«&nbsp;qui a fait ça, et est-ce que ça a eu lieu&nbsp;?&nbsp;»</b></p>
+    <div class="next" data-i18n="s10.next">Séance suivante · Ce qui n'a jamais eu lieu</div>
+  </div>
+
+  <!-- ============ 11 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s11">
+    <div class="tag" data-i18n="s11.tag">Activité de la séance · 30 minutes en classe · un relevé à la maison</div>
+    <h2 data-i18n="s11.t">L'<em>audit</em><br>de votre fil</h2>
+    <p class="sub" data-i18n="s11.sub">On ne discute pas d'un algorithme, on le mesure. Chacun sur son propre fil, avec les mêmes colonnes — et on compare.</p>
+    <ol class="steps">
+      <li data-i18n="s11.l1"><b>Vingt publications.</b> Sur l'application de votre choix, relevez les <b>vingt premières</b> sans faire défiler plus loin. Pour chacune&nbsp;: abonné ou non, type de contenu, publicité ou non.</li>
+      <li data-i18n="s11.l2"><b>Le compte.</b> Quelle proportion vient de comptes auxquels vous <b>n'êtes pas abonné</b>&nbsp;? Dans beaucoup d'applications, la majorité. Comparez entre vous.</li>
+      <li data-i18n="s11.l3"><b>Le thème dominant.</b> Combien de thèmes différents sur vingt&nbsp;? Faites le même relevé sur le fil d'un camarade&nbsp;: même application, même heure — quel recouvrement&nbsp;?</li>
+      <li data-i18n="s11.l4"><b>L'expérience.</b> Choisissez un thème qui ne vous intéresse pas. Pendant deux jours, <b>arrêtez-vous</b> trois secondes sur chaque publication de ce thème, sans aimer ni commenter. Relevez à nouveau.</li>
+      <li data-i18n="s11.l5"><b>Les réglages.</b> Cherchez, dans l'application, l'ordre chronologique et le bouton «&nbsp;ne pas me recommander&nbsp;». Combien de clics pour y arriver&nbsp;? Le réglage tient-il d'une ouverture à l'autre&nbsp;?</li>
+      <li data-i18n="s11.l6"><b>La conclusion.</b> En trois phrases&nbsp;: quel nombre, d'après vous, cette application cherche-t-elle à rendre grand&nbsp;? Sur quoi vous appuyez-vous&nbsp;? Qu'est-ce qui pourrait vous faire changer d'avis&nbsp;?</li>
+    </ol>
+  </div>
+
+  <!-- ============ 12 · RÉCAP ============ -->
+  <div class="pane light pad" id="s12">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 15 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Qui choisit <span>ce que je vois</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">Un fil n'est plus une liste&nbsp;: c'est un <span class="hl">classement</span>. Un modèle donne un score à chaque publication candidate — y compris de comptes que vous ne suivez pas — et trie.</li>
+      <li data-i18n="rc.i2">Le score se calcule sur des <span class="hl">signaux</span> de comportement, pas sur le contenu&nbsp;: ce que vous faites, ce que vous êtes, ce que font ceux qui vous ressemblent.</li>
+      <li data-i18n="rc.i3">Le signal le plus fort n'est pas le «&nbsp;j'aime&nbsp;»&nbsp;: c'est le <b>temps d'arrêt</b>. Ralentir, c'est voter.</li>
+      <li data-i18n="rc.i4">Tout tient dans un nombre à rendre grand — souvent l'<span class="hl">engagement</span>. La machine n'a aucune intention&nbsp;: <b>le choix du nombre est fait par des gens</b>.</li>
+      <li data-i18n="rc.i5">Il y a une <span class="hl">boucle</span>&nbsp;: le système n'apprend que de vos réactions à ce qu'il a lui-même montré. Ce qu'il ne montre pas, il ne l'apprend jamais.</li>
+      <li data-i18n="rc.i6">«&nbsp;Bulle de filtre&nbsp;»&nbsp;: la concentration existe, l'enfermement total est rare, et la part de l'algorithme par rapport à nos propres clics n'est <b>pas tranchée</b>. Le mieux documenté, c'est la <b>vitesse</b> vers l'extrême.</li>
+      <li data-i18n="rc.i7">On n'optimise que ce qu'on sait compter&nbsp;: le temps est mesuré, l'ennui, le regret et la vérité ne le sont pas.</li>
+      <li data-i18n="rc.i8">Les réglages efficaces agissent <b>en amont</b> (se désabonner, ordre chronologique) ou sur le signal fort (ne pas s'arrêter). Les boutons visibles sont les moins efficaces.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Recommandation</b>Choisir quoi montrer ensuite.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Signal</b>Un comportement mesuré, pas un avis.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Engagement</b>Le nombre qu'on cherche à rendre grand.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Filtrage collaboratif</b>« Ceux qui vous ressemblent ont regardé… »</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Boucle de rétroaction</b>Il apprend de ce qu'il a montré.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Bulle de filtre</b>Une hypothèse célèbre, en partie vérifiée.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>et si ce qui est classé n'avait jamais eu lieu ?</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 12;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.matches && e.target.matches('input,select')) return;
+  if(e.target && e.target.closest && e.target.closest('#langsw') && (e.key===' '||e.key==='Enter')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,input,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   SCÈNE 2 — huit publications, quatre classements
+   Chaque publication : temps de visionnage (s), réactions,
+   ancienneté (h), affinité (0-1), caractère clivant (0-1).
+   ========================================================= */
+var POSTS = [
+  { vis:11, re:  8, age:0.4, aff:0.92, pol:0.05 },
+  { vis:52, re:410, age:7.0, aff:0.10, pol:0.88 },
+  { vis:38, re: 95, age:2.0, aff:0.35, pol:0.15 },
+  { vis: 6, re:  2, age:0.2, aff:0.80, pol:0.02 },
+  { vis:46, re:150, age:5.5, aff:0.20, pol:0.70 },
+  { vis:21, re: 30, age:1.2, aff:0.55, pol:0.08 },
+  { vis:30, re:640, age:9.0, aff:0.05, pol:0.35 },
+  { vis:14, re: 12, age:0.7, aff:0.70, pol:0.03 }
+];
+function nrm(v, lo, hi){ return Math.max(0, Math.min(1, (v-lo)/(hi-lo))); }
+var S2OBJ = [
+  function(p){ return 1 - nrm(p.age, 0, 9); },
+  function(p){ return 0.62*nrm(p.vis,0,55) + 0.23*p.pol + 0.15*p.aff; },
+  function(p){ return 0.60*nrm(p.re,0,650) + 0.28*p.pol + 0.12*(1-nrm(p.age,0,9)); },
+  function(p){ return 0.72*p.aff + 0.28*(1-p.pol); }
+];
+var S2 = {
+  fr:{
+    btn:['Ordre chronologique','Maximiser le temps passé','Maximiser les réactions','Ce que vous dites vouloir'],
+    titles:[
+      ['Photo du chat de Lina','une amie · il y a 24 min'],
+      ['« Pourquoi TOUT le monde a tort sur… »','inconnu · 7 h · très commenté'],
+      ['Tutoriel : réparer un vélo en 4 min','créateur suivi · 2 h'],
+      ['« Quelqu’un a un stylo ? »','un ami · il y a 12 min'],
+      ['Débat : faut-il interdire… ?','média · 5 h 30 · sujet clivant'],
+      ['Résultat du match d’hier','page suivie · 1 h'],
+      ['Vidéo virale de la semaine','inconnu · 9 h · 640 réactions'],
+      ['Révisions : fiche de SVT','camarade de classe · 42 min']
+    ],
+    mt:['visionnage %V s','%R réactions','il y a %A'],
+    v:[
+      '<b>Sans classement</b>, le plus récent passe devant. Prévisible, vérifiable — et c’est aussi un choix&nbsp;: celui de ne privilégier personne. Remarquez ce qui descend tout en bas.',
+      '<b>Ce qui retient monte.</b> La publication la plus clivante arrive en tête sans que personne ne l’ait voulue&nbsp;: elle est simplement celle qu’on regarde le plus longtemps. <b>Le système n’a pas d’avis sur son contenu.</b>',
+      '<b>Compter les réactions</b> change encore le haut du fil&nbsp;: ce qui fait réagir n’est pas ce qu’on regarde le plus longtemps. Et la colère réagit vite.',
+      '<b>Ce que les gens déclarent vouloir</b> — leurs proches, peu de polémique — donne un fil calme… que presque personne ne regarde aussi longtemps. <b>C’est tout le problème</b>&nbsp;: ce qu’on dit vouloir et ce sur quoi on s’arrête ne coïncident pas, et seule la seconde chose est mesurée.'
+    ],
+    lbl:'score'
+  },
+  en:{
+    btn:['Chronological order','Maximise time spent','Maximise reactions','What you say you want'],
+    titles:[
+      ['A photo of Lina’s cat','a friend · 24 min ago'],
+      ['&ldquo;Why EVERYONE is wrong about…&rdquo;','stranger · 7 h · heavily commented'],
+      ['How to fix a bike in 4 minutes','creator you follow · 2 h'],
+      ['&ldquo;Anyone got a pen?&rdquo;','a friend · 12 min ago'],
+      ['Debate: should we ban…?','news outlet · 5 h 30 · divisive topic'],
+      ['Last night’s match result','page you follow · 1 h'],
+      ['Viral video of the week','stranger · 9 h · 640 reactions'],
+      ['Revision: biology notes','a classmate · 42 min']
+    ],
+    mt:['watched %V s','%R reactions','%A ago'],
+    v:[
+      '<b>With no ranking</b>, the most recent comes first. Predictable, checkable — and it is a choice too: the choice to favour nobody. Note what drops to the very bottom.',
+      '<b>Whatever holds you rises.</b> The most divisive post reaches the top without anyone wanting it to: it is simply the one people watch longest. <b>The system has no opinion about its content.</b>',
+      '<b>Counting reactions</b> changes the top again: what makes people react is not what they watch longest. And anger reacts fast.',
+      '<b>What people say they want</b> — their friends, little controversy — gives a calm feed… that almost nobody watches as long. <b>That is the whole problem</b>: what we say we want and what we stop on do not coincide, and only the second is measured.'
+    ],
+    lbl:'score'
+  }
+};
+var s2i = 1;
+function drawS2(){
+  var t = S2[LG()];
+  pickbtns('s2btns', t.btn, s2i, function(i){ s2i = i; drawS2(); });
+  var f = S2OBJ[s2i];
+  var order = POSTS.map(function(p,i){ return { i:i, s:f(p) }; })
+                   .sort(function(a,b){ return b.s - a.s; });
+  document.getElementById('s2feed').innerHTML = order.map(function(o,r){
+    var p = POSTS[o.i], ti = t.titles[o.i];
+    var h = Math.floor(p.age), m = Math.round((p.age - h) * 60);
+    var ago = h ? (h + ' h' + (m ? ' ' + m : '')) : (m + ' min');
+    var mt = t.mt[0].replace('%V', p.vis) + ' · ' + t.mt[1].replace('%R', p.re) +
+             ' · ' + t.mt[2].replace('%A', ago);
+    return '<div class="fit' + (r < 3 ? ' top' : '') + (p.pol > 0.6 ? ' hotc' : '') + '">' +
+      '<div class="rk">' + (r+1) + '</div>' +
+      '<div class="tx">' + ti[0] + '<i>' + ti[1] + '</i></div>' +
+      '<div class="mt">' + mt + '</div>' +
+      '<div class="sc">' + o.s.toFixed(2).replace('.', LG()==='fr' ? ',' : '.') + '</div></div>';
+  }).join('');
+  document.getElementById('s2verd').innerHTML = t.v[s2i];
+}
+
+/* =========================================================
+   SCÈNE 5 — la boucle de rétroaction
+   ========================================================= */
+var S5 = {
+  fr:{
+    btn:['Sans exploration','Avec 15 % d’exploration'],
+    topics:['sport','cuisine','musique','science','polémique'],
+    v:[
+      ['<b>Au départ</b>, le profil est presque plat&nbsp;: un intérêt de 24&nbsp;% pour un thème, 19&nbsp;% pour les autres. Rien de marqué. Tirez le curseur.',
+       '<b>Au départ</b>, même profil plat. Mais cette fois une publication sur sept est tirée <b>au hasard</b>, hors profil.'],
+      ['<b>Après quelques tours</b>, l’écart se creuse tout seul. Personne n’a rien décidé&nbsp;: le thème le plus montré est le plus regardé, donc il est encore plus montré.',
+       '<b>Après quelques tours</b>, l’écart se creuse aussi — mais plus lentement, parce que les thèmes délaissés gardent une chance d’apparaître.'],
+      ['<b>Au bout de trente tours</b>, un thème occupe l’essentiel du fil et les autres ont presque disparu. <b>Le système n’a jamais su si vous aimiez les autres&nbsp;: il a cessé de les montrer, donc il a cessé d’apprendre.</b>',
+       '<b>Au bout de trente tours</b>, la concentration existe mais ne va pas jusqu’au bout&nbsp;: les quatre autres thèmes survivent. <b>Les plateformes font réellement ça</b> — pas par vertu, mais parce qu’un fil trop étroit finit par ennuyer, et l’ennui fait partir.']
+    ]
+  },
+  en:{
+    btn:['No exploration','With 15% exploration'],
+    topics:['sport','cooking','music','science','outrage'],
+    v:[
+      ['<b>At the start</b> the profile is almost flat: 24% interest in one topic, 19% in the others. Nothing marked. Drag the slider.',
+       '<b>At the start</b>, the same flat profile. But this time one post in seven is drawn <b>at random</b>, off-profile.'],
+      ['<b>After a few turns</b> the gap widens on its own. Nobody decided anything: the most-shown topic is the most-watched, so it is shown even more.',
+       '<b>After a few turns</b> the gap widens too — but more slowly, because the neglected topics keep a chance of appearing.'],
+      ['<b>After thirty turns</b>, one topic fills most of the feed and the others have all but gone. <b>The system never found out whether you liked the others: it stopped showing them, so it stopped learning.</b>',
+       '<b>After thirty turns</b>, concentration happens but does not go all the way: the four other topics survive. <b>Platforms really do this</b> — not out of virtue, but because too narrow a feed ends up boring, and boredom makes people leave.']
+    ]
+  }
+};
+var s5turn = 0, s5mode = 0;
+function s5state(turns, eps){
+  var p = [0.24, 0.19, 0.19, 0.19, 0.19], s = 987654321;
+  function rnd(){ s = (s*1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }
+  for(var t=0; t<turns; t++){
+    var shown = p.map(function(v){ return v*(1-eps) + eps/5; });
+    var click = shown.map(function(v,i){ return v * (0.8 + 0.4*rnd()) * (1 + 0.6*p[i]); });
+    var sum = click.reduce(function(a,b){ return a+b; }, 0);
+    p = click.map(function(v){ return v/sum; });
+    var tot = p.reduce(function(a,b){ return a+b; }, 0);
+    p = p.map(function(v){ return v/tot; });
+  }
+  return p;
+}
+function drawS5(){
+  var t = S5[LG()];
+  pickbtns('s5btns', t.btn, s5mode, function(i){ s5mode = i; drawS5(); });
+  var p = s5state(s5turn, s5mode ? 0.15 : 0);
+  var mx = Math.max.apply(null, p);
+  document.getElementById('s5dist').innerHTML = p.map(function(v,i){
+    return '<div class="drow' + (v === mx ? ' fav' : '') + '">' +
+      '<div class="dl">' + t.topics[i] + '</div>' +
+      '<div class="db"><i style="width:' + (v*100).toFixed(1) + '%"></i></div>' +
+      '<div class="dv">' + Math.round(v*100) + '&nbsp;%</div></div>';
+  }).join('');
+  document.getElementById('s5v').textContent = s5turn;
+  var k = s5turn === 0 ? 0 : (s5turn <= 12 ? 1 : 2);
+  document.getElementById('s5verd').innerHTML = t.v[k][s5mode];
+}
+document.getElementById('s5r').oninput = function(){ s5turn = +this.value; drawS5(); };
+
+/* =========================================================
+   REDESSIN GLOBAL
+   ========================================================= */
+function redrawAll(){ drawS2(); drawS5(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Qui choisit ce que je vois ?`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`Who chooses what I see?`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · The effort we dodge`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`You chose<br><em>nothing</em>.<br>And yet.`,
+  's0.line':`Fourteen lessons spent learning how to <strong style="color:#fff">decide</strong> when to open an assistant. But most of your screen time looks nothing like that: you open an app, and <strong style="color:#fff">what appears has already been chosen</strong>. By an AI — and not at all the one from the previous fourteen lessons.`,
+  's0.kick':`Ranking · signals · objective · feedback loop · what you can set`,
+
+  /* --- 1 · le mur a disparu --- */
+  's1.eye':`A change nobody noticed`,
+  's1.t':`There is no<br>&ldquo;feed&rdquo; any more`,
+  's1.lead':`At first a social network showed your friends' posts, newest first. There was <b>nothing to decide</b>. Then the number of posts outgrew what a human can read — and something had to give.`,
+  's1.c1':`
+          <h3>Before: the order</h3>
+          <div class="sub">until around 2010</div>
+          <p>Everything you subscribed to, in order of arrival. Predictable, checkable: <b>if you did not see it, you did not scroll far enough</b>.</p>
+        `,
+  's1.c2':`
+          <h3>The problem</h3>
+          <div class="sub">too much of it</div>
+          <p>A few thousand posts available a day, a few dozen actually read. <b>Somebody has to choose which.</b> Choosing nothing is already a choice — chronological order is a ranking like any other.</p>
+        `,
+  's1.c3':`
+          <h3>After: the ranking</h3>
+          <div class="sub">today, everywhere</div>
+          <p>A model gives a <b>score</b> to every candidate post and sorts. Including posts from people you do <b>not</b> follow — the most recent and the deepest change of all.</p>
+        `,
+  's1.note':`The word &ldquo;algorithm&rdquo; is used for this sorting, often as if it were a creature. It is a <b>machine-learning model</b>, of the same broad family as those in lessons 8 and 9 — trained by gradient descent, on data. But it generates nothing: <b>it arranges</b>.`,
+
+  /* --- 2 · le classement --- */
+  's2.eye':`Hands on · change the objective, watch the order`,
+  's2.t':`Eight posts,<br>four rankings`,
+  's2.lead':`The same eight candidate posts, at the same second. What changes is <b>the number the system is trying to make large</b>. Nothing else.`,
+
+  /* --- 3 · les signaux --- */
+  's3.eye':`What feeds the score`,
+  's3.t':`What it knows<br>about you`,
+  's3.lead':`The score is not computed from the content of the post — or barely. It is computed from <b>signals</b>, that is, from past behaviour: yours, and that of millions of others.`,
+  's3.c1':`
+          <h3>What you do</h3>
+          <div class="sub">the richest by far</div>
+          <p>Clicks, time spent on each item, scrolling speed, scrolling back, pauses, sound turned on, screenshots.</p>
+          <p class="ex">the strongest signal is not the &ldquo;like&rdquo;: it is <b>dwell time</b></p>
+        `,
+  's3.c2':`
+          <h3>What you are</h3>
+          <div class="sub">declared or inferred</div>
+          <p>Age, language, device, approximate location, time of connection. And a great deal that is <b>inferred</b> and that you never declared.</p>
+          <p class="ex">the lesson on data had warned of this</p>
+        `,
+  's3.c3':`
+          <h3>What people like you do</h3>
+          <div class="sub">collaborative filtering</div>
+          <p>&ldquo;People who behave like you watched this one to the end.&rdquo; The oldest technique, and still the most effective.</p>
+          <p class="ex">you are recommended by strangers who resemble you</p>
+        `,
+  's3.note':`Notice what is not on the list: <b>what you thought of it</b>. A recommender does not know whether you enjoyed it, learnt from it, or regretted it. It knows you <b>stayed</b>. And it can only optimise what it measures.`,
+
+  /* --- 4 · la fonction de coût --- */
+  's4.eye':`Back to lesson 9`,
+  's4.t':`One number to make<br>large. That is all.`,
+  's4.lead':`You already know the mechanism: define a number, then tune millions of parameters to push it up or down. Here the number is often called <b>engagement</b>. Everything else follows from it.`,
+  's4.b1':`<div class="n">choose</div><div class="t">a measurable number</div><div class="v">time spent, clicks, shares, coming back tomorrow</div>`,
+  's4.b2':`<div class="n">train</div><div class="t">to predict it</div><div class="v">&ldquo;how long will they stay on this video?&rdquo;</div>`,
+  's4.b3':`<div class="n">sort</div><div class="t">by predicted value</div><div class="v">it is not looking for the best content: for the most retaining</div>`,
+  's4.b4':`<div class="n">measure</div><div class="t">and start again</div><div class="v">every day, on billions of fresh examples</div>`,
+  's4.note':`There is <b>no hidden intent</b> in the machine: it does exactly what it was asked. The problem, when there is one, lies in the <b>choice of number</b> — and that choice is made by people, not by a model. <b>If the number is time spent, content that holds you by annoying you is worth as much as content that holds you by interesting you.</b>`,
+
+  /* --- 5 · la boucle --- */
+  's5.eye':`Hands on · run the loop`,
+  's5.t':`It shows you<br>what you watch`,
+  's5.lead':`One detail changes everything: the system does not observe your tastes, it observes your <b>reactions to what it showed you itself</b>. What it does not show, it cannot learn. Start from a barely marked interest and run it.`,
+  's5.turn':`Turns`,
+
+  /* --- 6 · la bulle --- */
+  's6.eye':`Rigour · the most quoted phrase, and the least checked`,
+  's6.t':`&ldquo;Filter bubble&rdquo;:<br>what the research says`,
+  's6.lead':`The phrase dates from 2011 and has become conversational common sense: the algorithm supposedly locks you inside your own ideas. It is <b>plausible</b>, it is <b>partly measured</b>, and the reality is more interesting than the slogan.`,
+  's6.c1':`
+          <h3>Fairly well established</h3>
+          <div class="sub">several converging studies</div>
+          <p>The loop from the previous scene is real: recommendations <b>concentrate</b> with use. And personalised exposure <b>amplifies</b> preferences that are already there.</p>
+        `,
+  's6.c2':`
+          <h3>Partly contradicted</h3>
+          <div class="sub">the surprising result</div>
+          <p>Several studies find that social media users meet on average <b>more</b> different sources than non-users. Total enclosure is rare: it concerns mostly <b>small, highly engaged groups</b>.</p>
+        `,
+  's6.c3':`
+          <h3>Unsettled</h3>
+          <div class="sub">the heart of the debate</div>
+          <p>Who is doing the enclosing? <b>The algorithm</b>, or <b>our own clicks</b>, which it merely follows? Both are at work. Experiments run with the platforms themselves find effects that are <b>real but smaller than advertised</b>.</p>
+        `,
+  's6.note':`So: neither &ldquo;it is a myth&rdquo; nor &ldquo;it is proven&rdquo;. What is best documented is not uniformity of content, it is the <b>speed</b> at which one reaches the extreme of a topic, and the <b>room taken by whatever provokes a reaction</b>. Be wary of a sentence that explains everything: usually it has not been measured.`,
+
+  /* --- 7 · mesuré / non mesuré --- */
+  's7.eye':`The real asymmetry`,
+  's7.t':`You can only optimise<br>what you can count`,
+  's7.lead':`The whole lesson fits into this list. On the left, what a system can measure about you, continuously, for free. On the right, what actually matters to you — and that it cannot see.`,
+  's7.lbl1':`Measured, to the millisecond`,
+  's7.lbl2':`Never measured`,
+  's7.yes':`
+            <div class="lrow"><div class="mk">✓</div><div>time spent on each item</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>whether you watched to the end</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>the click, the share, the comment</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>coming back the next day</div></div>
+            <div class="lrow"><div class="mk">✓</div><div>scrolling speed, pauses</div></div>
+          `,
+  's7.no':`
+            <div class="lrow"><div class="mk">✗</div><div>whether you <b>learnt</b> anything</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>whether you feel <b>better</b> afterwards</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>whether you <b>regret</b> the hour</div></div>
+            <div class="lrow"><div class="mk">✗</div><div>whether it was <b>true</b></div></div>
+            <div class="lrow"><div class="mk">✗</div><div>what you would rather have seen</div></div>
+          `,
+  's7.note':`This is not malice, it is a <b>technical constraint</b>: you cannot run gradient descent on a number that does not exist. Some platforms now measure part of the right-hand column by <b>asking the question</b> (&ldquo;was this video useful to you?&rdquo;). It is expensive, slow and rare — and it is the only known route.`,
+
+  /* --- 8 · les commandes --- */
+  's8.eye':`What you can actually do`,
+  's8.t':`Six controls,<br>three levels of effect`,
+  's8.lead':`Settings do exist. They are not equal, and the most visible are not the most effective. An honest ranking, by what they really change.`,
+  's8.rows':`
+        <div class="crow"><p><b>Switch to chronological order</b>, where the app offers it. Often buried in a submenu, and sometimes reset at every launch.</p><div class="ef a">very effective</div></div>
+        <div class="crow"><p><b>Unfollow, mute, unsubscribe.</b> Acts on the pool of candidates itself, so upstream of the ranking.</p><div class="ef a">very effective</div></div>
+        <div class="crow"><p><b>Do not stop.</b> Dwell time is signal number one: scrolling on without slowing down is, concretely, the strongest vote you have.</p><div class="ef a">very effective</div></div>
+        <div class="crow"><p><b>&ldquo;Do not recommend this&rdquo;.</b> It works, but slowly and by topic: one signal among thousands.</p><div class="ef b">partly</div></div>
+        <div class="crow"><p><b>Clear your watch history.</b> Resets part of the profile — which rebuilds itself within a few days of ordinary use.</p><div class="ef b">partly</div></div>
+        <div class="crow"><p><b>Hit &ldquo;not interested&rdquo;.</b> That is still an interaction, so still an engagement signal. The effect you get is not always the effect you expected.</p><div class="ef c">little or none</div></div>
+      `,
+  's8.note':`A seventh lever, outside the app: <b>deciding in advance what you came for</b>. Every usage study converges on this — an intention formulated before opening is what best resists the ranking. It is also, exactly, the method of lesson 14.`,
+
+  /* --- 9 · et l'IA générative --- */
+  's9.eye':`Joining this up with the rest of the course`,
+  's9.t':`So far, not one<br>language model`,
+  's9.lead':`Read the eight previous scenes again: generating text never came up once. Ranking is a <b>different</b> AI — older, simpler to describe, and far more present in your day.`,
+  's9.c1':`
+          <h3>Two families, a reminder</h3>
+          <div class="sub">block 1</div>
+          <p><b>Recommending</b> &ldquo;what to show next?&rdquo; and <b>generating</b> &ldquo;let us make a text&rdquo; are two uses of the same broad family of techniques — but two models, two objectives, two trades.</p>
+        `,
+  's9.c2':`
+          <h3>What they share</h3>
+          <div class="sub">the whole of block 3</div>
+          <p><b>Parameters</b> tuned by gradient descent, on enormous amounts of data, to bring a number down. No understanding of the world in either of them.</p>
+        `,
+  's9.c3':`
+          <h3>And now they meet</h3>
+          <div class="sub">since 2023</div>
+          <p>Generative AI arrives on social networks <b>from the other end</b>: it does not rank, it <b>manufactures</b> what will be ranked. And it manufactures without limit, at almost no cost.</p>
+        `,
+  's9.note':`This is where the two halves of the course meet: on one side a system that sorts by what holds attention, on the other a machine that can produce, endlessly, whatever holds attention. <b>The next lesson is about exactly that.</b>`,
+
+  /* --- 10 · charnière --- */
+  's10.eye':`The question that opens the next lesson`,
+  's10.q':`And what if what<br>it shows you<br>never <em>existed</em>?`,
+  's10.a':`You now know <b>how</b> the sorting is done, and on what number. Yet the whole scene assumed something that is no longer guaranteed: that the candidate posts were written, filmed or photographed by <b>somebody</b>. A system that ranks whatever holds attention, and a machine that produces whatever holds attention without limit: the question is no longer only &ldquo;who chooses?&rdquo;, it is <b>&ldquo;who made this, and did it happen?&rdquo;</b>`,
+  's10.next':`Next lesson · What never happened`,
+
+  /* --- 11 · activité --- */
+  's11.tag':`Activity for this lesson · 30 minutes in class · a log at home`,
+  's11.t':`An <em>audit</em><br>of your feed`,
+  's11.sub':`You do not argue about an algorithm, you measure it. Everyone on their own feed, with the same columns — then compare.`,
+  's11.l1':`<b>Twenty posts.</b> On the app of your choice, record the <b>first twenty</b> without scrolling further. For each: followed or not, type of content, advertisement or not.`,
+  's11.l2':`<b>The count.</b> What share comes from accounts you do <b>not</b> follow? In many apps, the majority. Compare with each other.`,
+  's11.l3':`<b>The dominant topic.</b> How many different topics out of twenty? Do the same count on a classmate's feed: same app, same hour — how much overlap?`,
+  's11.l4':`<b>The experiment.</b> Pick a topic that does not interest you. For two days, <b>stop</b> three seconds on every post about it, without liking or commenting. Then record again.`,
+  's11.l5':`<b>The settings.</b> Find, inside the app, chronological order and the &ldquo;do not recommend&rdquo; button. How many taps to get there? Does the setting survive from one launch to the next?`,
+  's11.l6':`<b>The conclusion.</b> In three sentences: which number do you think this app is trying to make large? What are you basing that on? What would change your mind?`,
+
+  /* --- 12 · récap --- */
+  'rc.eye':`Lesson 15 · to remember`,
+  'rc.t':`Who chooses <span>what I see</span>`,
+  'rc.i1':`A feed is no longer a list: it is a <span class="hl">ranking</span>. A model scores every candidate post — including from accounts you do not follow — and sorts.`,
+  'rc.i2':`The score is computed from behavioural <span class="hl">signals</span>, not from content: what you do, what you are, what people like you do.`,
+  'rc.i3':`The strongest signal is not the &ldquo;like&rdquo;: it is <b>dwell time</b>. Slowing down is voting.`,
+  'rc.i4':`It all comes down to one number to make large — often <span class="hl">engagement</span>. The machine has no intent: <b>the choice of number is made by people</b>.`,
+  'rc.i5':`There is a <span class="hl">feedback loop</span>: the system only learns from your reactions to what it showed you. What it does not show, it never learns.`,
+  'rc.i6':`&ldquo;Filter bubble&rdquo;: concentration is real, total enclosure is rare, and the algorithm's share compared with our own clicks is <b>not settled</b>. Best documented is the <b>speed</b> towards the extreme.`,
+  'rc.i7':`You only optimise what you can count: time is measured; boredom, regret and truth are not.`,
+  'rc.i8':`The effective settings act <b>upstream</b> (unfollow, chronological order) or on the strong signal (do not stop). The visible buttons are the least effective.`,
+  'rc.v1':`<b>Recommendation</b>Choosing what to show next.`,
+  'rc.v2':`<b>Signal</b>A measured behaviour, not an opinion.`,
+  'rc.v3':`<b>Engagement</b>The number being made large.`,
+  'rc.v4':`<b>Collaborative filtering</b>&ldquo;People like you watched…&rdquo;`,
+  'rc.v5':`<b>Feedback loop</b>It learns from what it showed.`,
+  'rc.v6':`<b>Filter bubble</b>A famous hypothesis, partly verified.`,
+  'rc.key':`Next step: <b>and what if what is being ranked never happened?</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>
