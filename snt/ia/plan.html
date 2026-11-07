@@ -106,7 +106,7 @@
     </div>
 
     <div class="pl-state">
-      <span class="pl-pill"><b>13</b> séances prêtes</span>
+      <span class="pl-pill"><b>14</b> séances prêtes</span>
       <span class="pl-pill"><b>7</b> blocs</span>
       <span class="pl-pill">Narration de l'année : <b>émerveillement → démontage → reconstruction</b></span>
     </div>
@@ -143,17 +143,21 @@
             <h3>Comprendre les modèles génératifs</h3>
             <div class="pl-q">« Comment une machine peut-elle écrire une phrase ? »</div>
           </div>
-          <span class="pl-status st-part">2 séances · à compléter</span>
+          <span class="pl-status st-done">3 séances prêtes</span>
         </div>
         <div class="pl-chips">
           <span class="pl-chip">tokens</span><span class="pl-chip">contexte</span>
           <span class="pl-chip">prédiction du prochain token</span><span class="pl-chip">génération</span>
+          <span class="pl-chip">diffusion</span><span class="pl-chip">débruitage</span>
+          <span class="pl-chip">guidage par le texte</span><span class="pl-chip">jetons sonores</span>
           <span class="pl-chip key">embeddings — en intuition</span>
         </div>
         <div class="pl-links">
           <a class="pl-link" href="ressources/token.html">▶ Le prochain mot</a>
+          <a class="pl-link" href="ressources/generer.html">▶ Générer une image, générer un son</a>
           <a class="pl-link" href="ressources/se-tester.html">▶ Faire un point — se tester (36 questions)</a>
         </div>
+        <p class="pl-note"><b>La séance 4</b> — «&nbsp;Générer une image, générer un son&nbsp;» complète le bloc, qui ne parlait que du texte. Elle montre d'abord <b>pourquoi</b> la méthode du prochain jeton échoue sur une image (pas d'ordre, trop de pixels, le global avant le local), puis la <b>diffusion</b> : partir du bruit et le retirer, avec un curseur à vingt pas et le «&nbsp;pari&nbsp;» du modèle côte à côte. Vient ensuite le coup de génie de l'entraînement — on abime soi-même l'image, donc <b>la correction est gratuite</b> —, le texte qui <b>oriente</b> le débruitage au lieu de décrire des pixels, l'explication mécanique des mains à six doigts, et le <b>son</b>, qui revient à la machine de la séance 3 une fois inventé un alphabet de tranches sonores. Une dernière scène pose, sans trancher, la question des <b>images d'entraînement</b> et des procès en cours.</p>
         <p class="pl-note">Les embeddings restent <b>au niveau de l'intuition</b> ici : « un token devient un point dans un espace ; les sens proches sont proches ». Pas de distance cosinus, pas de dimensions. On s'en resservira au bloc 4, dans <a href="ressources/chercher.html" style="color:var(--accent-snt)">«&nbsp;chercher avant de répondre&nbsp;»</a>.</p>
       </div>
 
@@ -219,12 +223,12 @@
           <a class="pl-link" href="ressources/assistant.html">▶ Anatomie d'un assistant</a>
         </div>
         <p class="pl-note"><b>Ouverture du bloc</b> — la séance «&nbsp;chercher avant de répondre&nbsp;» répond à la question de sortie du bloc 3 et pose les trois endroits où vit une information (<em>appris · contexte · cherché</em>). Les <b>embeddings</b> y passent de l'intuition à l'usage&nbsp;: carte des sens, puis une vraie parenthèse sur la <b>notion de distance</b> (Manhattan, euclidienne, cosinus — trois réponses pour les deux mêmes points), et le choix de l'angle pour le sens — puis le <b>RAG</b> en quatre temps, sa différence d'avec le fine-tuning, et ses quatre façons d'échouer. Elle se referme sur&nbsp;: <em>«&nbsp;et s'il allait chercher tout seul&nbsp;?&nbsp;»</em> — d'où la suite&nbsp;: Internet, le Web et les API.</p>
-        <p class="pl-note"><b>La séance 10</b> — «&nbsp;Internet, le Web et les API&nbsp;» remet les deux mots à leur place, lit une <b>URL</b> en quatre morceaux et suit le trajet d'une requête, parcourt les <b>trois générations</b> du Web sur un même besoin, puis ouvre la porte des programmes&nbsp;: une <b>API</b>, le <b>JSON</b>, et l'API d'un modèle qui est <b>sans état</b> — d'où le coût qui grimpe et la «&nbsp;mémoire&nbsp;» qui n'est pas dans le modèle. Elle se termine sur la question la plus concrète du bloc : <b>site web, API ou sur ma machine</b> — avec le poids d'un modèle en octets, la <b>quantification</b> et les trois degrés d'«&nbsp;ouvert&nbsp;». Charnière : <em>«&nbsp;et s'il frappait à ces portes lui-même&nbsp;?&nbsp;»</em> → les <b>outils</b>.</p>
+        <p class="pl-note"><b>La séance 11</b> — «&nbsp;Internet, le Web et les API&nbsp;» remet les deux mots à leur place, lit une <b>URL</b> en quatre morceaux et suit le trajet d'une requête, parcourt les <b>trois générations</b> du Web sur un même besoin, puis ouvre la porte des programmes&nbsp;: une <b>API</b>, le <b>JSON</b>, et l'API d'un modèle qui est <b>sans état</b> — d'où le coût qui grimpe et la «&nbsp;mémoire&nbsp;» qui n'est pas dans le modèle. Elle se termine sur la question la plus concrète du bloc : <b>site web, API ou sur ma machine</b> — avec le poids d'un modèle en octets, la <b>quantification</b> et les trois degrés d'«&nbsp;ouvert&nbsp;». Charnière : <em>«&nbsp;et s'il frappait à ces portes lui-même&nbsp;?&nbsp;»</em> → les <b>outils</b>.</p>
         <p class="pl-note"><b>La progression technique</b> — chaque étape ajoute une brique :<br>
           ① une page Web <code>GET → serveur → HTML</code> · ② une API <code>requête JSON → réponse JSON</code> ·
           ③ une API de LLM <code>prompt → modèle → réponse</code> · ④ un LLM avec outils <code>le modèle choisit un outil</code> ·
           ⑤ un agent <code>boucle observer → décider → agir</code>.</p>
-        <p class="pl-note"><b>La séance 11</b> — «&nbsp;Anatomie d'un assistant&nbsp;» ferme le bloc en <b>démontant le produit</b>&nbsp;: ce n'est pas un modèle, c'est un modèle plus <b>cinq couches</b> (interface, mémoire, outils, contexte, instructions système). Elle montre le <b>cadre invisible</b>, ce que le modèle relit vraiment à chaque tour, le fait qu'il <b>n'exécute rien</b> — il écrit un appel, le programme agit —, la <b>boucle</b> d'un agent avec son budget de tours, le multimodal, les trois mémoires, et quatre pannes nommées par couche, dont l'<b>injection d'instructions</b>. C'est de fait la <b>révision de tout le cours</b>&nbsp;: la manipulation «&nbsp;qui fait le travail&nbsp;?&nbsp;» rappelle chaque brique des blocs 1 à 4. Charnière vers le bloc 5.</p>
+        <p class="pl-note"><b>La séance 12</b> — «&nbsp;Anatomie d'un assistant&nbsp;» ferme le bloc en <b>démontant le produit</b>&nbsp;: ce n'est pas un modèle, c'est un modèle plus <b>cinq couches</b> (interface, mémoire, outils, contexte, instructions système). Elle montre le <b>cadre invisible</b>, ce que le modèle relit vraiment à chaque tour, le fait qu'il <b>n'exécute rien</b> — il écrit un appel, le programme agit —, la <b>boucle</b> d'un agent avec son budget de tours, le multimodal, les trois mémoires, et quatre pannes nommées par couche, dont l'<b>injection d'instructions</b>. C'est de fait la <b>révision de tout le cours</b>&nbsp;: la manipulation «&nbsp;qui fait le travail&nbsp;?&nbsp;» rappelle chaque brique des blocs 1 à 4. Charnière vers le bloc 5.</p>
         <p class="pl-note"><b>Ce qui reste du bloc</b> — la question «&nbsp;un Web écrit par qui, lu par qui&nbsp;?&nbsp;» (contenus synthétiques, provenance, crédibilité) est déplacée au <b>bloc 6</b>, où elle rejoint les réseaux sociaux.</p>
         <p class="pl-note"><b>Les trois générations du Web</b> : documentaire (<em>je connais une adresse</em>) → moteurs de recherche (<em>je cherche des pages</em>) → à l'ère de l'IA (<em>je formule une intention</em>). Soit <b>URL → mots-clés → intention</b>.</p>
         <p class="pl-note"><b>Et le Web change des deux côtés</b> : « un Web écrit par qui… et lu par qui ? » → contenus synthétiques, provenance, crédibilité. Question ouverte savoureuse : <em>si une IA répond sans que je visite le site, que devient le Web ?</em></p>
@@ -253,8 +257,8 @@
           <a class="pl-link" href="ressources/effort.html">▶ L'effort qu'on évite</a>
         </div>
         <p class="pl-note">« <b>Travailler avec</b> » plutôt qu'« utiliser » : on vise une collaboration intellectuelle, pas un mode d'emploi.</p>
-        <p class="pl-note"><b>La séance 13</b> — «&nbsp;L'effort qu'on évite&nbsp;» ferme le bloc sur la question que la 12 laissait ouverte&nbsp;: <b>quand ne pas l'utiliser</b>. Elle ne moralise pas&nbsp;: elle s'appuie sur trois résultats établis <b>bien avant l'IA</b> — l'<b>effet test</b> (l'expérience de Roediger &amp; Karpicke, 2006, jouée comme manipulation), la <b>fluence trompeuse</b>, et les <b>difficultés désirables</b> de Bjork. Suivent les quatre moments où l'on ferme l'onglet, un <b>arbre de décision</b> en trois questions — la tâche est-elle le but ou un moyen&nbsp;? saurais-je repérer une erreur&nbsp;? est-ce évalué&nbsp;? — puis une scène d'honnêteté épistémique qui sépare ce qui est <b>solide</b>, ce qui est <b>récent et fragile</b>, et ce que <b>personne ne sait encore</b>. La seconde moitié est positive&nbsp;: quatre usages qui <b>ajoutent</b> de la difficulté, ce que l'école évalue vraiment, et <b>six situations</b> à trancher. Charnière vers le bloc 6.</p>
-        <p class="pl-note"><b>La séance 12</b> — «&nbsp;Formuler, itérer, vérifier&nbsp;» est une <b>méthode</b>, pas une liste d'astuces. Elle part de l'écart entre ce qu'on écrit et ce qu'on voulait — le modèle ne devine pas une intention, il <b>comble</b> — puis décompose une demande en <b>cinq pièces</b> (tâche, contexte, public, format, matière) qu'on coche et décoche. Suivent le <b>few-shot</b> (montrer vaut mieux que décrire), deux boucles d'itération comparées tour par tour, le <b>poids du fil</b> qui repart à chaque message (rappel de la séance 11), la vérification à trois niveaux avec un exercice «&nbsp;trouvez l'intrus&nbsp;», et le cas des <b>sources inventées</b>. Elle se termine sur ce qu'on ne colle jamais (données d'autrui, identifiants, documents qui ne nous appartiennent pas) et sur les <b>trois conduites</b>&nbsp;: il fait à ma place, il travaille avec moi, <b>il me fait travailler</b>. Charnière vers «&nbsp;l'effort qu'on évite&nbsp;».</p>
+        <p class="pl-note"><b>La séance 14</b> — «&nbsp;L'effort qu'on évite&nbsp;» ferme le bloc sur la question que la 12 laissait ouverte&nbsp;: <b>quand ne pas l'utiliser</b>. Elle ne moralise pas&nbsp;: elle s'appuie sur trois résultats établis <b>bien avant l'IA</b> — l'<b>effet test</b> (l'expérience de Roediger &amp; Karpicke, 2006, jouée comme manipulation), la <b>fluence trompeuse</b>, et les <b>difficultés désirables</b> de Bjork. Suivent les quatre moments où l'on ferme l'onglet, un <b>arbre de décision</b> en trois questions — la tâche est-elle le but ou un moyen&nbsp;? saurais-je repérer une erreur&nbsp;? est-ce évalué&nbsp;? — puis une scène d'honnêteté épistémique qui sépare ce qui est <b>solide</b>, ce qui est <b>récent et fragile</b>, et ce que <b>personne ne sait encore</b>. La seconde moitié est positive&nbsp;: quatre usages qui <b>ajoutent</b> de la difficulté, ce que l'école évalue vraiment, et <b>six situations</b> à trancher. Charnière vers le bloc 6.</p>
+        <p class="pl-note"><b>La séance 13</b> — «&nbsp;Formuler, itérer, vérifier&nbsp;» est une <b>méthode</b>, pas une liste d'astuces. Elle part de l'écart entre ce qu'on écrit et ce qu'on voulait — le modèle ne devine pas une intention, il <b>comble</b> — puis décompose une demande en <b>cinq pièces</b> (tâche, contexte, public, format, matière) qu'on coche et décoche. Suivent le <b>few-shot</b> (montrer vaut mieux que décrire), deux boucles d'itération comparées tour par tour, le <b>poids du fil</b> qui repart à chaque message (rappel de la séance 12), la vérification à trois niveaux avec un exercice «&nbsp;trouvez l'intrus&nbsp;», et le cas des <b>sources inventées</b>. Elle se termine sur ce qu'on ne colle jamais (données d'autrui, identifiants, documents qui ne nous appartiennent pas) et sur les <b>trois conduites</b>&nbsp;: il fait à ma place, il travaille avec moi, <b>il me fait travailler</b>. Charnière vers «&nbsp;l'effort qu'on évite&nbsp;».</p>
       </div>
 
       <!-- 6 -->
@@ -370,6 +374,10 @@
           <tr><td>Appel d'outil</td><td class="lvl"><b>Comprendre le mécanisme</b></td></tr>
           <tr><td>Agent</td><td class="lvl"><b>Comprendre l'architecture</b></td></tr>
           <tr><td>Multimodal (entrée / sortie)</td><td class="lvl"><b>Savoir distinguer</b></td></tr>
+          <tr><td>Diffusion</td><td class="lvl"><b>Comprendre</b> · partir du bruit, le retirer pas à pas</td></tr>
+          <tr><td>Guidage par le texte</td><td class="lvl">Comprendre · orienter, pas décrire</td></tr>
+          <tr><td>Jeton sonore</td><td class="lvl">Comprendre · le son redevient du « prochain jeton »</td></tr>
+          <tr><td>Corpus image-texte</td><td class="lvl">Savoir que la question du droit n'est pas tranchée</td></tr>
           <tr><td>Injection d'instructions</td><td class="lvl"><b>Reconnaître le risque</b></td></tr>
           <tr><td>Formuler une demande</td><td class="lvl"><b>Savoir faire</b> · les cinq pièces, appliquées à un cas réel</td></tr>
           <tr><td>Few-shot (montrer un exemple)</td><td class="lvl">Savoir faire · sans le nom, si besoin</td></tr>

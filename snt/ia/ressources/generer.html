@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Générer une image, générer un son</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- canevas (s2, s4, s6) ---------- */
+  .cvwrap{display:flex;justify-content:center;gap:clamp(.6rem,2vw,1.4rem);flex-wrap:wrap}
+  .cvbox{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+  .cvbox canvas{display:block;border:1px solid rgba(0,0,0,.25);background:#111;
+    width:clamp(150px,21vw,232px);height:clamp(150px,21vw,232px)}
+  .pane.dark .cvbox canvas{border-color:rgba(233,228,216,.25)}
+  .cvbox .cl{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);text-align:center;max-width:24ch;line-height:1.3}
+  .pane.dark .cvbox .cl{color:#a9a294}
+  .wide canvas{width:clamp(280px,62vw,680px);height:clamp(90px,15vw,150px)}
+
+  /* ---------- curseur d'étape ---------- */
+  .stepr{display:flex;align-items:center;gap:.6rem;justify-content:center;margin:.55rem 0 .25rem;
+    font-family:var(--mono);font-size:.68rem;color:var(--muted);flex-wrap:wrap}
+  .pane.dark .stepr{color:#a9a294}
+  .stepr input[type=range]{width:clamp(150px,34vw,360px);accent-color:var(--signal)}
+  .stepr b{color:var(--signal-dk);min-width:8ch;text-align:left}
+  .pane.dark .stepr b{color:#7fa0ff}
+
+  /* ---------- jetons audio ---------- */
+  .codes{display:flex;flex-wrap:wrap;gap:.25rem;justify-content:center;margin:.4rem 0 .2rem}
+  .code{font-family:var(--mono);font-size:clamp(.62rem,1.1vw,.74rem);padding:.2rem .42rem;
+    border:1px solid rgba(0,0,0,.22);background:var(--paper-2);color:#4a4436}
+  .pane.dark .code{border-color:rgba(233,228,216,.25);background:rgba(233,228,216,.06);color:#c9c2b2}
+  .code.nextc{border-color:var(--alarm);color:var(--alarm);border-style:dashed}
+  .code.hot{background:var(--signal);border-color:var(--signal);color:#fff}
+
+  /* ---------- lignes d'orientation (s4) ---------- */
+  .steer{display:grid;gap:.3rem;max-width:40ch}
+  .strow{display:grid;grid-template-columns:11ch minmax(0,1fr);gap:.5rem;align-items:center}
+  .strow .k{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;color:#a9a294}
+  .strow .bb{height:11px;background:rgba(233,228,216,.08);border:1px solid rgba(233,228,216,.2)}
+  .strow .bb i{display:block;height:100%;background:#6c9eff;transition:width .3s}
+
+  /* ---------- resserrements de projection ---------- */
+  #s11 .rc-list{gap:.3rem}
+  #s11 .rc-list li{font-size:clamp(.78rem,1.4vw,.94rem);line-height:1.35}
+  #s11 .rc-voc{gap:.35rem}
+  #s11 .rc-term{font-size:.72rem;padding:.4rem .55rem}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="token.html" data-i18n="s0.back">◂ Séance précédente · Le prochain mot</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">On sait écrire.<br>Et <em>dessiner</em>&nbsp;?<br>Et <em>chanter</em>&nbsp;?</h1>
+    <p class="line" data-i18n="s0.line">La séance précédente a tout expliqué du texte&nbsp;: un mot après l'autre, le plus probable. Mais une image n'a pas de «&nbsp;pixel suivant&nbsp;», et une chanson ne se lit pas de gauche à droite. <strong style="color:#fff">Il a donc fallu inventer autre chose.</strong> Une idée, et une seule, tient toute la génération d'images.</p>
+    <div class="kick" data-i18n="s0.kick">Bruit · diffusion · guidage par le texte · jetons sonores</div>
+  </div>
+
+  <!-- ============ 1 · POURQUOI PAS LA MÊME MÉTHODE ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Le problème posé</div>
+    <h2 class="stitle" data-i18n="s1.t">Une image n'a pas<br>de « pixel suivant »</h2>
+    <p class="lead" data-i18n="s1.lead">La machine du texte marche parce qu'une phrase a un <b>ordre</b>&nbsp;: chaque mot a un avant et un après. Essayez d'appliquer ça à une photo, et trois choses cassent d'un coup.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card warn" data-i18n="s1.c1">
+          <h3>Pas d'ordre</h3>
+          <div class="sub">par où commencer&nbsp;?</div>
+          <p>En haut à gauche&nbsp;? Pourquoi&nbsp;? Un pixel dépend autant de celui du dessus, de celui de droite, et de la forme entière à laquelle il appartient.</p>
+        </div>
+        <div class="card warn" data-i18n="s1.c2">
+          <h3>Beaucoup trop de pixels</h3>
+          <div class="sub">séance sur le codage</div>
+          <p>Une image de 1 024 × 1 024, c'est <b>un million de pixels</b> à produire un par un. Et une seule erreur au début gâche tout le reste.</p>
+        </div>
+        <div class="card warn" data-i18n="s1.c3">
+          <h3>Le global avant le local</h3>
+          <div class="sub">le vrai obstacle</div>
+          <p>Pour dessiner un œil au bon endroit, il faut <b>déjà savoir où est le visage</b>. Un pixel à la fois, c'est l'inverse de l'ordre où l'on voit.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s1.note">La solution trouvée vers 2020 prend le problème par l'autre bout&nbsp;: au lieu de <b>construire</b> l'image morceau par morceau, on part d'une image <b>entièrement fausse</b> — du bruit — et on la corrige <b>en entier</b>, plusieurs fois de suite. C'est la <b>diffusion</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LA DIFFUSION, EN DIRECT ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation · tirez le curseur</div>
+    <h2 class="stitle" data-i18n="s2.t">Partir du bruit,<br>et le retirer</h2>
+    <p class="lead" data-i18n="s2.lead">À gauche, ce que le modèle a sous les yeux à cette étape. À droite, ce qu'il <b>croit voir</b> — son pari sur l'image finale. À chaque pas, il retire un peu de bruit et le pari se précise.</p>
+
+    <div class="mid">
+      <div class="cvwrap">
+        <div class="cvbox"><canvas id="cvA" width="232" height="232"></canvas>
+          <div class="cl" data-i18n="s2.la">l'image à cette étape</div></div>
+        <div class="cvbox"><canvas id="cvB" width="232" height="232"></canvas>
+          <div class="cl" data-i18n="s2.lb">ce que le modèle parie</div></div>
+      </div>
+      <div class="stepr">
+        <span data-i18n="s2.step">Étape</span>
+        <input type="range" id="s2r" min="0" max="20" value="0" class="nostep">
+        <b id="s2v">0 / 20</b>
+      </div>
+      <p class="verd" id="s2verd"></p>
+      <p class="chain-note" style="font-size:.72rem" data-i18n="s2.note">Illustration&nbsp;: l'image est dessinée par cette page, pas produite par un modèle. Le <b>mécanisme</b>, lui — bruit au départ, débruitage progressif, pari qui se précise — est exact.</p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · L'ENTRAÎNEMENT, À L'ENVERS ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Le coup de génie</div>
+    <h2 class="stitle" data-i18n="s3.t">On l'entraîne<br>dans l'autre sens</h2>
+    <p class="lead" data-i18n="s3.lead">Pour apprendre à <b>enlever</b> du bruit, il faut des exemples de « voici une image bruitée, voici la propre ». Or ces exemples, on peut les fabriquer à volonté — c'est là que tout se joue.</p>
+
+    <div class="mid">
+      <div class="chain">
+        <div class="cbox" data-i18n="s3.b1"><div class="n">1 · on prend</div><div class="t">une vraie image</div><div class="v">n'importe laquelle, avec sa légende</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox" data-i18n="s3.b2"><div class="n">2 · on abîme</div><div class="t">un peu de bruit</div><div class="v">à un niveau tiré au hasard</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox hot" data-i18n="s3.b3"><div class="n">3 · on demande</div><div class="t">« quel bruit ai-je ajouté&nbsp;? »</div><div class="v">la réponse, on la connaît : c'est nous qui l'avons mis</div></div>
+        <div class="carrow">→</div>
+        <div class="cbox" data-i18n="s3.b4"><div class="n">4 · on corrige</div><div class="t">descente de gradient</div><div class="v">la machine à régler, déjà vue</div></div>
+      </div>
+      <p class="chain-note" data-i18n="s3.note">Le détail qui change tout&nbsp;: <b>la correction est gratuite</b>. Personne n'a besoin d'étiqueter quoi que ce soit — c'est nous qui avons ajouté le bruit, donc nous connaissons la bonne réponse. Une seule image fournit ainsi <b>des milliers d'exercices</b>, un par niveau de bruit. C'est ce qui a rendu l'entraînement possible à l'échelle de centaines de millions d'images.</p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · LE TEXTE ORIENTE ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Manipulation · trois demandes, le même bruit de départ</div>
+    <h2 class="stitle" data-i18n="s4.t">Le texte ne décrit pas<br>des pixels : il oriente</h2>
+    <p class="lead" data-i18n="s4.lead">La phrase que vous tapez n'est jamais traduite en coordonnées. Elle devient des <b>nombres</b> (la séance 3 appelait ça des points dans un espace), et ces nombres <b>penchent</b> le débruitage dans une direction à chaque pas.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s4btns"></div>
+      <div class="cvwrap">
+        <div class="cvbox"><canvas id="cvC" width="232" height="232"></canvas>
+          <div class="cl" id="s4cl"></div></div>
+        <div style="align-self:center">
+          <div class="plbl" data-i18n="s4.lbl">Ce que le texte pousse, à chaque pas</div>
+          <div class="steer" id="s4steer"></div>
+        </div>
+      </div>
+      <p class="verd" id="s4verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · LES MAINS ============ -->
+  <div class="pane dark pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Ce que les ratés révèlent</div>
+    <h2 class="stitle" data-i18n="s5.t">Pourquoi les mains<br>ont eu six doigts</h2>
+    <p class="lead" data-i18n="s5.lead">Pendant des années, les images générées ont raté les mains, les textes écrits et les reflets. Ce n'était pas un bug&nbsp;: c'est une conséquence directe du mécanisme que vous venez de voir.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s5.c1">
+          <h3>Il n'a jamais compté</h3>
+          <div class="sub">statistiques de pixels</div>
+          <p>Rien, dans l'entraînement, ne dit «&nbsp;une main a cinq doigts&nbsp;». Le modèle a vu beaucoup de taches allongées côte à côte. <b>Cinq ou six, la différence est statistiquement minime</b> — visuellement, elle est énorme.</p>
+        </div>
+        <div class="card" data-i18n="s5.c2">
+          <h3>Le texte dans l'image</h3>
+          <div class="sub">le même problème</div>
+          <p>Une enseigne «&nbsp;BOULANGERIE&nbsp;» devient «&nbsp;BOULANCERIF&nbsp;». Pour le débruitage, une lettre est une forme parmi d'autres&nbsp;; il n'y a pas de couche qui épelle.</p>
+        </div>
+        <div class="card good" data-i18n="s5.c3">
+          <h3>Et pourtant ça s'arrange</h3>
+          <div class="sub">honnêteté sur les dates</div>
+          <p>Depuis 2024, mains et textes passent beaucoup mieux&nbsp;: plus de données, des modèles plus gros, des architectures différentes. <b>Le défaut s'atténue, le mécanisme n'a pas changé</b> — et les erreurs se déplacent ailleurs.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s5.note">La leçon à garder n'est donc pas «&nbsp;regardez les mains&nbsp;» — ce conseil est déjà périmé. C'est&nbsp;: <b>un générateur d'images ne sait rien du monde, il connaît des régularités de pixels.</b> Ce qui est rare dans ses données reste fragile, quel que soit le progrès.</p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · LE SON ============ -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Manipulation · quatre étapes</div>
+    <h2 class="stitle" data-i18n="s6.t">Le son : on revient<br>au prochain jeton</h2>
+    <p class="lead" data-i18n="s6.lead">Surprise&nbsp;: pour la voix et la musique, on n'utilise en général <b>pas</b> la diffusion, mais la machine de la séance précédente. Il a juste fallu inventer un <b>alphabet de sons</b>.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s6btns"></div>
+      <div class="cvwrap wide">
+        <div class="cvbox"><canvas id="cvD" width="680" height="150"></canvas>
+          <div class="cl" id="s6cl"></div></div>
+      </div>
+      <div class="codes" id="s6codes"></div>
+      <p class="verd" id="s6verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · LE TABLEAU ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">Mise en ordre</div>
+    <h2 class="stitle" data-i18n="s7.t">Trois générations,<br>deux mécanismes</h2>
+    <p class="lead" data-i18n="s7.lead">On dit «&nbsp;IA générative&nbsp;» comme si c'était une seule chose. Ce sont deux idées, appliquées à trois matières — et il vaut mieux savoir laquelle on a sous la main.</p>
+
+    <div class="mid">
+      <table class="tbl" data-i18n="s7.tbl">
+        <tr><th>&nbsp;</th><th>Texte</th><th>Image</th><th>Son</th></tr>
+        <tr><td><b>Mécanisme</b></td><td>prédire le jeton suivant</td><td><b>diffusion</b> : retirer du bruit</td><td>prédire le jeton suivant</td></tr>
+        <tr><td><b>Unité produite</b></td><td>un morceau de mot</td><td>l'image <b>entière</b>, à chaque pas</td><td>un morceau de son (~20 ms)</td></tr>
+        <tr><td><b>Nombre d'étapes</b></td><td>une par jeton</td><td>de 4 à 50 passes</td><td>une par jeton</td></tr>
+        <tr><td><b>Rôle du texte</b></td><td>c'est le début de la phrase</td><td>il <b>oriente</b> le débruitage</td><td>il donne ce qu'il faut dire</td></tr>
+        <tr><td><b>Ce qui rate</b></td><td>un fait inventé, plausible</td><td>ce qui est rare : mains, lettres, reflets</td><td>la prosodie, les noms propres</td></tr>
+        <tr><td><b>Ce qui est commun</b></td><td colspan="3">des <b>paramètres</b> réglés par descente de gradient sur d'énormes corpus — et aucune compréhension du monde</td></tr>
+      </table>
+      <p class="chain-note" data-i18n="s7.note">Les frontières bougent vite&nbsp;: certains modèles d'images prédisent désormais des jetons, certains modèles de son utilisent la diffusion, et les gros assistants font les trois en appelant <b>plusieurs modèles</b> (vous le reverrez en fin d'année). <b>Retenez les deux idées, pas la répartition du moment.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · D'OÙ VIENNENT LES IMAGES ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">La question qu'on ne peut pas sauter</div>
+    <h2 class="stitle" data-i18n="s8.t">Entraîné<br>sur quoi ?</h2>
+    <p class="lead" data-i18n="s8.lead">Un modèle d'images apprend sur des <b>centaines de millions de couples image + légende</b>. Il faut bien que quelqu'un les ait faites. Trois faits, sans commentaire.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s8.c1">
+          <h3>Aspirées sur le Web</h3>
+          <div class="sub">le corpus de référence</div>
+          <p>Le jeu de données public le plus utilisé, <b>LAION-5B</b>, rassemble près de six milliards de couples image-texte collectés automatiquement sur le Web ouvert. Personne n'a été prévenu.</p>
+        </div>
+        <div class="card warn" data-i18n="s8.c2">
+          <h3>Des procès en cours</h3>
+          <div class="sub">depuis 2023</div>
+          <p>Des artistes, des agences photo et des éditeurs attaquent les entreprises du secteur. Les décisions sont en cours partout dans le monde&nbsp;: <b>le droit n'est pas encore fixé.</b></p>
+        </div>
+        <div class="card" data-i18n="s8.c3">
+          <h3>Le style n'est pas protégé</h3>
+          <div class="sub">une nuance qui compte</div>
+          <p>Copier une œuvre est interdit&nbsp;; <b>imiter un style</b> ne l'est pas, en général. D'où la colère d'illustrateurs dont la manière est reproduite sans qu'aucune de leurs images ne soit copiée.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s8.note">Gardez la question en tête&nbsp;: elle revient dans le bloc sur les données, et encore à la fin de l'année. Pour l'instant, une seule chose à retenir&nbsp;: <b>une image générée n'est pas sortie de nulle part — elle est sortie de millions d'images faites par des gens.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s9">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s9.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s9.q">Tout ça s'est<br><em>appris</em>. Mais<br>comment&nbsp;?</div>
+    <p class="a" data-i18n="s9.a">Texte, image, son&nbsp;: trois familles, deux mécanismes, et le même mot revenu à chaque fois sans jamais être expliqué — <b>apprendre</b>. On a dit «&nbsp;des paramètres réglés sur d'énormes corpus&nbsp;» comme si c'était évident. Ça ne l'est pas du tout. Avant d'ouvrir cette boîte-là, un point d'étape&nbsp;: ce que vous savez déjà, et ce qui vous manque.</p>
+    <div class="next" data-i18n="s9.next">Séance suivante · Faire un point</div>
+  </div>
+
+  <!-- ============ 10 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s10">
+    <div class="tag" data-i18n="s10.tag">Activité de la séance · 30 minutes · par deux</div>
+    <h2 data-i18n="s10.t">Le <em>cahier</em><br>de l'image</h2>
+    <p class="sub" data-i18n="s10.sub">Deux moitiés&nbsp;: on fabrique d'abord, on démonte ensuite. L'enseignant projette un générateur d'images&nbsp;; vous, vous écrivez.</p>
+    <ol class="steps">
+      <li data-i18n="s10.l1"><b>La même demande, trois fois.</b> Le professeur lance <b>trois fois</b> la même phrase. Notez ce qui change d'une image à l'autre, et ce qui ne change pas. Pourquoi est-ce différent à chaque fois&nbsp;?</li>
+      <li data-i18n="s10.l2"><b>Un mot de plus.</b> Ajoutez un seul mot à la phrase — une couleur, une heure, un style. Prédisez <b>avant</b> ce que ça va changer. Vérifiez.</li>
+      <li data-i18n="s10.l3"><b>Le raté choisi.</b> Demandez quelque chose de rare&nbsp;: un texte écrit sur un panneau, une horloge à une heure précise, dix objets comptés. Décrivez précisément ce qui cloche.</li>
+      <li data-i18n="s10.l4"><b>L'explication.</b> Pour chaque raté, écrivez <b>une phrase</b> qui relie l'erreur au mécanisme de la scène 2 ou 3. Pas «&nbsp;l'IA est bête&nbsp;»&nbsp;: la cause exacte.</li>
+      <li data-i18n="s10.l5"><b>L'enquête.</b> Cherchez sur quelles données le générateur utilisé a été entraîné. Trouvez-vous la réponse&nbsp;? En combien de clics&nbsp;? Est-elle précise&nbsp;?</li>
+      <li data-i18n="s10.l6"><b>La discussion.</b> Une image générée «&nbsp;dans le style de&nbsp;» un illustrateur vivant&nbsp;: légal, probablement. Et juste&nbsp;? Deux arguments pour, deux contre, écrits avant de parler.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 11 · RÉCAP ============ -->
+  <div class="pane light pad" id="s11">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 4 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Générer une image, <span>générer un son</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">La méthode du texte — prédire ce qui suit — <b>ne marche pas pour une image</b>&nbsp;: il n'y a pas d'ordre, il y a trop de pixels, et le global vient avant le local.</li>
+      <li data-i18n="rc.i2">La <span class="hl">diffusion</span> part d'une image de <b>bruit pur</b> et la corrige <b>en entier</b>, pas après pas, jusqu'à ce qu'une image apparaisse.</li>
+      <li data-i18n="rc.i3">On l'entraîne <b>à l'envers</b>&nbsp;: on abîme une vraie image avec un bruit qu'on connaît, et on demande au modèle de le retrouver. <b>La correction est gratuite</b> — d'où l'échelle possible.</li>
+      <li data-i18n="rc.i4">Le texte ne décrit pas des pixels&nbsp;: il devient des nombres qui <b>orientent</b> le débruitage à chaque pas.</li>
+      <li data-i18n="rc.i5">Les ratés classiques — mains, lettres, objets comptés — viennent de là&nbsp;: <b>le modèle n'a jamais compté</b>, il a vu des régularités. Le défaut s'atténue&nbsp;; la cause demeure.</li>
+      <li data-i18n="rc.i6">Pour le <b>son</b>, on découpe l'onde en tranches, chaque tranche devient un <span class="hl">jeton</span>, et on reprend la machine du texte&nbsp;: <b>prédire le jeton suivant</b>.</li>
+      <li data-i18n="rc.i7">Deux mécanismes, trois matières — et aucune compréhension du monde dans aucun des trois.</li>
+      <li data-i18n="rc.i8">Un générateur d'images a été entraîné sur des <b>centaines de millions d'images faites par des gens</b>. Le droit sur ce point n'est pas encore fixé.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Diffusion</b>Partir du bruit, le retirer pas à pas.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Débruitage</b>Enlever le bruit d'une image.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Guidage</b>Le texte penche le résultat.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Jeton sonore</b>Une tranche de son devenue un nombre.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Corpus image-texte</b>Des images avec leur légende.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Style</b>Imité sans qu'une œuvre soit copiée.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>un point d'étape — puis la vraie question, celle qu'on repousse depuis trois séances : comment tout cela s'apprend-il ?</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 11;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.matches && e.target.matches('input,select')) return;
+  if(e.target && e.target.closest && e.target.closest('#langsw') && (e.key===' '||e.key==='Enter')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,input,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+/* curLang en var : les widgets tournent avant le bloc i18n. */
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   LE PHARE — dessiné par la page, trois variantes
+   ========================================================= */
+function lighthouse(ctx, W, H, v){
+  ctx.save();
+  ctx.clearRect(0,0,W,H);
+  var sea = H*0.74;
+
+  if(v === 2){                                   /* dessin au trait */
+    ctx.fillStyle = '#f4f1e8'; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle = '#14110d'; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(0,sea); ctx.lineTo(W,sea); ctx.stroke();
+    for(var i=0;i<5;i++){
+      var y = sea + 8 + i*((H-sea)/6);
+      ctx.beginPath();
+      for(var x=0;x<=W;x+=8) ctx.lineTo(x, y + Math.sin((x/W)*9 + i)*2.2);
+      ctx.stroke();
+    }
+  } else {
+    var g = ctx.createLinearGradient(0,0,0,sea);
+    if(v === 0){ g.addColorStop(0,'#0d1326'); g.addColorStop(.6,'#1b2742'); g.addColorStop(1,'#2d3c57'); }
+    else       { g.addColorStop(0,'#2a2a5e'); g.addColorStop(.45,'#b45a4e'); g.addColorStop(1,'#e9a05a'); }
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,sea);
+    if(v === 1){                                  /* soleil couchant */
+      ctx.fillStyle = '#ffd27a';
+      ctx.beginPath(); ctx.arc(W*0.26, sea-H*0.055, H*0.075, 0, 7); ctx.fill();
+    } else {                                      /* nuages de tempête */
+      ctx.fillStyle = 'rgba(200,210,230,.13)';
+      for(var c=0;c<4;c++){
+        ctx.beginPath();
+        ctx.ellipse(W*(0.15+0.24*c), H*(0.12+0.05*(c%2)), W*0.17, H*0.045, 0, 0, 7);
+        ctx.fill();
+      }
+    }
+    ctx.fillStyle = (v === 0) ? '#16213a' : '#6d3f55';
+    ctx.fillRect(0, sea, W, H-sea);
+    ctx.strokeStyle = (v === 0) ? 'rgba(180,200,230,.35)' : 'rgba(255,215,160,.5)';
+    ctx.lineWidth = 1.4;
+    for(var j=0;j<6;j++){
+      var yy = sea + 6 + j*((H-sea)/7);
+      var amp = (v === 0) ? 4.5 : 1.6;
+      ctx.beginPath();
+      for(var xx=0;xx<=W;xx+=6) ctx.lineTo(xx, yy + Math.sin((xx/W)*(v===0?13:7) + j*1.7)*amp);
+      ctx.stroke();
+    }
+  }
+
+  /* le faisceau, avant la tour */
+  if(v === 0){
+    ctx.save();
+    var gb = ctx.createLinearGradient(W*0.5, H*0.2, W, H*0.42);
+    gb.addColorStop(0,'rgba(255,235,170,.55)'); gb.addColorStop(1,'rgba(255,235,170,0)');
+    ctx.fillStyle = gb;
+    ctx.beginPath();
+    ctx.moveTo(W*0.5, H*0.2); ctx.lineTo(W*1.05, H*0.06); ctx.lineTo(W*1.05, H*0.42); ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /* le rocher */
+  var rx = W*0.5, rw = W*0.21;
+  if(v !== 2){
+    ctx.fillStyle = (v === 0) ? '#0b1020' : '#3d2535';
+    ctx.beginPath();
+    ctx.moveTo(rx-rw, sea+H*0.035); ctx.lineTo(rx-rw*0.55, sea-H*0.012);
+    ctx.lineTo(rx+rw*0.55, sea-H*0.012); ctx.lineTo(rx+rw, sea+H*0.035);
+    ctx.closePath(); ctx.fill();
+  }
+
+  /* la tour */
+  var bw = W*0.115, tw = W*0.072, top = H*0.235, bot = sea - H*0.005;
+  ctx.beginPath();
+  ctx.moveTo(rx-bw, bot); ctx.lineTo(rx-tw, top);
+  ctx.lineTo(rx+tw, top); ctx.lineTo(rx+bw, bot); ctx.closePath();
+  if(v === 2){ ctx.strokeStyle = '#14110d'; ctx.lineWidth = 1.8; ctx.stroke(); }
+  else {
+    ctx.fillStyle = '#efe9dc'; ctx.fill();
+    ctx.save(); ctx.clip();
+    ctx.fillStyle = '#b5301f';
+    for(var k=0;k<3;k++) ctx.fillRect(rx-bw, top + (bot-top)*(0.18+k*0.26), bw*2, (bot-top)*0.11);
+    ctx.restore();
+  }
+
+  /* la lanterne */
+  var lh = H*0.055;
+  if(v === 2){
+    ctx.strokeRect(rx-tw*1.25, top-lh, tw*2.5, lh);
+    ctx.beginPath(); ctx.moveTo(rx-tw*1.5, top-lh); ctx.lineTo(rx, top-lh*1.9);
+    ctx.lineTo(rx+tw*1.5, top-lh); ctx.closePath(); ctx.stroke();
+  } else {
+    ctx.fillStyle = (v === 0) ? '#ffeaa0' : '#ffd27a';
+    ctx.fillRect(rx-tw*1.25, top-lh, tw*2.5, lh);
+    ctx.fillStyle = '#2b2b2b';
+    ctx.beginPath(); ctx.moveTo(rx-tw*1.5, top-lh); ctx.lineTo(rx, top-lh*1.9);
+    ctx.lineTo(rx+tw*1.5, top-lh); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* le bruit, fixe d'un appel à l'autre */
+var NOISE = null;
+function noiseCanvas(W, H){
+  if(NOISE && NOISE.width === W && NOISE.height === H) return NOISE;
+  var c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  var x = c.getContext('2d'), d = x.createImageData(W, H), s = 123456789;
+  function rnd(){ s = (s*1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }
+  for(var i=0;i<d.data.length;i+=4){
+    d.data[i] = rnd()*255; d.data[i+1] = rnd()*255; d.data[i+2] = rnd()*255; d.data[i+3] = 255;
+  }
+  x.putImageData(d, 0, 0);
+  NOISE = c; return c;
+}
+
+/* =========================================================
+   SCÈNE 2 — la diffusion, pas à pas
+   ========================================================= */
+var S2 = {
+  fr:{
+    v:[
+      '<b>Étape 0.</b> Rien que du bruit — des pixels tirés au hasard. Le modèle ne «&nbsp;voit&nbsp;» aucune image&nbsp;: il voit cette bouillie, et doit parier sur ce qu’elle pourrait devenir.',
+      '<b>Les premiers pas</b> posent les <b>grandes masses</b>&nbsp;: le haut sera clair, le bas sera sombre, il y a quelque chose de vertical au milieu. Le pari de droite est encore une tache — mais c’est déjà la bonne tache.',
+      '<b>À mi-chemin</b>, les formes se décident. Remarquez l’ordre&nbsp;: <b>le global d’abord, le détail ensuite</b> — exactement ce qu’un pixel après l’autre ne savait pas faire.',
+      '<b>Les derniers pas</b> ne travaillent plus que la texture&nbsp;: le grain de la mer, le bord de la tour. Le pari de droite et l’image de gauche se rejoignent.',
+      '<b>Étape 20.</b> Image et pari sont confondus&nbsp;: il n’y a plus de bruit à retirer. Vingt passes, et chacune a corrigé <b>toute l’image à la fois</b>.'
+    ]
+  },
+  en:{
+    v:[
+      '<b>Step 0.</b> Nothing but noise — pixels drawn at random. The model &ldquo;sees&rdquo; no image at all: it sees this mush, and has to bet on what it could become.',
+      '<b>The first steps</b> lay down the <b>large masses</b>: the top will be light, the bottom dark, there is something vertical in the middle. The bet on the right is still a blur — but it is already the right blur.',
+      '<b>Halfway through</b>, the shapes settle. Note the order: <b>the global first, the detail afterwards</b> — exactly what one-pixel-at-a-time could not do.',
+      '<b>The last steps</b> only work on texture: the grain of the sea, the edge of the tower. The bet on the right and the image on the left converge.',
+      '<b>Step 20.</b> Image and bet are one: there is no noise left to remove. Twenty passes, and each corrected <b>the whole image at once</b>.'
+    ]
+  }
+};
+var s2step = 0;
+function drawS2(){
+  var A = document.getElementById('cvA'), B = document.getElementById('cvB');
+  if(!A) return;
+  var W = A.width, H = A.height, t = s2step / 20;
+  var a = A.getContext('2d'), b = B.getContext('2d');
+
+  a.setTransform(1,0,0,1,0,0); a.filter = 'none';
+  lighthouse(a, W, H, 1);
+  a.globalAlpha = Math.pow(1 - t, 0.75);
+  a.drawImage(noiseCanvas(W, H), 0, 0);
+  a.globalAlpha = 1;
+
+  b.setTransform(1,0,0,1,0,0);
+  b.clearRect(0,0,W,H);
+  b.filter = 'blur(' + ((1 - t) * 17).toFixed(1) + 'px)';
+  lighthouse(b, W, H, 1);
+  b.filter = 'none';
+  if(t < 0.08){
+    b.fillStyle = 'rgba(120,110,120,' + (0.55 - t*6).toFixed(2) + ')';
+    b.fillRect(0,0,W,H);
+  }
+
+  document.getElementById('s2v').textContent = s2step + ' / 20';
+  var t2 = S2[LG()].v;
+  var k = s2step === 0 ? 0 : (s2step <= 6 ? 1 : (s2step <= 14 ? 2 : (s2step < 20 ? 3 : 4)));
+  document.getElementById('s2verd').innerHTML = t2[k];
+}
+document.getElementById('s2r').oninput = function(){ s2step = +this.value; drawS2(); };
+
+/* =========================================================
+   SCÈNE 4 — le texte oriente
+   ========================================================= */
+var S4 = {
+  fr:{
+    btn:['« un phare dans la tempête, la nuit »','« un phare au soleil couchant »','« un phare, dessin au trait »'],
+    cl:['un phare dans la tempête, la nuit','un phare au soleil couchant','un phare, dessin au trait'],
+    keys:['obscurité','contraste','chaleur','texture','détail'],
+    w:[[92,78,14,70,55],[28,45,95,34,52],[8,98,6,12,88]],
+    v:[
+      'Aucun de ces cinq curseurs n’existe dans le modèle&nbsp;: ce sont des <b>directions</b> que j’ai mises ici pour montrer l’idée. Dans la vraie machine, la phrase devient quelques centaines de nombres, et ces nombres <b>penchent</b> chacun des vingt pas de débruitage.',
+      'Changez un seul mot et tous les pas changent, dès le premier. C’est pour ça que la même phrase donne la <b>même ambiance</b> mais jamais deux fois la même image&nbsp;: le bruit de départ, lui, est tiré au hasard.',
+      'Les mots de <b>style</b> fonctionnent exactement comme les mots de contenu&nbsp;: «&nbsp;dessin au trait&nbsp;» oriente autant qu’«&nbsp;phare&nbsp;». Pour le modèle, il n’y a pas de différence de nature entre les deux — ce qui est aussi la racine du problème de la scène 8.'
+    ],
+    note:'Illustration schématique&nbsp;: les trois images sont dessinées par cette page.'
+  },
+  en:{
+    btn:['&ldquo;a lighthouse in a storm, at night&rdquo;','&ldquo;a lighthouse at sunset&rdquo;','&ldquo;a lighthouse, line drawing&rdquo;'],
+    cl:['a lighthouse in a storm, at night','a lighthouse at sunset','a lighthouse, line drawing'],
+    keys:['darkness','contrast','warmth','texture','detail'],
+    w:[[92,78,14,70,55],[28,45,95,34,52],[8,98,6,12,88]],
+    v:[
+      'None of these five sliders exists inside the model: they are <b>directions</b> I put here to show the idea. In the real machine the sentence becomes a few hundred numbers, and those numbers <b>tilt</b> each of the twenty denoising steps.',
+      'Change a single word and every step changes, from the first one. That is why the same sentence gives the <b>same mood</b> but never twice the same image: the starting noise is drawn at random.',
+      '<b>Style</b> words work exactly like content words: &ldquo;line drawing&rdquo; steers as much as &ldquo;lighthouse&rdquo;. To the model there is no difference in kind between them — which is also the root of the problem in scene 8.'
+    ],
+    note:'Schematic illustration: the three images are drawn by this page.'
+  }
+};
+var s4i = 1;
+function drawS4(){
+  var t = S4[LG()];
+  pickbtns('s4btns', t.btn, s4i, function(i){ s4i = i; drawS4(); });
+  var C = document.getElementById('cvC');
+  if(C) lighthouse(C.getContext('2d'), C.width, C.height, s4i);
+  document.getElementById('s4cl').textContent = t.cl[s4i];
+  document.getElementById('s4steer').innerHTML = t.keys.map(function(k,i){
+    return '<div class="strow"><div class="k">' + k + '</div>' +
+      '<div class="bb"><i style="width:' + t.w[s4i][i] + '%"></i></div></div>';
+  }).join('');
+  document.getElementById('s4verd').innerHTML = t.v[s4i] + ' <i style="opacity:.6">' + t.note + '</i>';
+}
+
+/* =========================================================
+   SCÈNE 6 — le son devient des jetons
+   ========================================================= */
+var S6WAVE = function(x){
+  return 0.55*Math.sin(x*6.3) + 0.26*Math.sin(x*17.1 + 0.8) + 0.14*Math.sin(x*41.3 + 2.1);
+};
+var S6CODES = (function(){
+  var a = [];
+  for(var i=0;i<16;i++){
+    var s = 0;
+    for(var k=0;k<24;k++) s += Math.abs(S6WAVE((i + k/24)/16*6.0));
+    a.push(100 + Math.round(s*37) % 900);
+  }
+  return a;
+})();
+var S6 = {
+  fr:{
+    btn:['1 · l’onde','2 · on découpe','3 · chaque tranche = un nombre','4 · on prédit la suite'],
+    cl:['une demi-seconde de voix','seize tranches d’environ 20 millisecondes','seize nombres pris dans un répertoire de quelques milliers','le modèle propose le nombre suivant'],
+    v:[
+      'Voilà le problème&nbsp;: une onde, c’est une suite continue de valeurs — des <b>milliers par seconde</b> (séance sur le codage). Impossible de prédire «&nbsp;la valeur suivante&nbsp;»&nbsp;: il y en a trop, et chacune ne veut rien dire toute seule.',
+      'Première idée&nbsp;: on découpe en <b>tranches courtes</b>, environ vingt millisecondes. Une tranche, c’est à peu près le plus petit morceau de son qu’on perçoive comme un tout.',
+      'Deuxième idée, la décisive&nbsp;: on apprend d’abord un <b>répertoire</b> de quelques milliers de tranches types, et chaque tranche réelle est remplacée par le <b>numéro</b> de la plus proche. Le son est devenu une suite de nombres — exactement comme le texte était devenu une suite de jetons.',
+      'Et là, <b>on réutilise la machine de la séance précédente</b>, sans rien y changer&nbsp;: prédire le jeton suivant, encore et encore. Un dernier module retransforme les numéros en onde. <b>Même mécanisme, autre alphabet.</b>'
+    ]
+  },
+  en:{
+    btn:['1 · the wave','2 · we cut it up','3 · each slice = a number','4 · we predict what follows'],
+    cl:['half a second of speech','sixteen slices of about 20 milliseconds','sixteen numbers taken from a codebook of a few thousand','the model proposes the next number'],
+    v:[
+      'Here is the problem: a wave is a continuous run of values — <b>thousands a second</b> (the lesson on encoding). There is no predicting &ldquo;the next value&rdquo;: there are far too many, and each one means nothing on its own.',
+      'First idea: cut it into <b>short slices</b>, about twenty milliseconds. A slice is roughly the smallest piece of sound we hear as one thing.',
+      'Second idea, the decisive one: first learn a <b>codebook</b> of a few thousand typical slices, then replace each real slice by the <b>number</b> of the closest one. Sound has become a run of numbers — exactly as text had become a run of tokens.',
+      'And now <b>the previous lesson’s machine is reused unchanged</b>: predict the next token, over and over. A final module turns the numbers back into a wave. <b>Same mechanism, different alphabet.</b>'
+    ]
+  }
+};
+var s6i = 0;
+function drawS6(){
+  var t = S6[LG()];
+  pickbtns('s6btns', t.btn, s6i, function(i){ s6i = i; drawS6(); });
+  var D = document.getElementById('cvD');
+  if(D){
+    var x = D.getContext('2d'), W = D.width, H = D.height, M = 10;
+    x.setTransform(1,0,0,1,0,0);
+    x.fillStyle = '#efe9dc'; x.fillRect(0,0,W,H);
+    if(s6i >= 1){
+      x.fillStyle = 'rgba(31,92,255,.06)';
+      for(var s=0;s<16;s+=2) x.fillRect(M + s*(W-2*M)/16, 0, (W-2*M)/16, H);
+      x.strokeStyle = 'rgba(0,0,0,.28)'; x.lineWidth = 1;
+      for(var s2=1;s2<16;s2++){
+        var px = M + s2*(W-2*M)/16;
+        x.beginPath(); x.moveTo(px, 4); x.lineTo(px, H-4); x.stroke();
+      }
+    }
+    x.strokeStyle = '#123bab'; x.lineWidth = 2;
+    x.beginPath();
+    for(var i=0;i<=W-2*M;i++){
+      var u = i/(W-2*M), y = H/2 - S6WAVE(u*6.0)*(H/2-M);
+      if(i === 0) x.moveTo(M+i, y); else x.lineTo(M+i, y);
+    }
+    x.stroke();
+    x.strokeStyle = 'rgba(0,0,0,.2)';
+    x.beginPath(); x.moveTo(M, H/2); x.lineTo(W-M, H/2); x.stroke();
+  }
+  document.getElementById('s6cl').textContent = t.cl[s6i];
+  var cb = document.getElementById('s6codes');
+  if(s6i < 2){ cb.innerHTML = ''; }
+  else {
+    var n = s6i === 2 ? 16 : 12;
+    var h = S6CODES.slice(0, n).map(function(c){ return '<span class="code">' + c + '</span>'; });
+    if(s6i === 3) h.push('<span class="code nextc">' + (LG() === 'fr' ? '?' : '?') + '</span>');
+    cb.innerHTML = h.join('');
+  }
+  document.getElementById('s6verd').innerHTML = t.v[s6i];
+}
+
+/* =========================================================
+   REDESSIN GLOBAL (appelé aussi au changement de langue)
+   ========================================================= */
+function redrawAll(){ drawS2(); drawS4(); drawS6(); }
+window.redrawAll = redrawAll;
+window.addEventListener('resize', function(){ setTimeout(redrawAll, 120); });
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Générer une image, générer un son`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`Generating an image, generating a sound`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · The next word`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`We can write.<br>And <em>draw</em>?<br>And <em>sing</em>?`,
+  's0.line':`The previous lesson explained all of text: one word after another, the most likely one. But an image has no &ldquo;next pixel&rdquo;, and a song is not read left to right. <strong style="color:#fff">So something else had to be invented.</strong> One idea, and one alone, holds up the whole of image generation.`,
+  's0.kick':`Noise · diffusion · guidance by text · sound tokens`,
+
+  /* --- 1 · pourquoi pas la même méthode --- */
+  's1.eye':`The problem as posed`,
+  's1.t':`An image has<br>no &ldquo;next pixel&rdquo;`,
+  's1.lead':`The text machine works because a sentence has an <b>order</b>: every word has a before and an after. Try applying that to a photograph and three things break at once.`,
+  's1.c1':`
+          <h3>No order</h3>
+          <div class="sub">where would you start?</div>
+          <p>Top left? Why? A pixel depends as much on the one above it, the one to its right, and the whole shape it belongs to.</p>
+        `,
+  's1.c2':`
+          <h3>Far too many pixels</h3>
+          <div class="sub">the lesson on encoding</div>
+          <p>A 1,024 × 1,024 image is <b>a million pixels</b> to produce one by one. And a single mistake early on ruins everything after it.</p>
+        `,
+  's1.c3':`
+          <h3>The global before the local</h3>
+          <div class="sub">the real obstacle</div>
+          <p>To draw an eye in the right place you must <b>already know where the face is</b>. One pixel at a time is the opposite of the order in which we see.</p>
+        `,
+  's1.note':`The solution found around 2020 takes the problem from the other end: instead of <b>building</b> the image piece by piece, you start from an image that is <b>entirely wrong</b> — noise — and correct it <b>whole</b>, several times over. That is <b>diffusion</b>.`,
+
+  /* --- 2 · la diffusion --- */
+  's2.eye':`Hands on · drag the slider`,
+  's2.t':`Start from noise,<br>and take it away`,
+  's2.lead':`On the left, what the model has in front of it at this step. On the right, what it <b>thinks it sees</b> — its bet on the final image. At each step it removes a little noise and the bet sharpens.`,
+  's2.la':`the image at this step`,
+  's2.lb':`the model's bet`,
+  's2.step':`Step`,
+  's2.note':`Illustration: the picture is drawn by this page, not produced by a model. The <b>mechanism</b> — noise at the start, progressive denoising, a bet that sharpens — is accurate.`,
+
+  /* --- 3 · l'entraînement --- */
+  's3.eye':`The stroke of genius`,
+  's3.t':`It is trained<br>the other way round`,
+  's3.lead':`To learn how to <b>remove</b> noise you need examples of &ldquo;here is a noisy image, here is the clean one&rdquo;. And those examples can be manufactured at will — that is where everything is decided.`,
+  's3.b1':`<div class="n">1 · take</div><div class="t">a real image</div><div class="v">any of them, with its caption</div>`,
+  's3.b2':`<div class="n">2 · spoil it</div><div class="t">a little noise</div><div class="v">at a level drawn at random</div>`,
+  's3.b3':`<div class="n">3 · ask</div><div class="t">&ldquo;what noise did I add?&rdquo;</div><div class="v">we know the answer: we put it there ourselves</div>`,
+  's3.b4':`<div class="n">4 · correct</div><div class="t">gradient descent</div><div class="v">the tuning machine, already seen</div>`,
+  's3.note':`The detail that changes everything: <b>the correction is free</b>. Nobody has to label anything — we added the noise, so we know the right answer. One image thus supplies <b>thousands of exercises</b>, one per noise level. That is what made training possible on hundreds of millions of images.`,
+
+  /* --- 4 · le texte oriente --- */
+  's4.eye':`Hands on · three requests, the same starting noise`,
+  's4.t':`Text does not describe<br>pixels: it steers`,
+  's4.lead':`The sentence you type is never translated into coordinates. It becomes <b>numbers</b> (lesson 3 called them points in a space), and those numbers <b>tilt</b> the denoising in one direction at every step.`,
+  's4.lbl':`What the text pushes, at each step`,
+
+  /* --- 5 · les mains --- */
+  's5.eye':`What the failures reveal`,
+  's5.t':`Why hands<br>had six fingers`,
+  's5.lead':`For years, generated images got hands, written text and reflections wrong. That was not a bug: it follows directly from the mechanism you have just seen.`,
+  's5.c1':`
+          <h3>It never counted</h3>
+          <div class="sub">pixel statistics</div>
+          <p>Nothing in the training says &ldquo;a hand has five fingers&rdquo;. The model has seen a great many elongated blobs side by side. <b>Five or six is a tiny statistical difference</b> — visually, it is enormous.</p>
+        `,
+  's5.c2':`
+          <h3>Text inside the image</h3>
+          <div class="sub">the same problem</div>
+          <p>A sign reading &ldquo;BAKERY&rdquo; comes out &ldquo;BAKREY&rdquo;. To the denoiser a letter is one shape among others; there is no layer that spells.</p>
+        `,
+  's5.c3':`
+          <h3>And yet it is improving</h3>
+          <div class="sub">honesty about dates</div>
+          <p>Since 2024, hands and text come out far better: more data, bigger models, different architectures. <b>The flaw fades, the mechanism has not changed</b> — and the errors move elsewhere.</p>
+        `,
+  's5.note':`So the lesson to keep is not &ldquo;look at the hands&rdquo; — that advice is already out of date. It is: <b>an image generator knows nothing about the world, it knows regularities between pixels.</b> Whatever is rare in its data stays fragile, however much progress is made.`,
+
+  /* --- 6 · le son --- */
+  's6.eye':`Hands on · four steps`,
+  's6.t':`Sound: back to<br>the next token`,
+  's6.lead':`A surprise: for speech and music we generally do <b>not</b> use diffusion, but the machine of the previous lesson. All that was needed was an <b>alphabet of sounds</b>.`,
+
+  /* --- 7 · le tableau --- */
+  's7.eye':`Putting it in order`,
+  's7.t':`Three kinds of output,<br>two mechanisms`,
+  's7.lead':`People say &ldquo;generative AI&rdquo; as if it were one thing. It is two ideas applied to three materials — and it is worth knowing which one you have in front of you.`,
+  's7.tbl':`
+        <tr><th>&nbsp;</th><th>Text</th><th>Image</th><th>Sound</th></tr>
+        <tr><td><b>Mechanism</b></td><td>predict the next token</td><td><b>diffusion</b>: remove noise</td><td>predict the next token</td></tr>
+        <tr><td><b>Unit produced</b></td><td>a piece of a word</td><td>the <b>whole</b> image, at every step</td><td>a slice of sound (~20 ms)</td></tr>
+        <tr><td><b>Number of passes</b></td><td>one per token</td><td>from 4 to 50 passes</td><td>one per token</td></tr>
+        <tr><td><b>Role of the text</b></td><td>it is the start of the sentence</td><td>it <b>steers</b> the denoising</td><td>it gives what must be said</td></tr>
+        <tr><td><b>What goes wrong</b></td><td>an invented, plausible fact</td><td>whatever is rare: hands, letters, reflections</td><td>prosody, proper nouns</td></tr>
+        <tr><td><b>What is shared</b></td><td colspan="3"><b>parameters</b> tuned by gradient descent on huge corpora — and no understanding of the world</td></tr>
+      `,
+  's7.note':`The boundaries are moving fast: some image models now predict tokens, some sound models use diffusion, and large assistants do all three by calling <b>several models</b> (you will see that at the end of the year). <b>Remember the two ideas, not this month's distribution.</b>`,
+
+  /* --- 8 · d'où viennent les images --- */
+  's8.eye':`The question you cannot skip`,
+  's8.t':`Trained<br>on what?`,
+  's8.lead':`An image model learns from <b>hundreds of millions of image-and-caption pairs</b>. Somebody must have made them. Three facts, without comment.`,
+  's8.c1':`
+          <h3>Scraped from the Web</h3>
+          <div class="sub">the reference corpus</div>
+          <p>The most widely used public dataset, <b>LAION-5B</b>, gathers nearly six billion image-text pairs collected automatically from the open Web. Nobody was asked.</p>
+        `,
+  's8.c2':`
+          <h3>Lawsuits in progress</h3>
+          <div class="sub">since 2023</div>
+          <p>Artists, photo agencies and publishers are suing the companies in the field. Rulings are pending around the world: <b>the law is not settled yet.</b></p>
+        `,
+  's8.c3':`
+          <h3>Style is not protected</h3>
+          <div class="sub">a distinction that matters</div>
+          <p>Copying a work is forbidden; <b>imitating a style</b> generally is not. Hence the anger of illustrators whose manner is reproduced although not one of their images was copied.</p>
+        `,
+  's8.note':`Keep the question in mind: it comes back in the block on data, and again at the end of the year. For now, one thing to hold on to: <b>a generated image did not come out of nowhere — it came out of millions of images made by people.</b>`,
+
+  /* --- 9 · charnière --- */
+  's9.eye':`The question that opens the next lesson`,
+  's9.q':`All of this was<br><em>learnt</em>. But<br>how?`,
+  's9.a':`Text, image, sound: three families, two mechanisms, and the same word coming back every time without ever being explained — <b>learning</b>. We said &ldquo;parameters tuned on huge corpora&rdquo; as if that were obvious. It is not obvious at all. Before opening that box, a checkpoint: what you already know, and what you are missing.`,
+  's9.next':`Next lesson · Taking stock`,
+
+  /* --- 10 · activité --- */
+  's10.tag':`Activity for this lesson · 30 minutes · in pairs`,
+  's10.t':`The image<br><em>logbook</em>`,
+  's10.sub':`Two halves: first you make, then you take apart. The teacher projects an image generator; you do the writing.`,
+  's10.l1':`<b>The same request, three times.</b> The teacher runs <b>the same sentence three times</b>. Note what changes from one image to the next, and what does not. Why is it different each time?`,
+  's10.l2':`<b>One more word.</b> Add a single word to the sentence — a colour, a time of day, a style. Predict <b>beforehand</b> what it will change. Then check.`,
+  's10.l3':`<b>The chosen failure.</b> Ask for something rare: text written on a sign, a clock at a precise time, ten objects to be counted. Describe exactly what is wrong.`,
+  's10.l4':`<b>The explanation.</b> For each failure, write <b>one sentence</b> linking the error to the mechanism of scene 2 or 3. Not &ldquo;the AI is stupid&rdquo;: the exact cause.`,
+  's10.l5':`<b>The hunt.</b> Find out what data the generator you used was trained on. Do you find the answer? In how many clicks? Is it precise?`,
+  's10.l6':`<b>The discussion.</b> An image generated &ldquo;in the style of&rdquo; a living illustrator: legal, probably. And fair? Two arguments for, two against, written down before anyone speaks.`,
+
+  /* --- 11 · récap --- */
+  'rc.eye':`Lesson 4 · to remember`,
+  'rc.t':`Generating an image, <span>generating a sound</span>`,
+  'rc.i1':`The text method — predict what comes next — <b>does not work for an image</b>: there is no order, there are too many pixels, and the global comes before the local.`,
+  'rc.i2':`<span class="hl">Diffusion</span> starts from an image of <b>pure noise</b> and corrects it <b>whole</b>, step after step, until an image emerges.`,
+  'rc.i3':`It is trained <b>backwards</b>: spoil a real image with noise you chose, and ask the model to find that noise. <b>The correction is free</b> — hence the possible scale.`,
+  'rc.i4':`The text does not describe pixels: it becomes numbers that <b>steer</b> the denoising at every step.`,
+  'rc.i5':`The classic failures — hands, letters, counted objects — come from exactly that: <b>the model never counted</b>, it saw regularities. The flaw fades; the cause remains.`,
+  'rc.i6':`For <b>sound</b>, the wave is cut into slices, each slice becomes a <span class="hl">token</span>, and the text machine is reused: <b>predict the next token</b>.`,
+  'rc.i7':`Two mechanisms, three materials — and no understanding of the world in any of the three.`,
+  'rc.i8':`An image generator was trained on <b>hundreds of millions of images made by people</b>. The law on that point is not settled yet.`,
+  'rc.v1':`<b>Diffusion</b>Start from noise, remove it step by step.`,
+  'rc.v2':`<b>Denoising</b>Taking the noise out of an image.`,
+  'rc.v3':`<b>Guidance</b>The text tilts the result.`,
+  'rc.v4':`<b>Sound token</b>A slice of sound turned into a number.`,
+  'rc.v5':`<b>Image-text corpus</b>Images together with their captions.`,
+  'rc.v6':`<b>Style</b>Imitated without any work being copied.`,
+  'rc.key':`Next step: <b>a checkpoint — then the real question, the one we have been putting off for three lessons: how does any of this get learnt?</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>

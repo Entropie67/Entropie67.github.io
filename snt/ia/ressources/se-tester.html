@@ -178,7 +178,7 @@
 
   <!-- 0 · OUVERTURE -->
   <div class="pane dark intro on" id="s0">
-    <a class="back" href="token.html" data-i18n="s0.back">◂ Séance précédente · Le prochain mot</a>
+    <a class="back" href="generer.html" data-i18n="s0.back">◂ Séance précédente · Le prochain mot</a>
     <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA · Faire un point</div>
     <h1 class="big" data-i18n="s0.title">Se <em>tester</em></h1>
     <p class="line" data-i18n="s0.line">Tout ce qu’on a vu depuis la rentrée : des questions de cours, les <strong style="color:#fff">idées reçues</strong> à démonter, et des questions à <strong style="color:#fff">plusieurs bonnes réponses</strong>. Pas de piège&nbsp;— et à chaque fois, <strong style="color:#fff">on explique pourquoi</strong>.</p>
@@ -270,7 +270,8 @@
   });
 
   /* ================= les questions (français, la source) ================= */
-  const C1='Où en est l’IA', C2='La famille des IA', C3='Le prochain mot', C4='Idées reçues';
+  const C1='Où en est l’IA', C2='La famille des IA', C3='Le prochain mot',
+        C5='Images et sons générés', C4='Idées reçues';
   const Q = [
     {c:C1, q:`Un « benchmark », c’est quoi ?`,
       a:[`Un test standardisé qui sert à comparer les IA entre elles`,
@@ -377,7 +378,35 @@
       a:[`Vrai, toujours`,
          `Faux : à lui seul, un LLM ne fait que prédire à partir de ce qu’il a appris`,
          `Vrai, mais seulement pour l’actualité`],
-      ok:1, why:`Un LLM <b>seul</b> ne cherche rien : il prédit le prochain token avec ce qu’il a appris. Une application comme ChatGPT ou Qwen peut le <b>brancher</b> à un moteur de recherche — mais c’est une couche ajoutée par-dessus, pas le LLM lui-même.`}
+      ok:1, why:`Un LLM <b>seul</b> ne cherche rien : il prédit le prochain token avec ce qu’il a appris. Une application comme ChatGPT ou Qwen peut le <b>brancher</b> à un moteur de recherche — mais c’est une couche ajoutée par-dessus, pas le LLM lui-même.`},
+
+    {c:C5, q:`Pour fabriquer une image, un modèle de diffusion…`,
+      a:[`prédit un pixel après l’autre, de gauche à droite`,
+         `part d’une image de bruit et la corrige entièrement, plusieurs fois de suite`,
+         `découpe des morceaux de photos existantes et les recolle`,
+         `traduit la phrase en coordonnées de dessin`],
+      ok:1, why:`La diffusion corrige <b>toute l’image à chaque pas</b>. C’est ce qui lui permet de poser les grandes masses d’abord, et les détails ensuite.`},
+
+    {c:C5, q:`Pendant l’entraînement d’un modèle d’images, comment connaît-on la bonne réponse ?`,
+      a:[`des humains ont noté chaque image sur dix`,
+         `c’est nous qui avons ajouté le bruit : on sait donc exactement lequel retirer`,
+         `on la compare à une image de référence dessinée à la main`,
+         `on ne la connaît pas, le modèle devine tout seul`],
+      ok:1, why:`C’est l’astuce qui a tout permis : la correction est <b>gratuite</b>. Une seule image fournit des milliers d’exercices, un par niveau de bruit — sans qu’aucun humain n’étiquette quoi que ce soit.`},
+
+    {c:C5, q:`Sur une image générée, une enseigne affiche « BOULANCERIF ». Pourquoi ?`,
+      a:[`le modèle a mal lu la demande`,
+         `pour le débruitage, une lettre est une forme comme une autre : rien n’épelle`,
+         `le français n’était pas dans ses données`,
+         `c’est un défaut d’affichage du navigateur`],
+      ok:1, why:`Même cause que les mains à six doigts : le modèle connaît des <b>régularités de pixels</b>, pas des règles. Depuis 2024 c’est bien meilleur — mais le mécanisme, lui, n’a pas changé.`},
+
+    {c:C5, q:`Pour la voix et la musique, quel mécanisme utilise-t-on le plus souvent ?`,
+      a:[`la diffusion, exactement comme pour les images`,
+         `on découpe l’onde en tranches qui deviennent des nombres, puis on prédit le nombre suivant`,
+         `le modèle enregistre de vraies voix et les rejoue au bon moment`,
+         `on calcule l’onde directement à partir de la phrase, d’un seul coup`],
+      ok:1, why:`Le son redevient une <b>suite de jetons</b> — un alphabet de tranches sonores — et la machine du texte s’applique telle quelle. Un dernier module retransforme les numéros en onde.`},
   ];
 
   /* ---- 13 idées reçues, en vrai / faux ---- */
@@ -544,7 +573,35 @@
       a:[`True, always`,
          `False: on its own, an LLM only predicts from what it has learned`,
          `True, but only for current events`],
-      why:`An LLM <b>on its own</b> searches for nothing: it predicts the next token from what it has learned. An app like ChatGPT or Qwen can <b>plug</b> it into a search engine — but that's a layer added on top, not the LLM itself.`}
+      why:`An LLM <b>on its own</b> searches for nothing: it predicts the next token from what it has learned. An app like ChatGPT or Qwen can <b>plug</b> it into a search engine — but that's a layer added on top, not the LLM itself.`},
+
+    {q:`To make an image, a diffusion model…`,
+      a:[`predicts one pixel after another, from left to right`,
+         `starts from an image of noise and corrects it whole, several times over`,
+         `cuts up pieces of existing photographs and sticks them together`,
+         `translates the sentence into drawing coordinates`],
+      why:`Diffusion corrects <b>the whole image at every step</b>. That is what lets it lay down the large masses first, and the details afterwards.`},
+
+    {q:`While training an image model, how do we know the right answer?`,
+      a:[`humans scored every image out of ten`,
+         `we added the noise ourselves: so we know exactly which noise to remove`,
+         `it is compared with a reference image drawn by hand`,
+         `we do not know it, the model guesses on its own`],
+      why:`This is the trick that made everything possible: the correction is <b>free</b>. One image supplies thousands of exercises, one per noise level — with no human labelling anything.`},
+
+    {q:`In a generated image, a shop sign reads &ldquo;BAKREY&rdquo;. Why?`,
+      a:[`the model misread the request`,
+         `to the denoiser a letter is one shape among others: nothing spells`,
+         `English was not in its training data`,
+         `it is a browser display glitch`],
+      why:`Same cause as six-fingered hands: the model knows <b>regularities between pixels</b>, not rules. Since 2024 it is far better — but the mechanism has not changed.`},
+
+    {q:`For speech and music, which mechanism is most often used?`,
+      a:[`diffusion, exactly as for images`,
+         `the wave is cut into slices that become numbers, then the next number is predicted`,
+         `the model records real voices and plays them back at the right moment`,
+         `the wave is computed straight from the sentence, in one go`],
+      why:`Sound becomes a <b>run of tokens</b> — an alphabet of sound slices — and the text machine applies unchanged. A final module turns the numbers back into a wave.`},
   ];
 
   const VF_EN = [
@@ -636,7 +693,7 @@
          b3:'Don’t worry: these are new ideas. Go back over the lessons in red, then take the test again.',
          rev:'↺ review this lesson', hint:'↔ arrows · space · click', hintQ:'answer by clicking' }
   };
-  MSG.en.cat[C1]='Where AI stands'; MSG.en.cat[C2]='The AI family'; MSG.en.cat[C3]='The next word'; MSG.en.cat[C4]='Misconceptions';
+  MSG.en.cat[C1]='Where AI stands'; MSG.en.cat[C2]='The AI family'; MSG.en.cat[C3]='The next word'; MSG.en.cat[C5]='Generated images and sounds'; MSG.en.cat[C4]='Misconceptions';
   const LANGS = ['fr','en'];
   let curLang = 'fr';
   const M   = function(){ return MSG[curLang] || MSG.fr; };
@@ -658,7 +715,7 @@
   const el = id=>document.getElementById(id);
   const LTR = ['A','B','C','D','E','F','G','H'];
   const LINKS = {}; LINKS[C1]='intro.html'; LINKS[C2]='zoologie.html';
-  LINKS[C3]='token.html'; LINKS[C4]='token.html';
+  LINKS[C3]='token.html'; LINKS[C5]='generer.html'; LINKS[C4]='token.html';
 
   let LIST=[], idx=0, score=0, answered=false, sel=[], per={}, lastGood=false, lastChosen=-1;
 
