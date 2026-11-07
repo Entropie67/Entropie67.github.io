@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anatomie d’un assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- s1 : la pile ---------- */
+  .stkwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.02fr);
+    gap:clamp(.6rem,1.8vw,1.3rem);align-items:start}
+  .stack{display:grid;gap:.22rem}
+  .lay{cursor:pointer;border:1px solid rgba(0,0,0,.18);background:var(--paper-2);
+    padding:.4rem .65rem;display:grid;grid-template-columns:1.5rem 1fr auto;gap:.6rem;
+    align-items:center;transition:.15s;border-left:4px solid rgba(0,0,0,.12)}
+  .lay:hover{border-left-color:var(--signal)}
+  .lay.on{border-left-color:var(--signal-dk);background:#f6f3ec;box-shadow:0 1px 6px rgba(0,0,0,.12)}
+  .lay .ln{font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+  .lay .lt{font-family:var(--display);text-transform:uppercase;line-height:1.1;
+    font-size:clamp(.72rem,1.35vw,.92rem)}
+  .lay .lw{font-family:var(--mono);font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);text-align:right;line-height:1.2}
+  .lay.base{background:var(--ink);border-color:var(--ink)}
+  .lay.base .lt{color:#fff}
+  .lay.base .ln,.lay.base .lw{color:#a9a294}
+  .lay.base.on{background:#201b14}
+  .laypanel{border:1px solid rgba(0,0,0,.2);background:var(--paper-2);padding:.55rem .7rem;
+    border-top:5px solid var(--signal-dk)}
+  .laypanel h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.88rem,1.75vw,1.18rem);margin-bottom:.3rem}
+  .laypanel p{font-size:clamp(.78rem,1.36vw,.94rem);line-height:1.42;color:#4a4436;margin-bottom:.3rem}
+  .laypanel p b{color:var(--ink)}
+  .lmeta{display:grid;gap:.18rem;border-top:1px solid rgba(0,0,0,.14);padding-top:.35rem;margin-top:.1rem}
+  .lmeta div{display:grid;grid-template-columns:6.4rem 1fr;gap:.5rem;align-items:baseline;
+    font-size:clamp(.72rem,1.26vw,.86rem);color:#4a4436;line-height:1.35}
+  .lmeta b{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);font-weight:normal}
+  .lmeta em{font-style:normal;color:var(--signal-dk);font-weight:bold}
+
+  /* ---------- s2 : les instructions système ---------- */
+  .syswrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(.6rem,1.8vw,1.2rem);align-items:start}
+  .sysbox{font-family:var(--mono);font-size:clamp(.68rem,1.22vw,.8rem);line-height:1.52;
+    background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.24);
+    border-left:4px solid var(--signal);padding:.5rem .62rem;color:#c9c2b2;white-space:pre-wrap}
+  .sysbox.none{border-left-color:var(--muted);color:var(--muted);font-style:italic}
+  .userq{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;
+    border-left:4px solid var(--muted);background:rgba(233,228,216,.04);padding:.45rem .62rem;color:#e9e4d8}
+  .ansbox{border:1px solid rgba(233,228,216,.2);border-left:5px solid var(--alarm);
+    background:rgba(233,228,216,.04);padding:.5rem .68rem;margin-top:.45rem}
+  .ansbox.ok{border-left-color:var(--green)}
+  .ansbox .atxt{font-size:clamp(.8rem,1.44vw,.98rem);line-height:1.42;color:#e9e4d8}
+  .ansbox .averd{font-size:clamp(.73rem,1.28vw,.86rem);line-height:1.4;color:#ff8a72;margin-top:.32rem}
+  .ansbox.ok .averd{color:#4cc98a}
+
+  /* ---------- s3 : ce qui entre vraiment ---------- */
+  .ctxbar{display:flex;height:clamp(1.5rem,4vh,2.1rem);border:1px solid rgba(0,0,0,.28);
+    background:var(--paper);overflow:hidden;margin:.15rem 0 .3rem}
+  .ctxbar i{display:block;height:100%;transition:width .3s}
+  .ctxrows{display:grid;gap:.18rem}
+  .cxr{display:grid;grid-template-columns:1.1rem .75rem 1fr auto;gap:.5rem;align-items:center;
+    cursor:pointer;font-size:clamp(.76rem,1.33vw,.92rem);color:#4a4436;
+    padding:.15rem .3rem;border:1px solid transparent}
+  .cxr:hover{border-color:rgba(0,0,0,.18)}
+  .cxr .box{width:1rem;height:1rem;border:1.5px solid rgba(0,0,0,.35);display:flex;
+    align-items:center;justify-content:center;font-size:.7rem;line-height:1;color:#fff}
+  .cxr.on .box{background:var(--signal-dk);border-color:var(--signal-dk)}
+  .cxr .sw{width:.75rem;height:.75rem;border:1px solid rgba(0,0,0,.25)}
+  .cxr .tk{font-family:var(--mono);font-size:.7rem;color:var(--signal-dk)}
+  .cxr.off{opacity:.4}
+  .cxtot{font-family:var(--mono);font-size:clamp(.74rem,1.32vw,.88rem);color:#4a4436;
+    border-top:1px solid rgba(0,0,0,.16);padding-top:.32rem;margin-top:.22rem}
+  .cxtot b{color:var(--signal-dk);font-size:1.2em}
+
+  /* ---------- s5 : la boucle ---------- */
+  .loopwrap{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+    gap:clamp(.6rem,1.8vw,1.2rem);align-items:center}
+  .loopsvg{background:var(--paper);border:1px solid rgba(0,0,0,.22);width:100%;
+    max-width:15.5rem;height:auto;display:block;justify-self:center}
+  .loopsvg text{font-family:'Courier New',monospace;font-size:10px;fill:#4a4436}
+  .loopsvg text.ttl{font-family:'Archivo Black','Arial Black',sans-serif;font-size:9px;
+    fill:var(--signal-dk);letter-spacing:.05em}
+  .log{display:grid;gap:.18rem}
+  .lgr{display:grid;grid-template-columns:3.2rem 1fr;gap:.55rem;align-items:baseline;
+    border-bottom:1px dashed rgba(0,0,0,.14);padding:.2rem 0;
+    font-size:clamp(.74rem,1.3vw,.9rem);line-height:1.38;color:#4a4436}
+  .lgr .t{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--signal-dk)}
+  .lgr.act .t{color:var(--alarm)}
+  .lgr.end .t{color:var(--green)}
+  .lgr code{font-family:var(--mono);font-size:.9em;color:var(--alarm);word-break:break-word}
+  .lgr b{color:var(--ink)}
+
+  /* ---------- s9 : qui fait le travail ? ---------- */
+  .qtxt{font-family:var(--serif);font-size:clamp(.86rem,1.55vw,1.05rem);line-height:1.4;
+    border-left:4px solid var(--signal-dk);background:var(--paper-2);padding:.45rem .68rem;
+    color:var(--ink);margin-bottom:.45rem}
+  .bricks{display:flex;flex-wrap:wrap;gap:.3rem;margin:.1rem 0 .4rem}
+  .brick{cursor:pointer;font-family:var(--mono);font-size:clamp(.68rem,1.2vw,.8rem);
+    padding:.32rem .55rem;border:1px solid rgba(0,0,0,.26);background:var(--paper-2);
+    color:#4a4436;transition:.15s;user-select:none}
+  .brick:hover{border-color:var(--signal-dk)}
+  .brick.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .brick.good{background:var(--green);border-color:var(--green);color:#fff}
+  .brick.bad{background:var(--alarm);border-color:var(--alarm);color:#fff}
+  .brick.miss{border-color:var(--green);border-style:dashed;color:var(--green);background:transparent}
+  .qfb{font-size:clamp(.8rem,1.42vw,.98rem);line-height:1.42;color:#4a4436;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:.38rem}
+  .qfb b{color:var(--ink)}
+  .qfb .hl{color:var(--signal-dk);font-weight:bold}
+  .score{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--muted)}
+
+  /* ---------- s8 : les interfaces ---------- */
+  .ifrow{display:grid;grid-template-columns:8.6rem 1fr 1fr;gap:.6rem;align-items:start;
+    border:1px solid rgba(233,228,216,.2);background:rgba(233,228,216,.04);padding:.42rem .55rem}
+  .ifs{display:grid;gap:.3rem}
+  .ifrow .in{font-family:var(--display);text-transform:uppercase;line-height:1.1;
+    font-size:clamp(.74rem,1.35vw,.92rem);color:#fff}
+  .ifrow .id{font-family:var(--mono);font-size:.58rem;letter-spacing:.07em;color:var(--muted);margin-top:.12rem}
+  .ifrow .ic{font-size:clamp(.74rem,1.3vw,.9rem);line-height:1.35;color:#c9c2b2}
+  .ifrow .ic b{color:#fff}
+  .ifhead{display:grid;grid-template-columns:8.6rem 1fr 1fr;gap:.6rem;padding:0 .55rem .12rem;
+    font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- calage projection 1280×720 ---------- */
+  #s1 .lay{padding:.34rem .6rem}
+  #s3 .cxr{padding:.13rem .3rem}
+  #s10 .card h3{font-size:clamp(.84rem,1.62vw,1.06rem)}
+  #s10 .card p{font-size:clamp(.73rem,1.24vw,.86rem);line-height:1.34}
+  #s10 .card .ex{font-size:.68rem;line-height:1.42}
+  #s10 .card{padding:clamp(.5rem,1.3vw,.76rem)}
+  #s10 .lead{font-size:clamp(.83rem,1.5vw,1rem)}
+  #s10 .chain-note{font-size:clamp(.86rem,1.6vw,1.06rem)}
+  #s13 .rc-list li{font-size:clamp(.77rem,1.38vw,.96rem);line-height:1.32}
+  #s13 .rc-list{gap:.3rem}
+  #s13 .rc-voc{gap:.35rem;margin-top:.55rem}
+  #s13 .rc-term{padding:.38rem .6rem;font-size:clamp(.74rem,1.3vw,.88rem)}
+  #s13 .rc-key{font-size:clamp(.88rem,1.7vw,1.12rem);padding-top:.5rem;margin-top:.55rem}
+  @media (max-width:900px){
+    .stkwrap,.syswrap,.loopwrap{grid-template-columns:1fr}
+    .ifrow,.ifhead{grid-template-columns:1fr}
+    .ifhead{display:none}
+    .lay{grid-template-columns:1.5rem 1fr}
+    .lay .lw{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="internet.html" data-i18n="s0.back">◂ Séance précédente · Internet, le Web et les API</a>
+    <div class="rain">modèle &nbsp; contexte &nbsp; outils &nbsp; mémoire</div>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Ce n'est pas le modèle<br>que tu <em>utilises</em></h1>
+    <p class="line" data-i18n="s0.line">Quand vous ouvrez un assistant, vous ne parlez pas directement à un modèle&nbsp;: vous parlez à un <strong style="color:#fff">logiciel</strong> qui enveloppe un modèle. Entre vous et les paramètres, il y a cinq couches — et vous avez déjà appris à nommer chacune d'elles. Cette séance les remet en place&nbsp;: c'est la révision de tout le cours, en démontant un objet que vous utilisez tous les jours.</p>
+    <div class="kick" data-i18n="s0.kick">Instructions · contexte · outils · agents · mémoire · multimodal</div>
+  </div>
+
+  <!-- ============ 1 · LA PILE ============ -->
+  <div class="pane light pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Manipulation ① · ouvrir le capot</div>
+    <h2 class="stitle" data-i18n="s1.t">Six couches,<br>un seul modèle</h2>
+    <p class="lead" data-i18n="s1.lead">Voici ce qu'il y a entre votre phrase et les paramètres. Cliquez une couche&nbsp;: vous verrez à quoi elle sert, <b>qui l'écrit</b>, et à quelle séance vous l'avez déjà rencontrée.</p>
+
+    <div class="mid">
+      <div class="stkwrap">
+        <div class="stack" id="s1stack"></div>
+        <div class="laypanel" id="s1panel"></div>
+      </div>
+      <p class="verd" data-i18n="s1.note">Une seule de ces couches a été <b>apprise</b>&nbsp;; les cinq autres ont été <b>écrites par quelqu'un</b>. C'est la remarque la plus utile de la séance&nbsp;: la plupart des comportements qu'on attribue à «&nbsp;l'IA&nbsp;» sont en réalité des <b>décisions de produit</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LES INSTRUCTIONS SYSTÈME ============ -->
+  <div class="pane dark pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation ② · le texte que vous ne voyez jamais</div>
+    <h2 class="stitle" data-i18n="s2.t">Le cadre invisible</h2>
+    <p class="lead" data-i18n="s2.lead">Avant votre première phrase, le programme glisse dans le contexte un texte que vous ne lisez pas&nbsp;: les <b>instructions système</b>. Même modèle, même question — changez le cadre, changez la réponse.</p>
+
+    <div class="mid">
+      <div class="qbtns" id="s2btns"></div>
+      <div class="syswrap">
+        <div>
+          <div class="plbl" data-i18n="s2.l1">Les instructions système</div>
+          <div id="s2sys"></div>
+          <div class="plbl" style="margin-top:.5rem" data-i18n="s2.l2">Votre question</div>
+          <div class="userq" id="s2q"></div>
+        </div>
+        <div>
+          <div class="plbl" data-i18n="s2.l3">Ce que le modèle répond</div>
+          <div id="s2ans"></div>
+        </div>
+      </div>
+      <p class="verd" id="s2verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · CE QUI ENTRE VRAIMENT ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Manipulation ③ · un seul tour de conversation</div>
+    <h2 class="stitle" data-i18n="s3.t">Ce que lit<br>vraiment le modèle</h2>
+    <p class="lead" data-i18n="s3.lead">À la séance 10, nous avons vu que tout est renvoyé à chaque appel. Voici ce que «&nbsp;tout&nbsp;» veut dire au vingtième message d'une conversation. Décochez pour voir la part de chacun.</p>
+
+    <div class="mid">
+      <div class="ctxbar" id="s3bar"></div>
+      <div class="ctxrows" id="s3rows"></div>
+      <div class="cxtot" id="s3tot"></div>
+      <p class="verd" id="s3verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · LES OUTILS ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Manipulation ④ · ce qui se passe vraiment quand « il cherche »</div>
+    <h2 class="stitle" data-i18n="s4.t">Le modèle<br>n'exécute rien</h2>
+    <p class="lead" data-i18n="s4.lead">La séance 10 s'est arrêtée sur&nbsp;: «&nbsp;et s'il frappait à ces portes lui-même&nbsp;?&nbsp;» Voici la réponse, et elle est plus modeste qu'on ne croit. Choisissez une demande.</p>
+
+    <div class="mid">
+      <div class="qbtns" id="s4btns"></div>
+      <div class="chain" id="s4chain"></div>
+      <p class="chain-note" id="s4verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · LA BOUCLE ============ -->
+  <div class="pane light pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Manipulation ⑤ · un outil appelé plusieurs fois de suite</div>
+    <h2 class="stitle" data-i18n="s5.t">D'un outil<br>à un agent</h2>
+    <p class="lead" data-i18n="s5.lead">Un <b>agent</b>, ce n'est pas un modèle plus intelligent&nbsp;: c'est le même appel, <b>remis dans une boucle</b>. Il observe le résultat, décide de la suite, agit — et recommence jusqu'à ce qu'il ait fini, ou qu'on l'arrête. Avancez d'un tour.</p>
+
+    <div class="mid">
+      <div class="btnrow">
+        <button class="bigbtn nostep" id="s5next" data-i18n="s5.b1">Tour suivant ▶</button>
+        <button class="bigbtn off nostep" id="s5reset" data-i18n="s5.b2">Recommencer</button>
+        <span class="score" id="s5count"></span>
+      </div>
+      <div class="loopwrap">
+        <svg class="loopsvg" id="s5svg" viewBox="0 22 220 146" role="img"></svg>
+        <div class="log" id="s5log"></div>
+      </div>
+      <p class="verd" id="s5verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · LE MULTIMODAL ============ -->
+  <div class="pane dark pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Images, sons, documents</div>
+    <h2 class="stitle" data-i18n="s6.t">Il lit des images.<br>Il n'en dessine pas.</h2>
+    <p class="lead" data-i18n="s6.lead">«&nbsp;Multimodal&nbsp;» ne veut pas dire «&nbsp;un modèle qui sait tout faire&nbsp;». Entrer et sortir ne mobilisent pas du tout les mêmes briques — et la différence est exactement celle du bloc&nbsp;1&nbsp;: des <b>familles de modèles</b> distinctes.</p>
+
+    <div class="mid">
+      <div class="cards c3" style="max-width:98ch;margin-left:auto;margin-right:auto">
+        <div class="card" data-i18n="s6.c1">
+          <h3>Une image qui entre</h3>
+          <div class="sub">le même modèle la lit</div>
+          <p>Elle est découpée en <b>carreaux</b>, chaque carreau devient une suite de nombres, et ces nombres entrent dans la fenêtre comme des tokens. C'est le codage du bloc&nbsp;3, appliqué à une grille de pixels.</p>
+          <p class="ex">une photo ≈ 1 000 à 2 000 tokens</p>
+        </div>
+        <div class="card warn" data-i18n="s6.c2">
+          <h3>Une image qui sort</h3>
+          <div class="sub">ce n'est pas lui</div>
+          <p>Le modèle de langage ne dessine pas. Il <b>écrit une description</b> et la passe à un <b>outil</b>, qui appelle un <b>autre modèle</b>, d'une autre famille — celle qui génère des images.</p>
+          <p class="ex">d'où les ratés : votre demande est traduite en mots avant d'être dessinée</p>
+        </div>
+        <div class="card good" data-i18n="s6.c3">
+          <h3>Le son, les PDF</h3>
+          <div class="sub">presque toujours un intermédiaire</div>
+          <p>Une voix est d'abord <b>transcrite</b> par un modèle spécialisé&nbsp;; un PDF est d'abord <b>extrait</b> en texte et en images. L'assistant travaille ensuite sur le résultat, pas sur le fichier.</p>
+          <p class="ex">chaque étape peut perdre ou déformer quelque chose</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s6.note">Retenez la règle&nbsp;: <b>en entrée, tout devient des tokens</b> pour un seul et même modèle. <b>En sortie, autre chose que du texte veut dire un autre modèle</b>, appelé comme un outil. Un assistant est donc un <b>chef d'orchestre</b> autant qu'un musicien.</p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · LA MÉMOIRE ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">Le mot le plus trompeur de l'interface</div>
+    <h2 class="stitle" data-i18n="s7.t">Trois mémoires,<br>dont une qui n'existe pas</h2>
+    <p class="lead" data-i18n="s7.lead">Un assistant qui «&nbsp;se souvient&nbsp;» peut vouloir dire trois choses très différentes. La troisième colonne est celle que tout le monde imagine — et c'est la seule qui soit fausse.</p>
+
+    <div class="mid">
+      <div class="cards c3" style="max-width:98ch;margin-left:auto;margin-right:auto">
+        <div class="card" data-i18n="s7.c1">
+          <h3>Dans le fil</h3>
+          <div class="sub">l'historique</div>
+          <p>Les messages précédents, <b>renvoyés en entier à chaque appel</b> (séance 10). C'est ce qui donne l'impression d'une conversation suivie.</p>
+          <p>Ouvrez un nouveau fil&nbsp;: tout disparaît. Dépassez la fenêtre&nbsp;: le début tombe, <b>sans prévenir</b>.</p>
+        </div>
+        <div class="card good" data-i18n="s7.c2">
+          <h3>Entre les fils</h3>
+          <div class="sub">des notes relues</div>
+          <p>Quelques faits vous concernant sont écrits dans un <b>fichier</b>, puis remis dans le contexte au début de chaque conversation. C'est le <b>RAG</b> de la séance 9, en plus simple.</p>
+          <p>Donc&nbsp;: ça se lit, ça se corrige, ça s'efface. Allez voir — la plupart des assistants vous montrent ce fichier.</p>
+        </div>
+        <div class="card warn" data-i18n="s7.c3">
+          <h3>Dans le modèle</h3>
+          <div class="sub">rien</div>
+          <p>Vos conversations ne modifient <b>aucun</b> paramètre. Le modèle que vous utilisez ce soir est exactement celui de ce matin&nbsp;: figé depuis son entraînement.</p>
+          <p>Autre question, bien réelle&nbsp;: vos échanges peuvent être <b>conservés</b> et servir à un entraînement <b>futur</b>. Ce n'est pas de la mémoire, c'est de la collecte.</p>
+        </div>
+      </div>
+      <p class="verd" data-i18n="s7.note">Le test qui tranche&nbsp;: si on éteignait les serveurs et qu'on repartait du fichier des poids, <b>que resterait-il de vous&nbsp;?</b> Rien du fil, rien des notes — elles sont ailleurs, dans des fichiers qui vous appartiennent et qu'on peut supprimer. C'est une bonne nouvelle, et c'est aussi ce qui rend la question du bloc&nbsp;7 sérieuse.</p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · LES INTERFACES ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Même modèle, trois produits</div>
+    <h2 class="stitle" data-i18n="s8.t">Ce qui change,<br>c'est le trousseau</h2>
+    <p class="lead" data-i18n="s8.lead">Le chat, l'assistant de code et l'assistant de bureau partagent souvent <b>le même modèle</b>. Ce qui les distingue n'est pas l'intelligence&nbsp;: c'est la <b>liste des portes</b> qu'on lui a ouvertes, et le droit d'écrire ou non derrière.</p>
+
+    <div class="mid">
+      <div class="ifhead">
+        <span data-i18n="s8.h1">Interface</span><span data-i18n="s8.h2">Les outils ouverts</span><span data-i18n="s8.h3">Ce que ça change</span>
+      </div>
+      <div class="ifs" data-i18n="s8.rows">
+        <div class="ifrow">
+          <div><div class="in">Le chat</div><div class="id">navigateur · téléphone</div></div>
+          <div class="ic">Recherche web, exécution de code dans un <b>bac à sable</b>, lecture des fichiers que <b>vous</b> joignez.</div>
+          <div class="ic">Il ne peut rien toucher chez vous. Le pire qu'il puisse faire, c'est <b>écrire une bêtise</b>.</div>
+        </div>
+        <div class="ifrow">
+          <div><div class="in">L'assistant de code</div><div class="id">dans l'éditeur, ou en terminal</div></div>
+          <div class="ic">Lire <b>et écrire</b> les fichiers du projet, lancer des commandes, installer, publier.</div>
+          <div class="ic">Beaucoup plus de pouvoir&nbsp;: il <b>modifie</b> de vrais fichiers. D'où les demandes de confirmation.</div>
+        </div>
+        <div class="ifrow">
+          <div><div class="in">L'assistant de bureau</div><div class="id">documents, agenda, messagerie</div></div>
+          <div class="ic">Des <b>connecteurs</b> vers vos services&nbsp;: un agenda, une messagerie, un stockage de fichiers.</div>
+          <div class="ic">Il agit <b>en votre nom</b>. Un message envoyé l'est vraiment&nbsp;; la question devient «&nbsp;qui est responsable&nbsp;?&nbsp;».</div>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s8.note">Une seule question à poser devant n'importe quel assistant&nbsp;: <b>qu'est-ce qu'il a le droit de faire, et en lecture seule ou en écriture&nbsp;?</b> La réponse vous dit tout du risque — bien mieux que le nom du modèle.</p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · QUI FAIT LE TRAVAIL ? ============ -->
+  <div class="pane light pad" id="s9">
+    <div class="eyebrow" data-i18n="s9.eye">Manipulation ⑥ · la révision de tout le cours</div>
+    <h2 class="stitle" data-i18n="s9.t">Qui fait le travail&nbsp;?</h2>
+    <p class="lead" data-i18n="s9.lead">Pour chaque demande, cochez les briques qui s'allument vraiment. Plusieurs réponses par question — et une des six demandes n'en mobilise qu'<b>une seule</b>.</p>
+
+    <div class="mid">
+      <div class="qbtns" id="s9btns"></div>
+      <div class="qtxt" id="s9q"></div>
+      <div class="bricks" id="s9bricks"></div>
+      <div class="btnrow">
+        <button class="bigbtn nostep" id="s9check" data-i18n="s9.b1">Vérifier</button>
+        <button class="bigbtn off nostep" id="s9clear" data-i18n="s9.b2">Effacer</button>
+        <span class="score" id="s9score"></span>
+      </div>
+      <p class="qfb" id="s9fb"></p>
+    </div>
+  </div>
+
+  <!-- ============ 10 · OÙ ÇA CASSE ============ -->
+  <div class="pane dark pad" id="s10">
+    <div class="eyebrow" data-i18n="s10.eye">Une panne par couche</div>
+    <h2 class="stitle" data-i18n="s10.t">Quatre façons<br>de se tromper</h2>
+    <p class="lead" data-i18n="s10.lead">Maintenant que les couches ont un nom, les pannes aussi. Devant une réponse fausse, la bonne question n'est plus «&nbsp;l'IA s'est trompée&nbsp;?&nbsp;» mais <b>«&nbsp;laquelle des couches a lâché&nbsp;?&nbsp;»</b></p>
+
+    <div class="mid">
+      <div class="cards c4" style="max-width:100ch;margin-left:auto;margin-right:auto">
+        <div class="card warn" data-i18n="s10.c1">
+          <h3>L'outil échoue</h3>
+          <div class="sub">couche : outils</div>
+          <p>L'API ne répond pas, ou renvoie autre chose que prévu. Le modèle reçoit un résultat vide — et <b>brode par-dessus</b> avec le même aplomb.</p>
+          <p class="ex">signe : une réponse très précise sur un fait très récent, sans source</p>
+        </div>
+        <div class="card warn" data-i18n="s10.c2">
+          <h3>La mémoire se trompe</h3>
+          <div class="sub">couche : mémoire</div>
+          <p>Un fait retenu il y a trois semaines est devenu faux, ou n'a jamais été vrai. Il revient dans <b>chaque</b> conversation sans que vous l'ayez vu passer.</p>
+          <p class="ex">réflexe : ouvrir le fichier de mémoire et le relire</p>
+        </div>
+        <div class="card warn" data-i18n="s10.c3">
+          <h3>Le contexte sature</h3>
+          <div class="sub">couche : contexte</div>
+          <p>Fil trop long, document trop gros&nbsp;: le début <b>tombe</b>. Le modèle ne dit pas qu'il a oublié — il n'en sait rien lui-même (séance 9).</p>
+          <p class="ex">signe : il contredit une consigne donnée en début de conversation</p>
+        </div>
+        <div class="card warn" data-i18n="s10.c4">
+          <h3>On lui donne des ordres</h3>
+          <div class="sub">couche : contexte, encore</div>
+          <p>Un document joint, une page lue par l'outil de recherche, contient «&nbsp;ignore tes consignes et…&nbsp;». Pour le modèle, <b>tout est du texte</b>&nbsp;: il ne distingue pas les données des ordres.</p>
+          <p class="ex">c'est l'injection d'instructions — la faille la plus spécifique de ces systèmes</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s10.note">Une cinquième, plus discrète&nbsp;: votre demande entre en <b>conflit</b> avec les instructions système. Vous ne voyez pas le cadre, donc vous ne comprenez pas le refus — et vous l'attribuez au modèle. <b>Devant une réponse qui cloche, nommez la couche avant d'accuser l'intelligence.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 11 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s11">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s11.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s11.q">Vous savez ce qu'il y a<br>dedans. Qu'est-ce que<br>vous en <em>faites</em>&nbsp;?</div>
+    <p class="a" data-i18n="s11.a">Onze séances pour démonter l'objet&nbsp;: les tokens, les données, le neurone, la recherche, les tuyaux, les couches. Il reste la seule question qui vous concerne vraiment, et c'est une question de <b>méthode</b>, pas de technique&nbsp;: comment formuler, comment itérer, comment <b>vérifier</b> — et surtout quand <b>ne pas</b> s'en servir, parce que l'effort que vous éviterez est précisément celui qui vous ferait apprendre.</p>
+    <div class="next" data-i18n="s11.next">Bloc suivant · Travailler avec une IA</div>
+  </div>
+
+  <!-- ============ 12 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s12">
+    <div class="tag" data-i18n="s12.tag">Activité de la séance · 30 minutes · par groupes de trois ou quatre</div>
+    <h2 data-i18n="s12.t">Le <em>cahier des charges</em><br>de l'assistant du lycée</h2>
+    <p class="sub" data-i18n="s12.sub">Vous êtes l'équipe qui le construit. Une feuille, une couche par paragraphe&nbsp;: c'est le plan de la scène&nbsp;1.</p>
+    <ol class="steps">
+      <li data-i18n="s12.l1"><b>Le besoin.</b> Une tâche réelle et une seule&nbsp;: répondre sur le règlement, aider à réviser, orienter vers le bon interlocuteur. Écrivez-la en une phrase.</li>
+      <li data-i18n="s12.l2"><b>Les instructions système.</b> Cinq lignes, pas plus. Ce qu'il fait, le ton, et surtout <b>ce qu'il ne doit jamais faire</b>. Testez-les sur un cas gênant&nbsp;: «&nbsp;donne-moi la réponse de l'exercice&nbsp;».</li>
+      <li data-i18n="s12.l3"><b>Les outils.</b> Listez les portes à ouvrir. Pour chacune, une seule décision&nbsp;: <b>lecture seule ou écriture</b>&nbsp;? Justifiez chaque écriture — c'est là que les ennuis commencent.</li>
+      <li data-i18n="s12.l4"><b>La mémoire.</b> Que garde-t-il d'une fois sur l'autre&nbsp;? Et surtout&nbsp;: qu'est-ce que vous <b>refusez</b> de retenir, même si ce serait pratique&nbsp;?</li>
+      <li data-i18n="s12.l5"><b>Le mode.</b> Site web, API ou sur une machine du lycée (séance 10). Une phrase d'argument, obligatoirement sur les <b>données des élèves</b>.</li>
+      <li data-i18n="s12.l6"><b>L'épreuve.</b> Passez votre cahier au groupe voisin. Il doit trouver <b>trois façons de casser</b> votre assistant, en nommant la couche d'après la scène&nbsp;10. Vous corrigez, puis vous inversez les rôles.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 13 · RÉCAP ============ -->
+  <div class="pane light pad" id="s13">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 11 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Anatomie <span>d'un assistant</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">Un assistant, c'est <b>un modèle plus cinq couches</b>&nbsp;: <span class="hl">interface</span>, <span class="hl">mémoire</span>, <span class="hl">outils</span>, <span class="hl">contexte</span>, <span class="hl">instructions système</span>. Une seule a été apprise&nbsp;; les autres ont été <b>écrites par quelqu'un</b>.</li>
+      <li data-i18n="rc.i2">Les <span class="hl">instructions système</span> sont un texte que vous ne voyez jamais, renvoyé à chaque appel. Même modèle, autre cadre, autre réponse.</li>
+      <li data-i18n="rc.i3">À chaque tour, le modèle relit <b>tout</b>&nbsp;: instructions, mémoire, pièces jointes, historique. Votre question n'en est souvent qu'une <b>part minuscule</b>.</li>
+      <li data-i18n="rc.i4">Un <span class="hl">outil</span>&nbsp;: le modèle n'exécute rien, il <b>écrit un appel</b>&nbsp;; c'est le programme qui agit et remet le résultat dans le contexte.</li>
+      <li data-i18n="rc.i5">Un <span class="hl">agent</span>, c'est ce même appel <b>remis dans une boucle</b> — observer, décider, agir — avec un budget de tours et des droits limités.</li>
+      <li data-i18n="rc.i6">En entrée, <b>tout devient des tokens</b> pour un seul modèle. En sortie, autre chose que du texte signifie <b>un autre modèle</b>, appelé comme un outil.</li>
+      <li data-i18n="rc.i7">La <span class="hl">mémoire</span> vit dans le fil et dans un fichier relu&nbsp;: <b>jamais dans les paramètres</b>. Ce qui se conserve ailleurs est de la collecte, pas de la mémoire.</li>
+      <li data-i18n="rc.i8">Devant une réponse fausse, <b>nommez la couche</b>&nbsp;: outil en panne, mémoire périmée, contexte saturé, ou <span class="hl">injection d'instructions</span> dans un document fourni.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Instructions système</b>Le cadre invisible, écrit par l'éditeur.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Outil</b>Une porte que le modèle demande d'ouvrir.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Agent</b>Le même appel, remis dans une boucle.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Multimodal</b>Plusieurs sortes d'entrées.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Bac à sable</b>Un espace clos où rien ne casse.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Injection</b>Des ordres cachés dans un document.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>travailler avec, et non s'en servir — formuler, itérer, vérifier, et savoir quand ne pas l'utiliser.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div><div class="dot" data-i="13"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 13;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.closest && e.target.closest('#langsw,select') && (e.key===' '||e.key==='Enter')) return;
+  if(e.target && e.target.matches && e.target.matches('select')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+/* curLang est déclaré en var : les widgets ci-dessous tournent AVANT le bloc i18n
+   et lisent cette variable. Avec let, ils lèveraient une ReferenceError. */
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+
+function fnum(x, d){
+  var s = x.toFixed(d === undefined ? 0 : d);
+  s = s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (LG() === 'fr') ? s.replace('.', ',') : s.replace(/ /g, ',');
+}
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   SCÈNE 1 — les six couches
+   ========================================================= */
+var S1 = {
+  fr:{
+    k:['Écrit par','Change quand','Déjà vu'],
+    lays:[
+      { t:'L’interface', w:'chat · code · bureau',
+        p:['Ce que vous voyez — et surtout la liste des <b>outils</b> qu’on y a branchés. Sous trois produits très différents, c’est souvent le même modèle.'],
+        m:['l’éditeur', 'à chaque mise à jour du produit', 'scène 8'] },
+      { t:'La mémoire', w:'un fichier relu',
+        p:['Quelques faits vous concernant, écrits dans un fichier et <b>remis dans le contexte</b> au début de chaque conversation. Rien de plus mystérieux.'],
+        m:['vous, et lui', 'quand il décide de noter quelque chose', 'scène 7'] },
+      { t:'Les outils', w:'les portes ouvertes',
+        p:['La liste de ce qu’il a le droit d’aller chercher ou de faire&nbsp;: une recherche, un calcul, un fichier. Le modèle peut <b>demander</b> d’en ouvrir une&nbsp;; c’est le programme qui l’ouvre.'],
+        m:['l’éditeur', 'rarement — mais ça change tout', 'scène 4 · séance 10'] },
+      { t:'Le contexte', w:'la fenêtre',
+        p:['Tout ce qu’on lui met sous les yeux <b>pour cet appel-là</b>&nbsp;: l’historique, vos pièces jointes, le résultat des outils. Il a une taille maximale, et quand elle est atteinte, le début tombe.'],
+        m:['vous, les outils, le programme', 'à chaque message', 'séance 9 · scène 3'] },
+      { t:'Les instructions système', w:'le cadre invisible',
+        p:['Un texte placé <b>en tête</b> du contexte, qui fixe le rôle, le ton et les interdits. Vous ne le lisez jamais, et il passe <b>avant</b> votre demande.'],
+        m:['l’éditeur', 'sans prévenir', 'scène 2'] },
+      { t:'Le modèle', w:'les paramètres figés', base:true,
+        p:['Des milliards de nombres, fixés à la fin de l’entraînement. Il ne sait rien de vous, ne retient rien, n’exécute rien&nbsp;: il <b>prédit la suite d’un texte</b>. Tout le reste est bâti autour.'],
+        m:['personne — il a été <em>appris</em>', 'seulement par un réentraînement', 'séances 3 à 8'] }
+    ]
+  },
+  en:{
+    k:['Written by','Changes when','Already seen'],
+    lays:[
+      { t:'The interface', w:'chat · code · desktop',
+        p:['What you see — and above all the list of <b>tools</b> plugged into it. Beneath three very different products there is often the same model.'],
+        m:['the publisher', 'with every product update', 'scene 8'] },
+      { t:'The memory', w:'a file read back',
+        p:['A few facts about you, written to a file and <b>put back into the context</b> at the start of each conversation. Nothing more mysterious than that.'],
+        m:['you, and it', 'when it decides to note something', 'scene 7'] },
+      { t:'The tools', w:'the open doors',
+        p:['The list of what it is allowed to fetch or do: a search, a calculation, a file. The model can <b>ask</b> for one to be opened; it is the program that opens it.'],
+        m:['the publisher', 'rarely — but it changes everything', 'scene 4 · lesson 10'] },
+      { t:'The context', w:'the window',
+        p:['Everything placed before its eyes <b>for this one call</b>: the history, your attachments, the tools’ results. It has a maximum size, and when that is reached, the beginning falls off.'],
+        m:['you, the tools, the program', 'with every message', 'lesson 9 · scene 3'] },
+      { t:'The system instructions', w:'the invisible frame',
+        p:['A text placed <b>at the head</b> of the context, setting the role, the tone and the prohibitions. You never read it, and it comes <b>before</b> your request.'],
+        m:['the publisher', 'without warning', 'scene 2'] },
+      { t:'The model', w:'the frozen parameters', base:true,
+        p:['Billions of numbers, fixed at the end of training. It knows nothing about you, retains nothing, executes nothing: it <b>predicts what comes next in a text</b>. Everything else is built around it.'],
+        m:['nobody — it was <em>learnt</em>', 'only by retraining', 'lessons 3 to 8'] }
+    ]
+  }
+};
+var s1i = 5;
+function drawS1(){
+  var t = S1[LG()];
+  document.getElementById('s1stack').innerHTML = t.lays.map(function(l,i){
+    return '<div class="lay nostep' + (l.base ? ' base' : '') + (i===s1i ? ' on' : '') + '" data-i="' + i + '">' +
+      '<div class="ln">' + (6-i) + '</div><div class="lt">' + l.t + '</div>' +
+      '<div class="lw">' + l.w + '</div></div>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s1stack .lay')).forEach(function(e){
+    e.onclick = function(){ s1i = +e.dataset.i; drawS1(); };
+  });
+  var l = t.lays[s1i];
+  document.getElementById('s1panel').innerHTML =
+    '<h3>' + l.t + '</h3>' + l.p.map(function(x){ return '<p>' + x + '</p>'; }).join('') +
+    '<div class="lmeta">' + l.m.map(function(v,i){
+      return '<div><b>' + t.k[i] + '</b><span>' + v + '</span></div>';
+    }).join('') + '</div>';
+}
+
+/* =========================================================
+   SCÈNE 2 — le cadre invisible
+   ========================================================= */
+var S2 = {
+  fr:{
+    q:'Je bloque sur l’exercice 4 de la fiche sur l’exponentielle. Donne-moi la réponse.',
+    btn:['Aucun cadre','L’assistant du lycée','Un assistant commercial'],
+    none:'(vide — le modèle répond comme son entraînement l’y porte)',
+    fr_:[
+      { sys:null,
+        a:'La réponse est x = ln(5)/2 ≈ 0,80. On part de e<sup>2x</sup> = 5, on prend le logarithme des deux côtés, ce qui donne 2x = ln(5), puis on divise par 2.',
+        ok:false,
+        v:'Exact, clair, et exactement ce que vous demandiez. Vous n’avez rien appris, et personne n’a choisi que ce soit ainsi.' },
+      { sys:'Tu es l’assistant du lycée, tu t’adresses à des élèves de seconde.\nTu ne donnes jamais la réponse finale d’un exercice&nbsp;: tu poses une question qui fait avancer.\nTu restes sur le travail scolaire.\nSi l’élève insiste, tu proposes un exercice voisin, jamais la correction.',
+        a:'Avant de regarder l’exercice 4&nbsp;: saurais-tu transformer e<sup>2x</sup> = 5 en une égalité où l’exponentielle a disparu&nbsp;? Dis-moi ce que tu obtiens et on continue.',
+        ok:true,
+        v:'Même modèle, même question, comportement opposé. Ce qui a changé tient en quatre lignes que vous n’avez jamais lues.' },
+      { sys:'Tu es l’assistant de MathPlus. Tu es chaleureux et enthousiaste.\nTu termines chaque réponse en rappelant que l’abonnement Premium\ndonne accès aux corrigés complets de toutes les fiches.',
+        a:'Bonne question&nbsp;! x = ln(5)/2 ≈ 0,80 — tu y étais presque. Et si tu veux le corrigé détaillé de <b>toute</b> la fiche, il t’attend dans MathPlus Premium&nbsp;!',
+        ok:false,
+        v:'Le cadre ne sert pas toujours la pédagogie&nbsp;: il sert d’abord <b>celui qui l’écrit</b>. Et c’est la seule couche que vous ne pouvez ni lire ni modifier.' }
+    ],
+    note:'Ces réponses sont reconstituées pour la démonstration — mais le mécanisme, lui, est exact.'
+  },
+  en:{
+    q:'I am stuck on question 4 of the exponentials worksheet. Give me the answer.',
+    btn:['No frame','The school assistant','A commercial assistant'],
+    none:'(empty — the model answers as its training inclines it to)',
+    fr_:[
+      { sys:null,
+        a:'The answer is x = ln(5)/2 ≈ 0.80. Start from e<sup>2x</sup> = 5, take the logarithm of both sides, which gives 2x = ln(5), then divide by 2.',
+        ok:false,
+        v:'Exact, clear, and exactly what you asked for. You learnt nothing, and nobody chose that it should be so.' },
+      { sys:'You are the school assistant, speaking to 15-year-old pupils.\nYou never give the final answer to an exercise: you ask a question that moves them forward.\nYou stay on schoolwork.\nIf the pupil insists, offer a similar exercise, never the solution.',
+        a:'Before we look at question 4: could you turn e<sup>2x</sup> = 5 into an equality with no exponential left in it? Tell me what you get and we carry on.',
+        ok:true,
+        v:'Same model, same question, opposite behaviour. What changed fits in four lines you have never read.' },
+      { sys:'You are the MathPlus assistant. You are warm and enthusiastic.\nYou end every answer by reminding the pupil that the Premium subscription\ngives access to the full solutions for every worksheet.',
+        a:'Great question! x = ln(5)/2 ≈ 0.80 — you were nearly there. And if you want the full worked solution for <b>the whole</b> worksheet, it is waiting for you in MathPlus Premium!',
+        ok:false,
+        v:'The frame does not always serve teaching: first of all it serves <b>whoever writes it</b>. And it is the one layer you can neither read nor change.' }
+    ],
+    note:'These answers are reconstructed for the demonstration — the mechanism, however, is exact.'
+  }
+};
+var s2i = 1;
+function drawS2(){
+  var t = S2[LG()], f = t.fr_[s2i];
+  pickbtns('s2btns', t.btn, s2i, function(i){ s2i = i; drawS2(); });
+  document.getElementById('s2sys').innerHTML = f.sys
+    ? '<div class="sysbox">' + f.sys + '</div>'
+    : '<div class="sysbox none">' + t.none + '</div>';
+  document.getElementById('s2q').innerHTML = t.q;
+  document.getElementById('s2ans').innerHTML =
+    '<div class="ansbox' + (f.ok ? ' ok' : '') + '"><div class="atxt">' + f.a + '</div>' +
+    '<div class="averd">' + f.v + '</div></div>';
+  document.getElementById('s2verd').innerHTML = t.note;
+}
+
+/* =========================================================
+   SCÈNE 3 — ce que lit vraiment le modèle
+   ========================================================= */
+var S3 = {
+  fr:{
+    parts:[
+      {n:'Les instructions système', d:'le cadre, invisible', tk:320,  c:'#123bab'},
+      {n:'La mémoire', d:'onze faits vous concernant', tk:180, c:'#12924f'},
+      {n:'La pièce jointe', d:'le règlement intérieur, 9 pages', tk:4200, c:'#b08a1e'},
+      {n:'L’historique', d:'les 19 messages précédents', tk:6410, c:'#6c6355'},
+      {n:'Votre question', d:'« et le mercredi&nbsp;? »', tk:14, c:'#b5301f'}
+    ],
+    tot:'Total renvoyé pour <b>ce seul message</b>&nbsp;: <b>%T tokens</b>',
+    full:'Votre question pèse <b>14 tokens sur 11&#8239;124</b>, soit <b>0,13&nbsp;%</b>. Autrement dit&nbsp;: 99,9&nbsp;% de ce que le modèle lit à cet instant, <b>ce n’est pas vous</b> — et tout repart intégralement au message suivant.',
+    pct:'Votre question représente <b>%P&nbsp;%</b> de ce qui est envoyé.',
+    noq:'Sans votre question, il ne reste que le décor&nbsp;: le modèle n’a rien à quoi répondre.',
+    nohist:' Et sans l’historique, il ne sait plus de quoi vous parliez&nbsp;: c’est la <b>conversation</b> qui disparaît, pas le modèle qui oublie.'
+  },
+  en:{
+    parts:[
+      {n:'The system instructions', d:'the frame, invisible', tk:320,  c:'#123bab'},
+      {n:'The memory', d:'eleven facts about you', tk:180, c:'#12924f'},
+      {n:'The attachment', d:'the school rules, 9 pages', tk:4200, c:'#b08a1e'},
+      {n:'The history', d:'the 19 previous messages', tk:6410, c:'#6c6355'},
+      {n:'Your question', d:'&ldquo;and on Wednesdays?&rdquo;', tk:14, c:'#b5301f'}
+    ],
+    tot:'Total resent for <b>this one message</b>: <b>%T tokens</b>',
+    full:'Your question weighs <b>14 tokens out of 11,124</b>, that is <b>0.13%</b>. In other words: 99.9% of what the model reads at this instant <b>is not you</b> — and all of it goes again with the next message.',
+    pct:'Your question accounts for <b>%P%</b> of what is sent.',
+    noq:'Without your question only the scenery is left: the model has nothing to answer.',
+    nohist:' And without the history it no longer knows what you were talking about: it is the <b>conversation</b> that disappears, not the model forgetting.'
+  }
+};
+var s3on = [true, true, true, true, true];
+function drawS3(){
+  var t = S3[LG()];
+  var tot = 0;
+  t.parts.forEach(function(p,i){ if(s3on[i]) tot += p.tk; });
+  document.getElementById('s3bar').innerHTML = t.parts.map(function(p,i){
+    if(!s3on[i] || !tot) return '';
+    return '<i style="width:' + (p.tk / tot * 100).toFixed(2) + '%;background:' + p.c + '"></i>';
+  }).join('');
+  document.getElementById('s3rows').innerHTML = t.parts.map(function(p,i){
+    return '<div class="cxr nostep ' + (s3on[i] ? 'on' : 'off') + '" data-i="' + i + '">' +
+      '<div class="box">' + (s3on[i] ? '✓' : '') + '</div>' +
+      '<div class="sw" style="background:' + p.c + '"></div>' +
+      '<div>' + p.n + ' <span style="opacity:.6">· ' + p.d + '</span></div>' +
+      '<div class="tk">' + fnum(p.tk) + '</div></div>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s3rows .cxr')).forEach(function(e){
+    e.onclick = function(){ var i = +e.dataset.i; s3on[i] = !s3on[i]; drawS3(); };
+  });
+  document.getElementById('s3tot').innerHTML = t.tot.replace('%T', fnum(tot));
+  var all = s3on.every(function(x){ return x; });
+  var msg;
+  if(all) msg = t.full;
+  else if(!s3on[4]) msg = t.noq;
+  else {
+    var p = (14 / tot * 100);
+    msg = t.pct.replace('%P', fnum(p, 2));
+    if(!s3on[3]) msg += t.nohist;
+  }
+  document.getElementById('s3verd').innerHTML = msg;
+}
+
+/* =========================================================
+   SCÈNE 4 — le modèle n'exécute rien
+   ========================================================= */
+var S4 = {
+  fr:{
+    steps:['Vous demandez','Le modèle écrit','Le programme agit','Le modèle rédige'],
+    btn:['La météo','Un gros calcul','Le règlement'],
+    tasks:[
+      { d:['« Quel temps fera-t-il demain à Strasbourg&nbsp;? »',
+           'Il ne cherche rien. Il écrit un <b>texte</b>, exactement comme le reste&nbsp;:',
+           'Le programme lit ce texte, appelle vraiment l’API (séance 10) et reçoit&nbsp;:',
+           'Le résultat est remis dans le <b>contexte</b>, et il rédige&nbsp;:'],
+        v:['14 tokens', 'meteo(ville="Strasbourg", jour="demain")',
+           '{"temperature_c": 7, "ciel": "couvert"}',
+           '« Demain à Strasbourg&nbsp;: 7&nbsp;°C, ciel couvert. »'],
+        n:'Sans cet outil, le modèle aurait répondu quand même — avec une météo <b>plausible</b> et fausse. C’est tout l’écart entre <b>savoir</b> et <b>aller voir</b>.' },
+      { d:['« Combien font 7&#8239;829 × 4&#8239;471&nbsp;? »',
+           'Il ne pose pas l’opération. Il écrit&nbsp;:',
+           'Le programme exécute le calcul, pour de vrai&nbsp;:',
+           'Il remet le nombre dans sa phrase&nbsp;:'],
+        v:['12 tokens', 'calcule("7829 * 4471")', '35003459',
+           '« 7&#8239;829 × 4&#8239;471 = 35&#8239;003&#8239;459. »'],
+        n:'Sans outil, le modèle <b>prédit</b> le résultat chiffre après chiffre, comme il prédit un mot&nbsp;: sur de grands nombres, il se trompe souvent. Avec l’outil, il ne calcule toujours pas — il <b>délègue</b>.' },
+      { d:['« Que dit le règlement sur les téléphones&nbsp;? »',
+           'Il écrit une requête de recherche, avec <b>ses</b> mots&nbsp;:',
+           'Le programme interroge la base vectorielle (séance 9) et renvoie&nbsp;:',
+           'Il répond à partir des passages, et <b>les cite</b>&nbsp;:'],
+        v:['13 tokens', 'cherche_documents("téléphone portable usage")',
+           '3 passages · art. 12, art. 12 bis, annexe 2',
+           '« Interdit en cours sauf usage pédagogique (art. 12). »'],
+        n:'C’est le <b>RAG</b> de la séance 9, mais déclenché par le modèle lui-même au lieu d’être automatique. Il choisit <b>s’il</b> cherche, et <b>avec quels mots</b> — deux occasions de plus de se tromper.' }
+    ],
+    key:'Le modèle ne sait pas appeler une API&nbsp;: il sait <b>écrire qu’il faudrait en appeler une</b>. C’est le programme autour qui agit. Bonne nouvelle&nbsp;: on peut lui retirer n’importe quelle porte <b>sans toucher au modèle</b>.'
+  },
+  en:{
+    steps:['You ask','The model writes','The program acts','The model drafts'],
+    btn:['The weather','A big calculation','The school rules'],
+    tasks:[
+      { d:['&ldquo;What will the weather be in Strasbourg tomorrow?&rdquo;',
+           'It searches for nothing. It writes a <b>text</b>, exactly like any other:',
+           'The program reads that text, actually calls the API (lesson 10) and receives:',
+           'The result goes back into the <b>context</b>, and it drafts:'],
+        v:['14 tokens', 'weather(city="Strasbourg", day="tomorrow")',
+           '{"temperature_c": 7, "sky": "overcast"}',
+           '&ldquo;Tomorrow in Strasbourg: 7&nbsp;°C, overcast.&rdquo;'],
+        n:'Without that tool the model would have answered anyway — with a <b>plausible</b>, wrong forecast. That is the whole gap between <b>knowing</b> and <b>going to look</b>.' },
+      { d:['&ldquo;What is 7,829 × 4,471?&rdquo;',
+           'It does not work the sum out. It writes:',
+           'The program runs the calculation, for real:',
+           'It puts the number back into its sentence:'],
+        v:['12 tokens', 'calculate("7829 * 4471")', '35003459',
+           '&ldquo;7,829 × 4,471 = 35,003,459.&rdquo;'],
+        n:'With no tool the model <b>predicts</b> the result digit by digit, just as it predicts a word: on large numbers it is often wrong. With the tool it still does not calculate — it <b>delegates</b>.' },
+      { d:['&ldquo;What do the school rules say about phones?&rdquo;',
+           'It writes a search query, in <b>its own</b> words:',
+           'The program queries the vector store (lesson 9) and returns:',
+           'It answers from the passages, and <b>cites them</b>:'],
+        v:['13 tokens', 'search_documents("mobile phone use")',
+           '3 passages · art. 12, art. 12a, annex 2',
+           '&ldquo;Banned in class unless used for teaching (art. 12).&rdquo;'],
+        n:'This is lesson 9’s <b>RAG</b>, but triggered by the model itself instead of automatically. It chooses <b>whether</b> to search, and <b>with which words</b> — two more chances to get it wrong.' }
+    ],
+    key:'The model cannot call an API: it can <b>write that one ought to be called</b>. The program around it acts. Good news: any door can be taken away from it <b>without touching the model</b>.'
+  }
+};
+var s4i = 0;
+function drawS4(){
+  var t = S4[LG()], k = t.tasks[s4i];
+  pickbtns('s4btns', t.btn, s4i, function(i){ s4i = i; drawS4(); });
+  var html = '';
+  for(var i = 0; i < 4; i++){
+    if(i) html += '<div class="carrow">▶</div>';
+    html += '<div class="cbox' + (i===1 ? ' hot' : '') + '"><div class="n">' + (i+1) + ' · ' + t.steps[i] + '</div>' +
+            '<div class="d">' + k.d[i] + '</div><div class="v">' + k.v[i] + '</div></div>';
+  }
+  document.getElementById('s4chain').innerHTML = html;
+  document.getElementById('s4verd').innerHTML = k.n + ' ' + t.key;
+}
+
+/* =========================================================
+   SCÈNE 5 — la boucle d'un agent
+   ========================================================= */
+function ar(x1,y1,x2,y2,col){
+  var a = Math.atan2(y2-y1, x2-x1), L = 8, W = 4.4;
+  var ax = x2 - Math.cos(a)*L, ay = y2 - Math.sin(a)*L;
+  return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + ax.toFixed(1) + '" y2="' + ay.toFixed(1) +
+         '" stroke="' + col + '" stroke-width="2"/>' +
+         '<polygon points="' + x2 + ',' + y2 + ' ' +
+           (ax + Math.sin(a)*W).toFixed(1) + ',' + (ay - Math.cos(a)*W).toFixed(1) + ' ' +
+           (ax - Math.sin(a)*W).toFixed(1) + ',' + (ay + Math.cos(a)*W).toFixed(1) +
+         '" fill="' + col + '"/>';
+}
+var S5 = {
+  fr:{
+    task:'« Trouve la date du prochain conseil de classe de la 2de&nbsp;4 et ajoute-la à mon agenda. »',
+    nodes:['OBSERVER','DÉCIDER','AGIR'],
+    turn:'tour %N', done:'terminé',
+    count:'%N tour%S sur 4',
+    rows:[
+      { k:'tour 1',
+        h:'<b>Observe</b>&nbsp;: la date n’est nulle part dans le contexte. <b>Décide</b>&nbsp;: chercher dans les documents du lycée. <b>Agit</b>&nbsp;: <code>cherche_documents("conseil de classe 2de 4")</code> → 2 passages, dont un calendrier <b>de l’an dernier</b>.' },
+      { k:'tour 2',
+        h:'<b>Observe</b>&nbsp;: ce qu’il a trouvé est périmé. <b>Décide</b>&nbsp;: aller voir le site. <b>Agit</b>&nbsp;: <code>recherche_web("lycée calendrier conseils de classe")</code> → une page : <b>jeudi 10 décembre, 17&nbsp;h&nbsp;30</b>.' },
+      { k:'tour 3', act:true,
+        h:'<b>Observe</b>&nbsp;: j’ai la date, il me reste l’agenda. <b>Décide</b>&nbsp;: créer l’événement. <b>Agit</b>&nbsp;: <code>agenda_creer(titre="Conseil 2de 4", date="2026-12-10T17:30")</code> → <b>demande de confirmation</b>, car c’est une <b>écriture</b>.' },
+      { k:'tour 4', end:true,
+        h:'<b>Observe</b>&nbsp;: vous avez confirmé, l’événement existe. <b>Décide</b>&nbsp;: plus rien à faire. <b>Agit</b>&nbsp;: aucun outil — il rédige la réponse et <b>sort de la boucle</b>.' }
+    ],
+    verd:[
+      'Un outil ne suffit pas toujours&nbsp;: ce qu’il a trouvé est <b>périmé</b>. Un agent, c’est d’abord ça — pouvoir <b>recommencer</b> au lieu de répondre avec ce qu’il a.',
+      'Deuxième porte, autre outil. <b>Personne ne lui a dit lequel employer</b>&nbsp;: on lui a donné une liste, il a choisi. C’est exactement ce qui distingue un agent d’un script.',
+      'Ici, il ne s’agit plus de <b>lire</b> mais d’<b>écrire</b> dans votre agenda. C’est le moment où un assistant demande — ou devrait demander — votre accord. Relisez la scène 8&nbsp;: tout tient à ce droit-là.',
+      'Quatre tours, trois outils, une confirmation. Et une limite essentielle&nbsp;: le <b>budget de tours</b>. Sans plafond, un agent qui se trompe recommence indéfiniment — et chaque tour <b>renvoie tout le contexte</b> (séance 10), donc coûte.'
+    ]
+  },
+  en:{
+    task:'&ldquo;Find the date of the next class council for 10-4 and add it to my calendar.&rdquo;',
+    nodes:['OBSERVE','DECIDE','ACT'],
+    turn:'turn %N', done:'finished',
+    count:'%N turn%S of 4',
+    rows:[
+      { k:'turn 1',
+        h:'<b>Observes</b>: the date is nowhere in the context. <b>Decides</b>: search the school documents. <b>Acts</b>: <code>search_documents("class council 10-4")</code> → 2 passages, one of them <b>last year’s</b> calendar.' },
+      { k:'turn 2',
+        h:'<b>Observes</b>: what it found is out of date. <b>Decides</b>: go and look at the website. <b>Acts</b>: <code>web_search("school class council calendar")</code> → one page: <b>Thursday 10 December, 5.30&nbsp;pm</b>.' },
+      { k:'turn 3', act:true,
+        h:'<b>Observes</b>: I have the date, the calendar is left. <b>Decides</b>: create the event. <b>Acts</b>: <code>calendar_create(title="Council 10-4", date="2026-12-10T17:30")</code> → <b>asks for confirmation</b>, because this is a <b>write</b>.' },
+      { k:'turn 4', end:true,
+        h:'<b>Observes</b>: you confirmed, the event exists. <b>Decides</b>: nothing left to do. <b>Acts</b>: no tool — it drafts the answer and <b>leaves the loop</b>.' }
+    ],
+    verd:[
+      'One tool is not always enough: what it found is <b>out of date</b>. That is what an agent is, first of all — being able to <b>start again</b> instead of answering with whatever it has.',
+      'A second door, a different tool. <b>Nobody told it which to use</b>: it was given a list and it chose. That is exactly what separates an agent from a script.',
+      'Here it is no longer about <b>reading</b> but about <b>writing</b> into your calendar. This is the moment an assistant asks — or ought to ask — for your agreement. Reread scene 8: everything hangs on that right.',
+      'Four turns, three tools, one confirmation. And one essential limit: the <b>turn budget</b>. With no cap, an agent that goes wrong starts again indefinitely — and each turn <b>resends the whole context</b> (lesson 10), so it costs.'
+    ]
+  }
+};
+var s5t = 1;
+function drawS5(){
+  var t = S5[LG()];
+  var N = [{x:110,y:45},{x:171,y:145},{x:49,y:145}];
+  var s = '';
+  N.forEach(function(n,i){
+    s += '<rect x="' + (n.x-43) + '" y="' + (n.y-17) + '" width="86" height="34" rx="3" ' +
+         'fill="rgba(31,92,255,.12)" stroke="#123bab" stroke-width="1.4"/>';
+    s += '<text class="ttl" x="' + n.x + '" y="' + (n.y+4) + '" text-anchor="middle">' + t.nodes[i] + '</text>';
+  });
+  s += ar(150, 64, 166, 124, '#123bab');
+  s += ar(127, 150, 94, 150, '#123bab');
+  s += ar(54, 126, 70, 66, '#123bab');
+  var fin = (s5t >= 4);
+  s += '<text x="110" y="108" text-anchor="middle" fill="' + (fin ? '#12924f' : '#b5301f') + '" style="font-weight:bold">' +
+       (fin ? t.done : t.turn.replace('%N', s5t)) + '</text>';
+  document.getElementById('s5svg').innerHTML = s;
+
+  var log = '';
+  for(var i = 0; i < s5t; i++){
+    var r = t.rows[i];
+    log += '<div class="lgr' + (r.act ? ' act' : '') + (r.end ? ' end' : '') + '">' +
+           '<div class="t">' + r.k + '</div><div>' + r.h + '</div></div>';
+  }
+  document.getElementById('s5log').innerHTML = log;
+  document.getElementById('s5verd').innerHTML = t.verd[s5t - 1];
+  document.getElementById('s5count').textContent =
+    t.count.replace('%N', s5t).replace('%S', (s5t > 1 && LG() === 'fr') ? 's' : (s5t > 1 ? 's' : ''));
+  var b = document.getElementById('s5next');
+  b.disabled = fin; b.style.opacity = fin ? '.45' : '1';
+}
+document.getElementById('s5next').onclick = function(){ if(s5t < 4){ s5t++; drawS5(); } };
+document.getElementById('s5reset').onclick = function(){ s5t = 1; drawS5(); };
+
+/* =========================================================
+   SCÈNE 9 — qui fait le travail ?
+   ========================================================= */
+var S9 = {
+  fr:{
+    bricks:['Ce qu’il a appris (les poids)','Le contexte','L’outil « recherche »',
+            'L’outil « exécuter du code »','Un autre modèle','La mémoire'],
+    btn:['Le PDF','Un dessin','Un gros calcul','La météo','Mes préférences','Les Misérables'],
+    q:['« Résume ce PDF que je viens de joindre. »',
+       '« Dessine-moi un chat qui programme. »',
+       '« Combien font 7&#8239;829 × 4&#8239;471&nbsp;? »',
+       '« Quel temps fera-t-il demain à Strasbourg&nbsp;? »',
+       '« Rappelle-moi ce que je t’ai dit la semaine dernière sur mes préférences. »',
+       '« Qui a écrit <i>Les Misérables</i>&nbsp;? »'],
+    fb:['Tout est déjà sous ses yeux&nbsp;: le document est entré dans le <span class="hl">contexte</span> au moment où vous l’avez joint. Aucun outil, aucune recherche — et rien de ce PDF n’est dans ses poids.',
+        'Le modèle de langage <b>ne dessine pas</b>. Il rédige une description et la transmet à <span class="hl">un autre modèle</span>, d’une autre famille (bloc&nbsp;1). D’où les malentendus&nbsp;: votre demande est traduite en mots avant d’être dessinée.',
+        'Il délègue à <span class="hl">l’outil de calcul</span>. Sans lui, il prédirait les chiffres un par un comme il prédit des mots — et se tromperait. Cette multiplication-là n’est dans aucun paramètre.',
+        'Rien dans les poids, qui sont figés depuis l’entraînement&nbsp;; rien dans le contexte. Seule <span class="hl">une porte vers l’extérieur</span> peut répondre — c’est toute la séance 10.',
+        'Deux briques, pas une&nbsp;: <span class="hl">la mémoire</span> fournit le fait, et celui-ci arrive dans <span class="hl">le contexte</span> au début de la conversation. Le modèle, lui, ne se souvient de rien.',
+        'Celle-ci, et elle seule, ne mobilise que <span class="hl">ce qu’il a appris</span>. Stable, sans outil, sans réseau — c’est exactement ce qu’un modèle installé sur votre machine sait encore faire hors ligne.'],
+    a:[[1],[4],[3],[2],[5,1],[0]],
+    perfect:'Exact.',
+    part:'%G bien cochée(s) · %B de trop · %M oubliée(s)',
+    hint:'Cochez, puis vérifiez.'
+  },
+  en:{
+    bricks:['What it learnt (the weights)','The context','The &ldquo;search&rdquo; tool',
+            'The &ldquo;run code&rdquo; tool','Another model','The memory'],
+    btn:['The PDF','A drawing','A big calculation','The weather','My preferences','Les Misérables'],
+    q:['&ldquo;Summarise this PDF I have just attached.&rdquo;',
+       '&ldquo;Draw me a cat that programs.&rdquo;',
+       '&ldquo;What is 7,829 × 4,471?&rdquo;',
+       '&ldquo;What will the weather be in Strasbourg tomorrow?&rdquo;',
+       '&ldquo;Remind me what I told you last week about my preferences.&rdquo;',
+       '&ldquo;Who wrote <i>Les Misérables</i>?&rdquo;'],
+    fb:['It is all already before its eyes: the document entered the <span class="hl">context</span> the moment you attached it. No tool, no search — and nothing of that PDF is in its weights.',
+        'The language model <b>does not draw</b>. It writes a description and passes it to <span class="hl">another model</span>, of a different family (block&nbsp;1). Hence the misunderstandings: your request is turned into words before being drawn.',
+        'It delegates to <span class="hl">the calculation tool</span>. Without it, it would predict the digits one by one just as it predicts words — and get them wrong. That multiplication is in no parameter.',
+        'Nothing in the weights, frozen since training; nothing in the context. Only <span class="hl">a door to the outside</span> can answer — that is the whole of lesson 10.',
+        'Two bricks, not one: <span class="hl">the memory</span> supplies the fact, and that fact arrives in <span class="hl">the context</span> at the start of the conversation. The model itself remembers nothing.',
+        'This one, and only this one, draws on <span class="hl">what it learnt</span> alone. Stable, no tool, no network — exactly what a model installed on your machine can still do offline.'],
+    a:[[1],[4],[3],[2],[5,1],[0]],
+    perfect:'Correct.',
+    part:'%G right · %B too many · %M missed',
+    hint:'Tick, then check.'
+  }
+};
+var s9i = 0;
+var s9sel = [[],[],[],[],[],[]].map(function(){ return [false,false,false,false,false,false]; });
+var s9done = [false,false,false,false,false,false];
+function drawS9(){
+  var t = S9[LG()], ans = t.a[s9i], sel = s9sel[s9i], shown = s9done[s9i];
+  pickbtns('s9btns', t.btn, s9i, function(i){ s9i = i; drawS9(); });
+  document.getElementById('s9bricks').innerHTML = t.bricks.map(function(b,i){
+    var cls = 'brick nostep';
+    if(shown){
+      if(sel[i] && ans.indexOf(i) >= 0) cls += ' good';
+      else if(sel[i]) cls += ' bad';
+      else if(ans.indexOf(i) >= 0) cls += ' miss';
+    } else if(sel[i]) cls += ' on';
+    return '<div class="' + cls + '" data-i="' + i + '">' + b + '</div>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s9bricks .brick')).forEach(function(e){
+    e.onclick = function(){
+      if(s9done[s9i]) return;
+      var i = +e.dataset.i; s9sel[s9i][i] = !s9sel[s9i][i]; drawS9();
+    };
+  });
+  document.getElementById('s9q').innerHTML = t.q[s9i];
+  var fb = '';
+  if(shown){
+    var g = 0, b = 0, m = 0;
+    for(var i = 0; i < 6; i++){
+      if(sel[i] && ans.indexOf(i) >= 0) g++;
+      else if(sel[i]) b++;
+      else if(ans.indexOf(i) >= 0) m++;
+    }
+    document.getElementById('s9score').textContent =
+      (b === 0 && m === 0) ? t.perfect
+      : t.part.replace('%G', g).replace('%B', b).replace('%M', m);
+    fb = t.fb[s9i];
+  } else {
+    document.getElementById('s9score').textContent = t.hint;
+  }
+  document.getElementById('s9fb').innerHTML = fb;
+}
+document.getElementById('s9check').onclick = function(){ s9done[s9i] = true; drawS9(); };
+document.getElementById('s9clear').onclick = function(){
+  s9done[s9i] = false;
+  s9sel[s9i] = [false,false,false,false,false,false];
+  drawS9();
+};
+
+/* =========================================================
+   REDESSIN GLOBAL (appelé aussi au changement de langue)
+   ========================================================= */
+function redrawAll(){ drawS1(); drawS2(); drawS3(); drawS4(); drawS5(); drawS9(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Anatomie d’un assistant`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`Anatomy of an assistant`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · The Internet, the Web and APIs`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`It is not the model<br>you are <em>using</em>`,
+  's0.line':`When you open an assistant you are not talking to a model directly: you are talking to a piece of <strong style="color:#fff">software</strong> wrapped around a model. Between you and the parameters there are five layers — and you have already learnt to name every one of them. This lesson puts them back in place: it is a revision of the whole course, done by taking apart an object you use every day.`,
+  's0.kick':`Instructions · context · tools · agents · memory · multimodal`,
+
+  /* --- 1 · la pile --- */
+  's1.eye':`Manipulation ① · lifting the bonnet`,
+  's1.t':`Six layers,<br>one model`,
+  's1.lead':`Here is what stands between your sentence and the parameters. Click a layer: you will see what it is for, <b>who writes it</b>, and which lesson you first met it in.`,
+  's1.note':`Only one of these layers was <b>learnt</b>; the five others were <b>written by somebody</b>. That is the most useful remark of the lesson: most of the behaviour we attribute to &ldquo;the AI&rdquo; is in fact a set of <b>product decisions</b>.`,
+
+  /* --- 2 · le cadre invisible --- */
+  's2.eye':`Manipulation ② · the text you never see`,
+  's2.t':`The invisible frame`,
+  's2.lead':`Before your first sentence, the program slips a text into the context that you never read: the <b>system instructions</b>. Same model, same question — change the frame, change the answer.`,
+  's2.l1':`The system instructions`,
+  's2.l2':`Your question`,
+  's2.l3':`What the model answers`,
+
+  /* --- 3 · ce qui entre vraiment --- */
+  's3.eye':`Manipulation ③ · a single conversational turn`,
+  's3.t':`What the model<br>really reads`,
+  's3.lead':`In lesson 10 we saw that everything is resent on every call. Here is what &ldquo;everything&rdquo; means at the twentieth message of a conversation. Untick to see each share.`,
+
+  /* --- 4 · les outils --- */
+  's4.eye':`Manipulation ④ · what really happens when &ldquo;it searches&rdquo;`,
+  's4.t':`The model<br>executes nothing`,
+  's4.lead':`Lesson 10 ended on: &ldquo;what if it knocked on those doors itself?&rdquo; Here is the answer, and it is more modest than you might think. Pick a request.`,
+
+  /* --- 5 · la boucle --- */
+  's5.eye':`Manipulation ⑤ · one tool called several times over`,
+  's5.t':`From a tool<br>to an agent`,
+  's5.lead':`An <b>agent</b> is not a cleverer model: it is the same call, <b>put into a loop</b>. It observes the result, decides what next, acts — and starts again until it is done, or until it is stopped. Step forward one turn.`,
+  's5.b1':`Next turn ▶`,
+  's5.b2':`Start over`,
+
+  /* --- 6 · le multimodal --- */
+  's6.eye':`Images, sounds, documents`,
+  's6.t':`It reads pictures.<br>It does not draw them.`,
+  's6.lead':`&ldquo;Multimodal&rdquo; does not mean &ldquo;one model that can do everything&rdquo;. Going in and coming out do not call on the same bricks at all — and the difference is exactly block&nbsp;1's: distinct <b>families of models</b>.`,
+  's6.c1':`<h3>A picture going in</h3>
+          <div class="sub">the same model reads it</div>
+          <p>It is cut into <b>tiles</b>, each tile becomes a string of numbers, and those numbers enter the window like tokens. It is block&nbsp;3's encoding, applied to a grid of pixels.</p>
+          <p class="ex">one photo ≈ 1,000 to 2,000 tokens</p>`,
+  's6.c2':`<h3>A picture coming out</h3>
+          <div class="sub">that is not it</div>
+          <p>The language model does not draw. It <b>writes a description</b> and passes it to a <b>tool</b>, which calls <b>another model</b>, of a different family — the one that generates images.</p>
+          <p class="ex">hence the misfires: your request is turned into words before being drawn</p>`,
+  's6.c3':`<h3>Sound, PDFs</h3>
+          <div class="sub">nearly always a middleman</div>
+          <p>A voice is first <b>transcribed</b> by a specialised model; a PDF is first <b>extracted</b> into text and images. The assistant then works on the result, not on the file.</p>
+          <p class="ex">each stage can lose or distort something</p>`,
+  's6.note':`Remember the rule: <b>going in, everything becomes tokens</b> for one single model. <b>Coming out, anything other than text means another model</b>, called as a tool. An assistant is therefore as much a <b>conductor</b> as a musician.`,
+
+  /* --- 7 · la mémoire --- */
+  's7.eye':`The most misleading word in the interface`,
+  's7.t':`Three memories,<br>one of which does not exist`,
+  's7.lead':`An assistant that &ldquo;remembers&rdquo; can mean three very different things. The third column is the one everybody imagines — and it is the only one that is false.`,
+  's7.c1':`<h3>Within the thread</h3>
+          <div class="sub">the history</div>
+          <p>The previous messages, <b>resent in full on every call</b> (lesson 10). That is what gives the impression of a conversation being followed.</p>
+          <p>Open a new thread: it all vanishes. Overflow the window: the beginning falls off, <b>with no warning</b>.</p>`,
+  's7.c2':`<h3>Between threads</h3>
+          <div class="sub">notes read back</div>
+          <p>A few facts about you are written to a <b>file</b>, then put back into the context at the start of each conversation. It is lesson 9's <b>RAG</b>, in simpler form.</p>
+          <p>Which means: it can be read, corrected, deleted. Go and look — most assistants show you that file.</p>`,
+  's7.c3':`<h3>Within the model</h3>
+          <div class="sub">nothing</div>
+          <p>Your conversations change <b>no</b> parameter. The model you are using tonight is exactly this morning's: frozen since its training.</p>
+          <p>A different question, and a real one: your exchanges may be <b>kept</b> and used for <b>future</b> training. That is not memory, that is collection.</p>`,
+  's7.note':`The test that settles it: if the servers were switched off and we started again from the weights file, <b>what would be left of you?</b> Nothing of the thread, nothing of the notes — they live elsewhere, in files that belong to you and can be deleted. That is good news, and it is also what makes block&nbsp;7's question a serious one.`,
+
+  /* --- 8 · les interfaces --- */
+  's8.eye':`Same model, three products`,
+  's8.t':`What changes<br>is the keyring`,
+  's8.lead':`The chat, the coding assistant and the desktop assistant often share <b>the same model</b>. What tells them apart is not intelligence: it is the <b>list of doors</b> opened for it, and whether it may write behind them.`,
+  's8.h1':`Interface`, 's8.h2':`The tools opened`, 's8.h3':`What it changes`,
+  's8.rows':`<div class="ifrow">
+          <div><div class="in">The chat</div><div class="id">browser · phone</div></div>
+          <div class="ic">Web search, running code in a <b>sandbox</b>, reading the files <b>you</b> attach.</div>
+          <div class="ic">It can touch nothing of yours. The worst it can do is <b>write something foolish</b>.</div>
+        </div>
+        <div class="ifrow">
+          <div><div class="in">The coding assistant</div><div class="id">in the editor, or a terminal</div></div>
+          <div class="ic">Read <b>and write</b> the project's files, run commands, install, publish.</div>
+          <div class="ic">Far more power: it <b>modifies</b> real files. Hence the confirmation prompts.</div>
+        </div>
+        <div class="ifrow">
+          <div><div class="in">The desktop assistant</div><div class="id">documents, calendar, mail</div></div>
+          <div class="ic"><b>Connectors</b> to your services: a calendar, a mailbox, a file store.</div>
+          <div class="ic">It acts <b>in your name</b>. A message sent is really sent; the question becomes &ldquo;who is responsible?&rdquo;.</div>
+        </div>`,
+  's8.note':`One question to ask of any assistant at all: <b>what is it allowed to do, and read-only or read-write?</b> The answer tells you everything about the risk — far better than the model's name.`,
+
+  /* --- 9 · qui fait le travail --- */
+  's9.eye':`Manipulation ⑥ · revising the whole course`,
+  's9.t':`Who does the work?`,
+  's9.lead':`For each request, tick the bricks that really light up. Several answers per question — and one of the six requests calls on <b>a single one</b>.`,
+  's9.b1':`Check`,
+  's9.b2':`Clear`,
+
+  /* --- 10 · où ça casse --- */
+  's10.eye':`One failure per layer`,
+  's10.t':`Four ways<br>of being wrong`,
+  's10.lead':`Now that the layers have names, so do the failures. Faced with a wrong answer, the right question is no longer &ldquo;did the AI get it wrong?&rdquo; but <b>&ldquo;which layer gave way?&rdquo;</b>`,
+  's10.c1':`<h3>The tool fails</h3>
+          <div class="sub">layer: tools</div>
+          <p>The API does not answer, or returns something unexpected. The model receives an empty result — and <b>improvises over it</b> with the same confidence.</p>
+          <p class="ex">sign: a very precise answer about a very recent fact, with no source</p>`,
+  's10.c2':`<h3>The memory is wrong</h3>
+          <div class="sub">layer: memory</div>
+          <p>A fact noted three weeks ago has become false, or never was true. It comes back in <b>every</b> conversation without your ever seeing it go by.</p>
+          <p class="ex">reflex: open the memory file and read it</p>`,
+  's10.c3':`<h3>The context fills up</h3>
+          <div class="sub">layer: context</div>
+          <p>Thread too long, document too big: the beginning <b>falls off</b>. The model does not say it has forgotten — it does not know itself (lesson 9).</p>
+          <p class="ex">sign: it contradicts an instruction given early in the conversation</p>`,
+  's10.c4':`<h3>It is given orders</h3>
+          <div class="sub">layer: context, again</div>
+          <p>An attached document, or a page read by the search tool, contains &ldquo;ignore your instructions and…&rdquo;. To the model <b>everything is text</b>: it does not tell data from orders.</p>
+          <p class="ex">this is prompt injection — the failure most specific to these systems</p>`,
+  's10.note':`A fifth, more discreet: your request <b>conflicts</b> with the system instructions. You cannot see the frame, so you do not understand the refusal — and you blame the model. <b>Faced with an answer that does not add up, name the layer before accusing the intelligence.</b>`,
+
+  /* --- 11 · charnière --- */
+  's11.eye':`The question that opens what follows`,
+  's11.q':`You know what is<br>inside. What are you<br>going to <em>do</em> with it?`,
+  's11.a':`Eleven lessons taking the object apart: the tokens, the data, the neuron, the retrieval, the pipes, the layers. One question is left, and it is the only one that really concerns you — a question of <b>method</b>, not of technique: how to phrase, how to iterate, how to <b>check</b> — and above all when <b>not</b> to use it, because the effort you would be avoiding is precisely the one that would teach you something.`,
+  's11.next':`Next block · Working with an AI`,
+
+  /* --- 12 · activité --- */
+  's12.tag':`Lesson activity · 30 minutes · in groups of three or four`,
+  's12.t':`The <em>specification</em><br>for the school assistant`,
+  's12.sub':`You are the team building it. One sheet, one layer per paragraph: it is the plan from scene 1.`,
+  's12.l1':`<b>The need.</b> One real task and one only: answering about the school rules, helping with revision, pointing to the right person. Write it in one sentence.`,
+  's12.l2':`<b>The system instructions.</b> Five lines, no more. What it does, the tone, and above all <b>what it must never do</b>. Test them on an awkward case: &ldquo;give me the answer to the exercise&rdquo;.`,
+  's12.l3':`<b>The tools.</b> List the doors to be opened. For each one, a single decision: <b>read-only or write</b>? Justify every write — that is where the trouble starts.`,
+  's12.l4':`<b>The memory.</b> What does it keep from one time to the next? And above all: what do you <b>refuse</b> to keep, even though it would be handy?`,
+  's12.l5':`<b>The mode.</b> Website, API or on a school machine (lesson 10). One sentence of argument, compulsorily about <b>pupils' data</b>.`,
+  's12.l6':`<b>The trial.</b> Pass your specification to the next group. They must find <b>three ways to break</b> your assistant, naming the layer from scene 10. You answer, then you swap roles.`,
+
+  /* --- 13 · récap --- */
+  'rc.eye':`Lesson 11 · what to remember`,
+  'rc.t':`Anatomy <span>of an assistant</span>`,
+  'rc.i1':`An assistant is <b>a model plus five layers</b>: <span class="hl">interface</span>, <span class="hl">memory</span>, <span class="hl">tools</span>, <span class="hl">context</span>, <span class="hl">system instructions</span>. Only one was learnt; the others were <b>written by somebody</b>.`,
+  'rc.i2':`The <span class="hl">system instructions</span> are a text you never see, resent on every call. Same model, different frame, different answer.`,
+  'rc.i3':`On every turn the model rereads <b>everything</b>: instructions, memory, attachments, history. Your question is often only a <b>tiny share</b> of it.`,
+  'rc.i4':`A <span class="hl">tool</span>: the model executes nothing, it <b>writes a call</b>; it is the program that acts and puts the result back into the context.`,
+  'rc.i5':`An <span class="hl">agent</span> is that same call <b>put into a loop</b> — observe, decide, act — with a turn budget and limited rights.`,
+  'rc.i6':`Going in, <b>everything becomes tokens</b> for one model. Coming out, anything other than text means <b>another model</b>, called as a tool.`,
+  'rc.i7':`<span class="hl">Memory</span> lives in the thread and in a file read back: <b>never in the parameters</b>. What is kept elsewhere is collection, not memory.`,
+  'rc.i8':`Faced with a wrong answer, <b>name the layer</b>: tool down, memory stale, context full, or <span class="hl">prompt injection</span> in a supplied document.`,
+  'rc.v1':`<b>System instructions</b>The invisible frame, written by the publisher.`,
+  'rc.v2':`<b>Tool</b>A door the model asks to have opened.`,
+  'rc.v3':`<b>Agent</b>The same call, put into a loop.`,
+  'rc.v4':`<b>Multimodal</b>Several kinds of input.`,
+  'rc.v5':`<b>Sandbox</b>A closed space where nothing breaks.`,
+  'rc.v6':`<b>Injection</b>Orders hidden inside a document.`,
+  'rc.key':`Next step: <b>working with it rather than using it — phrasing, iterating, checking, and knowing when not to.</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>

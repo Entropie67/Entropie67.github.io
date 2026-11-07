@@ -240,6 +240,13 @@
   .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
   .pane.light .verd b{color:var(--signal-dk)}
 
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .bigbtn:disabled{cursor:default}
+
   /* ---------- s2 : l'adresse et le trajet ---------- */
   .urlbar{font-family:var(--mono);font-size:clamp(.78rem,1.6vw,1.05rem);line-height:1.2;
     background:rgba(233,228,216,.06);border:1px solid rgba(233,228,216,.26);
@@ -632,7 +639,7 @@
     <div class="eyebrow" style="color:var(--signal)" data-i18n="s10.eye">La question qui ouvre la suite</div>
     <div class="q" data-i18n="s10.q">Et s'il frappait<br>à ces portes<br><em>lui-même</em>&nbsp;?</div>
     <p class="a" data-i18n="s10.a">Nous savons maintenant qu'une machine peut en appeler une autre avec trois lignes de code. Rien n'empêche de donner cette possibilité <b>au modèle</b>&nbsp;: lui décrire les portes disponibles — une recherche, une calculatrice, l'agenda du lycée — et le laisser choisir laquelle ouvrir. C'est ce qu'on appelle un <b>outil</b>. Et c'est à partir de là qu'un assistant devient un véritable logiciel, avec des couches qu'on peut nommer une par une.</p>
-    <div class="next" data-i18n="s10.next">Séance suivante · Au crible : anatomie d'un assistant</div>
+    <div class="next" data-i18n="s10.next">Séance suivante · Anatomie d'un assistant</div>
   </div>
 
   <!-- ============ 11 · ACTIVITÉ ============ -->
@@ -1372,7 +1379,7 @@ const I18N = { en: {
   's10.eye':`The question that opens what follows`,
   's10.q':`What if it knocked<br>on those doors<br><em>itself</em>?`,
   's10.a':`We now know that one machine can call another in three lines of code. Nothing stops us giving that ability to <b>the model</b>: describe the available doors to it — a search, a calculator, the school timetable — and let it choose which to open. That is what we call a <b>tool</b>. And from there an assistant becomes a real piece of software, with layers we can name one by one.`,
-  's10.next':`Next lesson · Under the microscope: anatomy of an assistant`,
+  's10.next':`Next lesson · Anatomy of an assistant`,
 
   /* --- 11 · activité --- */
   's11.tag':`Lesson activity · 30 minutes · in groups of three or four`,
