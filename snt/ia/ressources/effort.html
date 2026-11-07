@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L’effort qu’on évite</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- s1 : les deux groupes de l'expérience ---------- */
+  .bars2{display:grid;gap:.45rem;max-width:62ch;margin:.2rem auto .3rem}
+  .bgrp{display:grid;grid-template-columns:16ch minmax(0,1fr) 4.5ch;gap:.6rem;align-items:center}
+  .bgrp .bl{font-family:var(--mono);font-size:clamp(.64rem,1.1vw,.76rem);color:#a9a294;line-height:1.25}
+  .bgrp .bb{height:17px;background:rgba(233,228,216,.08);border:1px solid rgba(233,228,216,.2)}
+  .bgrp .bb i{display:block;height:100%;background:#6c9eff;transition:width .3s}
+  .bgrp.win .bb i{background:#7fe0ac}
+  .bgrp .bv{font-family:var(--mono);font-size:clamp(.66rem,1.15vw,.78rem);color:#e9e4d8;text-align:right}
+  .pane.light .bgrp .bl{color:#5a5345}
+  .pane.light .bgrp .bb{background:var(--paper-2);border-color:rgba(0,0,0,.2)}
+  .pane.light .bgrp .bb i{background:var(--signal-dk)}
+  .pane.light .bgrp.win .bb i{background:var(--green)}
+  .pane.light .bgrp .bv{color:var(--ink)}
+
+  /* ---------- lignes de comparaison (s2, s9) ---------- */
+  .mdl{display:grid;gap:.4rem}
+  .mdrow{border:1px solid rgba(233,228,216,.2);background:rgba(233,228,216,.04);padding:.45rem .7rem}
+  .mdrow .h{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:.15rem}
+  .mdrow p{font-family:var(--serif);font-size:clamp(.76rem,1.3vw,.92rem);color:#cfc8b8;line-height:1.4}
+  .mdrow b{color:#fff}
+  .pane.light .mdrow{border-color:rgba(0,0,0,.16);background:var(--paper-2)}
+  .pane.light .mdrow .h{color:var(--signal-dk)}
+  .pane.light .mdrow p{color:#4a4436}
+  .pane.light .mdrow b{color:var(--ink)}
+
+  /* ---------- s5 : l'arbre de décision ---------- */
+  .dtw{max-width:78ch;margin:0 auto;width:100%}
+  .dtpath{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem;min-height:1.4rem}
+  .dtstep{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;padding:.2rem .45rem;
+    border:1px solid rgba(0,0,0,.22);background:var(--paper-2);color:#5a5345}
+  .dtstep b{color:var(--signal-dk)}
+  .dtq{font-family:var(--display);text-transform:uppercase;line-height:1.1;
+    font-size:clamp(.95rem,2.1vw,1.45rem);color:var(--ink);margin-bottom:.3rem}
+  .dthint{font-family:var(--serif);font-size:clamp(.78rem,1.35vw,.95rem);color:#5a5345;
+    line-height:1.4;margin-bottom:.5rem}
+  .dtend{border-left:4px solid var(--signal-dk);background:var(--paper-2);padding:.6rem .85rem}
+  .dtend.stop{border-left-color:var(--alarm)}
+  .dtend.tutor{border-left-color:var(--green)}
+  .dtend .v{font-family:var(--display);text-transform:uppercase;font-size:clamp(.92rem,1.9vw,1.25rem);
+    line-height:1.08;color:var(--ink);margin-bottom:.25rem}
+  .dtend.stop .v{color:var(--alarm)}
+  .dtend.tutor .v{color:var(--green)}
+  .dtend p{font-family:var(--serif);font-size:clamp(.8rem,1.4vw,.98rem);color:#4a4436;line-height:1.42}
+  .dtend p b{color:var(--ink)}
+
+  /* ---------- s9 : les six situations ---------- */
+  .casebox{border:1px solid rgba(233,228,216,.22);background:rgba(233,228,216,.05);
+    padding:.6rem .8rem;margin-bottom:.45rem}
+  .casebox .ct{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:.2rem}
+  .casebox p{font-family:var(--serif);font-size:clamp(.82rem,1.5vw,1.02rem);color:#e9e4d8;line-height:1.42}
+  .ansrow{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.4rem}
+  .ans{cursor:pointer;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
+    padding:.42rem .75rem;border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);
+    color:#c9c2b2;transition:.15s}
+  .ans:hover{border-color:var(--signal)}
+  .ans.ok{background:rgba(18,146,79,.2);border-color:var(--green);color:#9ff0c4}
+  .ans.no{background:rgba(181,48,31,.18);border-color:var(--alarm);color:#ffb3a3}
+
+  /* ---------- resserrements de projection ---------- */
+  #s12 .rc-list{gap:.28rem}
+  #s12 .rc-list li{font-size:clamp(.76rem,1.36vw,.91rem);line-height:1.33}
+  #s12 .rc-voc{gap:.35rem}
+  #s12 .rc-term{font-size:.72rem;padding:.4rem .55rem}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="travailler.html" data-i18n="s0.back">◂ Séance précédente · Formuler, itérer, vérifier</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Il répond.<br>Vous n'avez<br>rien <em>appris</em>.</h1>
+    <p class="line" data-i18n="s0.line">Toute la séance précédente servait à obtenir une <strong style="color:#fff">bonne réponse</strong>. Celle-ci pose la question d'après, et c'est la plus difficile de l'année&nbsp;: <strong style="color:#fff">y a-t-il des moments où obtenir la réponse est exactement ce qu'il ne faut pas faire&nbsp;?</strong></p>
+    <div class="kick" data-i18n="s0.kick">Effet test · fluence trompeuse · difficultés désirables · décider</div>
+  </div>
+
+  <!-- ============ 1 · L'EXPÉRIENCE QUI GÊNE ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">Manipulation · une expérience de 2006, bien avant l'IA</div>
+    <h2 class="stitle" data-i18n="s1.t">Relire, ou<br>se tester</h2>
+    <p class="lead" data-i18n="s1.lead">Deux groupes d'étudiants, le même texte. Le premier le <b>relit quatre fois</b>. Le second le lit <b>une fois</b>, puis se teste trois fois de mémoire, sans le texte sous les yeux. Qui retient le mieux&nbsp;? Choisissez le moment où l'on mesure.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s1btns"></div>
+      <div class="bars2" id="s1bars"></div>
+      <p class="verd" id="s1verd"></p>
+      <p class="chain-note" style="font-size:.72rem" data-i18n="s1.src">Valeurs arrondies, d'après Roediger &amp; Karpicke, «&nbsp;Test-Enhanced Learning&nbsp;», <i>Psychological Science</i>, 2006, expérience&nbsp;1. L'effet a été répliqué des centaines de fois depuis&nbsp;: on l'appelle l'<b>effet test</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LA FLUENCE TROMPEUSE ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation · trois façons de « comprendre »</div>
+    <h2 class="stitle" data-i18n="s2.t">Ça paraît clair.<br>Ce n'est pas pareil.</h2>
+    <p class="lead" data-i18n="s2.lead">Une explication bien écrite donne une <b>sensation</b> de compréhension — immédiate, agréable, et largement indépendante de ce qu'il en restera. Les psychologues appellent ça la <b>fluence trompeuse</b>. Comparez trois conduites devant la même notion.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s2btns"></div>
+      <div class="mdl" id="s2out"></div>
+      <p class="verd" id="s2verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 3 · LES DIFFICULTÉS DÉSIRABLES ============ -->
+  <div class="pane light pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">Le mécanisme, pas la morale</div>
+    <h2 class="stitle" data-i18n="s3.t">La difficulté n'est pas<br>un obstacle : c'est l'outil</h2>
+    <p class="lead" data-i18n="s3.lead">Le psychologue Robert Bjork a donné un nom à ce paradoxe&nbsp;: les <b>difficultés désirables</b>. Certaines choses rendent l'apprentissage plus lent et plus pénible sur le moment — et c'est précisément pour ça qu'elles le rendent durable.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s3.c1">
+          <h3>Se tester plutôt que relire</h3>
+          <div class="sub">l'effort de récupération</div>
+          <p>Aller chercher l'information dans sa tête <b>renforce le chemin</b>. La relire le laisse intact.</p>
+          <p class="ex">pénible sur le moment · payant à une semaine</p>
+        </div>
+        <div class="card" data-i18n="s3.c2">
+          <h3>Espacer plutôt que bloquer</h3>
+          <div class="sub">l'oubli partiel</div>
+          <p>Reprendre trois fois à trois jours d'écart bat trois fois d'affilée. <b>Il faut avoir un peu oublié</b> pour que la reprise serve.</p>
+          <p class="ex">on a l'impression de régresser</p>
+        </div>
+        <div class="card" data-i18n="s3.c3">
+          <h3>Mélanger plutôt que grouper</h3>
+          <div class="sub">l'interclassement</div>
+          <p>Vingt exercices de types mélangés battent vingt exercices du même type — parce qu'il faut <b>choisir la méthode</b> à chaque fois.</p>
+          <p class="ex">on fait plus d'erreurs, et on progresse plus</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s3.note">Les trois ont un point commun&nbsp;: <b>elles donnent l'impression d'être moins efficaces qu'elles ne le sont.</b> Et un assistant, par défaut, supprime exactement ces trois difficultés — il récupère à votre place, il répond tout de suite, il trie pour vous. Il peut aussi faire l'inverse&nbsp;: c'est le mode tuteur de la séance&nbsp;12.</p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · QUATRE MOMENTS ============ -->
+  <div class="pane dark pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Quatre moments reconnaissables</div>
+    <h2 class="stitle" data-i18n="s4.t">Quand on ferme<br>l'onglet</h2>
+    <p class="lead" data-i18n="s4.lead">Ce ne sont pas des interdits moraux, ce sont des cas où l'outil <b>travaille contre vous</b> — soit parce qu'il vous prend l'entraînement, soit parce que vous ne pouvez pas vous servir de ce qu'il donne.</p>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card warn" data-i18n="s4.c1">
+          <h3>La tâche <i>est</i> l'entraînement</h3>
+          <div class="sub">le cas le plus fréquent</div>
+          <p>Rédiger, traduire dans une langue qu'on apprend, poser une division, démontrer. Faire faire le mouvement à sa place, c'est aller à la salle de sport et regarder.</p>
+        </div>
+        <div class="card warn" data-i18n="s4.c2">
+          <h3>Je ne peux pas juger</h3>
+          <div class="sub">la règle qui sauve</div>
+          <p>Si je n'en sais pas assez pour repérer une erreur, je ne peux pas vérifier. Et si je ne peux pas vérifier, <b>je ne peux pas utiliser</b> — séance 12, scène 7.</p>
+        </div>
+        <div class="card warn" data-i18n="s4.c3">
+          <h3>C'est évalué</h3>
+          <div class="sub">et la règle n'est pas écrite</div>
+          <p>Devoir maison, oral, dossier. La question n'est pas «&nbsp;est-ce que ça se verra&nbsp;?&nbsp;» mais «&nbsp;qu'est-ce qui est autorisé&nbsp;?&nbsp;». <b>Demandez-le avant.</b></p>
+        </div>
+        <div class="card warn" data-i18n="s4.c4">
+          <h3>L'enjeu n'est pas scolaire</h3>
+          <div class="sub">santé, droit, argent, autrui</div>
+          <p>Un symptôme, un contrat, une décision qui engage quelqu'un d'autre. Un modèle produit du plausible&nbsp;; ici le plausible ne suffit pas.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s4.note">Remarquez ce que ces quatre cas n'ont <b>pas</b> en commun avec «&nbsp;c'est de la triche&nbsp;». Trois sur quatre n'ont rien à voir avec la note&nbsp;: ils ont à voir avec ce que vous saurez faire ensuite, et avec ce que vous pouvez vérifier.</p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · L'ARBRE DE DÉCISION ============ -->
+  <div class="pane light pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Manipulation · trois questions, quatre issues</div>
+    <h2 class="stitle" data-i18n="s5.t">Trois questions<br>avant d'ouvrir</h2>
+    <p class="lead" data-i18n="s5.lead">Pas une règle à apprendre&nbsp;: un <b>réflexe</b>, qui prend dix secondes. Répondez pour un devoir que vous avez vraiment à faire ce soir.</p>
+
+    <div class="mid">
+      <div class="dtw nostep">
+        <div class="dtpath" id="s5path"></div>
+        <div id="s5body"></div>
+        <div class="btnrow" style="margin-top:.6rem">
+          <button class="bigbtn off nostep" id="s5reset" data-i18n="s5.reset">↺ Recommencer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 6 · CE QUE DIT LA RECHERCHE ============ -->
+  <div class="pane dark pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Rigueur · ce qu'on sait, ce qu'on ne sait pas</div>
+    <h2 class="stitle" data-i18n="s6.t">Ne pas confondre<br>trois choses</h2>
+    <p class="lead" data-i18n="s6.lead">Tout ce qui précède ne pèse pas du même poids. Une séance honnête doit dire où s'arrête ce qui est établi — sinon elle fait exactement ce qu'elle reproche aux réponses trop lisses.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card good" data-i18n="s6.c1">
+          <h3>Solide</h3>
+          <div class="sub">des décennies, avant l'IA</div>
+          <p>L'<b>effet test</b>, la <b>fluence trompeuse</b>, les <b>difficultés désirables</b>. Des centaines de réplications, sur des milliers de participants, dans plusieurs pays et plusieurs disciplines.</p>
+          <p class="ex">ça ne parle pas d'IA : ça parle d'apprentissage</p>
+        </div>
+        <div class="card" data-i18n="s6.c2">
+          <h3>Récent et fragile</h3>
+          <div class="sub">deux ou trois ans</div>
+          <p>Les études sur <b>l'IA et l'apprentissage</b> existent, mais portent sur des tâches courtes, des groupes réduits, des durées de quelques semaines. Elles vont dans plusieurs sens.</p>
+          <p class="ex">à lire, pas à brandir</p>
+        </div>
+        <div class="card warn" data-i18n="s6.c3">
+          <h3>Inconnu</h3>
+          <div class="sub">personne ne sait</div>
+          <p>Aucun suivi de cohorte sur une scolarité entière. <b>Personne ne peut dire aujourd'hui</b> ce que l'usage quotidien d'un assistant fait à un élève sur huit ans. Vous êtes la première génération concernée.</p>
+          <p class="ex">c'est une raison d'être prudent, pas d'avoir peur</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s6.note">Méfiez-vous donc des deux discours symétriques&nbsp;: «&nbsp;<b>ça rend bête</b>&nbsp;» et «&nbsp;<b>ça change tout, il faut s'adapter</b>&nbsp;». Les deux vont plus vite que les données. Ce qui est solide, lui, ne dépend pas de l'IA&nbsp;: <b>on apprend en fournissant l'effort, pas en le regardant être fourni.</b></p>
+    </div>
+  </div>
+
+  <!-- ============ 7 · LES USAGES QUI FONT APPRENDRE ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">L'autre moitié de la séance</div>
+    <h2 class="stitle" data-i18n="s7.t">Quatre usages qui<br>ajoutent de la difficulté</h2>
+    <p class="lead" data-i18n="s7.lead">Cette séance n'est pas un plaidoyer contre l'outil. Un assistant peut <b>fabriquer</b> les difficultés désirables de la scène&nbsp;3 — à la demande, à volonté, à votre niveau. C'est même ce qu'il fait de mieux.</p>
+
+    <div class="mid">
+      <div class="cards c4">
+        <div class="card good" data-i18n="s7.c1">
+          <h3>Se faire interroger</h3>
+          <div class="sub">l'effet test, à la demande</div>
+          <p>«&nbsp;Une question à la fois, ne me donne pas la réponse.&nbsp;» C'est la scène&nbsp;3 de cette séance, appliquée. <b>L'usage le plus rentable, et le moins fréquent.</b></p>
+        </div>
+        <div class="card good" data-i18n="s7.c2">
+          <h3>Faire relire son travail</h3>
+          <div class="sub">sans le faire réécrire</div>
+          <p>«&nbsp;Dis-moi ce qui n'est pas clair, ne le réécris pas.&nbsp;» Vous gardez la plume&nbsp;: c'est toujours vous qui corrigez.</p>
+        </div>
+        <div class="card good" data-i18n="s7.c3">
+          <h3>Trois explications différentes</h3>
+          <div class="sub">contre la fluence</div>
+          <p>«&nbsp;Explique-le autrement, puis avec un exemple, puis par un contre-exemple.&nbsp;» Si les trois tiennent ensemble dans votre tête, vous avez compris.</p>
+        </div>
+        <div class="card good" data-i18n="s7.c4">
+          <h3>Fabriquer des exercices</h3>
+          <div class="sub">et pas leurs corrigés</div>
+          <p>«&nbsp;Dix exercices de types mélangés sur le chapitre 4, sans correction.&nbsp;» C'est l'interclassement de la scène&nbsp;3, fait en dix secondes.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s7.note">Le fil commun&nbsp;: dans les quatre cas, <b>c'est vous qui produisez l'effort</b> et lui qui met en place le dispositif. Dans l'usage «&nbsp;il fait à ma place&nbsp;», c'est exactement l'inverse. Même outil, même heure — <b>l'effort change de côté</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 8 · CE QUE L'ÉCOLE ÉVALUE ============ -->
+  <div class="pane light pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Le malentendu à lever</div>
+    <h2 class="stitle" data-i18n="s8.t">Un devoir n'est pas<br>un produit à livrer</h2>
+    <p class="lead" data-i18n="s8.lead">Si un devoir était un produit, le faire faire serait une optimisation raisonnable. Ce qu'on vous demande de rendre n'est pas la chose&nbsp;: c'est la <b>trace</b> d'un entraînement. Trois conséquences concrètes.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s8.c1">
+          <h3>La note mesure un écart</h3>
+          <div class="sub">pas une qualité absolue</div>
+          <p>Elle dit où vous en êtes par rapport à ce qui est visé, pour que la suite s'ajuste. Une note obtenue sans vous <b>fausse le réglage</b> — et c'est vous qui en paierez le prix au contrôle suivant.</p>
+        </div>
+        <div class="card" data-i18n="s8.c2">
+          <h3>La règle n'est pas la même partout</h3>
+          <div class="sub">et c'est normal</div>
+          <p>Selon la matière et le moment, l'outil est interdit, toléré, ou exigé. Ce n'est pas une incohérence&nbsp;: la tâche n'a pas le même but. <b>La seule erreur est de ne pas demander.</b></p>
+        </div>
+        <div class="card good" data-i18n="s8.c3">
+          <h3>Le dire coûte une ligne</h3>
+          <div class="sub">et règle tout</div>
+          <p class="ex">« J'ai écrit seul, puis fait relire la clarté. »<br>« Les exercices 3 à 5 ont été générés pour m'entraîner. »<br>« J'ai fait traduire ce paragraphe, puis vérifié. »</p>
+          <p>Une phrase en bas de page. Le problème n'a jamais été l'outil&nbsp;: c'est le <b>silence</b> sur son emploi.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 9 · SIX SITUATIONS ============ -->
+  <div class="pane dark pad" id="s9">
+    <div class="eyebrow" data-i18n="s9.eye">Manipulation · six situations, trois réponses possibles</div>
+    <h2 class="stitle" data-i18n="s9.t">À vous de<br>trancher</h2>
+    <p class="lead" data-i18n="s9.lead">Six situations réelles. Pour chacune, une seule des trois conduites tient debout. Servez-vous de l'arbre de la scène&nbsp;5 — et lisez la raison, elle compte plus que la réponse.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s9btns"></div>
+      <div class="casebox" id="s9case"></div>
+      <div class="ansrow nostep" id="s9ans"></div>
+      <p class="verd" id="s9verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 10 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s10">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s10.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s10.q">Vous avez choisi.<br>Mais tout le reste<br>de la journée&nbsp;?</div>
+    <p class="a" data-i18n="s10.a">Devant un devoir, vous décidez&nbsp;: ouvrir, fermer, ou demander à être interrogé. C'est un choix conscient, et vous venez d'en faire six. <b>Mais la plus grande partie de votre temps d'écran ne ressemble pas du tout à ça.</b> Là, vous ne choisissez pas ce qui apparaît — une IA l'a choisi pour vous, en quelques millisecondes, et elle n'a pas été entraînée à vous faire apprendre.</p>
+    <div class="next" data-i18n="s10.next">Bloc suivant · Qui choisit ce que je vois&nbsp;?</div>
+  </div>
+
+  <!-- ============ 11 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s11">
+    <div class="tag" data-i18n="s11.tag">Activité de la séance · une semaine · carnet personnel</div>
+    <h2 data-i18n="s11.t">Le <em>journal</em><br>d'une semaine</h2>
+    <p class="sub" data-i18n="s11.sub">La seule manière de savoir ce que l'outil vous fait, c'est de regarder. Pas de jugement, pas de note&nbsp;: des faits, sur sept jours.</p>
+    <ol class="steps">
+      <li data-i18n="s11.l1"><b>Le relevé.</b> Pendant une semaine, notez <b>chaque fois</b> que vous ouvrez un assistant pour le travail. Trois colonnes&nbsp;: la tâche, la conduite (il fait / avec moi / il m'interroge), le temps.</li>
+      <li data-i18n="s11.l2"><b>La colonne qui pique.</b> Une quatrième colonne, remplie <b>le lendemain</b>&nbsp;: «&nbsp;est-ce que je saurais le refaire seul&nbsp;?&nbsp;» Oui, non, je ne sais pas.</li>
+      <li data-i18n="s11.l3"><b>Le total.</b> À la fin de la semaine, comptez. Quelle part de vos usages tombe dans chaque conduite&nbsp;? Et combien de «&nbsp;non&nbsp;» dans la quatrième colonne&nbsp;?</li>
+      <li data-i18n="s11.l4"><b>Les deux cas.</b> Isolez <b>un</b> usage que vous referiez à l'identique, et <b>un</b> que vous ne referiez pas. Écrivez pourquoi, en une phrase chacun.</li>
+      <li data-i18n="s11.l5"><b>La mise en commun.</b> Anonymement, la classe additionne les relevés. On compare la répartition réelle à celle que chacun avait prévue avant de commencer.</li>
+      <li data-i18n="s11.l6"><b>La règle.</b> En petits groupes, rédigez <b>trois règles</b> que vous vous donnez pour le trimestre. Pas des interdits généraux&nbsp;: des règles que vous tiendrez vraiment, vérifiables, et relues dans six semaines.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 12 · RÉCAP ============ -->
+  <div class="pane light pad" id="s12">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 13 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">L'effort <span>qu'on évite</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">On apprend en <b>allant chercher</b> l'information dans sa tête, pas en la relisant&nbsp;: c'est l'<span class="hl">effet test</span>. Établi bien avant l'IA, répliqué des centaines de fois.</li>
+      <li data-i18n="rc.i2">Une explication claire donne une <b>sensation</b> de comprendre, assez indépendante de ce qu'il en restera&nbsp;: la <span class="hl">fluence trompeuse</span>. Un modèle écrit toujours clairement.</li>
+      <li data-i18n="rc.i3">Se tester, espacer, mélanger&nbsp;: ce sont des <span class="hl">difficultés désirables</span>. Elles paraissent moins efficaces qu'elles ne le sont — et un assistant les supprime par défaut.</li>
+      <li data-i18n="rc.i4">On ferme l'onglet quand <b>la tâche est l'entraînement</b>, quand <b>je ne peux pas juger la réponse</b>, quand <b>c'est évalué</b> et que la règle n'est pas claire, et quand l'enjeu <b>n'est pas scolaire</b>.</li>
+      <li data-i18n="rc.i5">Trois questions suffisent&nbsp;: <b>la tâche est-elle le but ou un moyen&nbsp;? saurais-je repérer une erreur&nbsp;? est-ce évalué&nbsp;?</b></li>
+      <li data-i18n="rc.i6">Le même outil peut <b>fabriquer</b> les difficultés&nbsp;: se faire interroger, faire relire sans faire réécrire, demander trois explications, fabriquer des exercices sans corrigé.</li>
+      <li data-i18n="rc.i7">Ce qui est <b>solide</b> ne parle pas d'IA mais d'apprentissage. Ce qui parle d'IA est <b>récent et fragile</b>. Et sur une scolarité entière, <b>personne ne sait encore</b>.</li>
+      <li data-i18n="rc.i8">Un devoir n'est pas un produit&nbsp;: c'est la <b>trace d'un entraînement</b>. Dire ce qu'on a fait faire coûte une ligne et règle la question.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Effet test</b>Se tester fait retenir plus que relire.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Fluence trompeuse</b>Ça paraît clair, donc on croit savoir.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Difficulté désirable</b>Plus dur sur le moment, plus durable après.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Interclassement</b>Mélanger les types d'exercices.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Le test du lendemain</b>Saurais-je le refaire seul&nbsp;?</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Transparence</b>Dire ce qu'on a fait faire.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>sortir du devoir. Qui choisit ce que je vois, le reste de la journée&nbsp;?</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 12;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.closest && e.target.closest('#langsw,select') && (e.key===' '||e.key==='Enter')) return;
+  if(e.target && e.target.matches && e.target.matches('select')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+/* curLang est déclaré en var : les widgets ci-dessous tournent AVANT le bloc i18n. */
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   SCÈNE 1 — relire ou se tester
+   ========================================================= */
+var S1V = [[81, 75], [42, 61]];   /* [relire, se tester] à 5 min, puis à 1 semaine */
+var S1 = {
+  fr:{
+    btn:['Mesuré 5 minutes après','Mesuré une semaine après'],
+    lbl:['Relire quatre fois','Lire une fois,<br>puis se tester trois fois'],
+    v:[
+      'Juste après, <b>relire gagne</b> — un peu. Et c’est ce que les deux groupes ressentent&nbsp;: interrogés sur ce qu’ils retiendront, <b>ceux qui ont relu se croient les mieux placés</b>. Ils ont tort, mais il faut attendre pour le voir.',
+      'Une semaine plus tard, tout s’inverse&nbsp;: <b>61&nbsp;% contre 42&nbsp;%</b>. Le groupe qui a le plus peiné sur le moment est celui qui a retenu. Le groupe qui avait le plus confiance a perdu la moitié de ce qu’il savait. <b>La sensation de savoir et le fait de savoir ne sont pas la même chose.</b>'
+    ]
+  },
+  en:{
+    btn:['Measured 5 minutes later','Measured one week later'],
+    lbl:['Reread four times','Read once,<br>then self-test three times'],
+    v:[
+      'Just afterwards, <b>rereading wins</b> — slightly. And that is what both groups feel: asked how much they will remember, <b>the rereaders rate themselves highest</b>. They are wrong, but you have to wait to see it.',
+      'One week later, everything flips: <b>61% against 42%</b>. The group that struggled most at the time is the one that remembered. The group that felt most confident lost half of what it knew. <b>The feeling of knowing and actually knowing are not the same thing.</b>'
+    ]
+  }
+};
+var s1i = 0;
+function drawS1(){
+  var t = S1[LG()], v = S1V[s1i];
+  pickbtns('s1btns', t.btn, s1i, function(i){ s1i = i; drawS1(); });
+  var win = v[1] > v[0] ? 1 : 0;
+  document.getElementById('s1bars').innerHTML = [0,1].map(function(k){
+    return '<div class="bgrp' + (k===win ? ' win' : '') + '">' +
+      '<div class="bl">' + t.lbl[k] + '</div>' +
+      '<div class="bb"><i style="width:' + v[k] + '%"></i></div>' +
+      '<div class="bv">' + v[k] + '&nbsp;%</div></div>';
+  }).join('');
+  document.getElementById('s1verd').innerHTML = t.v[s1i];
+}
+
+/* =========================================================
+   SCÈNE 2 — trois façons de « comprendre »
+   ========================================================= */
+var S2 = {
+  fr:{
+    btn:['Je lis une explication claire','Je me la redis sans regarder','J’essaie de l’expliquer à quelqu’un'],
+    rows:[
+      [['Sur le moment','<b>Très agréable.</b> Tout s’enchaîne, rien n’accroche. On hoche la tête.'],
+       ['Ce que ça coûte','Deux minutes, et aucun effort.'],
+       ['Demain','On se souvient d’avoir compris. On ne sait pas refaire. <b>C’est la fluence trompeuse.</b>']],
+      [['Sur le moment','<b>Pénible.</b> Des trous apparaissent immédiatement — c’est le signal utile.'],
+       ['Ce que ça coûte','Cinq minutes, et un effort réel.'],
+       ['Demain','On sait ce qu’on sait, et ce qu’on ne sait pas. <b>L’effet test, appliqué à soi.</b>']],
+      [['Sur le moment','<b>Très pénible.</b> Il faut un ordre, des mots, des exemples — et répondre aux questions.'],
+       ['Ce que ça coûte','Quinze minutes, et beaucoup d’effort.'],
+       ['Demain','On sait. Les trous ont été bouchés un par un, par nécessité. <b>C’est l’étalon-or.</b>']]
+    ],
+    v:[
+      'Un assistant produit exactement ce texte-là&nbsp;: clair, ordonné, sans aspérité. C’est sa qualité principale — et c’est ce qui en fait la machine à <b>fluence trompeuse</b> la plus efficace jamais construite.',
+      'Remarquez que l’outil peut vous mettre dans cette situation en une phrase&nbsp;: «&nbsp;interroge-moi, ne me donne pas la réponse&nbsp;». Le dispositif est le même que celui de l’expérience de 2006.',
+      'C’est la raison pour laquelle expliquer à un camarade fait progresser <b>celui qui explique</b> au moins autant que l’autre. Et c’est ce que l’oral évalue&nbsp;: pas la connaissance, sa <b>récupération sous contrainte</b>.'
+    ]
+  },
+  en:{
+    btn:['I read a clear explanation','I say it back without looking','I try to explain it to someone'],
+    rows:[
+      [['At the time','<b>Very pleasant.</b> Everything follows on, nothing snags. You nod along.'],
+       ['What it costs','Two minutes, and no effort at all.'],
+       ['Tomorrow','You remember having understood. You cannot redo it. <b>That is fluency illusion.</b>']],
+      [['At the time','<b>Uncomfortable.</b> Gaps show up at once — and that is the useful signal.'],
+       ['What it costs','Five minutes, and real effort.'],
+       ['Tomorrow','You know what you know, and what you do not. <b>The testing effect, applied to yourself.</b>']],
+      [['At the time','<b>Very uncomfortable.</b> You need an order, words, examples — and answers to questions.'],
+       ['What it costs','Fifteen minutes, and a great deal of effort.'],
+       ['Tomorrow','You know it. The gaps were filled one by one, out of necessity. <b>This is the gold standard.</b>']]
+    ],
+    v:[
+      'An assistant produces exactly that kind of text: clear, ordered, without a single snag. That is its main quality — and it makes it the most effective <b>fluency-illusion machine</b> ever built.',
+      'Note that the tool can put you in this situation with one sentence: &ldquo;test me, do not give me the answer&rdquo;. The set-up is the same as in the 2006 experiment.',
+      'This is why explaining something to a classmate advances <b>the one explaining</b> at least as much as the other. And it is what an oral exam measures: not the knowledge, its <b>retrieval under pressure</b>.'
+    ]
+  }
+};
+var s2i = 0;
+function drawS2(){
+  var t = S2[LG()];
+  pickbtns('s2btns', t.btn, s2i, function(i){ s2i = i; drawS2(); });
+  document.getElementById('s2out').innerHTML = t.rows[s2i].map(function(r){
+    return '<div class="mdrow"><div class="h">' + r[0] + '</div><p>' + r[1] + '</p></div>';
+  }).join('');
+  document.getElementById('s2verd').innerHTML = t.v[s2i];
+}
+
+/* =========================================================
+   SCÈNE 5 — l'arbre de décision
+   ========================================================= */
+var S5 = {
+  fr:{
+    qs:[
+      { q:'Cette tâche, est-elle le <em>but</em> ou un <em>moyen</em>&nbsp;?',
+        h:'Le but&nbsp;: c’est elle que j’apprends à faire — rédiger, traduire, démontrer, calculer. Un moyen&nbsp;: j’ai besoin du résultat pour faire autre chose.',
+        a:['C’est le but','C’est un moyen'], lbl:['but','moyen'] },
+      { q:'Saurais-je repérer une <em>erreur</em> dans la réponse&nbsp;?',
+        h:'Pas «&nbsp;est-ce que j’aurais su la trouver&nbsp;?&nbsp;», mais «&nbsp;est-ce que je saurais dire qu’elle est fausse&nbsp;?&nbsp;» Ce n’est pas la même exigence.',
+        a:['Oui, je peux juger','Non, pas vraiment'], lbl:['je peux juger','je ne peux pas juger'] },
+      { q:'Est-ce que c’est <em>évalué</em>&nbsp;?',
+        h:'Devoir noté, oral, dossier, examen blanc — ou simple entraînement pour vous.',
+        a:['Oui, c’est évalué','Non, c’est pour moi'], lbl:['évalué','pour moi'] }
+    ],
+    ends:{
+      tutor:{ cls:'tutor', v:'Mode tuteur, ou rien',
+        p:'La tâche <b>est</b> l’entraînement&nbsp;: la faire faire revient à aller à la salle de sport et regarder. L’outil reste utile — mais dans un seul rôle&nbsp;: vous interroger, vous fabriquer des exercices, relire ce que <b>vous</b> avez écrit sans le réécrire. Si vous bloquez depuis vingt minutes, demandez une explication puis <b>refermez et refaites seul</b>.' },
+      stop:{ cls:'stop', v:'Fermez — ou apprenez d’abord',
+        p:'Vous ne pourriez pas dire si la réponse est fausse&nbsp;: vous ne pouvez donc pas la vérifier, et <b>ce qu’on ne peut pas vérifier, on ne peut pas l’utiliser</b>. Deux issues honnêtes&nbsp;: trouver une source que vous pouvez lire et juger, ou vous faire expliquer jusqu’à être capable de juger — et c’est alors le mode tuteur.' },
+      rule:{ cls:'', v:'Demandez la règle avant',
+        p:'C’est évalué et vous savez juger&nbsp;: techniquement, rien ne vous arrête. Mais la question n’est pas «&nbsp;est-ce que ça se verra&nbsp;?&nbsp;», c’est «&nbsp;qu’est-ce qui est autorisé ici&nbsp;?&nbsp;». Selon la matière et le moment, l’outil est interdit, toléré ou exigé. <b>Demandez, puis suivez la règle, puis dites ce que vous avez fait faire.</b>' },
+      go:{ cls:'', v:'Allez-y — et vérifiez',
+        p:'Moyen, pas but&nbsp;; vous savez juger&nbsp;; rien n’est évalué. C’est le cas où l’outil fait exactement ce pour quoi il est bon. Deux réflexes quand même&nbsp;: <b>vérifier les faits</b> que vous reprendrez (séance&nbsp;12, scène&nbsp;7), et ne pas coller ce qui ne vous appartient pas.' }
+    },
+    restart:'↺ Recommencer', q0:'Question'
+  },
+  en:{
+    qs:[
+      { q:'Is this task the <em>goal</em>, or a <em>means</em>&nbsp;?',
+        h:'The goal: it is the thing I am learning to do — write, translate, prove, calculate. A means: I need the result in order to do something else.',
+        a:['It is the goal','It is a means'], lbl:['goal','means'] },
+      { q:'Could I spot an <em>error</em> in the answer&nbsp;?',
+        h:'Not &ldquo;could I have found it myself?&rdquo;, but &ldquo;could I tell that it is wrong?&rdquo; Those are not the same bar.',
+        a:['Yes, I can judge it','No, not really'], lbl:['I can judge','I cannot judge'] },
+      { q:'Is it <em>assessed</em>&nbsp;?',
+        h:'Marked homework, an oral, a coursework file, a mock — or just practice for yourself.',
+        a:['Yes, it is assessed','No, it is for me'], lbl:['assessed','for me'] }
+    ],
+    ends:{
+      tutor:{ cls:'tutor', v:'Tutor mode, or nothing',
+        p:'The task <b>is</b> the training: having it done for you is going to the gym and watching. The tool is still useful — in one role only: testing you, making you exercises, reviewing what <b>you</b> wrote without rewriting it. If you have been stuck for twenty minutes, ask for an explanation, then <b>close it and do it again alone</b>.' },
+      stop:{ cls:'stop', v:'Close it — or learn first',
+        p:'You could not tell whether the answer is wrong: so you cannot check it, and <b>what you cannot check, you cannot use</b>. Two honest ways out: find a source you can read and judge, or have it explained until you are able to judge — and that is tutor mode.' },
+      rule:{ cls:'', v:'Ask for the rule first',
+        p:'It is assessed and you can judge: technically nothing stops you. But the question is not &ldquo;will anyone notice?&rdquo;, it is &ldquo;what is allowed here?&rdquo; Depending on the subject and the moment, the tool is banned, tolerated or required. <b>Ask, then follow the rule, then say what you had done for you.</b>' },
+      go:{ cls:'', v:'Go ahead — and check',
+        p:'A means, not the goal; you can judge; nothing is assessed. This is where the tool does exactly what it is good at. Two reflexes all the same: <b>check the facts</b> you are going to reuse (lesson 12, scene 7), and do not paste what is not yours.' }
+    },
+    restart:'↺ Start again', q0:'Question'
+  }
+};
+var s5path = [];
+function s5end(){
+  if(s5path.length === 1 && s5path[0] === 0) return 'tutor';
+  if(s5path.length === 2 && s5path[1] === 1) return 'stop';
+  if(s5path.length === 3) return s5path[2] === 0 ? 'rule' : 'go';
+  return null;
+}
+function drawS5(){
+  var t = S5[LG()];
+  document.getElementById('s5path').innerHTML = s5path.map(function(a,i){
+    return '<div class="dtstep">' + t.q0 + ' ' + (i+1) + ' · <b>' + t.qs[i].lbl[a] + '</b></div>';
+  }).join('');
+  var e = s5end(), body = document.getElementById('s5body');
+  if(e){
+    var k = t.ends[e];
+    body.innerHTML = '<div class="dtend ' + k.cls + '"><div class="v">' + k.v + '</div><p>' + k.p + '</p></div>';
+  } else {
+    var q = t.qs[s5path.length];
+    body.innerHTML = '<div class="dtq">' + q.q + '</div><div class="dthint">' + q.h + '</div>' +
+      '<div class="btnrow">' + q.a.map(function(l,i){
+        return '<button class="bigbtn off nostep" data-a="' + i + '">' + l + '</button>';
+      }).join('') + '</div>';
+    [].slice.call(body.querySelectorAll('[data-a]')).forEach(function(b){
+      b.onclick = function(){ s5path.push(+b.dataset.a); drawS5(); };
+    });
+  }
+  document.getElementById('s5reset').textContent = t.restart;
+}
+document.getElementById('s5reset').onclick = function(){ s5path = []; drawS5(); };
+
+/* =========================================================
+   SCÈNE 9 — six situations
+   ========================================================= */
+var S9 = {
+  fr:{
+    btn:['1','2','3','4','5','6'],
+    ans:['Fermer','Mode tuteur','Produire avec'],
+    tag:'Situation',
+    cases:[
+      { c:'Contrôle de maths demain. Vous ne comprenez pas la méthode du discriminant, et vous êtes dessus depuis vingt minutes.',
+        g:1, r:'La tâche <b>est</b> l’entraînement — mais vous êtes bloqué, et rester bloqué n’apprend rien non plus. Faites-vous <b>expliquer puis interroger</b>&nbsp;: «&nbsp;explique-moi, puis pose-moi trois équations, sans les corriger tout de suite&nbsp;». Et refaites-en deux seul, sans rien sous les yeux.' },
+      { c:'Devoir maison noté de français&nbsp;: un commentaire de texte à rendre lundi. Le professeur n’a rien dit sur l’IA.',
+        g:0, r:'Deux feux rouges d’un coup&nbsp;: la tâche <b>est</b> le but (on apprend à commenter), et c’est <b>évalué sans règle écrite</b>. Écrivez d’abord — et posez la question au professeur dès que possible. Ce n’est pas une question de ruse, c’est la seule façon de savoir ce qui est demandé.' },
+      { c:'Vous devez résumer trois pages de documentation technique pour préparer un exposé de groupe. Le résumé n’est pas noté&nbsp;; l’exposé l’est.',
+        g:2, r:'Moyen et non but, vous pouvez juger (vous allez lire les trois pages), et le résumé n’est pas ce qui est évalué. C’est le cas typique où l’outil est à sa place. <b>Vérifiez les chiffres</b> que vous reprendrez dans l’exposé, eux sont évalués.' },
+      { c:'Vous avez mal au ventre depuis trois jours et vous voulez savoir ce que c’est.',
+        g:0, r:'L’enjeu n’est pas scolaire. Un modèle produit du <b>plausible</b>&nbsp;: ici, plausible ne suffit pas, et vous ne pouvez pas juger la réponse. L’infirmerie, un médecin, un adulte. Ce n’est pas de la prudence excessive&nbsp;: c’est exactement la deuxième question de l’arbre.' },
+      { c:'Vous apprenez l’espagnol depuis deux ans. Dix phrases à traduire pour la semaine prochaine, non notées.',
+        g:1, r:'Traduire <b>est</b> l’entraînement&nbsp;: c’est précisément le mouvement que vous apprenez. Traduisez d’abord, <b>puis</b> faites corriger et expliquer les erreurs. L’ordre fait toute la différence — et dans ce sens-là, l’outil vaut mieux qu’un corrigé.' },
+      { c:'Compte rendu de SVT&nbsp;: vos données sont relevées, vos conclusions écrites. Il reste à mettre le tableau en forme et à tracer le graphique.',
+        g:2, r:'Ni le but, ni évalué en soi, et vous savez parfaitement juger le résultat&nbsp;: vos chiffres, votre graphique. <b>Relisez quand même le tableau</b> — une colonne inversée est vite arrivée, et là, elle serait de vous.' }
+    ],
+    ask:'Choisissez une conduite.',
+    bad:'Pas celle-là. '
+  },
+  en:{
+    btn:['1','2','3','4','5','6'],
+    ans:['Close it','Tutor mode','Produce with it'],
+    tag:'Situation',
+    cases:[
+      { c:'Maths test tomorrow. You do not understand the discriminant method, and you have been stuck on it for twenty minutes.',
+        g:1, r:'The task <b>is</b> the training — but you are stuck, and staying stuck teaches nothing either. Get it <b>explained, then be tested</b>: &ldquo;explain it to me, then set me three equations and do not correct them straight away&rdquo;. Then do two alone, with nothing in front of you.' },
+      { c:'Marked French homework: a commentary on a text, due Monday. The teacher has said nothing about AI.',
+        g:0, r:'Two red lights at once: the task <b>is</b> the goal (you are learning to write commentary), and it is <b>assessed with no written rule</b>. Write it yourself first — and ask the teacher as soon as you can. This is not cunning, it is the only way to know what is being asked.' },
+      { c:'You have to summarise three pages of technical documentation to prepare a group presentation. The summary is not marked; the presentation is.',
+        g:2, r:'A means, not the goal; you can judge it (you are going to read the three pages); and the summary is not what is assessed. This is the textbook case where the tool belongs. <b>Check the figures</b> you carry into the presentation — those are assessed.' },
+      { c:'You have had stomach pain for three days and want to know what it is.',
+        g:0, r:'The stakes are not academic. A model produces the <b>plausible</b>: here plausible is not enough, and you cannot judge the answer. The school nurse, a doctor, an adult. This is not excessive caution: it is exactly the second question of the tree.' },
+      { c:'You have been learning Spanish for two years. Ten sentences to translate for next week, not marked.',
+        g:1, r:'Translating <b>is</b> the training: it is precisely the movement you are learning. Translate first, <b>then</b> have it corrected and the mistakes explained. The order makes all the difference — and in that order, the tool beats an answer key.' },
+      { c:'Biology report: your data are collected, your conclusions written. What is left is laying out the table and drawing the graph.',
+        g:2, r:'Neither the goal nor assessed in itself, and you can judge the result perfectly: they are your figures, your graph. <b>Read the table over anyway</b> — a swapped column happens fast, and here it would be yours.' }
+    ],
+    ask:'Choose what you would do.',
+    bad:'Not that one. '
+  }
+};
+var s9i = 0;
+var s9pick = [-1,-1,-1,-1,-1,-1];
+function drawS9(){
+  var t = S9[LG()], k = t.cases[s9i], p = s9pick[s9i];
+  pickbtns('s9btns', t.btn, s9i, function(i){ s9i = i; drawS9(); });
+  document.getElementById('s9case').innerHTML =
+    '<div class="ct">' + t.tag + ' ' + (s9i+1) + '</div><p>' + k.c + '</p>';
+  document.getElementById('s9ans').innerHTML = t.ans.map(function(l,i){
+    var cls = '';
+    if(p >= 0){
+      if(i === k.g) cls = ' ok';
+      else if(i === p) cls = ' no';
+    }
+    return '<button class="ans nostep' + cls + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s9ans .ans')).forEach(function(b){
+    b.onclick = function(){ s9pick[s9i] = +b.dataset.i; drawS9(); };
+  });
+  document.getElementById('s9verd').innerHTML =
+    p < 0 ? t.ask : ((p === k.g ? '' : t.bad) + k.r);
+}
+
+/* =========================================================
+   REDESSIN GLOBAL (appelé aussi au changement de langue)
+   ========================================================= */
+function redrawAll(){ drawS1(); drawS2(); drawS5(); drawS9(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`L'effort qu'on évite`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`The effort we dodge`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · Framing, iterating, checking`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`It answers.<br>You have learnt<br><em>nothing</em>.`,
+  's0.line':`The whole of the previous lesson served to obtain a <strong style="color:#fff">good answer</strong>. This one asks the next question, and it is the hardest of the year: <strong style="color:#fff">are there moments when obtaining the answer is exactly what you must not do?</strong>`,
+  's0.kick':`Testing effect · fluency illusion · desirable difficulties · deciding`,
+
+  /* --- 1 · relire ou se tester --- */
+  's1.eye':`Hands on · an experiment from 2006, long before AI`,
+  's1.t':`Reread,<br>or self-test`,
+  's1.lead':`Two groups of students, the same passage. The first <b>rereads it four times</b>. The second reads it <b>once</b>, then tests itself three times from memory, with the text out of sight. Who remembers more? Choose when the measurement is taken.`,
+  's1.src':`Rounded values, after Roediger &amp; Karpicke, &ldquo;Test-Enhanced Learning&rdquo;, <i>Psychological Science</i>, 2006, experiment 1. The effect has been replicated hundreds of times since: it is called the <b>testing effect</b>.`,
+
+  /* --- 2 · la fluence trompeuse --- */
+  's2.eye':`Hands on · three ways of &ldquo;understanding&rdquo;`,
+  's2.t':`It looks clear.<br>That is not the same.`,
+  's2.lead':`A well-written explanation gives a <b>feeling</b> of understanding — immediate, pleasant, and largely unrelated to what will be left of it. Psychologists call this the <b>fluency illusion</b>. Compare three ways of meeting the same idea.`,
+
+  /* --- 3 · les difficultés désirables --- */
+  's3.eye':`The mechanism, not the moral`,
+  's3.t':`Difficulty is not an obstacle:<br>it is the tool`,
+  's3.lead':`The psychologist Robert Bjork gave this paradox a name: <b>desirable difficulties</b>. Some things make learning slower and more painful at the time — and that is precisely why they make it last.`,
+  's3.c1':`
+          <h3>Test yourself rather than reread</h3>
+          <div class="sub">the effort of retrieval</div>
+          <p>Going to fetch the information from your own head <b>strengthens the path</b>. Rereading it leaves the path untouched.</p>
+          <p class="ex">painful now · profitable in a week</p>
+        `,
+  's3.c2':`
+          <h3>Space out rather than block</h3>
+          <div class="sub">partial forgetting</div>
+          <p>Three sessions three days apart beat three in a row. <b>You have to have forgotten a little</b> for the next session to pay.</p>
+          <p class="ex">it feels like going backwards</p>
+        `,
+  's3.c3':`
+          <h3>Mix rather than group</h3>
+          <div class="sub">interleaving</div>
+          <p>Twenty mixed exercises beat twenty of the same kind — because you have to <b>choose the method</b> every time.</p>
+          <p class="ex">more mistakes, and more progress</p>
+        `,
+  's3.note':`All three have one thing in common: <b>they feel less effective than they are.</b> And an assistant, by default, removes exactly those three difficulties — it retrieves for you, it answers instantly, it sorts things out on your behalf. It can also do the opposite: that is lesson 12's tutor mode.`,
+
+  /* --- 4 · quatre moments --- */
+  's4.eye':`Four recognisable moments`,
+  's4.t':`When you close<br>the tab`,
+  's4.lead':`These are not moral prohibitions, they are cases where the tool <b>works against you</b> — either because it takes the training away from you, or because you cannot use what it gives.`,
+  's4.c1':`
+          <h3>The task <i>is</i> the training</h3>
+          <div class="sub">the commonest case</div>
+          <p>Writing, translating into a language you are learning, doing long division, proving a result. Having the movement done for you is going to the gym and watching.</p>
+        `,
+  's4.c2':`
+          <h3>I cannot judge it</h3>
+          <div class="sub">the rule that saves you</div>
+          <p>If I do not know enough to spot an error, I cannot check. And if I cannot check, <b>I cannot use it</b> — lesson 12, scene 7.</p>
+        `,
+  's4.c3':`
+          <h3>It is assessed</h3>
+          <div class="sub">and the rule is not written down</div>
+          <p>Homework, an oral, a coursework file. The question is not &ldquo;will it show?&rdquo; but &ldquo;what is allowed?&rdquo; <b>Ask beforehand.</b></p>
+        `,
+  's4.c4':`
+          <h3>The stakes are not academic</h3>
+          <div class="sub">health, law, money, other people</div>
+          <p>A symptom, a contract, a decision that binds someone else. A model produces the plausible; here the plausible is not enough.</p>
+        `,
+  's4.note':`Notice what those four cases do <b>not</b> share with &ldquo;that's cheating&rdquo;. Three out of four have nothing to do with marks: they have to do with what you will be able to do afterwards, and with what you can check.`,
+
+  /* --- 5 · l'arbre de décision --- */
+  's5.eye':`Hands on · three questions, four outcomes`,
+  's5.t':`Three questions<br>before you open it`,
+  's5.lead':`Not a rule to learn: a <b>reflex</b>, which takes ten seconds. Answer it for a piece of work you really have to do tonight.`,
+  's5.reset':`↺ Start again`,
+
+  /* --- 6 · ce que dit la recherche --- */
+  's6.eye':`Rigour · what we know, and what we do not`,
+  's6.t':`Do not confuse<br>three things`,
+  's6.lead':`Everything above does not carry the same weight. An honest lesson has to say where the established part stops — otherwise it does exactly what it reproaches smooth answers for.`,
+  's6.c1':`
+          <h3>Solid</h3>
+          <div class="sub">decades of it, before AI</div>
+          <p>The <b>testing effect</b>, the <b>fluency illusion</b>, <b>desirable difficulties</b>. Hundreds of replications, thousands of participants, several countries and several subjects.</p>
+          <p class="ex">this is not about AI: it is about learning</p>
+        `,
+  's6.c2':`
+          <h3>Recent and fragile</h3>
+          <div class="sub">two or three years old</div>
+          <p>Studies on <b>AI and learning</b> do exist, but they cover short tasks, small groups and a few weeks. They point in several directions.</p>
+          <p class="ex">to be read, not brandished</p>
+        `,
+  's6.c3':`
+          <h3>Unknown</h3>
+          <div class="sub">nobody knows</div>
+          <p>No cohort has been followed through a whole school career. <b>Nobody can say today</b> what daily use of an assistant does to a pupil over eight years. You are the first generation concerned.</p>
+          <p class="ex">a reason to be careful, not to be afraid</p>
+        `,
+  's6.note':`So be wary of the two mirror-image speeches: &ldquo;<b>it makes you stupid</b>&rdquo; and &ldquo;<b>it changes everything, you must adapt</b>&rdquo;. Both run ahead of the data. What is solid does not depend on AI at all: <b>you learn by supplying the effort, not by watching it be supplied.</b>`,
+
+  /* --- 7 · les usages qui font apprendre --- */
+  's7.eye':`The other half of the lesson`,
+  's7.t':`Four uses that<br>add difficulty`,
+  's7.lead':`This lesson is not a case against the tool. An assistant can <b>manufacture</b> the desirable difficulties of scene 3 — on demand, endlessly, at your level. It is in fact what it does best.`,
+  's7.c1':`
+          <h3>Be tested</h3>
+          <div class="sub">the testing effect, on demand</div>
+          <p>&ldquo;One question at a time, do not give me the answer.&rdquo; That is scene 3 of this lesson, applied. <b>The highest-value use, and the rarest.</b></p>
+        `,
+  's7.c2':`
+          <h3>Have your own work reviewed</h3>
+          <div class="sub">without having it rewritten</div>
+          <p>&ldquo;Tell me what is unclear, do not rewrite it.&rdquo; You keep the pen: you are still the one correcting.</p>
+        `,
+  's7.c3':`
+          <h3>Three different explanations</h3>
+          <div class="sub">against fluency</div>
+          <p>&ldquo;Explain it another way, then with an example, then with a counter-example.&rdquo; If all three hold together in your head, you have understood.</p>
+        `,
+  's7.c4':`
+          <h3>Manufacture exercises</h3>
+          <div class="sub">and not their answers</div>
+          <p>&ldquo;Ten mixed exercises on chapter 4, with no solutions.&rdquo; That is scene 3's interleaving, set up in ten seconds.</p>
+        `,
+  's7.note':`The common thread: in all four, <b>you supply the effort</b> and it sets up the arrangement. In the &ldquo;do it for me&rdquo; use, it is exactly the other way round. Same tool, same hour — <b>the effort changes sides</b>.`,
+
+  /* --- 8 · ce que l'école évalue --- */
+  's8.eye':`The misunderstanding to clear up`,
+  's8.t':`Homework is not<br>a product to deliver`,
+  's8.lead':`If homework were a product, having it made would be a reasonable optimisation. What you are asked to hand in is not the thing: it is the <b>trace</b> of a training session. Three concrete consequences.`,
+  's8.c1':`
+          <h3>A mark measures a gap</h3>
+          <div class="sub">not an absolute quality</div>
+          <p>It says where you stand against what is aimed at, so that what follows can be adjusted. A mark obtained without you <b>throws off the setting</b> — and you are the one who pays for it at the next test.</p>
+        `,
+  's8.c2':`
+          <h3>The rule is not the same everywhere</h3>
+          <div class="sub">and that is normal</div>
+          <p>Depending on the subject and the moment, the tool is banned, tolerated, or required. That is not inconsistency: the task does not have the same purpose. <b>The only mistake is not asking.</b></p>
+        `,
+  's8.c3':`
+          <h3>Saying so costs one line</h3>
+          <div class="sub">and settles everything</div>
+          <p class="ex">&ldquo;I wrote this alone, then had the clarity reviewed.&rdquo;<br>&ldquo;Exercises 3 to 5 were generated for practice.&rdquo;<br>&ldquo;I had this paragraph translated, then checked it.&rdquo;</p>
+          <p>One sentence at the foot of the page. The problem was never the tool: it is the <b>silence</b> about using it.</p>
+        `,
+
+  /* --- 9 · six situations --- */
+  's9.eye':`Hands on · six situations, three possible answers`,
+  's9.t':`Your turn<br>to decide`,
+  's9.lead':`Six real situations. For each one, only one of the three ways holds up. Use the tree from scene 5 — and read the reason, it matters more than the answer.`,
+
+  /* --- 10 · charnière --- */
+  's10.eye':`The question that opens the next block`,
+  's10.q':`You chose.<br>But what about<br>the rest of the day?`,
+  's10.a':`Faced with homework you decide: open it, close it, or ask to be tested. It is a conscious choice, and you have just made six of them. <b>But most of your screen time looks nothing like that.</b> There, you do not choose what appears — an AI chose it for you, in a few milliseconds, and it was not trained to make you learn.`,
+  's10.next':`Next block · Who chooses what I see?`,
+
+  /* --- 11 · activité --- */
+  's11.tag':`Activity for this lesson · one week · personal log`,
+  's11.t':`A week's<br><em>log</em>`,
+  's11.sub':`The only way to know what the tool does to you is to look. No judgement, no marks: facts, over seven days.`,
+  's11.l1':`<b>The record.</b> For one week, note <b>every time</b> you open an assistant for schoolwork. Three columns: the task, the way you used it (it does / with me / it tests me), the time spent.`,
+  's11.l2':`<b>The column that stings.</b> A fourth column, filled in <b>the next day</b>: &ldquo;could I do it alone now?&rdquo; Yes, no, not sure.`,
+  's11.l3':`<b>The totals.</b> At the end of the week, count. What share of your uses falls into each way? And how many &ldquo;no&rdquo; in the fourth column?`,
+  's11.l4':`<b>The two cases.</b> Pick out <b>one</b> use you would repeat exactly, and <b>one</b> you would not. Write why, one sentence each.`,
+  's11.l5':`<b>Pooling.</b> Anonymously, the class adds up the records. Compare the real split with the one each of you predicted before starting.`,
+  's11.l6':`<b>The rules.</b> In small groups, write <b>three rules</b> you set yourselves for the term. Not general prohibitions: rules you will actually keep, that can be checked, and that you reread in six weeks.`,
+
+  /* --- 12 · récap --- */
+  'rc.eye':`Lesson 13 · to remember`,
+  'rc.t':`The effort <span>we dodge</span>`,
+  'rc.i1':`You learn by <b>going to fetch</b> information from your own head, not by rereading it: that is the <span class="hl">testing effect</span>. Established long before AI, replicated hundreds of times.`,
+  'rc.i2':`A clear explanation gives a <b>feeling</b> of understanding, fairly unrelated to what will be left of it: the <span class="hl">fluency illusion</span>. A model always writes clearly.`,
+  'rc.i3':`Self-testing, spacing, mixing: these are <span class="hl">desirable difficulties</span>. They feel less effective than they are — and an assistant removes them by default.`,
+  'rc.i4':`You close the tab when <b>the task is the training</b>, when <b>I cannot judge the answer</b>, when <b>it is assessed</b> and the rule is unclear, and when the stakes are <b>not academic</b>.`,
+  'rc.i5':`Three questions are enough: <b>is the task the goal or a means? could I spot an error? is it assessed?</b>`,
+  'rc.i6':`The same tool can <b>manufacture</b> the difficulties: be tested, have your work reviewed without rewriting, ask for three explanations, generate exercises with no answer key.`,
+  'rc.i7':`What is <b>solid</b> is not about AI but about learning. What is about AI is <b>recent and fragile</b>. And over a whole school career, <b>nobody knows yet</b>.`,
+  'rc.i8':`Homework is not a product: it is the <b>trace of a training session</b>. Saying what you had done for you costs one line and settles the question.`,
+  'rc.v1':`<b>Testing effect</b>Self-testing makes you remember more than rereading.`,
+  'rc.v2':`<b>Fluency illusion</b>It looks clear, so you believe you know it.`,
+  'rc.v3':`<b>Desirable difficulty</b>Harder at the time, more lasting afterwards.`,
+  'rc.v4':`<b>Interleaving</b>Mixing the types of exercise.`,
+  'rc.v5':`<b>The next-day test</b>Could I do it alone?`,
+  'rc.v6':`<b>Transparency</b>Saying what you had done for you.`,
+  'rc.key':`Next step: <b>out of the homework. Who chooses what I see, for the rest of the day?</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>
