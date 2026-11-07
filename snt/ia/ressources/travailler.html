@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formuler, itérer, vérifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110d; --paper:#e9e4d8; --paper-2:#ddd6c5;
+    --signal:#1f5cff; --signal-dk:#123bab; --alarm:#b5301f; --muted:#6c6355;
+    --green:#12924f;
+    --display:'Archivo Black','Arial Black',Impact,sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+    --mono:'Courier New',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+    overflow:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.05) 0, transparent 45%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;opacity:.7}
+  .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;z-index:1;overflow:hidden}
+
+  .pane{position:absolute;inset:0;z-index:10;opacity:0;pointer-events:none;
+    transition:opacity .5s ease;display:flex;flex-direction:column;overflow-y:auto}
+  .pane.on{opacity:1;pointer-events:auto}
+  .pane.dark{background:var(--ink);color:var(--paper)}
+  .pane.light{background:var(--paper);color:var(--ink)}
+  .pad{padding:clamp(1rem,3vh,2rem) clamp(1.2rem,4.5vw,3.6rem)}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--signal);margin-bottom:.5rem}
+  .pane.light .eyebrow{color:var(--signal-dk)}
+  .stitle{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.45rem,4.2vw,2.9rem)}
+  .lead{max-width:88ch;margin-top:.55rem;font-size:clamp(.86rem,1.6vw,1.08rem);line-height:1.5}
+  .pane.light .lead{color:#4a4436}
+  .pane.dark .lead{color:#c9c2b2}
+  .pane.light .lead b{color:var(--ink)}
+  .pane.dark .lead b{color:#fff}
+  .mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+  /* ouverture */
+  .intro{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .intro .back{position:absolute;top:1rem;left:1.2rem;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.08em;color:#8f9cb8;text-decoration:none;
+    border-bottom:1px solid rgba(143,156,184,.35)}
+  .intro .back:hover{color:var(--paper)}
+  .intro .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1.2rem;opacity:0;animation:rise .6s ease .2s forwards}
+  .intro .big{font-family:var(--display);text-transform:uppercase;line-height:.88;
+    font-size:clamp(2rem,8.4vw,6.4rem);letter-spacing:-.02em;
+    opacity:0;animation:rise .7s ease .35s forwards}
+  .intro .big em{font-style:normal;color:var(--signal);
+    text-shadow:0 0 24px rgba(31,92,255,.7),0 0 60px rgba(31,92,255,.35)}
+  .intro .line{margin-top:1.4rem;max-width:62ch;font-size:clamp(.98rem,1.95vw,1.25rem);
+    line-height:1.5;color:#cfc8b8;opacity:0;animation:rise .7s ease .6s forwards}
+  .intro .kick{margin-top:1.2rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);opacity:0;animation:rise .7s ease .85s forwards}
+  .intro .rain{font-family:var(--mono);font-size:.8rem;letter-spacing:.35em;color:rgba(127,160,255,.35);
+    margin-bottom:1rem;opacity:0;animation:rise .7s ease .1s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* cartes */
+  .cards{display:grid;gap:clamp(.8rem,2.2vw,1.6rem);margin:clamp(.9rem,2.6vh,1.5rem) 0}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c2{grid-template-columns:1fr 1fr}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);
+    padding:clamp(.7rem,1.7vw,1rem);border-top:5px solid var(--signal)}
+  .card.warn{border-top-color:var(--alarm)}
+  .card.good{border-top-color:var(--green)}
+  .card h3{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(.92rem,1.9vw,1.28rem);margin-bottom:.3rem}
+  .card .sub{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+  .card p{font-size:clamp(.8rem,1.4vw,.98rem);line-height:1.45;color:#4a4436;margin-bottom:.32rem}
+  .card p b{color:var(--ink)}
+  .card .ex{font-family:var(--mono);font-size:.72rem;color:var(--signal-dk);line-height:1.5}
+  .card.warn .ex{color:var(--alarm)}
+  .pane.dark .card{background:rgba(233,228,216,.05);border-color:rgba(233,228,216,.2)}
+  .pane.dark .card.warn{border-top-color:var(--alarm)}
+  .pane.dark .card:not(.warn):not(.good){border-top-color:var(--signal)}
+  .pane.dark .card.good{border-top-color:var(--green)}
+  .pane.dark .card p{color:#c9c2b2}
+  .pane.dark .card p b{color:#fff}
+  .pane.dark .card .ex{color:#7fa0ff}
+  .pane.dark .card .sub{color:#a9a294}
+
+  /* chaîne */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:.55rem;
+    margin:clamp(1rem,3vh,1.8rem) 0}
+  .cbox{background:rgba(233,228,216,.05);border:1px solid rgba(233,228,216,.22);
+    padding:.9rem 1rem;min-width:9rem;max-width:15rem;display:flex;flex-direction:column;gap:.3rem}
+  .cbox .n{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .cbox .t{font-family:var(--display);text-transform:uppercase;font-size:clamp(.82rem,1.5vw,1rem);
+    line-height:1.05;color:#e9e4d8}
+  .cbox .d{font-size:clamp(.74rem,1.3vw,.88rem);line-height:1.35;color:#a9a294}
+  .cbox .v{font-family:var(--mono);font-size:.74rem;color:#7fa0ff;margin-top:.15rem}
+  .cbox.hot{border-color:var(--alarm)}
+  .cbox.hot .v{color:#ff8a72}
+  .carrow{align-self:center;color:var(--signal);font-size:1.5rem;line-height:1}
+  .chain-note{text-align:center;max-width:84ch;margin:0 auto;font-family:var(--serif);
+    font-size:clamp(.92rem,1.85vw,1.22rem);line-height:1.45;color:#cfc8b8}
+  .chain-note b{color:#fff}
+  .pane.light .chain-note{color:#3a352c}
+  .pane.light .chain-note b{color:var(--signal-dk)}
+
+  /* tableau */
+  .tbl{border-collapse:collapse;font-family:var(--mono);font-size:clamp(.68rem,1.25vw,.82rem);
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);width:100%}
+  .tbl th{background:var(--paper-2);text-align:left;padding:.28rem .6rem;
+    border-bottom:1px solid rgba(0,0,0,.2);color:var(--signal-dk);font-size:.78em;
+    letter-spacing:.06em;text-transform:uppercase}
+  .tbl td{padding:.2rem .6rem;border-bottom:1px solid rgba(0,0,0,.1);color:#4a4436}
+  .tbl td b{color:var(--ink)}
+  .codebox{font-family:var(--mono);font-size:clamp(.66rem,1.2vw,.8rem);line-height:1.6;
+    background:var(--paper);border:1px solid rgba(0,0,0,.2);padding:.6rem .7rem;color:#4a4436;
+    white-space:pre;overflow-x:auto}
+  .codebox .k{color:var(--signal-dk);font-weight:bold}
+  .codebox .r{color:var(--alarm);font-weight:bold}
+
+  /* chips */
+  .chip{border:1px solid rgba(233,228,216,.3);padding:.6rem .95rem;font-family:var(--mono);
+    font-size:clamp(.8rem,1.5vw,1rem);color:#c9c2b2;background:rgba(233,228,216,.04)}
+  .chip.out{border-color:var(--alarm);color:#ff8a72;background:rgba(181,48,31,.12)}
+  .cross{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;
+    margin:clamp(.8rem,2.4vh,1.4rem) 0}
+  .op{color:var(--signal);font-size:1.3rem;font-family:var(--display)}
+  .eq{color:var(--alarm);font-size:1.5rem;font-family:var(--display)}
+
+  /* charnière */
+  .hinge{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 40%, #10233f 0%, var(--ink) 62%)}
+  .hinge .q{font-family:var(--display);text-transform:uppercase;line-height:1.05;
+    font-size:clamp(1.3rem,4.2vw,2.8rem);max-width:24ch}
+  .hinge .q em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .hinge .a{margin-top:1.3rem;font-family:var(--serif);font-size:clamp(.98rem,2vw,1.35rem);
+    line-height:1.5;color:#cfc8b8;max-width:62ch}
+  .hinge .a b{color:#fff}
+  .hinge .next{margin-top:1.4rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;
+    text-transform:uppercase;color:#7db0ff}
+
+  /* activité */
+  .act{align-items:center;justify-content:center;text-align:center;padding:2rem;
+    background:radial-gradient(ellipse at 50% 32%, #10233f 0%, var(--ink) 62%)}
+  .act .tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--signal);margin-bottom:1rem}
+  .act h2{font-family:var(--display);text-transform:uppercase;line-height:.98;
+    font-size:clamp(1.5rem,4.8vw,3.3rem)}
+  .act h2 em{font-style:normal;color:var(--signal);text-shadow:0 0 26px rgba(31,92,255,.5)}
+  .act .sub{margin-top:.9rem;max-width:66ch;font-size:clamp(.9rem,1.8vw,1.15rem);
+    line-height:1.5;color:#cfc8b8}
+  .act .steps{margin:1.2rem auto 0;max-width:70ch;text-align:left;display:grid;gap:.42rem;counter-reset:s}
+  .act .steps li{list-style:none;padding-left:2.1rem;position:relative;
+    font-size:clamp(.82rem,1.5vw,.98rem);line-height:1.45;color:#d7d0c0}
+  .act .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;
+    width:1.4rem;height:1.4rem;border:1px solid var(--signal);color:var(--signal);
+    font-family:var(--mono);font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  .act .steps li b{color:var(--paper)}
+
+  /* récap */
+  .rc-eye{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--signal-dk);margin-bottom:.45rem}
+  .rc-title{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(1.4rem,4.4vw,3rem);margin-bottom:clamp(.7rem,2.4vh,1.2rem)}
+  .rc-title span{color:var(--signal)}
+  .rc-list{display:grid;gap:clamp(.4rem,1.4vh,.7rem);max-width:96ch;counter-reset:r}
+  .rc-list li{list-style:none;position:relative;padding-left:2.2rem;
+    font-size:clamp(.85rem,1.6vw,1.1rem);line-height:1.4;color:#3a352c}
+  .rc-list li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:.05em;
+    width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--mono);font-size:.76rem;display:flex;align-items:center;justify-content:center}
+  .rc-list li b{color:var(--ink)}
+  .rc-list li .hl{color:var(--signal-dk);font-weight:bold}
+  .rc-voc{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(.6rem,2vh,1rem);max-width:96ch}
+  .rc-term{border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.45rem .75rem;
+    border-left:4px solid var(--signal);font-size:clamp(.76rem,1.35vw,.92rem);line-height:1.35;color:#4a4436}
+  .rc-term b{font-family:var(--display);text-transform:uppercase;color:var(--signal-dk);
+    font-size:.9em;letter-spacing:.02em;display:block;margin-bottom:.08rem}
+  .rc-key{margin-top:clamp(.7rem,2.2vh,1.1rem);font-family:var(--serif);font-style:italic;
+    border-top:1px solid rgba(0,0,0,.15);padding-top:clamp(.55rem,1.6vh,.85rem);
+    font-size:clamp(.92rem,1.85vw,1.25rem);color:var(--signal-dk);max-width:86ch}
+  .rc-key b{font-style:normal}
+
+  /* HUD */
+  .hud{position:relative;flex:0 0 auto;z-index:60;display:flex;align-items:center;justify-content:center;
+    gap:1rem;padding:.65rem 1.1rem;background:var(--paper-2);border-top:2px solid var(--ink);
+    box-shadow:0 -6px 18px rgba(0,0,0,.18);font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .dots{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);transition:.3s;cursor:pointer}
+  .dot.active{background:var(--signal);transform:scale(1.3)}
+  .btn{cursor:pointer;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .9rem;transition:.2s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .homelink{display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--muted);border:1px solid rgba(0,0,0,.22);padding:.42rem .7rem;transition:.18s}
+  .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
+  .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  @media (max-width:900px){.homelink span{display:none}}
+  .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  @media (max-width:900px){
+    .hint{display:none}
+    .c3,.c2,.c4{grid-template-columns:1fr}
+    .homelink.fixedleft{position:static;transform:none}
+    .hud{gap:.6rem;padding:.55rem .6rem}
+    .btn{padding:.45rem .6rem}
+  }
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+
+  /* ---------- boutons de choix (communs aux manipulations) ---------- */
+  .qbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .55rem}
+  .qb{cursor:pointer;font-family:var(--serif);font-size:clamp(.74rem,1.3vw,.9rem);padding:.32rem .6rem;
+    border:1px solid rgba(233,228,216,.3);background:rgba(233,228,216,.05);color:#c9c2b2;transition:.15s}
+  .qb:hover{border-color:var(--signal)}
+  .qb.on{background:var(--signal);border-color:var(--signal);color:#fff}
+  .pane.light .qb{border-color:rgba(0,0,0,.28);background:var(--paper-2);color:#4a4436}
+  .pane.light .qb:hover{border-color:var(--signal-dk)}
+  .pane.light .qb.on{background:var(--signal-dk);border-color:var(--signal-dk);color:#fff}
+  .verd{font-family:var(--serif);font-size:clamp(.84rem,1.5vw,1.02rem);line-height:1.4;color:#cfc8b8;
+    border-top:1px solid rgba(233,228,216,.18);padding-top:.4rem;margin-top:.45rem}
+  .verd b{color:#fff}
+  .pane.light .verd{color:#3a352c;border-top-color:rgba(0,0,0,.15)}
+  .pane.light .verd b{color:var(--signal-dk)}
+
+  /* ---------- bouton d'action ---------- */
+  .bigbtn{cursor:pointer;border:1px solid var(--signal-dk);background:var(--signal);color:#fff;
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.5rem .95rem;transition:.18s}
+  .bigbtn:hover{background:var(--signal-dk)}
+  .bigbtn.off{background:transparent;color:var(--signal-dk)}
+  .pane.dark .bigbtn.off{color:#7fa0ff;border-color:#7fa0ff}
+  .btnrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 .45rem;align-items:center}
+  .plbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:.25rem}
+
+  /* ---------- s2 : les cinq pièces d'une demande ---------- */
+  .pcw{display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);
+    gap:clamp(.7rem,2vw,1.4rem);align-items:start}
+  .pcs{display:grid;gap:.3rem}
+  .pc{cursor:pointer;display:grid;grid-template-columns:1.1rem minmax(0,1fr);gap:.55rem;align-items:start;
+    border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:.4rem .6rem;transition:.15s}
+  .pc:hover{border-color:var(--signal-dk)}
+  .pc .bx{width:1.1rem;height:1.1rem;border:1px solid var(--signal-dk);display:flex;align-items:center;
+    justify-content:center;font-family:var(--mono);font-size:.7rem;line-height:1;
+    color:#fff;background:var(--signal-dk);margin-top:.12rem}
+  .pc.off{opacity:.48}
+  .pc.off .bx{background:transparent;color:transparent}
+  .pc .nm{font-family:var(--display);text-transform:uppercase;font-size:clamp(.72rem,1.25vw,.86rem);
+    color:var(--ink);line-height:1.1}
+  .pc .nt{font-family:var(--serif);font-size:clamp(.73rem,1.25vw,.87rem);color:#5a5345;line-height:1.35}
+  .codebox.wrap{white-space:pre-wrap}
+  .meter{display:flex;height:9px;border:1px solid rgba(0,0,0,.25);background:var(--paper);margin:.5rem 0 .3rem}
+  .meter i{display:block;background:var(--green);transition:width .25s}
+  .meter.mid i{background:#b08a1e}
+  .meter.lo i{background:var(--alarm)}
+
+  /* ---------- deux colonnes (s4, s7, s9) ---------- */
+  .twc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(.6rem,1.8vw,1.1rem);align-items:start}
+
+  /* ---------- s5 : la boucle d'itération ---------- */
+  .itr{display:grid;gap:.28rem}
+  .itrow{display:grid;grid-template-columns:2.4rem minmax(0,1.02fr) minmax(0,1fr);gap:.55rem;align-items:start;
+    border:1px solid rgba(233,228,216,.18);background:rgba(233,228,216,.04);padding:.4rem .6rem}
+  .itrow .tn{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--signal);
+    text-transform:uppercase;padding-top:.15rem}
+  .itrow .you{font-family:var(--mono);font-size:clamp(.65rem,1.1vw,.77rem);color:#e9e4d8;line-height:1.45}
+  .itrow .it{font-family:var(--serif);font-size:clamp(.71rem,1.2vw,.85rem);color:#a9a294;line-height:1.38}
+  .itrow.bad{border-color:rgba(181,48,31,.45);background:rgba(181,48,31,.1)}
+  .itrow.bad .tn{color:#ff8a72}
+  .itrow.good{border-color:rgba(18,146,79,.45);background:rgba(18,146,79,.1)}
+  .itrow.good .tn{color:#7fe0ac}
+
+  /* ---------- s6 : le poids du fil ---------- */
+  .wbar{display:flex;height:17px;border:1px solid rgba(0,0,0,.25);background:var(--paper);margin:.4rem 0 .3rem}
+  .wbar i{display:block;transition:width .25s}
+  .wleg{display:flex;flex-wrap:wrap;gap:.75rem;font-family:var(--mono);font-size:.63rem;color:var(--muted)}
+  .wleg span{display:inline-flex;align-items:center;gap:.3rem}
+  .wleg u{width:.6rem;height:.6rem;display:inline-block;text-decoration:none}
+
+  /* ---------- s7 : repérer l'intrus ---------- */
+  .claims{display:grid;gap:.3rem;margin:.35rem 0 .15rem}
+  .cl{cursor:pointer;border:1px solid rgba(0,0,0,.18);background:var(--paper-2);padding:.4rem .62rem;
+    font-family:var(--serif);font-size:clamp(.75rem,1.3vw,.9rem);color:#3a352c;line-height:1.35;transition:.15s}
+  .cl:hover{border-color:var(--signal-dk)}
+  .cl.ok{border-color:var(--green);background:rgba(18,146,79,.13)}
+  .cl.no{border-color:var(--alarm);background:rgba(181,48,31,.12)}
+  .cl .vt{font-family:var(--mono);font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;
+    display:block;margin-top:.2rem;color:var(--muted)}
+  .cl.ok .vt{color:var(--green)}
+  .cl.no .vt{color:var(--alarm)}
+
+  /* ---------- s9 : les trois conduites ---------- */
+  .mdl{display:grid;gap:.4rem}
+  .mdrow{border:1px solid rgba(0,0,0,.16);background:var(--paper-2);padding:.5rem .7rem}
+  .mdrow .h{font-family:var(--display);text-transform:uppercase;font-size:clamp(.74rem,1.3vw,.9rem);
+    color:var(--signal-dk);margin-bottom:.15rem}
+  .mdrow p{font-family:var(--serif);font-size:clamp(.76rem,1.3vw,.92rem);color:#4a4436;line-height:1.4}
+
+  /* ---------- resserrements de projection ---------- */
+  #s7 .cards{gap:.5rem}
+  #s13 .rc-list li{font-size:clamp(.78rem,1.42vw,.95rem);line-height:1.38}
+  #s13 .rc-voc{gap:.35rem}
+  #s13 .rc-term{font-size:.72rem;padding:.4rem .55rem}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ 0 · OUVERTURE ============ -->
+  <div class="pane dark intro on" id="s0">
+    <a class="back" href="assistant.html" data-i18n="s0.back">◂ Séance précédente · Anatomie d'un assistant</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Une question<br>ne se <em>pose</em> pas.<br>Elle se <em>conduit</em>.</h1>
+    <p class="line" data-i18n="s0.line">Vous savez ce qu'il y a dans la boîte. Reste la seule chose qui dépend de vous&nbsp;: <strong style="color:#fff">ce que vous en faites</strong>. Cette séance n'est pas une liste d'astuces — c'est une méthode en trois temps, et une quatrième question, la plus importante de toutes.</p>
+    <div class="kick" data-i18n="s0.kick">Formuler · donner à lire · itérer · vérifier · savoir s'arrêter</div>
+  </div>
+
+  <!-- ============ 1 · L'ÉCART ============ -->
+  <div class="pane dark pad" id="s1">
+    <div class="eyebrow" data-i18n="s1.eye">L'écart qu'on ne voit pas</div>
+    <h2 class="stitle" data-i18n="s1.t">Votre question<br>ne dit pas la tâche</h2>
+    <p class="lead" data-i18n="s1.lead">Devant une réponse décevante, le réflexe est de dire «&nbsp;l'IA est nulle&nbsp;». Presque toujours, la demande laissait le choix ouvert — et le modèle a pris le chemin le plus probable (séance&nbsp;3), c'est-à-dire le plus banal.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s1.c1">
+          <h3>Ce que vous avez écrit</h3>
+          <div class="sub">sept mots</div>
+          <p class="ex">« Fais-moi un résumé de ce texte. »</p>
+          <p>Aucune longueur. Aucun public. Aucun usage. Aucune indication de ce qu'il faut absolument garder.</p>
+        </div>
+        <div class="card" data-i18n="s1.c2">
+          <h3>Ce que vous vouliez</h3>
+          <div class="sub">resté dans votre tête</div>
+          <p class="ex">Dix lignes, pour réviser jeudi, en gardant les dates et les trois causes.</p>
+          <p>C'est une demande parfaitement claire. Elle n'a simplement jamais été écrite.</p>
+        </div>
+        <div class="card warn" data-i18n="s1.c3">
+          <h3>Ce qu'il a fait</h3>
+          <div class="sub">le plus probable</div>
+          <p class="ex">Un résumé moyen, de longueur moyenne, pour un lecteur moyen.</p>
+          <p>Il n'a pas échoué&nbsp;: il a <b>comblé</b>. C'est précisément ce qu'on lui a appris à faire.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s1.note">Un modèle ne devine pas une intention&nbsp;: il complète un texte. <b>Tout ce que vous ne dites pas, il le remplace par la moyenne de ce qu'il a lu.</b> Formuler, ce n'est pas être poli avec la machine — c'est <b>réduire le champ des réponses possibles</b>.</p>
+    </div>
+  </div>
+
+  <!-- ============ 2 · LES CINQ PIÈCES ============ -->
+  <div class="pane light pad" id="s2">
+    <div class="eyebrow" data-i18n="s2.eye">Manipulation · cochez, décochez</div>
+    <h2 class="stitle" data-i18n="s2.t">Les cinq pièces<br>d'une demande</h2>
+    <p class="lead" data-i18n="s2.lead">Une demande utile tient en cinq morceaux. Aucun n'est obligatoire — mais chacun retiré rend la réponse plus floue. Cochez-les et regardez la demande se construire.</p>
+
+    <div class="mid">
+      <div class="pcw">
+        <div>
+          <div class="plbl" data-i18n="s2.lbl1">Les pièces</div>
+          <div class="pcs nostep" id="s2rows"></div>
+        </div>
+        <div>
+          <div class="plbl" data-i18n="s2.lbl2">Ce que vous envoyez</div>
+          <div class="codebox wrap" id="s2box"></div>
+          <div class="meter" id="s2meter"><i style="width:0%"></i></div>
+          <p class="verd" id="s2verd"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3 · DONNER À LIRE ============ -->
+  <div class="pane dark pad" id="s3">
+    <div class="eyebrow" data-i18n="s3.eye">La pièce qu'on oublie</div>
+    <h2 class="stitle" data-i18n="s3.t">Donner à lire,<br>pas seulement à faire</h2>
+    <p class="lead" data-i18n="s3.lead">Il n'a pas votre cours, pas votre énoncé, pas votre brouillon. Il a ce que vous mettez dans le <b>contexte</b> (séance&nbsp;11, scène&nbsp;3) — et rien d'autre. L'écart entre une réponse générique et une réponse utile tient souvent à un copier-coller.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card" data-i18n="s3.c1">
+          <h3>Collez la matière</h3>
+          <div class="sub">le texte, l'énoncé, les chiffres</div>
+          <p>Un énoncé <b>recopié</b> vaut mieux qu'un énoncé résumé&nbsp;: les mots exacts portent la moitié de la difficulté.</p>
+          <p class="ex">et dites d'où ça vient</p>
+        </div>
+        <div class="card" data-i18n="s3.c2">
+          <h3>Montrez un exemple</h3>
+          <div class="sub">une ligne suffit</div>
+          <p>Un exemple de ce que vous attendez vaut dix adjectifs. C'est l'objet de la scène suivante.</p>
+          <p class="ex">« comme ceci : … »</p>
+        </div>
+        <div class="card warn" data-i18n="s3.c3">
+          <h3>Mais pas n'importe quoi</h3>
+          <div class="sub">séance 11, scène 10</div>
+          <p>Un document joint peut contenir des <b>instructions cachées</b> — et pour le modèle, tout est du texte. Et ce qui concerne quelqu'un d'autre ne vous appartient pas.</p>
+          <p class="ex">injection d'instructions · données personnelles</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s3.note">Règle simple&nbsp;: <b>si un humain ne pouvait pas répondre avec ce que vous avez donné, le modèle non plus.</b> La différence, c'est que lui répondra quand même.</p>
+    </div>
+  </div>
+
+  <!-- ============ 4 · MONTRER PLUTÔT QUE DÉCRIRE ============ -->
+  <div class="pane light pad" id="s4">
+    <div class="eyebrow" data-i18n="s4.eye">Manipulation · le raccourci le plus rentable</div>
+    <h2 class="stitle" data-i18n="s4.t">Un exemple vaut<br>dix adjectifs</h2>
+    <p class="lead" data-i18n="s4.lead">Décrire le format qu'on veut est laborieux et imprécis. En montrer un est instantané. Même tâche — transformer des phrases de cours en questions de révision — trois façons de dire ce qu'on attend.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s4btns"></div>
+      <div class="twc">
+        <div>
+          <div class="plbl" data-i18n="s4.lbl1">La demande</div>
+          <div class="codebox wrap" id="s4ask"></div>
+        </div>
+        <div>
+          <div class="plbl" data-i18n="s4.lbl2">Ce qui revient</div>
+          <div class="codebox wrap" id="s4out"></div>
+        </div>
+      </div>
+      <p class="verd" id="s4verd"></p>
+      <p class="chain-note" style="font-size:.72rem" data-i18n="s4.note">Les réponses ci-dessus sont <b>reconstituées pour la démonstration</b>&nbsp;: elles illustrent un comportement réel, elles ne sortent pas d'un modèle en direct.</p>
+    </div>
+  </div>
+
+  <!-- ============ 5 · ITÉRER ============ -->
+  <div class="pane dark pad" id="s5">
+    <div class="eyebrow" data-i18n="s5.eye">Manipulation · deux conduites, quatre tours</div>
+    <h2 class="stitle" data-i18n="s5.t">Itérer, c'est corriger<br>une trajectoire</h2>
+    <p class="lead" data-i18n="s5.lead">Le premier jet n'est presque jamais le bon, et ce n'est pas grave. Ce qui compte, c'est le deuxième. Mêmes quatre tours, deux façons de les mener.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s5btns"></div>
+      <div class="itr" id="s5rows"></div>
+      <p class="verd" id="s5verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 6 · LE POIDS DU FIL ============ -->
+  <div class="pane light pad" id="s6">
+    <div class="eyebrow" data-i18n="s6.eye">Manipulation · ce que coûte une longue conversation</div>
+    <h2 class="stitle" data-i18n="s6.t">Le fil s'alourdit,<br>et il vous suit</h2>
+    <p class="lead" data-i18n="s6.lead">Séance&nbsp;11, scène&nbsp;3&nbsp;: à chaque message, <b>tout le fil repart</b>. Un fil long n'est pas seulement lourd — il traîne ses propres erreurs, et une consigne donnée au troisième message pèse autant que votre dernière phrase.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s6btns"></div>
+      <div class="wbar" id="s6bar"></div>
+      <div class="wleg" id="s6leg"></div>
+      <p class="verd" id="s6verd"></p>
+      <div class="cards c3" style="margin-top:.5rem">
+        <div class="card" data-i18n="s6.c1">
+          <h3>Quand le sujet change</h3>
+          <div class="sub">le plus fréquent</div>
+          <p>Vous passez de l'exposé d'histoire à l'exercice de maths. Tout l'exposé continue de partir à chaque message, pour rien.</p>
+        </div>
+        <div class="card" data-i18n="s6.c2">
+          <h3>Quand il répète une erreur</h3>
+          <div class="sub">le plus utile</div>
+          <p>Vous l'avez corrigé, il recommence&nbsp;: l'erreur est <b>dans le fil</b>, et elle repart avec. Recommencer l'efface.</p>
+        </div>
+        <div class="card" data-i18n="s6.c3">
+          <h3>Quand vous ne savez plus</h3>
+          <div class="sub">le plus honnête</div>
+          <p>Si vous ne pouvez plus dire ce qu'il a «&nbsp;en tête&nbsp;», personne ne le peut. Repartir à zéro n'est pas un échec&nbsp;: c'est <b>vider le contexte</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 7 · VÉRIFIER ============ -->
+  <div class="pane light pad" id="s7">
+    <div class="eyebrow" data-i18n="s7.eye">Manipulation · trouvez l'intrus</div>
+    <h2 class="stitle" data-i18n="s7.t">Vérifier,<br>à trois niveaux</h2>
+    <p class="lead" data-i18n="s7.lead">Une réponse fausse ne ressemble pas à une réponse fausse&nbsp;: elle est écrite avec exactement le même aplomb que les autres. Voici quatre affirmations tirées d'une même réponse, sur le Web (séance&nbsp;10). <b>Une seule est fausse.</b> Cliquez dessus.</p>
+
+    <div class="mid">
+      <div class="claims nostep" id="s7rows"></div>
+      <p class="verd" id="s7verd"></p>
+      <div class="cards c3" style="margin-top:.45rem">
+        <div class="card" data-i18n="s7.c1">
+          <h3>Le fait</h3>
+          <div class="sub">une date, un chiffre, un nom</div>
+          <p>Vérifiable ailleurs en trente secondes. Le niveau le plus facile — et celui qu'on saute le plus souvent.</p>
+        </div>
+        <div class="card" data-i18n="s7.c2">
+          <h3>Le raisonnement</h3>
+          <div class="sub">l'enchaînement</div>
+          <p>Refaites le calcul, suivez l'argument. Une conclusion juste peut reposer sur une étape fausse — et l'inverse.</p>
+        </div>
+        <div class="card warn" data-i18n="s7.c3">
+          <h3>La question</h3>
+          <div class="sub">le niveau le plus oublié</div>
+          <p>Est-ce que ça répond à ce que j'ai demandé&nbsp;? Un texte brillant hors sujet reste hors sujet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 8 · LA SOURCE INVENTÉE ============ -->
+  <div class="pane dark pad" id="s8">
+    <div class="eyebrow" data-i18n="s8.eye">Le cas le plus traître</div>
+    <h2 class="stitle" data-i18n="s8.t">Ce qu'il invente<br>le mieux : la source</h2>
+    <p class="lead" data-i18n="s8.lead">Une référence a une forme très régulière&nbsp;: un auteur, un titre, une revue, une année, des pages. C'est exactement le genre de texte qu'un modèle produit à la perfection — <b>y compris quand elle n'existe pas</b>.</p>
+
+    <div class="mid">
+      <div class="twc">
+        <div>
+          <div class="plbl" data-i18n="s8.lbl">Une référence inventée, telle qu'elle arrive</div>
+          <div class="codebox wrap" data-i18n="s8.code">Dupont, M. &amp; Lefèvre, C. (2019).
+<span class="k">« Usages numériques et réussite scolaire
+au lycée : une étude longitudinale »</span>.
+Revue française de pédagogie, 206, p. 45-68.</div>
+          <p class="verd" data-i18n="s8.verd">Le nom existe. La revue existe. Le numéro 206 existe. <b>L'article, non.</b> Rien, dans la forme, ne permet de le voir — et c'est tout le problème&nbsp;: la plausibilité est précisément ce que le modèle sait produire.</p>
+        </div>
+        <div>
+          <div class="cards" style="grid-template-columns:1fr;gap:.45rem">
+            <div class="card" data-i18n="s8.c1">
+              <h3>Pourquoi c'est si fréquent</h3>
+              <div class="sub">séance 8, scène 10b</div>
+              <p>Le modèle n'a pas <b>rangé</b> les références&nbsp;: il en a gardé l'allure générale. Il en reconstitue une, comme un JPEG reconstitue un visage — net de loin, faux de près.</p>
+            </div>
+            <div class="card good" data-i18n="s8.c2">
+              <h3>Le réflexe, en trois gestes</h3>
+              <div class="sub">trente secondes</div>
+              <p><b>1.</b> Copiez le titre exact dans un moteur de recherche.<br><b>2.</b> Si rien ne sort, demandez le lien.<br><b>3.</b> Ouvrez-le. Un lien qui ne s'ouvre pas est un lien inventé.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s8.note">Et si l'assistant a une recherche web (séance&nbsp;9), la question devient&nbsp;: <b>a-t-il cherché, ou a-t-il répondu de mémoire&nbsp;?</b> À l'écran, les deux se ressemblent. Demandez la source&nbsp;: quand il a vraiment cherché, elle arrive avec un lien.</p>
+    </div>
+  </div>
+
+  <!-- ============ 9 · TROIS CONDUITES ============ -->
+  <div class="pane light pad" id="s9">
+    <div class="eyebrow" data-i18n="s9.eye">Manipulation · la même heure de travail</div>
+    <h2 class="stitle" data-i18n="s9.t">Trois façons<br>de s'en servir</h2>
+    <p class="lead" data-i18n="s9.lead">Même devoir, même outil, même heure. Ce qui change, c'est ce que vous lui demandez d'<b>être</b> — et ce qu'il vous reste à la fin.</p>
+
+    <div class="mid">
+      <div class="qbtns nostep" id="s9btns"></div>
+      <div class="twc">
+        <div>
+          <div class="plbl" data-i18n="s9.lbl1">Ce que vous écrivez</div>
+          <div class="codebox wrap" id="s9ask"></div>
+        </div>
+        <div>
+          <div class="plbl" data-i18n="s9.lbl2">Ce qu'il vous reste à la fin</div>
+          <div class="mdl" id="s9out"></div>
+        </div>
+      </div>
+      <p class="verd" id="s9verd"></p>
+    </div>
+  </div>
+
+  <!-- ============ 10 · CE QU'ON NE COLLE PAS ============ -->
+  <div class="pane dark pad" id="s10">
+    <div class="eyebrow" data-i18n="s10.eye">Avant de coller</div>
+    <h2 class="stitle" data-i18n="s10.t">Trois choses<br>qu'on ne colle pas</h2>
+    <p class="lead" data-i18n="s10.lead">Tout ce que vous écrivez part sur une machine qui ne vous appartient pas, et peut selon les réglages servir à l'entraînement (séance&nbsp;7). Avant de coller, trois questions — et une quatrième qui n'est pas une question de droit.</p>
+
+    <div class="mid">
+      <div class="cards c3">
+        <div class="card warn" data-i18n="s10.c1">
+          <h3>Ce qui concerne quelqu'un d'autre</h3>
+          <div class="sub">données personnelles</div>
+          <p>Le message d'un camarade, la copie d'un autre élève, une photo de classe, un mail reçu. Ce n'est pas à vous de décider de les donner — même pour rendre service.</p>
+        </div>
+        <div class="card warn" data-i18n="s10.c2">
+          <h3>Ce qui vous identifie</h3>
+          <div class="sub">adresse, numéro, identifiants</div>
+          <p>Un mot de passe collé dans un chat est un mot de passe <b>perdu</b>. Et une adresse donnée une fois ne se reprend pas.</p>
+        </div>
+        <div class="card warn" data-i18n="s10.c3">
+          <h3>Ce qui ne vous appartient pas</h3>
+          <div class="sub">documents, travaux d'autrui</div>
+          <p>Un document interne à l'établissement, un sujet non encore donné, le travail non publié d'un professeur ou d'un auteur.</p>
+        </div>
+      </div>
+      <p class="chain-note" data-i18n="s10.note">La quatrième n'est pas une question de droit mais d'honnêteté&nbsp;: <b>quand vous rendez un travail, dites ce que vous avez fait faire.</b> Une phrase suffit. Le problème n'a jamais été d'utiliser l'outil — c'est de laisser croire qu'on ne l'a pas utilisé.</p>
+    </div>
+  </div>
+
+  <!-- ============ 11 · CHARNIÈRE ============ -->
+  <div class="pane dark hinge" id="s11">
+    <div class="eyebrow" style="color:var(--signal)" data-i18n="s11.eye">La question qui ouvre la suite</div>
+    <div class="q" data-i18n="s11.q">Et si la meilleure<br>conduite était de<br><em>ne pas</em> l'ouvrir&nbsp;?</div>
+    <p class="a" data-i18n="s11.a">Vous savez formuler, donner à lire, itérer, vérifier. Tout cela sert à obtenir une bonne réponse — et c'est exactement là qu'est le piège&nbsp;: <b>il y a des moments où obtenir la réponse est précisément ce qu'il ne faut pas faire.</b> L'effort que vous allez éviter est celui qui vous aurait fait apprendre. Reste à reconnaître ces moments-là sans se raconter d'histoires.</p>
+    <div class="next" data-i18n="s11.next">Séance suivante · L'effort qu'on évite</div>
+  </div>
+
+  <!-- ============ 12 · ACTIVITÉ ============ -->
+  <div class="pane dark act" id="s12">
+    <div class="tag" data-i18n="s12.tag">Activité de la séance · 40 minutes · par groupes de trois</div>
+    <h2 data-i18n="s12.t">Le même devoir,<br><em>trois conduites</em></h2>
+    <p class="sub" data-i18n="s12.sub">Un sujet court, trois façons de le traiter, et une comparaison honnête à la fin. Les trois conduites sont celles de la scène&nbsp;9.</p>
+    <ol class="steps">
+      <li data-i18n="s12.l1"><b>Le sujet.</b> Le professeur donne une question courte, à traiter en quinze lignes. Tout le groupe a le même sujet.</li>
+      <li data-i18n="s12.l2"><b>Les rôles.</b> <b>A</b> le fait faire. <b>B</b> écrit d'abord, puis fait relire. <b>C</b> se fait interroger, puis écrit seul. Quinze minutes chacun, en silence.</li>
+      <li data-i18n="s12.l3"><b>La trace.</b> Chacun garde le fil complet de sa conversation. C'est une pièce du dossier, pas un brouillon à jeter.</li>
+      <li data-i18n="s12.l4"><b>L'épreuve orale.</b> Un autre groupe pose <b>trois questions</b> sur chaque texte rendu. Qui peut répondre sans relire&nbsp;?</li>
+      <li data-i18n="s12.l5"><b>La vérification.</b> Dans les trois textes, cherchez un fait vérifiable et <b>vérifiez-le vraiment</b>. Combien tiennent&nbsp;?</li>
+      <li data-i18n="s12.l6"><b>Le bilan.</b> Une phrase chacun&nbsp;: <i>qu'est-ce que je sais faire ce soir que je ne savais pas faire ce matin&nbsp;?</i> C'est la seule note qui compte.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 13 · RÉCAP ============ -->
+  <div class="pane light pad" id="s13">
+    <div class="rc-eye" data-i18n="rc.eye">Séance 12 · à retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Formuler, itérer, <span>vérifier</span></h2>
+    <ol class="rc-list">
+      <li data-i18n="rc.i1">Un modèle ne devine pas une intention&nbsp;: il <b>complète</b>. Tout ce que vous ne dites pas, il le remplace par le plus probable.</li>
+      <li data-i18n="rc.i2">Une demande utile tient en <span class="hl">cinq pièces</span>&nbsp;: la tâche, le contexte, le public, le format, la matière. La plus oubliée est la dernière.</li>
+      <li data-i18n="rc.i3"><b>Montrer vaut mieux que décrire</b>&nbsp;: un exemple de ce qu'on attend (<span class="hl">few-shot</span>) règle un format en une ligne.</li>
+      <li data-i18n="rc.i4">Itérer, c'est <b>une correction à la fois</b>, en désignant l'endroit — et en disant aussi ce qui va. «&nbsp;Refais&nbsp;» n'apprend rien à personne.</li>
+      <li data-i18n="rc.i5">Tout le fil <b>repart à chaque message</b>&nbsp;: un long fil traîne ses erreurs. Recommencer, c'est <b>vider le contexte</b>, pas échouer.</li>
+      <li data-i18n="rc.i6">Vérifier à trois niveaux&nbsp;: <span class="hl">le fait</span>, <span class="hl">le raisonnement</span>, <span class="hl">la question posée</span>. Une source inventée a la forme parfaite d'une vraie source.</li>
+      <li data-i18n="rc.i7">Trois conduites possibles&nbsp;: <b>faire à ma place</b>, <b>travailler avec moi</b>, <b>me faire travailler</b>. Seule la troisième laisse quelque chose derrière elle.</li>
+    </ol>
+    <div class="rc-voc">
+      <div class="rc-term" data-i18n="rc.v1"><b>Formuler</b>Réduire le champ des réponses possibles.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Contexte</b>Tout ce que vous lui donnez à lire.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Few-shot</b>Montrer un ou deux exemples plutôt que décrire.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Itération</b>Un tour, une correction, un endroit désigné.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Vérification</b>Le fait, le raisonnement, la question.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Tutorat socratique</b>Il interroge, c'est vous qui répondez.</div>
+    </div>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>savoir quand fermer l'onglet — et pourquoi c'est la compétence la plus difficile de toute l'année.</b></p>
+  </div>
+
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
+  <div class="dots">
+    <div class="dot active" data-i="0"></div><div class="dot" data-i="1"></div>
+    <div class="dot" data-i="2"></div><div class="dot" data-i="3"></div>
+    <div class="dot" data-i="4"></div><div class="dot" data-i="5"></div>
+    <div class="dot" data-i="6"></div><div class="dot" data-i="7"></div>
+    <div class="dot" data-i="8"></div><div class="dot" data-i="9"></div>
+    <div class="dot" data-i="10"></div><div class="dot" data-i="11"></div>
+    <div class="dot" data-i="12"></div><div class="dot" data-i="13"></div>
+  </div>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
+  <div class="hint" id="hint">↔ flèches · espace · clic</div>
+</div>
+
+<script>
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+var panes = ['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13']
+  .map(function(id){ return document.getElementById(id); });
+var dots = [].slice.call(document.querySelectorAll('.dot'));
+var scene = 0, MAX = 13;
+
+function render(){
+  panes.forEach(function(p,i){ p.classList.toggle('on', i===scene); });
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===scene); });
+}
+function go(n){ scene = Math.max(0, Math.min(MAX, n)); render(); }
+
+document.getElementById('next').onclick = function(){ go(scene+1); };
+document.getElementById('prev').onclick = function(){ go(scene-1); };
+dots.forEach(function(d){ d.onclick = function(){ go(+d.dataset.i); }; });
+
+window.addEventListener('keydown', function(e){
+  if(e.target && e.target.closest && e.target.closest('#langsw,select') && (e.key===' '||e.key==='Enter')) return;
+  if(e.target && e.target.matches && e.target.matches('select')) return;
+  if(['ArrowRight',' ','Enter'].indexOf(e.key)>=0){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowDown'){ e.preventDefault(); go(scene+1); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); go(scene-1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); go(scene-1); }
+});
+document.querySelector('.stage').addEventListener('click', function(e){
+  if(e.target.closest('a,button,select,option,.nostep')) return;
+  go(scene+1);
+});
+
+/* curLang est déclaré en var : les widgets ci-dessous tournent AVANT le bloc i18n
+   et lisent cette variable. Avec let, ils lèveraient une ReferenceError. */
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+
+function fnum(x, d){
+  var s = x.toFixed(d === undefined ? 0 : d);
+  s = s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (LG() === 'fr') ? s.replace('.', ',') : s.replace(/ /g, ',');
+}
+function pickbtns(host, labels, cur, cb){
+  var h = document.getElementById(host);
+  h.innerHTML = labels.map(function(l,i){
+    return '<button class="qb nostep' + (i===cur ? ' on' : '') + '" data-i="' + i + '">' + l + '</button>';
+  }).join('');
+  [].slice.call(h.querySelectorAll('button')).forEach(function(b){
+    b.onclick = function(){ cb(+b.dataset.i); };
+  });
+}
+
+/* =========================================================
+   SCÈNE 2 — les cinq pièces d'une demande
+   ========================================================= */
+var S2 = {
+  fr:{
+    pieces:[
+      { n:'La tâche',    d:'le verbe, précis : résumer, comparer, corriger, expliquer',
+        line:'Résume ce texte.' },
+      { n:'Le contexte', d:'pourquoi, pour quoi faire, ce que vous avez déjà essayé',
+        line:'Je prépare le contrôle de jeudi sur la révolution industrielle ; j’ai lu le cours, je bloque sur l’enchaînement des causes.' },
+      { n:'Le public',   d:'pour qui : vous, la classe, un jury, un enfant de dix ans',
+        line:'C’est pour moi, élève de seconde.' },
+      { n:'Le format',   d:'longueur, structure — et ce qu’il ne faut pas faire',
+        line:'Dix lignes maximum, en liste, en gardant les dates et les trois causes. Pas d’introduction.' },
+      { n:'La matière',  d:'le texte, le fichier, les chiffres — sans elle, tout le reste est du décor',
+        line:'[les deux pages du manuel, collées ici]' }
+    ],
+    empty:'(rien)',
+    notask:'Sans verbe, <b>aucune tâche n’est demandée</b> : il va choisir la plus probable — souvent un résumé, justement.',
+    nomat:'«&nbsp;Ce texte&nbsp;» ne désigne rien du tout. <b>La pièce la plus importante manque</b> : il va répondre sur un texte qu’il imagine.',
+    v:[
+      'Rien n’est demandé. Le modèle ne peut que bavarder.',
+      'Une phrase, et mille réponses possibles. Toutes seront «&nbsp;correctes&nbsp;».',
+      'La demande se resserre, mais l’essentiel reste au choix du modèle.',
+      'On commence à savoir ce qui serait une bonne réponse — c’est le vrai critère.',
+      'Il ne reste plus qu’une marge étroite. Presque tout a été décidé par vous.',
+      'La réponse n’a <b>presque plus de marge</b>. Et vous pouvez dire, avant de lire, à quoi elle devrait ressembler : c’est exactement ça, formuler.'
+    ]
+  },
+  en:{
+    pieces:[
+      { n:'The task',    d:'the verb, precisely: summarise, compare, correct, explain',
+        line:'Summarise this text.' },
+      { n:'The context', d:'why, what for, what you have already tried',
+        line:'I am revising for Thursday’s test on the industrial revolution; I have read the lesson and I am stuck on how the causes follow one another.' },
+      { n:'The reader',  d:'who for: you, the class, an examiner, a ten-year-old',
+        line:'It is for me, a Year 11 pupil.' },
+      { n:'The format',  d:'length, structure — and what not to do',
+        line:'Ten lines at most, as a list, keeping the dates and the three causes. No introduction.' },
+      { n:'The material',d:'the text, the file, the figures — without it the rest is scenery',
+        line:'[the two pages of the textbook, pasted here]' }
+    ],
+    empty:'(nothing)',
+    notask:'With no verb, <b>no task has been asked for</b>: it will pick the most likely one — often a summary, as it happens.',
+    nomat:'&ldquo;This text&rdquo; points at nothing at all. <b>The most important piece is missing</b>: it will answer about a text it imagines.',
+    v:[
+      'Nothing has been asked. The model can only chatter.',
+      'One sentence, and a thousand possible answers. Every one of them &ldquo;correct&rdquo;.',
+      'The request is narrowing, but the essentials are still the model’s choice.',
+      'You are beginning to know what a good answer would look like — that is the real test.',
+      'Only a narrow margin is left. Almost everything has been decided by you.',
+      'The answer has <b>almost no margin left</b>. And you could say, before reading it, roughly what it should look like: that is exactly what formulating means.'
+    ]
+  }
+};
+var s2on = [true, false, false, false, false];
+function drawS2(){
+  var t = S2[LG()];
+  document.getElementById('s2rows').innerHTML = t.pieces.map(function(p,i){
+    return '<div class="pc nostep ' + (s2on[i] ? 'on' : 'off') + '" data-i="' + i + '">' +
+      '<div class="bx">✓</div><div><div class="nm">' + p.n + '</div>' +
+      '<div class="nt">' + p.d + '</div></div></div>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s2rows .pc')).forEach(function(e){
+    e.onclick = function(){ var i = +e.dataset.i; s2on[i] = !s2on[i]; drawS2(); };
+  });
+
+  var lines = [];
+  t.pieces.forEach(function(p,i){ if(s2on[i]) lines.push(p.line); });
+  document.getElementById('s2box').innerHTML = lines.length ? lines.join('\n') : t.empty;
+
+  var n = lines.length;
+  var m = document.getElementById('s2meter');
+  m.className = 'meter' + (n <= 1 ? ' lo' : (n <= 3 ? ' mid' : ''));
+  m.firstChild.style.width = (n / 5 * 100) + '%';
+
+  var msg = t.v[n];
+  if(n > 0 && !s2on[0]) msg = t.notask;
+  else if(n > 0 && s2on[0] && !s2on[4]) msg = t.nomat;
+  document.getElementById('s2verd').innerHTML = msg;
+}
+
+/* =========================================================
+   SCÈNE 4 — montrer plutôt que décrire
+   ========================================================= */
+var S4 = {
+  fr:{
+    btn:['Je décris le format','Je montre un exemple','J’en montre trois'],
+    ask:[
+      'Transforme chaque phrase de ce cours en question\nde révision. Style sobre, pas de numérotation,\nune question par ligne, courte.',
+      'Transforme chaque phrase de ce cours en question\nde révision.\n\n<span class="k">Exemple :\n« La machine à vapeur se diffuse à partir de 1780. »\n→ « À partir de quand la machine à vapeur\n   se diffuse-t-elle ? »</span>',
+      'Transforme chaque phrase de ce cours en question\nde révision.\n\n<span class="k">« La machine à vapeur se diffuse à partir de 1780. »\n→ « À partir de quand se diffuse-t-elle ? »\n\n« L’exode rural vide les campagnes. »\n→ « Quel phénomène vide les campagnes ? »\n\n« Trois causes : charbon, capitaux, main-d’œuvre. »\n→ « Citez les trois causes. »</span>'
+    ],
+    out:[
+      '1. <span class="r">Pourriez-vous expliquer à partir de quelle\n   décennie la machine à vapeur commence\n   à se diffuser en Angleterre ?</span>\n2. <span class="r">Qu’est-ce que l’exode rural et quelles en\n   sont les conséquences principales ?</span>\n\n<span class="r">→ numérotées, longues, de style variable</span>',
+      'À partir de quand la machine à vapeur se\ndiffuse-t-elle ?\nQuel phénomène vide les campagnes ?\n<span class="r">Pouvez-vous préciser quelles sont les trois\ncauses principales évoquées ?</span>\n\n<span class="r">→ le format tient, sauf sur les cas différents</span>',
+      'À partir de quand se diffuse-t-elle ?\nQuel phénomène vide les campagnes ?\nCitez les trois causes.\nQue désigne le mot « prolétariat » ?\n\n<span class="k">→ format tenu, y compris sur les définitions</span>'
+    ],
+    v:[
+      '<b>Cinq adjectifs</b> — « sobre », « courte », « sans numérotation » — et trois d’entre eux sont ignorés. Décrire un format, c’est espérer que vos mots veulent dire pour lui ce qu’ils veulent dire pour vous.',
+      '<b>Un seul exemple</b> remplace les cinq adjectifs. Le format est copié, y compris ce que vous n’auriez pas pensé à dire. Il reste les cas qui ne ressemblent pas à l’exemple.',
+      '<b>Trois exemples bien choisis</b> — une date, un phénomène, une liste — et les cas limites sont couverts aussi. Ce procédé a un nom&nbsp;: <b>few-shot</b>, «&nbsp;avec quelques exemples&nbsp;». Vous l’utilisez déjà quand vous dites «&nbsp;comme ça&nbsp;».'
+    ]
+  },
+  en:{
+    btn:['I describe the format','I show one example','I show three'],
+    ask:[
+      'Turn each sentence of this lesson into a revision\nquestion. Plain style, no numbering,\none question per line, short.',
+      'Turn each sentence of this lesson into a revision\nquestion.\n\n<span class="k">Example:\n&ldquo;The steam engine spreads from 1780 onwards.&rdquo;\n→ &ldquo;From when does the steam engine\n   spread?&rdquo;</span>',
+      'Turn each sentence of this lesson into a revision\nquestion.\n\n<span class="k">&ldquo;The steam engine spreads from 1780 onwards.&rdquo;\n→ &ldquo;From when does it spread?&rdquo;\n\n&ldquo;Rural flight empties the countryside.&rdquo;\n→ &ldquo;What empties the countryside?&rdquo;\n\n&ldquo;Three causes: coal, capital, labour.&rdquo;\n→ &ldquo;Name the three causes.&rdquo;</span>'
+    ],
+    out:[
+      '1. <span class="r">Could you explain from which decade the\n   steam engine began to spread across\n   England?</span>\n2. <span class="r">What is rural flight and what are its main\n   consequences?</span>\n\n<span class="r">→ numbered, long, inconsistent in style</span>',
+      'From when does the steam engine spread?\nWhat empties the countryside?\n<span class="r">Could you state the three main causes that\nare mentioned here?</span>\n\n<span class="r">→ format holds, except on the odd case out</span>',
+      'From when does it spread?\nWhat empties the countryside?\nName the three causes.\nWhat does the word &ldquo;proletariat&rdquo; mean?\n\n<span class="k">→ format holds, definitions included</span>'
+    ],
+    v:[
+      '<b>Five adjectives</b> — &ldquo;plain&rdquo;, &ldquo;short&rdquo;, &ldquo;no numbering&rdquo; — and three of them are ignored. Describing a format means hoping your words mean to it what they mean to you.',
+      '<b>One single example</b> replaces all five adjectives. The format is copied, including what you would not have thought to say. What is left are the cases that do not look like the example.',
+      '<b>Three well-chosen examples</b> — a date, a phenomenon, a list — and the edge cases are covered too. The trick has a name: <b>few-shot</b>. You already use it whenever you say &ldquo;like this&rdquo;.'
+    ]
+  }
+};
+var s4i = 0;
+function drawS4(){
+  var t = S4[LG()];
+  pickbtns('s4btns', t.btn, s4i, function(i){ s4i = i; drawS4(); });
+  document.getElementById('s4ask').innerHTML = t.ask[s4i];
+  document.getElementById('s4out').innerHTML = t.out[s4i];
+  document.getElementById('s4verd').innerHTML = t.v[s4i];
+}
+
+/* =========================================================
+   SCÈNE 5 — deux boucles d'itération
+   ========================================================= */
+var S5 = {
+  fr:{
+    btn:['La boucle qui tourne à vide','La boucle qui corrige'],
+    loops:[
+      { cls:'bad', rows:[
+        ['tour 1','Fais-moi un résumé.','Un résumé générique, correct, qui ne sert à rien.'],
+        ['tour 2','Non, c’est pas ça. Refais.','Un autre résumé générique, un peu plus long.'],
+        ['tour 3','Toujours pas.','Un troisième, qui reprend des morceaux du premier.'],
+        ['tour 4','Laisse tomber.','Dix minutes perdues — et vous ne savez toujours pas ce que vous vouliez.']
+      ],
+      v:'«&nbsp;Refais&nbsp;» ne contient <b>aucune information</b>. Le modèle ne sait pas ce qui n’allait pas&nbsp;: il change au hasard, et retire parfois ce qui marchait. <b>Un tour qui n’ajoute rien ne corrige rien.</b>' },
+      { cls:'good', rows:[
+        ['tour 1','Résume ce texte en dix lignes, pour réviser. [texte collé]','Dix lignes justes — mais toutes les dates ont sauté.'],
+        ['tour 2','Garde les dates. Le reste est bon.','Dix lignes avec les dates ; le 3ᵉ point devient confus.'],
+        ['tour 3','Le 3ᵉ point mélange une cause et une conséquence. Reprends ce point seul.','Le point reformulé, juste. Le reste est intact.'],
+        ['tour 4','Relis l’ensemble : reste-t-il une incohérence ?','Il en signale une au point 5. Vous la vérifiez — elle est réelle.']
+      ],
+      v:'Trois règles tiennent toute la méthode&nbsp;: <b>une correction à la fois</b>, <b>dire aussi ce qui va</b> (sinon il le casse), <b>désigner l’endroit</b> plutôt que juger l’ensemble. Et remarquez&nbsp;: à chaque tour, <b>c’est vous qui avez lu</b>. C’est pour ça que ça marche.' }
+    ]
+  },
+  en:{
+    btn:['The loop that spins','The loop that corrects'],
+    loops:[
+      { cls:'bad', rows:[
+        ['turn 1','Write me a summary.','A generic summary, correct, useless.'],
+        ['turn 2','No, that’s not it. Do it again.','Another generic summary, slightly longer.'],
+        ['turn 3','Still not right.','A third one, recycling bits of the first.'],
+        ['turn 4','Never mind.','Ten minutes gone — and you still do not know what you wanted.']
+      ],
+      v:'&ldquo;Do it again&rdquo; carries <b>no information at all</b>. The model does not know what was wrong: it changes things at random, and sometimes removes what worked. <b>A turn that adds nothing corrects nothing.</b>' },
+      { cls:'good', rows:[
+        ['turn 1','Summarise this text in ten lines, for revision. [text pasted]','Ten accurate lines — but every date has gone.'],
+        ['turn 2','Keep the dates. The rest is good.','Ten lines with the dates; point 3 turns muddy.'],
+        ['turn 3','Point 3 mixes up a cause and a consequence. Redo that point only.','The point rewritten, correctly. The rest untouched.'],
+        ['turn 4','Read it all again: is there still an inconsistency?','It flags one at point 5. You check — it is a real one.']
+      ],
+      v:'Three rules hold the whole method: <b>one correction at a time</b>, <b>say what is working too</b> (or it will break that), <b>point at the place</b> rather than judging the whole. And notice: at every turn, <b>you are the one who read it</b>. That is why it works.' }
+    ]
+  }
+};
+var s5i = 1;
+function drawS5(){
+  var t = S5[LG()], k = t.loops[s5i];
+  pickbtns('s5btns', t.btn, s5i, function(i){ s5i = i; drawS5(); });
+  document.getElementById('s5rows').innerHTML = k.rows.map(function(r){
+    return '<div class="itrow ' + k.cls + '"><div class="tn">' + r[0] + '</div>' +
+           '<div class="you">' + r[1] + '</div><div class="it">' + r[2] + '</div></div>';
+  }).join('');
+  document.getElementById('s5verd').innerHTML = k.v;
+}
+
+/* =========================================================
+   SCÈNE 6 — le poids du fil
+   ========================================================= */
+var S6D = [
+  { n:5,  sys:320, hist:1100,  att:0,    msg:40 },
+  { n:20, sys:320, hist:6400,  att:4200, msg:40 },
+  { n:60, sys:320, hist:23800, att:4200, msg:40 }
+];
+var S6 = {
+  fr:{
+    btn:['5 messages','20 messages','60 messages'],
+    parts:['instructions système','le fil précédent','la pièce jointe','votre message'],
+    tot:'Renvoyé pour <b>ce seul message</b>&nbsp;: <b>%T tokens</b>, dont <b>%P&nbsp;%</b> pour ce que vous venez d’écrire.',
+    v:[
+      'Déjà, votre phrase pèse moins de trois pour cent de l’envoi. Le reste, c’est le décor — et il est entièrement à votre charge.',
+      'La pièce jointe est repartie <b>vingt fois</b> sans que vous l’ayez redemandé. C’est le moment où un fil commence à coûter plus qu’il ne rapporte.',
+      'Une consigne donnée au message 3 pèse maintenant <b>autant</b> qu’une erreur du message 58 — et il n’a aucun moyen de savoir laquelle compte. C’est là qu’il faut repartir à zéro.'
+    ]
+  },
+  en:{
+    btn:['5 messages','20 messages','60 messages'],
+    parts:['system instructions','the earlier thread','the attachment','your message'],
+    tot:'Resent for <b>this one message</b>: <b>%T tokens</b>, of which <b>%P%</b> is what you have just written.',
+    v:[
+      'Already your sentence is under three per cent of what is sent. The rest is scenery — and all of it is on your bill.',
+      'The attachment has gone again <b>twenty times</b> without you asking for it. This is where a thread starts costing more than it returns.',
+      'An instruction given at message 3 now weighs <b>as much as</b> a mistake from message 58 — and it has no way of knowing which one matters. This is where you start afresh.'
+    ]
+  }
+};
+var s6i = 0;
+var S6C = ['#123bab', '#6c6355', '#b08a1e', '#b5301f'];
+function drawS6(){
+  var t = S6[LG()], d = S6D[s6i];
+  pickbtns('s6btns', t.btn, s6i, function(i){ s6i = i; drawS6(); });
+  var vals = [d.sys, d.hist, d.att, d.msg];
+  var tot = vals.reduce(function(a,b){ return a+b; }, 0);
+  document.getElementById('s6bar').innerHTML = vals.map(function(v,i){
+    return v ? '<i style="width:' + (v/tot*100).toFixed(2) + '%;background:' + S6C[i] + '"></i>' : '';
+  }).join('');
+  document.getElementById('s6leg').innerHTML = vals.map(function(v,i){
+    return v ? '<span><u style="background:' + S6C[i] + '"></u>' + t.parts[i] + ' · ' + fnum(v) + '</span>' : '';
+  }).join('');
+  document.getElementById('s6verd').innerHTML =
+    t.tot.replace('%T', fnum(tot)).replace('%P', fnum(d.msg/tot*100, 2)) + ' ' + t.v[s6i];
+}
+
+/* =========================================================
+   SCÈNE 7 — trouver l'affirmation fausse
+   ========================================================= */
+var S7 = {
+  fr:{
+    claims:[
+      ['Le Web a été proposé au CERN par Tim Berners-Lee en 1989.', 'vrai · la proposition date de mars 1989'],
+      ['HTTP est le protocole qui transporte les pages.', 'vrai · c’est le protocole du Web'],
+      ['Le DNS traduit un nom de domaine en adresse IP.', 'vrai · l’annuaire de la séance 10'],
+      ['Le premier navigateur grand public, Mosaic, date de 1983.', 'FAUX · Mosaic date de 1993, dix ans plus tard']
+    ],
+    bad:3,
+    ask:'Cliquez sur l’affirmation fausse.',
+    ok:'Trouvé. <b>Mosaic date de 1993</b>, pas de 1983 — et le Web n’existait même pas en 1983. Remarquez que <b>rien, dans la phrase, ne sonne faux</b>&nbsp;: elle a la même forme, le même aplomb et la même précision que les trois autres. C’est exactement là que se logent les erreurs&nbsp;: <b>un détail vérifiable, au milieu de vrai</b>.',
+    no:'Celle-là est vraie. C’est bien le problème&nbsp;: elles le sont toutes sauf une, et rien ne les distingue à la lecture. Essayez encore.'
+  },
+  en:{
+    claims:[
+      ['The Web was proposed at CERN by Tim Berners-Lee in 1989.', 'true · the proposal dates from March 1989'],
+      ['HTTP is the protocol that carries the pages.', 'true · it is the Web’s protocol'],
+      ['DNS translates a domain name into an IP address.', 'true · the directory from lesson 10'],
+      ['The first mainstream browser, Mosaic, dates from 1983.', 'FALSE · Mosaic dates from 1993, ten years later']
+    ],
+    bad:3,
+    ask:'Click on the false statement.',
+    ok:'Found it. <b>Mosaic dates from 1993</b>, not 1983 — and the Web did not even exist in 1983. Notice that <b>nothing in the sentence sounds wrong</b>: it has the same shape, the same confidence and the same precision as the other three. That is exactly where errors hide: <b>one checkable detail, in the middle of true ones</b>.',
+    no:'That one is true. And that is the whole problem: they all are, bar one, and nothing tells them apart on the page. Try again.'
+  }
+};
+var s7pick = -1;
+function drawS7(){
+  var t = S7[LG()];
+  document.getElementById('s7rows').innerHTML = t.claims.map(function(c,i){
+    var cls = '';
+    if(s7pick === i) cls = (i === t.bad) ? ' ok' : ' no';
+    else if(s7pick === t.bad) cls = '';
+    return '<div class="cl nostep' + cls + '" data-i="' + i + '">' + c[0] +
+           (s7pick === i ? '<span class="vt">' + c[1] + '</span>' : '') + '</div>';
+  }).join('');
+  [].slice.call(document.querySelectorAll('#s7rows .cl')).forEach(function(e){
+    e.onclick = function(){ s7pick = +e.dataset.i; drawS7(); };
+  });
+  document.getElementById('s7verd').innerHTML =
+    s7pick < 0 ? t.ask : (s7pick === t.bad ? t.ok : t.no);
+}
+
+/* =========================================================
+   SCÈNE 9 — les trois conduites
+   ========================================================= */
+var S9 = {
+  fr:{
+    btn:['Il fait à ma place','Il travaille avec moi','Il me fait travailler'],
+    ask:[
+      'Rédige l’introduction de mon devoir sur\nla révolution industrielle.',
+      'Voici mon introduction. Dis-moi ce qui n’est\npas clair pour un lecteur — <span class="k">sans la réécrire</span>.\n\n[votre texte]',
+      'Interroge-moi sur le chapitre 4, une question\nà la fois. <span class="k">Ne me donne pas la réponse</span> : dis-moi\nseulement si j’ai juste, et pourquoi.'
+    ],
+    out:[
+      [['Ce que vous rendez','Un texte correct, que vous n’avez pas écrit.'],
+       ['Ce que vous savez faire','Rien de plus qu’avant.'],
+       ['À l’oral, demain','Vous ne pourrez pas défendre une phrase que vous n’avez pas pensée.']],
+      [['Ce que vous rendez','Votre texte, corrigé par vous.'],
+       ['Ce que vous savez faire','Repérer ce qui n’est pas clair — un lecteur vous l’a montré.'],
+       ['À l’oral, demain','Chaque phrase est de vous. Vous pouvez la défendre.']],
+      [['Ce que vous rendez','Un texte écrit seul, après coup.'],
+       ['Ce que vous savez faire','Le chapitre 4. Pour de bon, parce que vous l’avez récité.'],
+       ['À l’oral, demain','C’est exactement l’exercice que vous venez de faire.']]
+    ],
+    v:[
+      'Ce que vous avez gagné&nbsp;: une heure. Ce que vous avez perdu&nbsp;: l’heure qui vous aurait fait progresser. Le marché est rarement présenté comme ça.',
+      'Il fait ce qu’un bon camarade ferait&nbsp;: il bute là où le lecteur butera, et vous laisse la plume. C’est la conduite la plus utile au quotidien.',
+      'C’est le <b>tutorat socratique</b> — il interroge, vous répondez. C’est la conduite la plus efficace des trois, et de loin la moins utilisée&nbsp;: c’est la seule qui exige un effort.'
+    ],
+    key:'Aucune des trois n’est interdite, et toutes les trois se justifient un jour. Mais elles ne produisent pas le même élève. <b>La seule question honnête, le soir&nbsp;: qu’est-ce que je sais faire que je ne savais pas faire ce matin&nbsp;?</b>'
+  },
+  en:{
+    btn:['It works instead of me','It works with me','It makes me work'],
+    ask:[
+      'Write the introduction to my essay on\nthe industrial revolution.',
+      'Here is my introduction. Tell me what is not\nclear to a reader — <span class="k">without rewriting it</span>.\n\n[your text]',
+      'Test me on chapter 4, one question at a time.\n<span class="k">Do not give me the answer</span>: just tell me whether\nI am right, and why.'
+    ],
+    out:[
+      [['What you hand in','A sound text, which you did not write.'],
+       ['What you can now do','Nothing you could not do before.'],
+       ['Tomorrow, out loud','You cannot defend a sentence you never thought.']],
+      [['What you hand in','Your text, corrected by you.'],
+       ['What you can now do','Spot what is unclear — a reader has shown you where.'],
+       ['Tomorrow, out loud','Every sentence is yours. You can defend it.']],
+      [['What you hand in','A text written alone, afterwards.'],
+       ['What you can now do','Chapter 4. Properly, because you recited it.'],
+       ['Tomorrow, out loud','That is exactly the exercise you have just done.']]
+    ],
+    v:[
+      'What you gained: one hour. What you lost: the hour that would have moved you forward. The bargain is rarely put that way.',
+      'It does what a good classmate would do: it stumbles where the reader will stumble, and leaves you the pen. Day to day, this is the most useful of the three.',
+      'This is <b>Socratic tutoring</b> — it asks, you answer. It is by far the most effective of the three, and by far the least used: it is the only one that costs an effort.'
+    ],
+    key:'None of the three is forbidden, and each has its day. But they do not produce the same pupil. <b>The one honest question, at the end of the day: what can I do now that I could not do this morning?</b>'
+  }
+};
+var s9i = 2;
+function drawS9(){
+  var t = S9[LG()];
+  pickbtns('s9btns', t.btn, s9i, function(i){ s9i = i; drawS9(); });
+  document.getElementById('s9ask').innerHTML = t.ask[s9i];
+  document.getElementById('s9out').innerHTML = t.out[s9i].map(function(r){
+    return '<div class="mdrow"><div class="h">' + r[0] + '</div><p>' + r[1] + '</p></div>';
+  }).join('');
+  document.getElementById('s9verd').innerHTML = t.v[s9i] + ' ' + t.key;
+}
+
+/* =========================================================
+   REDESSIN GLOBAL (appelé aussi au changement de langue)
+   ========================================================= */
+function redrawAll(){ drawS2(); drawS4(); drawS5(); drawS6(); drawS7(); drawS9(); }
+window.redrawAll = redrawAll;
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Formuler, itérer, vérifier`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`Framing, iterating, checking`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · Anatomy of an assistant`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`A question<br>is not <em>asked</em>.<br>It is <em>steered</em>.`,
+  's0.line':`You know what is inside the box. What is left is the only part that depends on you: <strong style="color:#fff">what you do with it</strong>. This lesson is not a list of tips — it is a method in three movements, and a fourth question, the most important of all.`,
+  's0.kick':`Frame it · give it to read · iterate · check · know when to stop`,
+
+  /* --- 1 · l'écart --- */
+  's1.eye':`The gap nobody sees`,
+  's1.t':`Your question<br>does not state the task`,
+  's1.lead':`Faced with a disappointing answer, the reflex is to say &ldquo;the AI is useless&rdquo;. Almost always, the request left the choice open — and the model took the most likely path (lesson 3), which is to say the most ordinary one.`,
+  's1.c1':`
+          <h3>What you typed</h3>
+          <div class="sub">seven words</div>
+          <p class="ex">&ldquo;Give me a summary of this text.&rdquo;</p>
+          <p>No length. No reader. No purpose. No hint of what absolutely has to be kept.</p>
+        `,
+  's1.c2':`
+          <h3>What you wanted</h3>
+          <div class="sub">left inside your head</div>
+          <p class="ex">Ten lines, to revise for Thursday, keeping the dates and the three causes.</p>
+          <p>That is a perfectly clear request. It simply never got written down.</p>
+        `,
+  's1.c3':`
+          <h3>What it did</h3>
+          <div class="sub">the most likely thing</div>
+          <p class="ex">An average summary, of average length, for an average reader.</p>
+          <p>It did not fail: it <b>filled in</b>. That is precisely what it was trained to do.</p>
+        `,
+  's1.note':`A model does not guess an intention: it completes a text. <b>Everything you leave unsaid, it replaces with the average of what it has read.</b> Framing a request is not about being polite to the machine — it is about <b>narrowing the range of possible answers</b>.`,
+
+  /* --- 2 · les cinq pièces --- */
+  's2.eye':`Hands on · tick, untick`,
+  's2.t':`The five pieces<br>of a request`,
+  's2.lead':`A useful request has five parts. None is compulsory — but each one removed makes the answer vaguer. Tick them and watch the request take shape.`,
+  's2.lbl1':`The pieces`,
+  's2.lbl2':`What you are sending`,
+
+  /* --- 3 · donner à lire --- */
+  's3.eye':`The piece people forget`,
+  's3.t':`Give it something to read,<br>not just something to do`,
+  's3.lead':`It does not have your lesson, your exercise, your draft. It has what you put into the <b>context</b> (lesson 11, scene 3) — and nothing else. The gap between a generic answer and a useful one often comes down to one copy-paste.`,
+  's3.c1':`
+          <h3>Paste the material</h3>
+          <div class="sub">the text, the question, the figures</div>
+          <p>A question <b>copied out</b> beats a question summarised: the exact words carry half the difficulty.</p>
+          <p class="ex">and say where it comes from</p>
+        `,
+  's3.c2':`
+          <h3>Show an example</h3>
+          <div class="sub">one line is enough</div>
+          <p>An example of what you want beats ten adjectives. That is what the next scene is about.</p>
+          <p class="ex">&ldquo;like this: …&rdquo;</p>
+        `,
+  's3.c3':`
+          <h3>But not just anything</h3>
+          <div class="sub">lesson 11, scene 10</div>
+          <p>An attached document may carry <b>hidden instructions</b> — and to the model everything is text. And what concerns someone else is not yours to hand over.</p>
+          <p class="ex">prompt injection · personal data</p>
+        `,
+  's3.note':`A simple rule: <b>if a human could not answer with what you gave, neither can the model.</b> The difference is that it will answer anyway.`,
+
+  /* --- 4 · montrer plutôt que décrire --- */
+  's4.eye':`Hands on · the best-value shortcut there is`,
+  's4.t':`One example beats<br>ten adjectives`,
+  's4.lead':`Describing the format you want is laborious and imprecise. Showing one is instant. Same task — turning lesson sentences into revision questions — three ways of saying what you expect.`,
+  's4.lbl1':`The request`,
+  's4.lbl2':`What comes back`,
+  's4.note':`The answers above are <b>reconstructed for the demonstration</b>: they illustrate real behaviour, they did not come out of a live model.`,
+
+  /* --- 5 · itérer --- */
+  's5.eye':`Hands on · two ways of running the same four turns`,
+  's5.t':`Iterating means correcting<br>a trajectory`,
+  's5.lead':`The first draft is almost never the right one, and that is fine. What matters is the second. Same four turns, two ways of running them.`,
+
+  /* --- 6 · le poids du fil --- */
+  's6.eye':`Hands on · what a long conversation costs`,
+  's6.t':`The thread grows heavy,<br>and it follows you`,
+  's6.lead':`Lesson 11, scene 3: at every message, <b>the whole thread goes again</b>. A long thread is not only heavy — it drags its own mistakes along, and an instruction given at the third message weighs as much as your latest sentence.`,
+  's6.c1':`
+          <h3>When the subject changes</h3>
+          <div class="sub">the commonest case</div>
+          <p>You move from the history essay to the maths exercise. The whole essay keeps going out with every message, for nothing.</p>
+        `,
+  's6.c2':`
+          <h3>When it repeats a mistake</h3>
+          <div class="sub">the most useful case</div>
+          <p>You corrected it, it does it again: the mistake is <b>in the thread</b>, and it travels with it. Starting afresh erases it.</p>
+        `,
+  's6.c3':`
+          <h3>When you have lost track</h3>
+          <div class="sub">the most honest case</div>
+          <p>If you can no longer say what it &ldquo;has in mind&rdquo;, nobody can. Starting over is not a failure: it is <b>emptying the context</b>.</p>
+        `,
+
+  /* --- 7 · vérifier --- */
+  's7.eye':`Hands on · spot the odd one out`,
+  's7.t':`Checking,<br>on three levels`,
+  's7.lead':`A wrong answer does not look like a wrong answer: it is written with exactly the same confidence as the rest. Here are four statements from one answer about the Web (lesson 10). <b>Only one is false.</b> Click on it.`,
+  's7.c1':`
+          <h3>The fact</h3>
+          <div class="sub">a date, a figure, a name</div>
+          <p>Checkable elsewhere in thirty seconds. The easiest level — and the one most often skipped.</p>
+        `,
+  's7.c2':`
+          <h3>The reasoning</h3>
+          <div class="sub">the chain of steps</div>
+          <p>Redo the calculation, follow the argument. A right conclusion can rest on a wrong step — and the other way round.</p>
+        `,
+  's7.c3':`
+          <h3>The question</h3>
+          <div class="sub">the level most often forgotten</div>
+          <p>Does this answer what I actually asked? A brilliant text off the point is still off the point.</p>
+        `,
+
+  /* --- 8 · la source inventée --- */
+  's8.eye':`The most treacherous case`,
+  's8.t':`What it invents best:<br>the source`,
+  's8.lead':`A reference has a very regular shape: an author, a title, a journal, a year, page numbers. That is exactly the kind of text a model produces perfectly — <b>including when it does not exist</b>.`,
+  's8.lbl':`An invented reference, exactly as it arrives`,
+  's8.code':`Dupont, M. &amp; Lefèvre, C. (2019).
+<span class="k">&ldquo;Digital practice and school attainment
+in upper secondary: a longitudinal study&rdquo;</span>.
+Revue française de pédagogie, 206, pp. 45-68.`,
+  's8.verd':`The names exist. The journal exists. Issue 206 exists. <b>The article does not.</b> Nothing in the shape of it lets you see that — and that is the whole problem: plausibility is precisely what the model is good at producing.`,
+  's8.c1':`
+              <h3>Why it happens so often</h3>
+              <div class="sub">lesson 8, scene 10b</div>
+              <p>The model has not <b>filed</b> the references: it kept their general look. It reconstitutes one, the way a JPEG reconstitutes a face — sharp from afar, wrong close up.</p>
+            `,
+  's8.c2':`
+              <h3>The reflex, in three moves</h3>
+              <div class="sub">thirty seconds</div>
+              <p><b>1.</b> Paste the exact title into a search engine.<br><b>2.</b> If nothing comes up, ask for the link.<br><b>3.</b> Open it. A link that does not open is an invented link.</p>
+            `,
+  's8.note':`And if the assistant has web search (lesson 9), the question becomes: <b>did it search, or did it answer from memory?</b> On screen the two look alike. Ask for the source: when it really searched, the source comes with a link.`,
+
+  /* --- 9 · trois conduites --- */
+  's9.eye':`Hands on · the same hour of work`,
+  's9.t':`Three ways<br>of using it`,
+  's9.lead':`Same homework, same tool, same hour. What changes is what you ask it to <b>be</b> — and what is left of you at the end.`,
+  's9.lbl1':`What you type`,
+  's9.lbl2':`What you are left with`,
+
+  /* --- 10 · ce qu'on ne colle pas --- */
+  's10.eye':`Before you paste`,
+  's10.t':`Three things<br>you do not paste`,
+  's10.lead':`Everything you type goes to a machine that is not yours, and depending on the settings it may feed training (lesson 7). Before pasting, three questions — and a fourth that is not a legal one.`,
+  's10.c1':`
+          <h3>What belongs to someone else</h3>
+          <div class="sub">personal data</div>
+          <p>A classmate's message, another pupil's work, a class photo, an email you received. It is not yours to hand over — not even to be helpful.</p>
+        `,
+  's10.c2':`
+          <h3>What identifies you</h3>
+          <div class="sub">address, number, credentials</div>
+          <p>A password pasted into a chat is a password <b>lost</b>. And an address given once cannot be taken back.</p>
+        `,
+  's10.c3':`
+          <h3>What is not yours</h3>
+          <div class="sub">documents, other people's work</div>
+          <p>An internal school document, an exam paper not yet set, the unpublished work of a teacher or an author.</p>
+        `,
+  's10.note':`The fourth is not a legal question but an honest one: <b>when you hand work in, say what you had done for you.</b> One sentence is enough. The problem was never using the tool — it is letting people believe you did not.`,
+
+  /* --- 11 · charnière --- */
+  's11.eye':`The question that opens the next lesson`,
+  's11.q':`And what if the best<br>move were <em>not</em><br>to open it at all?`,
+  's11.a':`You know how to frame, to give it something to read, to iterate, to check. All of that serves to obtain a good answer — and that is exactly where the trap is: <b>there are moments when obtaining the answer is precisely what you must not do.</b> The effort you are about to avoid is the one that would have taught you something. What is left is recognising those moments without kidding yourself.`,
+  's11.next':`Next lesson · The effort we dodge`,
+
+  /* --- 12 · activité --- */
+  's12.tag':`Activity for this lesson · 40 minutes · in threes`,
+  's12.t':`The same homework,<br><em>three ways</em>`,
+  's12.sub':`One short question, three ways of handling it, and an honest comparison at the end. The three ways are those of scene 9.`,
+  's12.l1':`<b>The question.</b> The teacher sets one short question, to be answered in fifteen lines. Everyone in the group has the same one.`,
+  's12.l2':`<b>The roles.</b> <b>A</b> has it written for them. <b>B</b> writes first, then has it reviewed. <b>C</b> is tested on it, then writes alone. Fifteen minutes each, in silence.`,
+  's12.l3':`<b>The record.</b> Each keeps the full transcript of their conversation. It is part of the evidence, not a draft to throw away.`,
+  's12.l4':`<b>The viva.</b> Another group asks <b>three questions</b> about each text handed in. Who can answer without rereading?`,
+  's12.l5':`<b>The check.</b> In all three texts, find one checkable fact and <b>actually check it</b>. How many hold up?`,
+  's12.l6':`<b>The verdict.</b> One sentence each: <i>what can I do tonight that I could not do this morning?</i> That is the only mark that counts.`,
+
+  /* --- 13 · récap --- */
+  'rc.eye':`Lesson 12 · to remember`,
+  'rc.t':`Framing, iterating, <span>checking</span>`,
+  'rc.i1':`A model does not guess an intention: it <b>completes</b>. Everything you leave unsaid, it replaces with the most likely thing.`,
+  'rc.i2':`A useful request has <span class="hl">five pieces</span>: the task, the context, the reader, the format, the material. The last is the one most often missing.`,
+  'rc.i3':`<b>Showing beats describing</b>: one example of what you want (<span class="hl">few-shot</span>) settles a format in a single line.`,
+  'rc.i4':`Iterating means <b>one correction at a time</b>, pointing at the place — and saying what works too. &ldquo;Do it again&rdquo; teaches nobody anything.`,
+  'rc.i5':`The whole thread <b>goes again at every message</b>: a long thread drags its mistakes along. Starting over is <b>emptying the context</b>, not failing.`,
+  'rc.i6':`Check on three levels: <span class="hl">the fact</span>, <span class="hl">the reasoning</span>, <span class="hl">the question asked</span>. An invented source has the perfect shape of a real one.`,
+  'rc.i7':`Three ways of using it: <b>work instead of me</b>, <b>work with me</b>, <b>make me work</b>. Only the third leaves anything behind.`,
+  'rc.v1':`<b>Framing</b>Narrowing the range of possible answers.`,
+  'rc.v2':`<b>Context</b>Everything you give it to read.`,
+  'rc.v3':`<b>Few-shot</b>Showing one or two examples rather than describing.`,
+  'rc.v4':`<b>Iteration</b>One turn, one correction, one place pointed at.`,
+  'rc.v5':`<b>Checking</b>The fact, the reasoning, the question.`,
+  'rc.v6':`<b>Socratic tutoring</b>It asks the questions, you answer them.`,
+  'rc.key':`Next step: <b>knowing when to close the tab — and why that is the hardest skill of the whole year.</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
+</script>
+</body>
+</html>
