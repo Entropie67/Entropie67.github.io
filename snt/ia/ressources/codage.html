@@ -283,6 +283,13 @@
   .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
   .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
   @media (max-width:900px){.homelink span{display:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
@@ -295,6 +302,7 @@
     .sl .bn{display:none}
     .rung{grid-template-columns:4.4rem 1fr}
     .homelink.fixedleft{position:static;transform:none}
+    .hudleft{position:static;transform:none}
     .hud{gap:.6rem;padding:.55rem .6rem}
     .btn{padding:.45rem .6rem}
   }
@@ -306,69 +314,69 @@
 
   <!-- 0 · OUVERTURE -->
   <div class="pane dark intro on" id="s0">
-    <a class="back" href="se-tester.html">◂ Séance précédente · Faire un point</a>
+    <a class="back" data-i18n="s0.back" href="se-tester.html">◂ Séance précédente · Faire un point</a>
     <div class="rain">01010011 01001110 01010100</div>
-    <div class="tag">SNT · Les données</div>
-    <h1 class="big">Tout n'est que<br><em>0</em> et <em>1</em></h1>
-    <p class="line">Un texto, une photo, une chanson, une vidéo… Pour un ordinateur, c'est <strong style="color:#fff">exactement la même chose</strong> : une très longue suite de 0 et de 1. Comment est-ce possible ? Et combien de place ça prend ?</p>
-    <div class="kick">Bit · octet · multiples · texte · image · son · ordres de grandeur</div>
+    <div class="tag" data-i18n="s0.tag">SNT · Les données</div>
+    <h1 class="big" data-i18n="s0.big">Tout n'est que<br><em>0</em> et <em>1</em></h1>
+    <p class="line" data-i18n="s0.line">Un texto, une photo, une chanson, une vidéo… Pour un ordinateur, c'est <strong style="color:#fff">exactement la même chose</strong> : une très longue suite de 0 et de 1. Comment est-ce possible ? Et combien de place ça prend ?</p>
+    <div class="kick" data-i18n="s0.kick">Bit · octet · multiples · texte · image · son · ordres de grandeur</div>
   </div>
 
   <!-- 1 · LE BIT -->
   <div class="pane dark pad" id="s1">
-    <div class="eyebrow">La brique de base</div>
-    <h2 class="stitle">Le bit :<br>oui ou non</h2>
-    <p class="lead">Un <b>bit</b> (<i>binary digit</i>) ne peut valoir que <b>0 ou 1</b>. C'est l'information la plus petite possible : un interrupteur ouvert ou fermé. Dans la machine, c'est toujours un phénomène physique à deux états.</p>
+    <div class="eyebrow" data-i18n="s1.eye">La brique de base</div>
+    <h2 class="stitle" data-i18n="s1.t">Le bit :<br>oui ou non</h2>
+    <p class="lead" data-i18n="s1.lead">Un <b>bit</b> (<i>binary digit</i>) ne peut valoir que <b>0 ou 1</b>. C'est l'information la plus petite possible : un interrupteur ouvert ou fermé. Dans la machine, c'est toujours un phénomène physique à deux états.</p>
 
     <div class="mid">
       <div class="cards c4">
-        <div class="card"><h3>Électricité</h3><div class="sub">processeur, mémoire</div><p>Tension <b>basse</b> ou <b>haute</b> dans un transistor.</p></div>
-        <div class="card"><h3>Magnétisme</h3><div class="sub">disque dur</div><p>Une zone aimantée dans <b>un sens</b> ou dans <b>l'autre</b>.</p></div>
-        <div class="card"><h3>Lumière</h3><div class="sub">fibre optique</div><p>Une impulsion lumineuse <b>présente</b> ou <b>absente</b>.</p></div>
-        <div class="card"><h3>Relief</h3><div class="sub">CD, DVD, Blu-ray</div><p>Un <b>creux</b> ou un <b>plat</b> gravé, lu par un laser.</p></div>
+        <div class="card" data-i18n="s1.c1"><h3>Électricité</h3><div class="sub">processeur, mémoire</div><p>Tension <b>basse</b> ou <b>haute</b> dans un transistor.</p></div>
+        <div class="card" data-i18n="s1.c2"><h3>Magnétisme</h3><div class="sub">disque dur</div><p>Une zone aimantée dans <b>un sens</b> ou dans <b>l'autre</b>.</p></div>
+        <div class="card" data-i18n="s1.c3"><h3>Lumière</h3><div class="sub">fibre optique</div><p>Une impulsion lumineuse <b>présente</b> ou <b>absente</b>.</p></div>
+        <div class="card" data-i18n="s1.c4"><h3>Relief</h3><div class="sub">CD, DVD, Blu-ray</div><p>Un <b>creux</b> ou un <b>plat</b> gravé, lu par un laser.</p></div>
       </div>
 
       <div class="chain">
-        <div class="cbox"><div class="n">1 bit</div><div class="t">2 possibilités</div><div class="v">0 · 1</div></div>
+        <div class="cbox" data-i18n="s1.b1"><div class="n">1 bit</div><div class="t">2 possibilités</div><div class="v">0 · 1</div></div>
         <div class="carrow">→</div>
-        <div class="cbox"><div class="n">2 bits</div><div class="t">4 possibilités</div><div class="v">00 · 01 · 10 · 11</div></div>
+        <div class="cbox" data-i18n="s1.b2"><div class="n">2 bits</div><div class="t">4 possibilités</div><div class="v">00 · 01 · 10 · 11</div></div>
         <div class="carrow">→</div>
-        <div class="cbox"><div class="n">3 bits</div><div class="t">8 possibilités</div><div class="v">000 … 111</div></div>
+        <div class="cbox" data-i18n="s1.b3"><div class="n">3 bits</div><div class="t">8 possibilités</div><div class="v">000 … 111</div></div>
         <div class="carrow">→</div>
-        <div class="cbox hot"><div class="n">n bits</div><div class="t">2<sup>n</sup> possibilités</div><div class="v">chaque bit ajouté double le nombre de cas</div></div>
+        <div class="cbox hot" data-i18n="s1.b4"><div class="n">n bits</div><div class="t">2<sup>n</sup> possibilités</div><div class="v">chaque bit ajouté double le nombre de cas</div></div>
       </div>
-      <p class="chain-note">Avec assez de bits, on peut tout numéroter : les lettres, les couleurs, les sons. <b>Coder</b>, c'est se mettre d'accord sur ce que représente chaque nombre.</p>
+      <p class="chain-note" data-i18n="s1.note1">Avec assez de bits, on peut tout numéroter : les lettres, les couleurs, les sons. <b>Coder</b>, c'est se mettre d'accord sur ce que représente chaque nombre.</p>
     </div>
   </div>
 
   <!-- 2 · L'OCTET / COMPTER EN BINAIRE -->
   <div class="pane light pad" id="s2">
-    <div class="eyebrow">À vous de jouer</div>
-    <h2 class="stitle">8 bits = 1 octet</h2>
-    <p class="lead">Les bits sont regroupés par paquets de 8 : un <b>octet</b> (<i>byte</i> en anglais). Chaque position a un <b>poids</b>, une puissance de 2. Cliquez sur les bits pour écrire un nombre en binaire.</p>
+    <div class="eyebrow" data-i18n="s2.eye">À vous de jouer</div>
+    <h2 class="stitle" data-i18n="s2.t">8 bits = 1 octet</h2>
+    <p class="lead" data-i18n="s2.lead">Les bits sont regroupés par paquets de 8 : un <b>octet</b> (<i>byte</i> en anglais). Chaque position a un <b>poids</b>, une puissance de 2. Cliquez sur les bits pour écrire un nombre en binaire.</p>
 
     <div class="mid">
       <div class="bits" id="bits"></div>
       <div class="readout">
-        <div class="ro"><div class="l">en binaire</div><div class="v" id="roBin">00000000</div></div>
-        <div class="ro"><div class="l">en décimal</div><div class="v" id="roDec">0</div></div>
-        <div class="ro calc"><div class="l">calcul</div><div class="v" id="roCalc">0</div></div>
-        <div class="ro"><div class="l">caractère ASCII</div><div class="v" id="roChar">—</div></div>
+        <div class="ro"><div class="l" data-i18n="s2.ro1">en binaire</div><div class="v" id="roBin">00000000</div></div>
+        <div class="ro"><div class="l" data-i18n="s2.ro2">en décimal</div><div class="v" id="roDec">0</div></div>
+        <div class="ro calc"><div class="l" data-i18n="s2.ro3">calcul</div><div class="v" id="roCalc">0</div></div>
+        <div class="ro"><div class="l" data-i18n="s2.ro4">caractère ASCII</div><div class="v" id="roChar">—</div></div>
       </div>
-      <p class="chain-note" style="margin-top:1rem">Un octet va de <b>00000000</b> (0) à <b>11111111</b> (255) : <b>2<sup>8</sup> = 256 valeurs</b> possibles. Essayez d'écrire 65… puis regardez la case « caractère ».</p>
+      <p class="chain-note" data-i18n="s2.note1" style="margin-top:1rem">Un octet va de <b>00000000</b> (0) à <b>11111111</b> (255) : <b>2<sup>8</sup> = 256 valeurs</b> possibles. Essayez d'écrire 65… puis regardez la case « caractère ».</p>
     </div>
   </div>
 
   <!-- 3 · LES MULTIPLES -->
   <div class="pane light pad" id="s3">
-    <div class="eyebrow">Les unités</div>
-    <h2 class="stitle">Kilo, méga, giga, téra…</h2>
-    <p class="lead">Un fichier contient vite des millions d'octets. On utilise donc les préfixes du système international, comme pour les mètres ou les grammes : <b>chaque palier multiplie par 1 000</b>.</p>
+    <div class="eyebrow" data-i18n="s3.eye">Les unités</div>
+    <h2 class="stitle" data-i18n="s3.t">Kilo, méga, giga, téra…</h2>
+    <p class="lead" data-i18n="s3.lead">Un fichier contient vite des millions d'octets. On utilise donc les préfixes du système international, comme pour les mètres ou les grammes : <b>chaque palier multiplie par 1 000</b>.</p>
 
     <div class="mid">
       <div class="cards c2" style="align-items:start">
         <div>
-          <table class="tbl">
+          <table class="tbl" data-i18n="s3.tbl">
             <tr><th>Unité</th><th>Symbole</th><th>Vaut</th><th>Soit</th></tr>
             <tr><td><b>octet</b></td><td>o</td><td>8 bits</td><td>1 o</td></tr>
             <tr><td><b>kilooctet</b></td><td>ko</td><td>1 000 o</td><td>10<sup>3</sup> o</td></tr>
@@ -381,13 +389,13 @@
           </table>
         </div>
         <div style="display:grid;gap:clamp(.7rem,2vw,1.1rem)">
-          <div class="card warn">
+          <div class="card warn" data-i18n="s3.c1">
             <h3>Bit ≠ octet</h3>
             <div class="sub">attention aux majuscules</div>
             <p>Les <b>débits</b> internet sont donnés en <b>bits</b> par seconde : Mbit/s (ou Mb/s). Les <b>fichiers</b> sont mesurés en <b>octets</b> : Mo (en anglais MB, B = <i>byte</i>).</p>
             <p class="ex">Fibre à 100 Mbit/s → 100 ÷ 8 = 12,5 Mo/s</p>
           </div>
-          <div class="card">
+          <div class="card" data-i18n="s3.c2">
             <h3>Et 1 024 ?</h3>
             <div class="sub">kibi, mébi, gibi</div>
             <p>Les ordinateurs comptent en puissances de 2 : <b>2<sup>10</sup> = 1 024 ≈ 1 000</b>. D'où des unités binaires : <b>Kio, Mio, Gio</b> (1 Kio = 1 024 o).</p>
@@ -402,85 +410,85 @@
 
   <!-- 4 · CODER DU TEXTE -->
   <div class="pane dark pad" id="s4">
-    <div class="eyebrow">Coder du texte</div>
-    <h2 class="stitle">Une lettre = un nombre</h2>
-    <p class="lead">On numérote les caractères dans une <b>table</b>. La table <b>ASCII</b> (1963) code 128 caractères sur 7 bits : <b>A = 65</b>, B = 66… Aujourd'hui, <b>Unicode</b> (encodage <b>UTF-8</b>) code plus de 150 000 caractères de toutes les langues — et les émojis — sur <b>1 à 4 octets</b>.</p>
+    <div class="eyebrow" data-i18n="s4.eye">Coder du texte</div>
+    <h2 class="stitle" data-i18n="s4.t">Une lettre = un nombre</h2>
+    <p class="lead" data-i18n="s4.lead">On numérote les caractères dans une <b>table</b>. La table <b>ASCII</b> (1963) code 128 caractères sur 7 bits : <b>A = 65</b>, B = 66… Aujourd'hui, <b>Unicode</b> (encodage <b>UTF-8</b>) code plus de 150 000 caractères de toutes les langues — et les émojis — sur <b>1 à 4 octets</b>.</p>
 
     <div class="mid">
       <div class="typein">
-        <label for="txt">Tapez un mot</label>
+        <label for="txt" data-i18n="s4.lab">Tapez un mot</label>
         <input id="txt" type="text" value="SNT" maxlength="16" autocomplete="off" spellcheck="false">
       </div>
       <div class="glyphs" id="glyphs"></div>
       <div class="total" id="txtTotal"></div>
-      <p class="chain-note" style="margin-top:.9rem">Essayez <b>é</b>, <b>€</b> ou un émoji : les lettres sans accent prennent <b>1 octet</b>, les autres en prennent <b>2, 3 ou 4</b> (encadrés en rouge).</p>
+      <p class="chain-note" data-i18n="s4.note1" style="margin-top:.9rem">Essayez <b>é</b>, <b>€</b> ou un émoji : les lettres sans accent prennent <b>1 octet</b>, les autres en prennent <b>2, 3 ou 4</b> (encadrés en rouge).</p>
     </div>
   </div>
 
   <!-- 5 · TEXTE : ORDRES DE GRANDEUR -->
   <div class="pane light pad" id="s5">
-    <div class="eyebrow">Combien ça pèse ?</div>
-    <h2 class="stitle">Le texte, c'est léger</h2>
-    <p class="lead">Règle simple pour un texte en français sans mise en forme : <b>1 caractère ≈ 1 octet</b> (espaces et ponctuation compris).</p>
+    <div class="eyebrow" data-i18n="s5.eye">Combien ça pèse ?</div>
+    <h2 class="stitle" data-i18n="s5.t">Le texte, c'est léger</h2>
+    <p class="lead" data-i18n="s5.lead">Règle simple pour un texte en français sans mise en forme : <b>1 caractère ≈ 1 octet</b> (espaces et ponctuation compris).</p>
 
     <div class="mid">
       <div class="cards c4">
-        <div class="card"><h3>Un SMS</h3><div class="sub">160 caractères max</div><p>160 caractères codés sur 7 bits :</p><p class="ex">160 × 7 = 1 120 bits<br>= <b>140 octets</b></p></div>
-        <div class="card"><h3>Une page</h3><div class="sub">de roman</div><p>Environ 1 500 à 2 000 caractères.</p><p class="ex">≈ <b>2 ko</b></p></div>
-        <div class="card"><h3>Un roman</h3><div class="sub">300 pages</div><p>Environ 600 000 caractères.</p><p class="ex">≈ <b>0,6 Mo</b><br>une bibliothèque de 1 000 romans ≈ 600 Mo</p></div>
-        <div class="card warn"><h3>Le même roman</h3><div class="sub">en .docx ou .pdf</div><p>Polices, mise en page, images de couverture… s'ajoutent au texte.</p><p class="ex">souvent <b>× 2 à × 10</b></p></div>
+        <div class="card" data-i18n="s5.c1"><h3>Un SMS</h3><div class="sub">160 caractères max</div><p>160 caractères codés sur 7 bits :</p><p class="ex">160 × 7 = 1 120 bits<br>= <b>140 octets</b></p></div>
+        <div class="card" data-i18n="s5.c2"><h3>Une page</h3><div class="sub">de roman</div><p>Environ 1 500 à 2 000 caractères.</p><p class="ex">≈ <b>2 ko</b></p></div>
+        <div class="card" data-i18n="s5.c3"><h3>Un roman</h3><div class="sub">300 pages</div><p>Environ 600 000 caractères.</p><p class="ex">≈ <b>0,6 Mo</b><br>une bibliothèque de 1 000 romans ≈ 600 Mo</p></div>
+        <div class="card warn" data-i18n="s5.c4"><h3>Le même roman</h3><div class="sub">en .docx ou .pdf</div><p>Polices, mise en page, images de couverture… s'ajoutent au texte.</p><p class="ex">souvent <b>× 2 à × 10</b></p></div>
       </div>
-      <p class="chain-note">Le texte brut est le type de donnée le plus <b>compact</b>. Les images, les sons et les vidéos, eux, se comptent en millions d'octets.</p>
+      <p class="chain-note" data-i18n="s5.note1">Le texte brut est le type de donnée le plus <b>compact</b>. Les images, les sons et les vidéos, eux, se comptent en millions d'octets.</p>
     </div>
   </div>
 
   <!-- 6 · CODER UNE IMAGE -->
   <div class="pane light pad" id="s6">
-    <div class="eyebrow">Coder une image</div>
-    <h2 class="stitle">Une image = une grille<br>de pixels</h2>
-    <p class="lead">Une image numérique est découpée en petits carrés : les <b>pixels</b> (<i>picture elements</i>). Chaque pixel reçoit un nombre qui code sa couleur. Ici, 1 bit par pixel : <b>0 = blanc, 1 = noir</b>. Cliquez sur les cases pour dessiner.</p>
+    <div class="eyebrow" data-i18n="s6.eye">Coder une image</div>
+    <h2 class="stitle" data-i18n="s6.t">Une image = une grille<br>de pixels</h2>
+    <p class="lead" data-i18n="s6.lead">Une image numérique est découpée en petits carrés : les <b>pixels</b> (<i>picture elements</i>). Chaque pixel reçoit un nombre qui code sa couleur. Ici, 1 bit par pixel : <b>0 = blanc, 1 = noir</b>. Cliquez sur les cases pour dessiner.</p>
 
     <div class="mid">
       <div class="pixwrap">
         <div class="pixgrid" id="pixgrid"></div>
         <div>
           <div class="rows" id="pixrows"></div>
-          <p class="scale-note" style="margin-top:.5rem">8 × 8 = 64 pixels × 1 bit = 64 bits = <b style="color:var(--signal-dk)">8 octets</b></p>
+          <p class="scale-note" data-i18n="s6.sn1" style="margin-top:.5rem">8 × 8 = 64 pixels × 1 bit = 64 bits = <b style="color:var(--signal-dk)">8 octets</b></p>
         </div>
       </div>
 
       <div class="depth">
-        <div class="card"><h3>1 bit / pixel</h3><div class="sub">noir et blanc</div><div class="ramp bw"></div><p class="ex">2<sup>1</sup> = 2 couleurs</p></div>
-        <div class="card"><h3>8 bits / pixel</h3><div class="sub">niveaux de gris</div><div class="ramp gray"></div><p class="ex">2<sup>8</sup> = 256 nuances</p></div>
-        <div class="card"><h3>24 bits / pixel</h3><div class="sub">couleur RVB : 3 octets</div><div class="ramp rgb"></div><p class="ex">2<sup>24</sup> ≈ 16,7 millions de couleurs</p></div>
+        <div class="card" data-i18n="s6.c1"><h3>1 bit / pixel</h3><div class="sub">noir et blanc</div><div class="ramp bw"></div><p class="ex">2<sup>1</sup> = 2 couleurs</p></div>
+        <div class="card" data-i18n="s6.c2"><h3>8 bits / pixel</h3><div class="sub">niveaux de gris</div><div class="ramp gray"></div><p class="ex">2<sup>8</sup> = 256 nuances</p></div>
+        <div class="card" data-i18n="s6.c3"><h3>24 bits / pixel</h3><div class="sub">couleur RVB : 3 octets</div><div class="ramp rgb"></div><p class="ex">2<sup>24</sup> ≈ 16,7 millions de couleurs</p></div>
       </div>
     </div>
   </div>
 
   <!-- 7 · RVB + TAILLE D'UNE PHOTO -->
   <div class="pane light pad" id="s7">
-    <div class="eyebrow">La couleur, en chiffres</div>
-    <h2 class="stitle">Rouge, vert, bleu :<br>3 octets par pixel</h2>
-    <p class="lead">Un écran mélange trois lumières. Chaque pixel stocke <b>trois nombres de 0 à 255</b> : un octet pour le rouge, un pour le vert, un pour le bleu. Bougez les curseurs.</p>
+    <div class="eyebrow" data-i18n="s7.eye">La couleur, en chiffres</div>
+    <h2 class="stitle" data-i18n="s7.t">Rouge, vert, bleu :<br>3 octets par pixel</h2>
+    <p class="lead" data-i18n="s7.lead">Un écran mélange trois lumières. Chaque pixel stocke <b>trois nombres de 0 à 255</b> : un octet pour le rouge, un pour le vert, un pour le bleu. Bougez les curseurs.</p>
 
     <div class="mid">
       <div class="rgbmix">
         <div class="swatch" id="swatch"></div>
         <div class="sliders">
-          <div class="sl r"><b>R</b><input type="range" min="0" max="255" value="31" id="rR"><span id="vR">31</span><span class="bn" id="bR"></span></div>
-          <div class="sl g"><b>V</b><input type="range" min="0" max="255" value="92" id="rG"><span id="vG">92</span><span class="bn" id="bG"></span></div>
-          <div class="sl b"><b>B</b><input type="range" min="0" max="255" value="255" id="rB"><span id="vB">255</span><span class="bn" id="bB"></span></div>
+          <div class="sl r"><b data-i18n="s7.kr">R</b><input type="range" min="0" max="255" value="31" id="rR"><span id="vR">31</span><span class="bn" id="bR"></span></div>
+          <div class="sl g"><b data-i18n="s7.kg">V</b><input type="range" min="0" max="255" value="92" id="rG"><span id="vG">92</span><span class="bn" id="bG"></span></div>
+          <div class="sl b"><b data-i18n="s7.kb">B</b><input type="range" min="0" max="255" value="255" id="rB"><span id="vB">255</span><span class="bn" id="bB"></span></div>
           <div class="scale-note" id="hex" style="margin-top:.2rem"></div>
         </div>
       </div>
 
       <div class="cards c2" style="margin-top:1.2rem">
-        <div class="card">
+        <div class="card" data-i18n="s7.c1">
           <h3>Une photo de smartphone</h3>
           <div class="sub">12 mégapixels · 4 000 × 3 000</div>
           <p class="ex">4 000 × 3 000 = 12 000 000 pixels<br>× 3 octets = 36 000 000 o = <b>36 Mo</b></p>
         </div>
-        <div class="card good">
+        <div class="card good" data-i18n="s7.c2">
           <h3>… mais le fichier JPEG</h3>
           <div class="sub">compression</div>
           <p>Le format JPEG supprime les détails que l'œil ne remarque pas : le fichier ne pèse plus que <b>3 à 4 Mo</b>, soit environ <b>10 fois moins</b>.</p>
@@ -491,117 +499,171 @@
 
   <!-- 8 · CODER LE SON -->
   <div class="pane light pad" id="s8">
-    <div class="eyebrow">Coder le son</div>
-    <h2 class="stitle">Mesurer l'onde,<br>des milliers de fois par seconde</h2>
-    <p class="lead">Un son est une vibration continue. Pour le numériser, on <b>échantillonne</b> : on mesure sa hauteur à intervalles réguliers, puis on arrondit chaque mesure à un nombre entier codé sur quelques bits (<b>quantification</b>).</p>
+    <div class="eyebrow" data-i18n="s8.eye">Coder le son</div>
+    <h2 class="stitle" data-i18n="s8.t">Mesurer l'onde,<br>des milliers de fois par seconde</h2>
+    <p class="lead" data-i18n="s8.lead">Un son est une vibration continue. Pour le numériser, on <b>échantillonne</b> : on mesure sa hauteur à intervalles réguliers, puis on arrondit chaque mesure à un nombre entier codé sur quelques bits (<b>quantification</b>).</p>
 
     <div class="mid">
-      <div class="wavebox"><svg id="wave" viewBox="0 0 800 220" aria-label="Onde sonore échantillonnée"></svg></div>
+      <div class="wavebox"><svg id="wave" viewBox="0 0 800 220" aria-label="Onde sonore échantillonnée" id="waveSvg"></svg></div>
       <div class="wavectl">
-        <label>Échantillons : <input type="range" id="wN" min="6" max="60" value="16"> <b id="wNv">16</b></label>
-        <label>Bits par échantillon : <input type="range" id="wB" min="1" max="6" value="3"> <b id="wBv">3</b> (<span id="wLv">8</span> niveaux)</label>
+        <label><span data-i18n="s8.lab1">Échantillons :</span> <input type="range" id="wN" min="6" max="60" value="16"> <b id="wNv">16</b></label>
+        <label><span data-i18n="s8.lab2">Bits par échantillon :</span> <input type="range" id="wB" min="1" max="6" value="3"> <b id="wBv">3</b> (<span id="wLv">8</span> <span data-i18n="s8.lab3">niveaux</span>)</label>
       </div>
-      <p class="chain-note" style="margin-top:.8rem">Courbe bleue : le son réel. Escalier rouge : ce que l'ordinateur garde. <b>Plus d'échantillons et plus de bits = son plus fidèle… mais fichier plus lourd.</b></p>
+      <p class="chain-note" data-i18n="s8.note1" style="margin-top:.8rem">Courbe bleue : le son réel. Escalier rouge : ce que l'ordinateur garde. <b>Plus d'échantillons et plus de bits = son plus fidèle… mais fichier plus lourd.</b></p>
     </div>
   </div>
 
   <!-- 9 · SON : CALCUL -->
   <div class="pane dark pad" id="s9">
-    <div class="eyebrow">Combien ça pèse ?</div>
-    <h2 class="stitle">Une minute de musique</h2>
-    <p class="lead">Le <b>CD audio</b> (1982) a fixé la norme : <b>44 100 échantillons par seconde</b>, chacun codé sur <b>16 bits</b> (65 536 niveaux), en <b>stéréo</b> (2 canaux).</p>
+    <div class="eyebrow" data-i18n="s9.eye">Combien ça pèse ?</div>
+    <h2 class="stitle" data-i18n="s9.t">Une minute de musique</h2>
+    <p class="lead" data-i18n="s9.lead">Le <b>CD audio</b> (1982) a fixé la norme : <b>44 100 échantillons par seconde</b>, chacun codé sur <b>16 bits</b> (65 536 niveaux), en <b>stéréo</b> (2 canaux).</p>
 
     <div class="mid">
-      <div class="cross">
+      <div class="cross" data-i18n="s9.cross">
         <div class="chip">44 100 éch./s</div><div class="op">×</div>
         <div class="chip">16 bits</div><div class="op">×</div>
         <div class="chip">2 canaux</div><div class="eq">=</div>
         <div class="chip out">1 411 200 bits/s</div>
       </div>
       <div class="chain">
-        <div class="cbox"><div class="n">÷ 8</div><div class="t">par seconde</div><div class="v">176 400 o ≈ 176 ko</div></div>
+        <div class="cbox" data-i18n="s9.b1"><div class="n">÷ 8</div><div class="t">par seconde</div><div class="v">176 400 o ≈ 176 ko</div></div>
         <div class="carrow">→</div>
-        <div class="cbox"><div class="n">× 60</div><div class="t">par minute</div><div class="v">≈ 10,6 Mo</div></div>
+        <div class="cbox" data-i18n="s9.b2"><div class="n">× 60</div><div class="t">par minute</div><div class="v">≈ 10,6 Mo</div></div>
         <div class="carrow">→</div>
-        <div class="cbox hot"><div class="n">une chanson de 3 min</div><div class="t">qualité CD</div><div class="v">≈ 32 Mo</div></div>
+        <div class="cbox hot" data-i18n="s9.b3"><div class="n">une chanson de 3 min</div><div class="t">qualité CD</div><div class="v">≈ 32 Mo</div></div>
         <div class="carrow">→</div>
-        <div class="cbox"><div class="n">même chanson</div><div class="t">en MP3 128 kbit/s</div><div class="v">≈ 3 Mo (≈ 1 Mo / min)</div></div>
+        <div class="cbox" data-i18n="s9.b4"><div class="n">même chanson</div><div class="t">en MP3 128 kbit/s</div><div class="v">≈ 3 Mo (≈ 1 Mo / min)</div></div>
       </div>
-      <p class="chain-note">Le MP3 (ou l'AAC des plateformes de streaming) supprime les sons que l'oreille entend mal : <b>environ 10 fois moins lourd</b>, presque sans différence audible.</p>
+      <p class="chain-note" data-i18n="s9.note1">Le MP3 (ou l'AAC des plateformes de streaming) supprime les sons que l'oreille entend mal : <b>environ 10 fois moins lourd</b>, presque sans différence audible.</p>
     </div>
   </div>
 
   <!-- 10 · CHARNIÈRE VIDÉO -->
   <div class="pane dark hinge" id="s10">
-    <div class="q">Et une <em>vidéo</em>,<br>alors&nbsp;?</div>
-    <p class="a">Une vidéo, c'est <b>25 images par seconde</b> (+ le son). En Full HD, une image fait 1 920 × 1 080 pixels × 3 octets ≈ <b>6,2 Mo</b>. Sans compression : 6,2 × 25 ≈ <b>155 Mo par seconde</b>, soit <b>≈ 560 Go pour un film d'une heure</b>.</p>
-    <p class="a">En streaming HD, cette même heure pèse <b>environ 3 Go</b>. La compression vidéo divise la taille par <b>près de 200</b> — sans elle, Netflix ou YouTube n'existeraient pas.</p>
-    <div class="next">Prenons du recul : comparons toutes ces tailles ▸</div>
+    <div class="q" data-i18n="s10.q">Et une <em>vidéo</em>,<br>alors&nbsp;?</div>
+    <p class="a" data-i18n="s10.a1">Une vidéo, c'est <b>25 images par seconde</b> (+ le son). En Full HD, une image fait 1 920 × 1 080 pixels × 3 octets ≈ <b>6,2 Mo</b>. Sans compression : 6,2 × 25 ≈ <b>155 Mo par seconde</b>, soit <b>≈ 560 Go pour un film d'une heure</b>.</p>
+    <p class="a" data-i18n="s10.a2">En streaming HD, cette même heure pèse <b>environ 3 Go</b>. La compression vidéo divise la taille par <b>près de 200</b> — sans elle, Netflix ou YouTube n'existeraient pas.</p>
+    <div class="next" data-i18n="s10.next">Prenons du recul : comparons toutes ces tailles ▸</div>
   </div>
 
   <!-- 11 · ÉCHELLE -->
   <div class="pane light pad" id="s11">
-    <div class="eyebrow">Ordres de grandeur</div>
-    <h2 class="stitle">De la lettre<br>au monde entier</h2>
-    <p class="lead">Chaque barre est une <b>échelle logarithmique</b> : un cran de plus = <b>× 10</b>. Sans ça, impossible de tout faire tenir sur un écran.</p>
+    <div class="eyebrow" data-i18n="s11.eye">Ordres de grandeur</div>
+    <h2 class="stitle" data-i18n="s11.t">De la lettre<br>au monde entier</h2>
+    <p class="lead" data-i18n="s11.lead">Chaque barre est une <b>échelle logarithmique</b> : un cran de plus = <b>× 10</b>. Sans ça, impossible de tout faire tenir sur un écran.</p>
 
     <div class="mid">
       <div class="ladder" id="ladder"></div>
-      <p class="chain-note" style="margin-top:.2rem">Tous les livres écrits par l'humanité : <b>≈ 80 To</b>. Facebook en une seule journée : <b>≈ 4 Po, soit 50 fois plus</b>. La différence ? Des <b>photos et des vidéos</b> — le texte, lui, ne pèse presque rien.</p>
-      <p class="scale-note" style="margin-top:.4rem">Ordres de grandeur arrondis. Livres : ≈ 130 millions de titres recensés par Google Books (2010) × ≈ 0,6 Mo de texte. Facebook : 4 Po/jour, chiffre publié par l'entreprise en 2014 (sans doute bien plus aujourd'hui). Données mondiales : estimation IDC pour 2025.</p>
+      <p class="chain-note" data-i18n="s11.note1" style="margin-top:.2rem">Tous les livres écrits par l'humanité : <b>≈ 80 To</b>. Facebook en une seule journée : <b>≈ 4 Po, soit 50 fois plus</b>. La différence ? Des <b>photos et des vidéos</b> — le texte, lui, ne pèse presque rien.</p>
+      <p class="scale-note" data-i18n="s11.sn1" style="margin-top:.4rem">Ordres de grandeur arrondis. Livres : ≈ 130 millions de titres recensés par Google Books (2010) × ≈ 0,6 Mo de texte. Facebook : 4 Po/jour, chiffre publié par l'entreprise en 2014 (sans doute bien plus aujourd'hui). Données mondiales : estimation IDC pour 2025.</p>
     </div>
   </div>
 
   <!-- 12 · ACTIVITÉ -->
   <div class="pane dark act" id="s12">
-    <div class="tag">Activité de la séance</div>
-    <h2>À vos <em>calculatrices</em></h2>
-    <p class="sub">Pour chaque question, écrivez le calcul et donnez le résultat avec l'unité la plus adaptée.</p>
+    <div class="tag" data-i18n="s12.tag">Activité de la séance</div>
+    <h2 data-i18n="s12.t">À vos <em>calculatrices</em></h2>
+    <p class="sub" data-i18n="s12.sub">Pour chaque question, écrivez le calcul et donnez le résultat avec l'unité la plus adaptée.</p>
     <ol class="steps">
-      <li>Écrivez vos <b>initiales</b> en binaire, à l'aide du code ASCII (A = 65, B = 66…). Combien d'octets ?</li>
-      <li>Votre téléphone a <b>128 Go</b> de stockage. Combien de photos de 4 Mo peut-il contenir, au maximum ?</li>
-      <li>Calculez la taille d'une image <b>non compressée</b> de 1 280 × 720 pixels en couleurs RVB.</li>
-      <li>Combien pèse <b>un album d'une heure</b> en qualité CD ? Et en MP3 à 128 kbit/s ?</li>
-      <li>Avec une connexion à <b>100 Mbit/s</b>, combien de temps faut-il pour télécharger un fichier de 1 Go ?</li>
-      <li>Sur votre téléphone, comparez le poids d'une photo, d'une vidéo de 10 s et d'un message. <b>Classez-les.</b></li>
+      <li data-i18n="s12.l1">Écrivez vos <b>initiales</b> en binaire, à l'aide du code ASCII (A = 65, B = 66…). Combien d'octets ?</li>
+      <li data-i18n="s12.l2">Votre téléphone a <b>128 Go</b> de stockage. Combien de photos de 4 Mo peut-il contenir, au maximum ?</li>
+      <li data-i18n="s12.l3">Calculez la taille d'une image <b>non compressée</b> de 1 280 × 720 pixels en couleurs RVB.</li>
+      <li data-i18n="s12.l4">Combien pèse <b>un album d'une heure</b> en qualité CD ? Et en MP3 à 128 kbit/s ?</li>
+      <li data-i18n="s12.l5">Avec une connexion à <b>100 Mbit/s</b>, combien de temps faut-il pour télécharger un fichier de 1 Go ?</li>
+      <li data-i18n="s12.l6">Sur votre téléphone, comparez le poids d'une photo, d'une vidéo de 10 s et d'un message. <b>Classez-les.</b></li>
     </ol>
   </div>
 
   <!-- 13 · RÉCAP -->
   <div class="pane light pad" id="s13">
-    <div class="rc-eye">Ce que je dois retenir</div>
-    <h2 class="rc-title">Bits, octets, <span>ordres de grandeur</span></h2>
+    <div class="rc-eye" data-i18n="rc.eye">Ce que je dois retenir</div>
+    <h2 class="rc-title" data-i18n="rc.t">Bits, octets, <span>ordres de grandeur</span></h2>
     <ol class="rc-list">
-      <li>Toute donnée numérique est codée en <b>binaire</b> : une suite de <span class="hl">bits</span> (0 ou 1). Avec <b>n bits</b>, on code <b>2<sup>n</sup></b> valeurs.</li>
-      <li><b>1 octet = 8 bits</b> = 256 valeurs. Puis ko, Mo, Go, To : <span class="hl">× 1 000</span> à chaque palier. Ne pas confondre Mo (fichiers) et Mbit/s (débits).</li>
-      <li><b>Texte</b> : chaque caractère a un numéro (ASCII, Unicode). ≈ <span class="hl">1 octet par caractère</span>.</li>
-      <li><b>Image</b> : une grille de pixels, <span class="hl">3 octets par pixel</span> en couleur (RVB). Taille = largeur × hauteur × 3.</li>
-      <li><b>Son</b> : on <span class="hl">échantillonne</span> l'onde. Qualité CD ≈ 10 Mo par minute.</li>
-      <li>La <b>compression</b> (JPEG, MP3, vidéo) réduit la taille de 10 à 200 fois.</li>
+      <li data-i18n="rc.i1">Toute donnée numérique est codée en <b>binaire</b> : une suite de <span class="hl">bits</span> (0 ou 1). Avec <b>n bits</b>, on code <b>2<sup>n</sup></b> valeurs.</li>
+      <li data-i18n="rc.i2"><b>1 octet = 8 bits</b> = 256 valeurs. Puis ko, Mo, Go, To : <span class="hl">× 1 000</span> à chaque palier. Ne pas confondre Mo (fichiers) et Mbit/s (débits).</li>
+      <li data-i18n="rc.i3"><b>Texte</b> : chaque caractère a un numéro (ASCII, Unicode). ≈ <span class="hl">1 octet par caractère</span>.</li>
+      <li data-i18n="rc.i4"><b>Image</b> : une grille de pixels, <span class="hl">3 octets par pixel</span> en couleur (RVB). Taille = largeur × hauteur × 3.</li>
+      <li data-i18n="rc.i5"><b>Son</b> : on <span class="hl">échantillonne</span> l'onde. Qualité CD ≈ 10 Mo par minute.</li>
+      <li data-i18n="rc.i6">La <b>compression</b> (JPEG, MP3, vidéo) réduit la taille de 10 à 200 fois.</li>
     </ol>
     <div class="rc-voc">
-      <div class="rc-term"><b>Bit</b>chiffre binaire, 0 ou 1.</div>
-      <div class="rc-term"><b>Octet</b>groupe de 8 bits.</div>
-      <div class="rc-term"><b>Codage</b>convention qui associe un nombre à une information.</div>
-      <div class="rc-term"><b>Pixel</b>plus petit élément d'une image numérique.</div>
-      <div class="rc-term"><b>Échantillon</b>mesure d'un son à un instant donné.</div>
-      <div class="rc-term"><b>Compression</b>réduction de la taille d'un fichier.</div>
+      <div class="rc-term" data-i18n="rc.v1"><b>Bit</b>chiffre binaire, 0 ou 1.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Octet</b>groupe de 8 bits.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Codage</b>convention qui associe un nombre à une information.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Pixel</b>plus petit élément d'une image numérique.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Échantillon</b>mesure d'un son à un instant donné.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Compression</b>réduction de la taille d'un fichier.</div>
     </div>
-    <p class="rc-key">Prochaine étape&nbsp;: <b>ces 0 et 1, que représentent-ils ? Une donnée, c'est quoi ?</b></p>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>ces 0 et 1, que représentent-ils ? Une donnée, c'est quoi ?</b></p>
   </div>
 
 </div>
 
 <!-- HUD -->
 <div class="hud">
-  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours"><b>☰</b> <span>Parcours</span></a>
-  <button class="btn" id="prev">◀ Retour</button>
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
   <div class="dots" id="dots"></div>
-  <button class="btn" id="next">Suite ▶</button>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
 <script>
+  /* ---------- langue (le FR est dans la page, l'EN dans le bloc i18n) ---------- */
+  var curLang = 'fr';
+  function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+  var TXT = {
+    fr:{
+      space:'espace', chars:'caractère', bytes:'octet', bits:'bits',
+      web:'code web : #', webend:' · 3 octets = 24 bits',
+      ladder:[
+        [0.125,'1 bit','un oui / non'],
+        [1,'1 o','une lettre'],
+        [140,'140 o','un SMS'],
+        [2e3,'2 ko','une page de texte'],
+        [6e5,'0,6 Mo','un roman entier'],
+        [1e6,'1 Mo','1 minute de musique MP3'],
+        [4e6,'4 Mo','une photo JPEG'],
+        [36e6,'36 Mo','la même photo, non compressée'],
+        [3e9,'3 Go','1 h de film en streaming HD'],
+        [128e9,'128 Go','un smartphone'],
+        [560e9,'560 Go','1 h de vidéo Full HD non compressée',true],
+        [2e12,'2 To','le disque dur d’un PC'],
+        [8e13,'80 To','le texte de tous les livres jamais publiés',true],
+        [4e15,'4 Po','ce que Facebook (Meta) stocke en plus chaque jour',true],
+        [1.8e23,'180 Zo','toutes les données créées dans le monde en un an',true]
+      ]
+    },
+    en:{
+      space:'space', chars:'character', bytes:'byte', bits:'bits',
+      web:'web code: #', webend:' · 3 bytes = 24 bits',
+      ladder:[
+        [0.125,'1 bit','a yes / no'],
+        [1,'1 B','one letter'],
+        [140,'140 B','a text message'],
+        [2e3,'2 kB','a page of text'],
+        [6e5,'0.6 MB','a whole novel'],
+        [1e6,'1 MB','1 minute of MP3 music'],
+        [4e6,'4 MB','a JPEG photo'],
+        [36e6,'36 MB','the same photo, uncompressed'],
+        [3e9,'3 GB','1 h of HD streamed film'],
+        [128e9,'128 GB','a smartphone'],
+        [560e9,'560 GB','1 h of uncompressed Full HD video',true],
+        [2e12,'2 TB','a PC hard disk'],
+        [8e13,'80 TB','the text of every book ever published',true],
+        [4e15,'4 PB','what Facebook (Meta) stores extra every day',true],
+        [1.8e23,'180 ZB','all the data created worldwide in one year',true]
+      ]
+    }
+  };
+
   /* ---------- navigation ---------- */
   const panes = [...document.querySelectorAll('.pane')];
   const dotsBox = document.getElementById('dots');
@@ -652,7 +714,7 @@
     document.getElementById('roDec').textContent=dec;
     const parts=weights.filter((w,i)=>bitState[i]);
     document.getElementById('roCalc').textContent=parts.length?parts.join(' + '):'0';
-    document.getElementById('roChar').textContent=(dec>=33&&dec<=126)?String.fromCharCode(dec):(dec===32?'espace':'—');
+    document.getElementById('roChar').textContent=(dec>=33&&dec<=126)?String.fromCharCode(dec):(dec===32?TXT[LG()].space:'—');
   }
 
   /* ---------- texte UTF-8 ---------- */
@@ -670,7 +732,8 @@
       glyphs.appendChild(g);
     }
     const n=[...txt.value].length;
-    document.getElementById('txtTotal').innerHTML=n?('<b>'+n+'</b> caractère'+(n>1?'s':'')+' → <b>'+total+'</b> octet'+(total>1?'s':'')+' = <b>'+(total*8)+'</b> bits'):'';
+    const T=TXT[LG()];
+    document.getElementById('txtTotal').innerHTML=n?('<b>'+n+'</b> '+T.chars+(n>1?'s':'')+' → <b>'+total+'</b> '+T.bytes+(total>1?'s':'')+' = <b>'+(total*8)+'</b> '+T.bits):'';
   }
   txt.addEventListener('input',updTxt);updTxt();
 
@@ -705,7 +768,7 @@
       document.getElementById('b'+k).textContent=v[i].toString(2).padStart(8,'0');
     });
     document.getElementById('swatch').style.background='rgb('+v.join(',')+')';
-    document.getElementById('hex').textContent='code web : #'+v.map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()+' · 3 octets = 24 bits';
+    document.getElementById('hex').textContent=TXT[LG()].web+v.map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()+TXT[LG()].webend;
   }
   rr.forEach(r=>r.addEventListener('input',updRGB));updRGB();
 
@@ -741,34 +804,225 @@
   [wN,wB].forEach(r=>r.addEventListener('input',updWave));updWave();
 
   /* ---------- échelle log ---------- */
-  const items=[
-    [0.125,'1 bit','un oui / non'],
-    [1,'1 o','une lettre'],
-    [140,'140 o','un SMS'],
-    [2e3,'2 ko','une page de texte'],
-    [6e5,'0,6 Mo','un roman entier'],
-    [1e6,'1 Mo','1 minute de musique MP3'],
-    [4e6,'4 Mo','une photo JPEG'],
-    [36e6,'36 Mo','la même photo, non compressée'],
-    [3e9,'3 Go','1 h de film en streaming HD'],
-    [128e9,'128 Go','un smartphone'],
-    [560e9,'560 Go','1 h de vidéo Full HD non compressée',true],
-    [2e12,'2 To','le disque dur d\'un PC'],
-    [8e13,'80 To','le texte de tous les livres jamais publiés',true],
-    [4e15,'4 Po','ce que Facebook (Meta) stocke en plus chaque jour',true],
-    [1.8e23,'180 Zo','toutes les données créées dans le monde en un an',true]
-  ];
   const lo=Math.log10(0.125), hi=Math.log10(1.8e23);
   const lad=document.getElementById('ladder');
-  items.forEach(([v,sz,lab,warn])=>{
-    const pct=4+96*(Math.log10(v)-lo)/(hi-lo);
-    const r=document.createElement('div');r.className='rung'+(warn?' warn':'');
-    r.innerHTML='<div class="sz">'+sz+'</div><div class="bar"><i style="width:'+pct.toFixed(1)+'%"></i><span>'+lab+'</span></div>';
-    lad.appendChild(r);
-    const span=r.querySelector('span');
-    requestAnimationFrame(()=>{ if(span.offsetWidth+16>r.querySelector('.bar').offsetWidth*pct/100){
-      span.classList.add('outside');span.style.left='calc('+pct.toFixed(1)+'% + .5rem)';}});
+  function drawLadder(){
+    lad.innerHTML='';
+    TXT[LG()].ladder.forEach(([v,sz,lab,warn])=>{
+      const pct=4+96*(Math.log10(v)-lo)/(hi-lo);
+      const r=document.createElement('div');r.className='rung'+(warn?' warn':'');
+      r.innerHTML='<div class="sz">'+sz+'</div><div class="bar"><i style="width:'+pct.toFixed(1)+'%"></i><span>'+lab+'</span></div>';
+      lad.appendChild(r);
+      const span=r.querySelector('span');
+      requestAnimationFrame(()=>{ if(span.offsetWidth+16>r.querySelector('.bar').offsetWidth*pct/100){
+        span.classList.add('outside');span.style.left='calc('+pct.toFixed(1)+'% + .5rem)';}});
+    });
+  }
+  drawLadder();
+
+  /* ---------- redessin global (appelé au changement de langue) ---------- */
+  window.redrawAll=function(){ updBits(); updTxt(); updRGB(); drawLadder(); };
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Coder l'information : bits et octets`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`Coding information: bits and bytes`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · Taking stock`,
+  's0.tag':`SNT · Data`,
+  's0.big':`It is all just<br><em>0</em>s and <em>1</em>s`,
+  's0.line':`A text message, a photo, a song, a video… To a computer they are <strong style="color:#fff">exactly the same thing</strong>: one very long string of 0s and 1s. How is that possible? And how much room does it take?`,
+  's0.kick':`Bit · byte · multiples · text · image · sound · orders of magnitude`,
+
+  /* --- 1 · le bit --- */
+  's1.eye':`The basic building block`,
+  's1.t':`The bit:<br>yes or no`,
+  's1.lead':`A <b>bit</b> (<i>binary digit</i>) can only be <b>0 or 1</b>. It is the smallest possible piece of information: a switch open or closed. Inside the machine it is always a physical phenomenon with two states.`,
+  's1.c1':`<h3>Electricity</h3><div class="sub">processor, memory</div><p><b>Low</b> or <b>high</b> voltage in a transistor.</p>`,
+  's1.c2':`<h3>Magnetism</h3><div class="sub">hard disk</div><p>An area magnetised <b>one way</b> or <b>the other</b>.</p>`,
+  's1.c3':`<h3>Light</h3><div class="sub">optical fibre</div><p>A pulse of light <b>present</b> or <b>absent</b>.</p>`,
+  's1.c4':`<h3>Relief</h3><div class="sub">CD, DVD, Blu-ray</div><p>A <b>pit</b> or a <b>flat</b> burnt into the disc, read by a laser.</p>`,
+  's1.b1':`<div class="n">1 bit</div><div class="t">2 possibilities</div><div class="v">0 · 1</div>`,
+  's1.b2':`<div class="n">2 bits</div><div class="t">4 possibilities</div><div class="v">00 · 01 · 10 · 11</div>`,
+  's1.b3':`<div class="n">3 bits</div><div class="t">8 possibilities</div><div class="v">000 … 111</div>`,
+  's1.b4':`<div class="n">n bits</div><div class="t">2<sup>n</sup> possibilities</div><div class="v">every bit added doubles the number of cases</div>`,
+  's1.note1':`With enough bits, anything can be given a number: letters, colours, sounds. <b>To encode</b> is to agree on what each number stands for.`,
+
+  /* --- 2 · l'octet --- */
+  's2.eye':`Your turn`,
+  's2.t':`8 bits = 1 byte`,
+  's2.lead':`Bits are grouped in packets of eight: a <b>byte</b> (<i>octet</i> in French). Each position carries a <b>weight</b>, a power of 2. Click the bits to write a number in binary.`,
+  's2.ro1':`in binary`,
+  's2.ro2':`in decimal`,
+  's2.ro3':`the sum`,
+  's2.ro4':`ASCII character`,
+  's2.note1':`A byte runs from <b>00000000</b> (0) to <b>11111111</b> (255): <b>2<sup>8</sup> = 256 possible values</b>. Try writing 65… then look at the &ldquo;character&rdquo; box.`,
+
+  /* --- 3 · les multiples --- */
+  's3.eye':`The units`,
+  's3.t':`Kilo, mega, giga, tera…`,
+  's3.lead':`A file soon holds millions of bytes, so we use the prefixes of the international system, as for metres or grams: <b>each step multiplies by 1,000</b>.`,
+  's3.tbl':`
+            <tr><th>Unit</th><th>Symbol</th><th>Equals</th><th>That is</th></tr>
+            <tr><td><b>byte</b></td><td>B</td><td>8 bits</td><td>1 B</td></tr>
+            <tr><td><b>kilobyte</b></td><td>kB</td><td>1,000 B</td><td>10<sup>3</sup> B</td></tr>
+            <tr><td><b>megabyte</b></td><td>MB</td><td>1,000 kB</td><td>10<sup>6</sup> B</td></tr>
+            <tr><td><b>gigabyte</b></td><td>GB</td><td>1,000 MB</td><td>10<sup>9</sup> B</td></tr>
+            <tr><td><b>terabyte</b></td><td>TB</td><td>1,000 GB</td><td>10<sup>12</sup> B</td></tr>
+            <tr><td><b>petabyte</b></td><td>PB</td><td>1,000 TB</td><td>10<sup>15</sup> B</td></tr>
+            <tr><td><b>exabyte</b></td><td>EB</td><td>1,000 PB</td><td>10<sup>18</sup> B</td></tr>
+            <tr><td><b>zettabyte</b></td><td>ZB</td><td>1,000 EB</td><td>10<sup>21</sup> B</td></tr>
+          `,
+  's3.c1':`
+            <h3>bit ≠ byte</h3>
+            <div class="sub">mind the capital letter</div>
+            <p>Internet <b>speeds</b> are given in <b>bits</b> per second: Mbit/s (or Mb/s). <b>Files</b> are measured in <b>bytes</b>: MB (B = <i>byte</i>, b = bit).</p>
+            <p class="ex">Fibre at 100 Mbit/s → 100 ÷ 8 = 12.5 MB/s</p>
+          `,
+  's3.c2':`
+            <h3>And 1,024?</h3>
+            <div class="sub">kibi, mebi, gibi</div>
+            <p>Computers count in powers of 2: <b>2<sup>10</sup> = 1,024 ≈ 1,000</b>. Hence the binary units: <b>KiB, MiB, GiB</b> (1 KiB = 1,024 B).</p>
+            <p>In practice almost nobody says &ldquo;gibibyte&rdquo;: people say <b>kB, MB, GB</b> even when counting in 1,024. Windows and the memory makers do just that — hence the <b>confusion</b>.</p>
+            <p class="ex">A disk sold as &ldquo;1 TB&rdquo; (10<sup>12</sup> B) shows ≈ 931 &ldquo;GB&rdquo; in Windows: nothing has vanished, those are really GiB.</p>
+            <p class="ex" style="color:var(--muted)">And it is written <b>kB</b> (lower-case k, as in km), not &ldquo;KB&rdquo;.</p>
+          `,
+
+  /* --- 4 · coder du texte --- */
+  's4.eye':`Encoding text`,
+  's4.t':`A letter = a number`,
+  's4.lead':`Characters are numbered in a <b>table</b>. The <b>ASCII</b> table (1963) encodes 128 characters in 7 bits: <b>A = 65</b>, B = 66… Today <b>Unicode</b> (in the <b>UTF-8</b> encoding) covers more than 150,000 characters from every language — emoji included — in <b>1 to 4 bytes</b>.`,
+  's4.lab':`Type a word`,
+  's4.note1':`Try <b>é</b>, <b>€</b> or an emoji: unaccented letters take <b>1 byte</b>, the others take <b>2, 3 or 4</b> (outlined in red).`,
+
+  /* --- 5 · le texte pèse peu --- */
+  's5.eye':`How much does it weigh?`,
+  's5.t':`Text is light`,
+  's5.lead':`A simple rule for plain unformatted text in a European language: <b>1 character ≈ 1 byte</b> (spaces and punctuation included).`,
+  's5.c1':`<h3>A text message</h3><div class="sub">160 characters max</div><p>160 characters on 7 bits each:</p><p class="ex">160 × 7 = 1,120 bits<br>= <b>140 bytes</b></p>`,
+  's5.c2':`<h3>One page</h3><div class="sub">of a novel</div><p>Roughly 1,500 to 2,000 characters.</p><p class="ex">≈ <b>2 kB</b></p>`,
+  's5.c3':`<h3>A novel</h3><div class="sub">300 pages</div><p>Roughly 600,000 characters.</p><p class="ex">≈ <b>0.6 MB</b><br>a library of 1,000 novels ≈ 600 MB</p>`,
+  's5.c4':`<h3>The same novel</h3><div class="sub">as .docx or .pdf</div><p>Fonts, layout, cover images… all add to the text.</p><p class="ex">often <b>× 2 to × 10</b></p>`,
+  's5.note1':`Plain text is the most <b>compact</b> kind of data there is. Images, sounds and video are counted in millions of bytes.`,
+
+  /* --- 6 · coder une image --- */
+  's6.eye':`Encoding an image`,
+  's6.t':`An image = a grid<br>of pixels`,
+  's6.lead':`A digital image is cut into little squares: the <b>pixels</b> (<i>picture elements</i>). Each pixel is given a number that encodes its colour. Here, 1 bit per pixel: <b>0 = white, 1 = black</b>. Click the cells to draw.`,
+  's6.sn1':`8 × 8 = 64 pixels × 1 bit = 64 bits = <b style="color:var(--signal-dk)">8 bytes</b>`,
+  's6.c1':`<h3>1 bit / pixel</h3><div class="sub">black and white</div><div class="ramp bw"></div><p class="ex">2<sup>1</sup> = 2 colours</p>`,
+  's6.c2':`<h3>8 bits / pixel</h3><div class="sub">greyscale</div><div class="ramp gray"></div><p class="ex">2<sup>8</sup> = 256 shades</p>`,
+  's6.c3':`<h3>24 bits / pixel</h3><div class="sub">RGB colour: 3 bytes</div><div class="ramp rgb"></div><p class="ex">2<sup>24</sup> ≈ 16.7 million colours</p>`,
+
+  /* --- 7 · RVB --- */
+  's7.eye':`Colour, in numbers`,
+  's7.t':`Red, green, blue:<br>3 bytes per pixel`,
+  's7.lead':`A screen mixes three lights. Each pixel stores <b>three numbers from 0 to 255</b>: one byte for red, one for green, one for blue. Move the sliders.`,
+  's7.kr':`R`, 's7.kg':`G`, 's7.kb':`B`,
+  's7.c1':`
+          <h3>A smartphone photo</h3>
+          <div class="sub">12 megapixels · 4,000 × 3,000</div>
+          <p class="ex">4,000 × 3,000 = 12,000,000 pixels<br>× 3 bytes = 36,000,000 B = <b>36 MB</b></p>
+        `,
+  's7.c2':`
+          <h3>… but the JPEG file</h3>
+          <div class="sub">compression</div>
+          <p>The JPEG format throws away the detail the eye does not notice: the file is down to <b>3 or 4 MB</b>, roughly <b>ten times less</b>.</p>
+        `,
+
+  /* --- 8 · coder le son --- */
+  's8.eye':`Encoding sound`,
+  's8.t':`Measuring the wave,<br>thousands of times a second`,
+  's8.lead':`A sound is a continuous vibration. To digitise it we <b>sample</b>: we measure its height at regular intervals, then round each measurement to a whole number held in a few bits (<b>quantisation</b>).`,
+  's8.lab1':`Samples:`,
+  's8.lab2':`Bits per sample:`,
+  's8.lab3':`levels`,
+  's8.note1':`Blue curve: the real sound. Red staircase: what the computer keeps. <b>More samples and more bits = truer sound… but a heavier file.</b>`,
+
+  /* --- 9 · le calcul du son --- */
+  's9.eye':`How much does it weigh?`,
+  's9.t':`One minute of music`,
+  's9.lead':`The <b>audio CD</b> (1982) set the standard: <b>44,100 samples per second</b>, each on <b>16 bits</b> (65,536 levels), in <b>stereo</b> (2 channels).`,
+  's9.cross':`
+        <div class="chip">44,100 samples/s</div><div class="op">×</div>
+        <div class="chip">16 bits</div><div class="op">×</div>
+        <div class="chip">2 channels</div><div class="eq">=</div>
+        <div class="chip out">1,411,200 bits/s</div>
+      `,
+  's9.b1':`<div class="n">÷ 8</div><div class="t">per second</div><div class="v">176,400 B ≈ 176 kB</div>`,
+  's9.b2':`<div class="n">× 60</div><div class="t">per minute</div><div class="v">≈ 10.6 MB</div>`,
+  's9.b3':`<div class="n">a 3-minute song</div><div class="t">CD quality</div><div class="v">≈ 32 MB</div>`,
+  's9.b4':`<div class="n">the same song</div><div class="t">as MP3 at 128 kbit/s</div><div class="v">≈ 3 MB (≈ 1 MB / min)</div>`,
+  's9.note1':`MP3 (or the AAC the streaming platforms use) discards the sounds the ear barely hears: <b>about ten times lighter</b>, with almost no audible difference.`,
+
+  /* --- 10 · charnière vidéo --- */
+  's10.q':`And a <em>video</em>,<br>then?`,
+  's10.a1':`A video is <b>25 frames per second</b> (plus the sound). In Full HD one frame is 1,920 × 1,080 pixels × 3 bytes ≈ <b>6.2 MB</b>. Uncompressed: 6.2 × 25 ≈ <b>155 MB per second</b>, that is <b>≈ 560 GB for a one-hour film</b>.`,
+  's10.a2':`Streamed in HD, that same hour weighs <b>about 3 GB</b>. Video compression divides the size by <b>almost 200</b> — without it, Netflix and YouTube would not exist.`,
+  's10.next':`Let us step back and compare all these sizes ▸`,
+
+  /* --- 11 · l'échelle --- */
+  's11.eye':`Orders of magnitude`,
+  's11.t':`From one letter<br>to the whole world`,
+  's11.lead':`Each bar sits on a <b>logarithmic scale</b>: one notch further = <b>× 10</b>. Without it, nothing would fit on one screen.`,
+  's11.note1':`Every book humanity has ever written: <b>≈ 80 TB</b>. Facebook in a single day: <b>≈ 4 PB, fifty times more</b>. The difference? <b>Photos and video</b> — text itself weighs almost nothing.`,
+  's11.sn1':`Rounded orders of magnitude. Books: ≈ 130 million titles counted by Google Books (2010) × ≈ 0.6 MB of text. Facebook: 4 PB/day, a figure the company published in 2014 (surely far more today). World data: IDC estimate for 2025.`,
+
+  /* --- 12 · activité --- */
+  's12.tag':`Activity for this lesson`,
+  's12.t':`Out with your <em>calculators</em>`,
+  's12.sub':`For each question, write out the sum and give the answer in the most suitable unit.`,
+  's12.l1':`Write your <b>initials</b> in binary using the ASCII code (A = 65, B = 66…). How many bytes?`,
+  's12.l2':`Your phone has <b>128 GB</b> of storage. At most, how many 4 MB photos can it hold?`,
+  's12.l3':`Work out the size of an <b>uncompressed</b> 1,280 × 720 pixel image in RGB colour.`,
+  's12.l4':`How much does <b>a one-hour album</b> weigh at CD quality? And as MP3 at 128 kbit/s?`,
+  's12.l5':`On a <b>100 Mbit/s</b> connection, how long does it take to download a 1 GB file?`,
+  's12.l6':`On your own phone, compare the size of a photo, a 10-second video and a message. <b>Rank them.</b>`,
+
+  /* --- 13 · récap --- */
+  'rc.eye':`What I must remember`,
+  'rc.t':`Bits, bytes, <span>orders of magnitude</span>`,
+  'rc.i1':`All digital data is encoded in <b>binary</b>: a string of <span class="hl">bits</span> (0 or 1). With <b>n bits</b> you can encode <b>2<sup>n</sup></b> values.`,
+  'rc.i2':`<b>1 byte = 8 bits</b> = 256 values. Then kB, MB, GB, TB: <span class="hl">× 1,000</span> at every step. Do not confuse MB (files) with Mbit/s (speeds).`,
+  'rc.i3':`<b>Text</b>: every character has a number (ASCII, Unicode). ≈ <span class="hl">1 byte per character</span>.`,
+  'rc.i4':`<b>Image</b>: a grid of pixels, <span class="hl">3 bytes per pixel</span> in colour (RGB). Size = width × height × 3.`,
+  'rc.i5':`<b>Sound</b>: the wave is <span class="hl">sampled</span>. CD quality ≈ 10 MB per minute.`,
+  'rc.i6':`<b>Compression</b> (JPEG, MP3, video) cuts the size by a factor of 10 to 200.`,
+  'rc.v1':`<b>Bit</b>binary digit, 0 or 1.`,
+  'rc.v2':`<b>Byte</b>a group of 8 bits.`,
+  'rc.v3':`<b>Encoding</b>the convention that maps a number to a piece of information.`,
+  'rc.v4':`<b>Pixel</b>the smallest element of a digital image.`,
+  'rc.v5':`<b>Sample</b>a measurement of a sound at one given instant.`,
+  'rc.v6':`<b>Compression</b>reducing the size of a file.`,
+  'rc.key':`Next step: <b>these 0s and 1s — what do they stand for? What exactly is a piece of data?</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
   });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
 </script>
 </body>
 </html>

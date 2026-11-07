@@ -31,6 +31,13 @@
   .seg button:last-child{border-right:0}
   .seg button:hover{background:rgba(0,0,0,.08)}
   .seg button.on{background:var(--ink);color:var(--paper)}
+  .sel{cursor:pointer;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.03em;padding:.3rem 1.4rem .3rem .45rem;
+    max-width:21ch;appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);
+    background-position:calc(100% - 13px) calc(50% + 1px),calc(100% - 8px) calc(50% + 1px);
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .sel:hover{background-color:rgba(0,0,0,.07)}
   .ibtn{cursor:pointer;border:1px solid var(--ink);border-radius:4px;background:transparent;color:var(--ink);
     font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;padding:.32rem .6rem}
   .ibtn:hover{background:var(--ink);color:var(--paper)}
@@ -61,11 +68,19 @@
 
   <div class="grp">
     <span class="lbl">Séance</span>
-    <div class="seg" id="deckSeg">
-      <button data-deck="intro">1 · Accroche 2026</button>
-      <button data-deck="famille">2 · La famille des IA</button>
-      <button data-deck="token">3 · Le prochain mot</button>
-    </div>
+    <select class="sel" id="deckSel" title="Choisir la séance">
+      <option value="intro">1 · Accroche 2026</option>
+      <option value="famille">2 · La famille des IA</option>
+      <option value="token">3 · Le prochain mot</option>
+      <option value="test">4 · Faire un point</option>
+      <option value="codage">5 · Bits et octets</option>
+      <option value="donnee">6 · Qu’est-ce qu’une donnée ?</option>
+      <option value="apprendre">7 · Comment une IA apprend</option>
+      <option value="neurone">8 · Le neurone et son réglage</option>
+      <option value="chercher">9 · Chercher avant de répondre</option>
+      <option value="internet">10 · Internet, le Web, les API</option>
+      <option value="assistant">11 · Anatomie d’un assistant</option>
+    </select>
   </div>
 
   <div class="grp">
@@ -104,7 +119,21 @@
   /* =========================================================
      RÉGLAGES — URL (?deck=token&l=fr&r=zh&layout=side) > localStorage > défaut
      ========================================================= */
-  const DECKS = { intro:'intro.html', famille:'zoologie.html', token:'token.html' };
+  const DECKS = {
+    intro:     'intro.html',
+    famille:   'zoologie.html',
+    token:     'token.html',
+    test:      'se-tester.html',
+    codage:    'codage.html',
+    donnee:    'la-donnee.html',
+    apprendre: 'donnees.html',
+    neurone:   'neurone.html',
+    chercher:  'chercher.html',
+    internet:  'internet.html',
+    assistant: 'assistant.html'
+  };
+  /* seuls ces trois diaporamas ont une version chinoise */
+  const ZH = { intro:1, famille:1, token:1 };
   const LANGS = ['fr','en','zh'];
   const FLAG  = { fr:'Français', en:'English', zh:'中文' };
   const q = new URLSearchParams(location.search);
@@ -117,6 +146,13 @@
     layout: ['side','stack'].includes(q.get('layout')) ? q.get('layout') : (saved.layout==='stack' ? 'stack' : 'side')
   };
   function persist(){ try{ localStorage.setItem('snt-ia-miroir', JSON.stringify(S)); }catch(e){} }
+  /* un diaporama sans chinois : on rabat ce côté sur l'anglais */
+  function clampLangs(){
+    if(ZH[S.deck]) return;
+    if(S.l === 'zh') S.l = 'en';
+    if(S.r === 'zh') S.r = 'en';
+  }
+  clampLangs();
 
   const frL = document.getElementById('frL'), frR = document.getElementById('frR');
   const sideL = document.getElementById('sideL'), sideR = document.getElementById('sideR');
@@ -195,7 +231,7 @@
       };
       f.src = src + '?miroir=1&t=' + Date.now();
     });
-    document.querySelectorAll('#deckSeg button').forEach(b=>b.classList.toggle('on', b.dataset.deck===S.deck));
+    document.getElementById('deckSel').value = S.deck;
   }
 
   function updateCounter(){
@@ -206,6 +242,10 @@
     document.querySelectorAll('#langR button').forEach(b=>b.classList.toggle('on', b.dataset.lang===S.r));
     document.getElementById('flagL').textContent = FLAG[S.l];
     document.getElementById('flagR').textContent = FLAG[S.r];
+    const hasZh = !!ZH[S.deck];
+    document.querySelectorAll('#langL button[data-lang="zh"],#langR button[data-lang="zh"]')
+      .forEach(b=>{ b.disabled = !hasZh; b.style.opacity = hasZh ? '' : '.3';
+                    b.title = hasZh ? '' : 'Pas de version chinoise pour cette séance'; });
   }
   function applyLayout(){
     document.body.classList.toggle('stack', S.layout==='stack');
@@ -213,7 +253,9 @@
   }
 
   /* ---- barre ---- */
-  document.querySelectorAll('#deckSeg button').forEach(b=>b.onclick=()=>{ S.deck=b.dataset.deck; persist(); loadDeck(); });
+  document.getElementById('deckSel').onchange = function(){
+    S.deck = this.value; clampLangs(); persist(); refreshLangUI(); loadDeck();
+  };
   document.querySelectorAll('#langL button').forEach(b=>b.onclick=()=>{ S.l=b.dataset.lang; persist(); setLang(frL,S.l); refreshLangUI(); });
   document.querySelectorAll('#langR button').forEach(b=>b.onclick=()=>{ S.r=b.dataset.lang; persist(); setLang(frR,S.r); refreshLangUI(); });
   document.getElementById('swap').onclick = ()=>{ [S.l,S.r]=[S.r,S.l]; persist(); setLang(frL,S.l); setLang(frR,S.r); refreshLangUI(); };

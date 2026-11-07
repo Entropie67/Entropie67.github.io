@@ -316,7 +316,14 @@
   .homelink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .homelink b{font-weight:normal;font-size:1.05em;line-height:1}
   .homelink.fixedleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);z-index:3}
-  @media (max-width:900px){.homelink span{display:none}}
+  .hudleft{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:.55rem;z-index:3}
+  .langsw{display:flex;gap:.25rem}
+  .langsw button{cursor:pointer;border:1px solid transparent;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:.28rem .42rem;border-radius:4px;transition:.15s}
+  .langsw button:hover{color:var(--ink)}
+  .langsw button.on{background:var(--ink);color:var(--paper)}
+  @media (max-width:900px){.homelink span{display:none} .hudleft{position:static;transform:none}}
   .hint{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);
     font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em}
 
@@ -335,24 +342,24 @@
 
   <!-- ============ 0 · OUVERTURE ============ -->
   <div class="pane dark intro on" id="s0">
-    <a class="back" href="donnees.html">◂ Séance précédente · Comment une IA apprend</a>
-    <div class="tag">SNT · Enseignement IA</div>
-    <h1 class="big">Dans le bon<br>sens&nbsp;— mais<br><em>lequel</em>&nbsp;?</h1>
-    <p class="line">La dernière fois, on a dit que l'entraînement tourne des milliards de boutons «&nbsp;d'un cheveu dans le bon sens&nbsp;». On a laissé passer quelque chose&nbsp;: <strong style="color:#fff">comment la machine sait-elle de quel côté tourner&nbsp;?</strong></p>
-    <div class="kick">Neurone · poids · pente · rétropropagation</div>
+    <a class="back" data-i18n="s0.back" href="donnees.html">◂ Séance précédente · Comment une IA apprend</a>
+    <div class="tag" data-i18n="s0.tag">SNT · Enseignement IA</div>
+    <h1 class="big" data-i18n="s0.big">Dans le bon<br>sens&nbsp;— mais<br><em>lequel</em>&nbsp;?</h1>
+    <p class="line" data-i18n="s0.line">La dernière fois, on a dit que l'entraînement tourne des milliards de boutons «&nbsp;d'un cheveu dans le bon sens&nbsp;». On a laissé passer quelque chose&nbsp;: <strong style="color:#fff">comment la machine sait-elle de quel côté tourner&nbsp;?</strong></p>
+    <div class="kick" data-i18n="s0.kick">Neurone · poids · pente · rétropropagation</div>
   </div>
 
   <!-- ============ 1 · LA QUESTION LAISSÉE EN PLAN ============ -->
   <div class="pane dark pad" id="s1">
-    <div class="eyebrow">On reprend là où on s'était arrêtés</div>
-    <h2 class="stitle">Le mot qui cachait<br>tout le mécanisme</h2>
+    <div class="eyebrow" data-i18n="s1.eye">On reprend là où on s'était arrêtés</div>
+    <h2 class="stitle" data-i18n="s1.t">Le mot qui cachait<br>tout le mécanisme</h2>
 
     <div class="mid">
-      <div class="quote">
+      <div class="quote" data-i18n="s1.quote">
         <div class="src">Séance précédente · « Comment une IA apprend »</div>
         <p>«&nbsp;Un modèle, c'est des milliards de petits boutons de réglage. Au départ ils sont au hasard. À chaque erreur, on tourne chaque bouton d'un cheveu <mark>dans le bon sens</mark>.&nbsp;»</p>
       </div>
-      <div class="bigq">Trois questions en une&nbsp;:<br><em>où</em> est le bouton,<br><em>comment</em> connaît-on le bon sens,<br><em>de combien</em> on tourne.
+      <div class="bigq" data-i18n="s1.bigq">Trois questions en une&nbsp;:<br><em>où</em> est le bouton,<br><em>comment</em> connaît-on le bon sens,<br><em>de combien</em> on tourne.
         <small>Cette séance ouvre la boîte. On va écrire les formules — elles tiennent en une ligne chacune. Aucune n'est au programme de première, mais aucune n'est hors de portée.</small>
       </div>
     </div>
@@ -360,34 +367,34 @@
 
   <!-- ============ 2 · UN NEURONE, C'EST UNE FONCTION ============ -->
   <div class="pane light pad" id="s2">
-    <div class="eyebrow">Le bouton · 1/2</div>
-    <h2 class="stitle">Un neurone, c'est une fonction</h2>
-    <p class="lead">Pas une cellule, pas un cerveau&nbsp;: une <b>fonction mathématique</b> à plusieurs entrées et une sortie. Le nom vient d'une inspiration biologique de 1943 — on la mentionne une fois, puis on l'oublie, parce qu'elle n'explique rien. Une petite boîte qui fait toujours les cinq mêmes gestes&nbsp;:</p>
+    <div class="eyebrow" data-i18n="s2.eye">Le bouton · 1/2</div>
+    <h2 class="stitle" data-i18n="s2.t">Un neurone, c'est une fonction</h2>
+    <p class="lead" data-i18n="s2.lead1">Pas une cellule, pas un cerveau&nbsp;: une <b>fonction mathématique</b> à plusieurs entrées et une sortie. Le nom vient d'une inspiration biologique de 1943 — on la mentionne une fois, puis on l'oublie, parce qu'elle n'explique rien. Une petite boîte qui fait toujours les cinq mêmes gestes&nbsp;:</p>
 
     <div class="five">
-      <div class="fb"><div class="n">1 · reçoit</div><div class="t">des <b>entrées</b>, qui sont des nombres</div></div>
-      <div class="fb"><div class="n">2 · multiplie</div><div class="t">chacune par un <b>poids</b></div></div>
-      <div class="fb"><div class="n">3 · additionne</div><div class="t">le tout, plus un <b>biais</b></div></div>
-      <div class="fb"><div class="n">4 · décide</div><div class="t">une <b>fonction</b> tranche&nbsp;: s'active ou pas</div></div>
-      <div class="fb"><div class="n">5 · transmet</div><div class="t">au <b>neurone suivant</b></div></div>
+      <div class="fb" data-i18n="s2.fb1"><div class="n">1 · reçoit</div><div class="t">des <b>entrées</b>, qui sont des nombres</div></div>
+      <div class="fb" data-i18n="s2.fb2"><div class="n">2 · multiplie</div><div class="t">chacune par un <b>poids</b></div></div>
+      <div class="fb" data-i18n="s2.fb3"><div class="n">3 · additionne</div><div class="t">le tout, plus un <b>biais</b></div></div>
+      <div class="fb" data-i18n="s2.fb4"><div class="n">4 · décide</div><div class="t">une <b>fonction</b> tranche&nbsp;: s'active ou pas</div></div>
+      <div class="fb" data-i18n="s2.fb5"><div class="n">5 · transmet</div><div class="t">au <b>neurone suivant</b></div></div>
     </div>
 
     <div class="mid">
       <div class="lab l12">
         <div class="labbox">
-          <h4>Le neurone « faut-il prendre un parapluie ? »</h4>
+          <h4 data-i18n="s2.h41">Le neurone « faut-il prendre un parapluie ? »</h4>
           <div class="toggles" id="n2tg"></div>
           <div id="n2sl"></div>
           <div class="read" id="n2read"></div>
         </div>
         <div class="labbox">
-          <h4>Ce qu'il calcule</h4>
-          <div class="eqbox eq">
+          <h4 data-i18n="s2.h42">Ce qu'il calcule</h4>
+          <div class="eqbox eq" data-i18n="s2.eq1">
             <div><span class="r">s</span> = <span class="w">w₁</span>·<span class="x">x₁</span> + <span class="w">w₂</span>·<span class="x">x₂</span> + <span class="b">b</span></div>
             <div style="margin-top:.3rem">sortie = 1 si <span class="r">s</span> &gt; 0, sinon 0</div>
           </div>
-          <p class="verdict" style="margin-top:.5rem">Les <b>x</b> sont les entrées — données, pas réglables. Les <b>w</b> (poids) et <b>b</b> sont les <b>paramètres</b>&nbsp;: les boutons. Un poids grand et positif, c'est «&nbsp;cette entrée compte beaucoup, dans le sens du oui&nbsp;»&nbsp;; un poids négatif pousse vers le non.</p>
-          <div class="warnbox">
+          <p class="verdict" data-i18n="s2.vd1" style="margin-top:.5rem">Les <b>x</b> sont les entrées — données, pas réglables. Les <b>w</b> (poids) et <b>b</b> sont les <b>paramètres</b>&nbsp;: les boutons. Un poids grand et positif, c'est «&nbsp;cette entrée compte beaucoup, dans le sens du oui&nbsp;»&nbsp;; un poids négatif pousse vers le non.</p>
+          <div class="warnbox" data-i18n="s2.wb1">
             <div class="t">Attention, le mot « biais » a deux sens</div>
             <p>Ici, <b>b</b> s'appelle le <b>biais</b> du neurone&nbsp;: c'est juste un nombre qu'on ajoute, qui règle à quel point le neurone est difficile à convaincre. Rien à voir avec le <b>biais</b> de la séance précédente, qui désignait un écart systématique venu des données. Deux notions, deux mondes, un seul mot — c'est l'usage, il faut vivre avec.</p>
           </div>
@@ -398,54 +405,54 @@
 
   <!-- ============ 3 · LA FONCTION D'ACTIVATION ============ -->
   <div class="pane light pad" id="s3">
-    <div class="eyebrow">Le bouton · 2/2</div>
-    <h2 class="stitle">Et il faut écraser<br>le résultat</h2>
-    <p class="lead">La somme pondérée <b>s</b> peut valoir n'importe quoi&nbsp;: −14, 0,003, 2 millions. On la fait donc passer dans une dernière fonction, appelée <b>fonction d'activation</b>. C'est elle qui transforme un calcul en décision.</p>
+    <div class="eyebrow" data-i18n="s3.eye">Le bouton · 2/2</div>
+    <h2 class="stitle" data-i18n="s3.t">Et il faut écraser<br>le résultat</h2>
+    <p class="lead" data-i18n="s3.lead1">La somme pondérée <b>s</b> peut valoir n'importe quoi&nbsp;: −14, 0,003, 2 millions. On la fait donc passer dans une dernière fonction, appelée <b>fonction d'activation</b>. C'est elle qui transforme un calcul en décision.</p>
 
     <div class="mid">
       <div class="acts">
         <div class="actc">
-          <div class="nm">Marche</div>
-          <div class="fm">f(s) = 1 si s &gt; 0, sinon 0</div>
+          <div class="nm" data-i18n="s3.nm1">Marche</div>
+          <div class="fm" data-i18n="s3.fm1">f(s) = 1 si s &gt; 0, sinon 0</div>
           <div class="cv"><canvas id="a1"></canvas></div>
-          <p>La plus intuitive — celle qu'on vient d'utiliser. Mais elle est <b>plate partout</b>&nbsp;: elle n'a aucune pente. Retenez ce défaut, il va tout décider.</p>
+          <p data-i18n="s3.ap1">La plus intuitive — celle qu'on vient d'utiliser. Mais elle est <b>plate partout</b>&nbsp;: elle n'a aucune pente. Retenez ce défaut, il va tout décider.</p>
         </div>
         <div class="actc">
-          <div class="nm">Sigmoïde</div>
-          <div class="fm">f(s) = 1 / (1 + e<sup>−s</sup>)</div>
+          <div class="nm" data-i18n="s3.nm2">Sigmoïde</div>
+          <div class="fm" data-i18n="s3.fm2">f(s) = 1 / (1 + e<sup>−s</sup>)</div>
           <div class="cv"><canvas id="a2"></canvas></div>
-          <p>La même marche, mais adoucie&nbsp;: elle glisse de 0 à 1. Elle a <b>une pente partout</b>. Sortie lisible comme une «&nbsp;confiance&nbsp;» entre 0 et 1.</p>
+          <p data-i18n="s3.ap2">La même marche, mais adoucie&nbsp;: elle glisse de 0 à 1. Elle a <b>une pente partout</b>. Sortie lisible comme une «&nbsp;confiance&nbsp;» entre 0 et 1.</p>
         </div>
         <div class="actc">
-          <div class="nm">ReLU</div>
-          <div class="fm">f(s) = max(0, s)</div>
+          <div class="nm" data-i18n="s3.nm3">ReLU</div>
+          <div class="fm" data-i18n="s3.fm3">f(s) = max(0, s)</div>
           <div class="cv"><canvas id="a3"></canvas></div>
-          <p>Plus simple encore&nbsp;: négatif → 0, positif → inchangé. Pente nulle à gauche, pente 1 à droite. <b>C'est celle qu'on utilise presque partout aujourd'hui</b>, parce qu'elle coûte une comparaison.</p>
+          <p data-i18n="s3.ap3">Plus simple encore&nbsp;: négatif → 0, positif → inchangé. Pente nulle à gauche, pente 1 à droite. <b>C'est celle qu'on utilise presque partout aujourd'hui</b>, parce qu'elle coûte une comparaison.</p>
         </div>
       </div>
-      <p class="lead" style="margin:0 auto;text-align:center;max-width:88ch">Sans elle, empiler cent couches ne servirait à rien&nbsp;: une somme de sommes pondérées reste une somme pondérée, et tout reviendrait à une seule grande équation linéaire. C'est elle qui introduit la <b>non-linéarité</b> — <b>et donc la capacité du réseau à faire autre chose qu'une droite.</b></p>
+      <p class="lead" data-i18n="s3.lead2" style="margin:0 auto;text-align:center;max-width:88ch">Sans elle, empiler cent couches ne servirait à rien&nbsp;: une somme de sommes pondérées reste une somme pondérée, et tout reviendrait à une seule grande équation linéaire. C'est elle qui introduit la <b>non-linéarité</b> — <b>et donc la capacité du réseau à faire autre chose qu'une droite.</b></p>
     </div>
   </div>
 
   <!-- ============ 4 · APPRENDRE = CORRIGER LES POIDS ============ -->
   <div class="pane dark pad" id="s4">
-    <div class="eyebrow">Le réglage · l'expérience fondatrice</div>
-    <h2 class="stitle">Un neurone qui se corrige</h2>
-    <p class="lead">Chaque point est un mail&nbsp;: <b>→</b> son nombre de liens, <b>↑</b> son nombre de mots en capitales. Rouge = spam, bleu = normal. Le neurone trace une droite et dit «&nbsp;spam&nbsp;» d'un côté. Au départ, sa droite est au hasard&nbsp;: elle se trompe presque partout.</p>
+    <div class="eyebrow" data-i18n="s4.eye">Le réglage · l'expérience fondatrice</div>
+    <h2 class="stitle" data-i18n="s4.t">Un neurone qui se corrige</h2>
+    <p class="lead" data-i18n="s4.lead1">Chaque point est un mail&nbsp;: <b>→</b> son nombre de liens, <b>↑</b> son nombre de mots en capitales. Rouge = spam, bleu = normal. Le neurone trace une droite et dit «&nbsp;spam&nbsp;» d'un côté. Au départ, sa droite est au hasard&nbsp;: elle se trompe presque partout.</p>
 
     <div class="mid">
       <div class="lab l21">
         <div>
           <div class="cvwrap"><canvas id="pc"></canvas></div>
           <div class="ctrls">
-            <button class="bb" id="pc1">▸ Un seul exemple</button>
-            <button class="bb" id="pcp">⟲ Une passe complète</button>
-            <button class="bb gh" id="pcr">↺ Tout remettre au hasard</button>
+            <button class="bb" data-i18n="s4.bb1" id="pc1">▸ Un seul exemple</button>
+            <button class="bb" data-i18n="s4.bb2" id="pcp">⟲ Une passe complète</button>
+            <button class="bb gh" data-i18n="s4.bb3" id="pcr">↺ Tout remettre au hasard</button>
           </div>
         </div>
         <div class="labbox">
-          <h4>La règle de correction</h4>
-          <div class="eqbox eq" style="font-size:.84rem">
+          <h4 data-i18n="s4.h41">La règle de correction</h4>
+          <div class="eqbox eq" data-i18n="s4.eq1" style="font-size:.84rem">
             <div>si la prédiction est <span class="r">juste</span> → on ne touche à rien</div>
             <div style="margin-top:.35rem">sinon&nbsp;:</div>
             <div><span class="w">w₁</span> ← <span class="w">w₁</span> + η·(<span class="x">attendu − prédit</span>)·<span class="x">x₁</span></div>
@@ -453,7 +460,7 @@
             <div><span class="b">b</span> ← <span class="b">b</span> + η·(<span class="x">attendu − prédit</span>)</div>
           </div>
           <div class="read" id="pcread"></div>
-          <p class="verdict">Rosenblatt, 1957. Trois lignes, aucune magie&nbsp;: quand on s'est trompé, on pousse la droite <b>vers l'exemple raté</b>. Et quand les deux familles sont séparables par une droite, c'est <b>démontré</b> que ça finit par marcher.</p>
+          <p class="verdict" data-i18n="s4.vd1">Rosenblatt, 1957. Trois lignes, aucune magie&nbsp;: quand on s'est trompé, on pousse la droite <b>vers l'exemple raté</b>. Et quand les deux familles sont séparables par une droite, c'est <b>démontré</b> que ça finit par marcher.</p>
         </div>
       </div>
     </div>
@@ -461,64 +468,64 @@
 
   <!-- ============ 5 · L'ERREUR EST UN NOMBRE ============ -->
   <div class="pane light pad" id="s5">
-    <div class="eyebrow">Le réglage · ce qu'on cherche à rendre petit</div>
-    <h2 class="stitle">L'erreur,<br>c'est un nombre</h2>
-    <p class="lead">Pour corriger, il faut d'abord <b>mesurer</b>. On ne dit pas «&nbsp;le modèle est mauvais&nbsp;»&nbsp;: on calcule un nombre, le même à chaque fois. Ce nombre s'appelle la <b>fonction de coût</b> (ou fonction de perte, <i>loss</i> en anglais).</p>
+    <div class="eyebrow" data-i18n="s5.eye">Le réglage · ce qu'on cherche à rendre petit</div>
+    <h2 class="stitle" data-i18n="s5.t">L'erreur,<br>c'est un nombre</h2>
+    <p class="lead" data-i18n="s5.lead1">Pour corriger, il faut d'abord <b>mesurer</b>. On ne dit pas «&nbsp;le modèle est mauvais&nbsp;»&nbsp;: on calcule un nombre, le même à chaque fois. Ce nombre s'appelle la <b>fonction de coût</b> (ou fonction de perte, <i>loss</i> en anglais).</p>
 
     <div class="mid">
       <div class="cards c3">
-        <div class="card">
+        <div class="card" data-i18n="s5.c1">
           <h3>Sur un exemple</h3>
           <div class="sub">écart au carré</div>
           <p class="ex">erreur = (prédit − attendu)²</p>
           <p>Au carré pour deux raisons&nbsp;: c'est <b>toujours positif</b> (une erreur de −3 est aussi grave qu'une de +3), et les <b>grosses erreurs comptent beaucoup plus</b> que les petites.</p>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s5.c2">
           <h3>Sur tout le corpus</h3>
           <div class="sub">la moyenne</div>
           <p class="ex">C = moyenne des erreurs<br>&nbsp;&nbsp;&nbsp;sur les N exemples</p>
           <p>Un seul nombre pour des milliards de phrases. <b>C'est ce nombre, et lui seul, que l'entraînement cherche à faire baisser.</b></p>
         </div>
-        <div class="card good">
+        <div class="card good" data-i18n="s5.c3">
           <h3>Donc : un minimum</h3>
           <div class="sub">le problème est posé</div>
           <p class="ex">trouver les w et b<br>qui rendent C minimal</p>
           <p>C'est une question de maths parfaitement classique&nbsp;: <b>chercher le minimum d'une fonction</b>. Vous en faites déjà, avec une variable. Ici il y en a mille milliards.</p>
         </div>
       </div>
-      <p class="lead" style="margin:0 auto;text-align:center;max-width:84ch">Aucune formule ne donne la réponse d'un coup — avec mille milliards d'inconnues, personne ne sait résoudre. <b>Alors on y va à tâtons.</b></p>
+      <p class="lead" data-i18n="s5.lead2" style="margin:0 auto;text-align:center;max-width:84ch">Aucune formule ne donne la réponse d'un coup — avec mille milliards d'inconnues, personne ne sait résoudre. <b>Alors on y va à tâtons.</b></p>
     </div>
   </div>
 
   <!-- ============ 6 · DESCENDRE DANS LE BROUILLARD ============ -->
   <div class="pane dark pad" id="s6">
-    <div class="eyebrow">Le réglage · la réponse à la question de la séance</div>
-    <h2 class="stitle">Descendre dans<br>le brouillard</h2>
-    <p class="lead">Vous êtes sur une pente, dans un brouillard total. Vous ne voyez pas la vallée. Mais vous <b>sentez la pente sous vos pieds</b> — alors vous faites un petit pas vers le bas. Puis vous recommencez. Voilà toute la méthode.</p>
+    <div class="eyebrow" data-i18n="s6.eye">Le réglage · la réponse à la question de la séance</div>
+    <h2 class="stitle" data-i18n="s6.t">Descendre dans<br>le brouillard</h2>
+    <p class="lead" data-i18n="s6.lead1">Vous êtes sur une pente, dans un brouillard total. Vous ne voyez pas la vallée. Mais vous <b>sentez la pente sous vos pieds</b> — alors vous faites un petit pas vers le bas. Puis vous recommencez. Voilà toute la méthode.</p>
 
     <div class="mid">
       <div class="lab l21">
         <div>
           <div class="cvwrap"><canvas id="gd"></canvas></div>
           <div class="ctrls">
-            <button class="bb" id="gd1">▸ Un pas</button>
-            <button class="bb" id="gd10">▸▸ Dix pas</button>
+            <button class="bb" data-i18n="s6.bb1" id="gd1">▸ Un pas</button>
+            <button class="bb" data-i18n="s6.bb2" id="gd10">▸▸ Dix pas</button>
             <button class="bb gh" id="gdf">👁 Lever le brouillard</button>
-            <button class="bb gh" id="gdr">↺ Replacer la bille</button>
+            <button class="bb gh" data-i18n="s6.bb3" id="gdr">↺ Replacer la bille</button>
           </div>
         </div>
         <div class="labbox">
-          <h4>La descente de gradient</h4>
-          <div class="eqbox eq" style="font-size:.86rem">
+          <h4 data-i18n="s6.h41">La descente de gradient</h4>
+          <div class="eqbox eq" data-i18n="s6.eq1" style="font-size:.86rem">
             <div><span class="w">w</span> ← <span class="w">w</span> − η · pente de C en <span class="w">w</span></div>
           </div>
           <div class="sl" style="margin-top:.6rem">
-            <label>η (le pas)</label>
+            <label data-i18n="s6.lab">η (le pas)</label>
             <input type="range" id="gdeta" min="0.02" max="2.5" step="0.02" value="0.3">
             <span class="val" id="gdetav">0.30</span>
           </div>
           <div class="read" id="gdread"></div>
-          <p class="verdict">Le signe «&nbsp;moins&nbsp;» est tout le secret&nbsp;: la pente monte, donc on va <b>à l'opposé</b> de la pente. Voilà le fameux «&nbsp;bon sens&nbsp;». Et <b>η</b>, le <b>taux d'apprentissage</b>, c'est la longueur du pas. Poussez-le à fond pour voir ce qui arrive.</p>
+          <p class="verdict" data-i18n="s6.vd1">Le signe «&nbsp;moins&nbsp;» est tout le secret&nbsp;: la pente monte, donc on va <b>à l'opposé</b> de la pente. Voilà le fameux «&nbsp;bon sens&nbsp;». Et <b>η</b>, le <b>taux d'apprentissage</b>, c'est la longueur du pas. Poussez-le à fond pour voir ce qui arrive.</p>
         </div>
       </div>
     </div>
@@ -526,9 +533,9 @@
 
   <!-- ============ 7 · LA RÉTROPROPAGATION ============ -->
   <div class="pane light pad" id="s7">
-    <div class="eyebrow">Le réglage · et pour mille milliards de boutons ?</div>
-    <h2 class="stitle">On remonte<br>depuis l'erreur</h2>
-    <p class="lead">Un bouton, on sait faire. Mais l'erreur se mesure <b>à la sortie</b>, et un bouton de la première couche en est très loin. Comment connaître sa pente à lui&nbsp;?</p>
+    <div class="eyebrow" data-i18n="s7.eye">Le réglage · et pour mille milliards de boutons ?</div>
+    <h2 class="stitle" data-i18n="s7.t">On remonte<br>depuis l'erreur</h2>
+    <p class="lead" data-i18n="s7.lead1">Un bouton, on sait faire. Mais l'erreur se mesure <b>à la sortie</b>, et un bouton de la première couche en est très loin. Comment connaître sa pente à lui&nbsp;?</p>
 
     <div class="mid">
       <div class="netwrap">
@@ -554,19 +561,19 @@
             <circle cx="380" cy="110" r="11"/><circle cx="380" cy="150" r="11"/>
             <circle cx="530" cy="85" r="13" style="fill:#b5301f;stroke:#b5301f"/>
           </g>
-          <g class="nl">
+          <g class="nl" data-i18n="s7.nl1">
             <text x="80" y="158">entrée</text><text x="220" y="168">couche cachée 1</text>
             <text x="380" y="168">couche cachée 2</text><text x="530" y="113">erreur</text>
           </g>
         </svg>
       </div>
       <div class="cards c2" style="margin-top:0">
-        <div class="card">
+        <div class="card" data-i18n="s7.c1">
           <h3>La règle de la chaîne</h3>
           <div class="sub">calcul · dérivation composée</div>
           <p>Si l'erreur dépend de la sortie, qui dépend de la couche 2, qui dépend de la couche 1… alors on obtient la pente d'un bouton lointain en <b>multipliant les pentes successives</b> le long du chemin. C'est un théorème de terminale, appliqué des milliards de fois.</p>
         </div>
-        <div class="card good">
+        <div class="card good" data-i18n="s7.c2">
           <h3>Rétropropagation</h3>
           <div class="sub">backpropagation · 1986</div>
           <p>On part de l'erreur et on <b>remonte couche par couche</b>, de la droite vers la gauche. Chaque bouton reçoit sa pente — et <b>un seul passage en arrière suffit pour tous</b>. Sans cette astuce, entraîner un grand modèle prendrait des siècles&nbsp;: c'est elle qui a rendu l'IA moderne possible.</p>
@@ -577,16 +584,16 @@
 
   <!-- ============ 8 · UNE DROITE NE SUFFIT PAS ============ -->
   <div class="pane dark pad" id="s8">
-    <div class="eyebrow">Le réseau · pourquoi plusieurs neurones</div>
-    <h2 class="stitle">Une droite<br>ne suffit pas</h2>
-    <p class="lead">Nouveau problème&nbsp;: séparer le <b>disque rouge</b> de l'<b>anneau bleu</b>. Essayez toutes les droites que vous voulez — aucune n'y arrivera. Un neurone seul est condamné.</p>
+    <div class="eyebrow" data-i18n="s8.eye">Le réseau · pourquoi plusieurs neurones</div>
+    <h2 class="stitle" data-i18n="s8.t">Une droite<br>ne suffit pas</h2>
+    <p class="lead" data-i18n="s8.lead1">Nouveau problème&nbsp;: séparer le <b>disque rouge</b> de l'<b>anneau bleu</b>. Essayez toutes les droites que vous voulez — aucune n'y arrivera. Un neurone seul est condamné.</p>
 
     <div class="mid">
       <div class="lab l21">
         <div>
           <div class="cvwrap"><canvas id="hx"></canvas></div>
           <div class="ctrls">
-            <button class="bb" id="hxl">↻ Une autre droite</button>
+            <button class="bb" data-i18n="s8.bb1" id="hxl">↻ Une autre droite</button>
             <button class="bb" id="hxm">▦ Passer à six neurones</button>
           </div>
         </div>
@@ -594,7 +601,7 @@
           <h4 id="hxh">Un seul neurone</h4>
           <div class="read" id="hxread"></div>
           <p class="verdict" id="hxv"></p>
-          <div class="eqbox eq" id="hxeq" style="font-size:.8rem;margin-top:.5rem;display:none">
+          <div class="eqbox eq" data-i18n="s8.eq1" id="hxeq" style="font-size:.8rem;margin-top:.5rem;display:none">
             <div>6 neurones cachés&nbsp;: <span class="w">h₁…h₆</span>, une droite chacun</div>
             <div style="margin-top:.3rem">neurone de sortie&nbsp;:</div>
             <div><span class="r">s</span> = <span class="w">h₁</span>+<span class="w">h₂</span>+<span class="w">h₃</span>+<span class="w">h₄</span>+<span class="w">h₅</span>+<span class="w">h₆</span> <span class="b">− 5,5</span></div>
@@ -607,9 +614,9 @@
 
   <!-- ============ 9 · LE RÉSEAU, ET LE MOT « PROFOND » ============ -->
   <div class="pane light pad" id="s9">
-    <div class="eyebrow">Le réseau · et le mot de la séance 2</div>
-    <h2 class="stitle">Des couches —<br>et le mot « profond »</h2>
-    <p class="lead">On met les neurones en <b>couches</b>&nbsp;: la sortie de chacun devient l'entrée de tous ceux de la couche suivante. Chaque flèche porte un poids, chaque neurone porte un biais. Comptons.</p>
+    <div class="eyebrow" data-i18n="s9.eye">Le réseau · et le mot de la séance 2</div>
+    <h2 class="stitle" data-i18n="s9.t">Des couches —<br>et le mot « profond »</h2>
+    <p class="lead" data-i18n="s9.lead1">On met les neurones en <b>couches</b>&nbsp;: la sortie de chacun devient l'entrée de tous ceux de la couche suivante. Chaque flèche porte un poids, chaque neurone porte un biais. Comptons.</p>
 
     <div class="mid">
       <div class="lab l12">
@@ -635,33 +642,33 @@
                 <circle cx="315" cy="110" r="10"/><circle cx="315" cy="150" r="10"/>
                 <circle cx="445" cy="70" r="10"/><circle cx="445" cy="112" r="10"/>
               </g>
-              <g class="nl">
+              <g class="nl" data-i18n="s9.nl1">
                 <text x="55" y="172">couche d'entrée</text><text x="185" y="172">couche cachée</text>
                 <text x="315" y="172">couche cachée</text><text x="445" y="140">couche de sortie</text>
               </g>
             </svg>
           </div>
-          <p class="verdict" style="text-align:center;max-width:62ch;margin:0 auto">Chaque couche cachée apprend <b>un niveau d'abstraction de plus</b>. Pour reconnaître un chat sur une photo&nbsp;:</p>
-          <div class="abstr">
+          <p class="verdict" data-i18n="s9.vd1" style="text-align:center;max-width:62ch;margin:0 auto">Chaque couche cachée apprend <b>un niveau d'abstraction de plus</b>. Pour reconnaître un chat sur une photo&nbsp;:</p>
+          <div class="abstr" data-i18n="s9.abstr">
             <span>les pixels</span><i>→</i>
             <span>des <b>bords</b>, des taches</span><i>→</i>
             <span>oreilles pointues, <b>yeux ronds</b></span><i>→</i>
             <span>«&nbsp;<b>tête de chat</b>&nbsp;»</span><i>→</i>
             <span>chat <b>(0,94)</b></span>
           </div>
-          <p class="verdict" style="text-align:center;max-width:68ch;margin:.4rem auto 0"><b>Personne n'a décidé de regarder les oreilles.</b> Le réseau trouve tout seul ce qui marche, à force d'exemples — et c'est bien la descente de gradient qui l'y a conduit.</p>
+          <p class="verdict" data-i18n="s9.vd2" style="text-align:center;max-width:68ch;margin:.4rem auto 0"><b>Personne n'a décidé de regarder les oreilles.</b> Le réseau trouve tout seul ce qui marche, à force d'exemples — et c'est bien la descente de gradient qui l'y a conduit.</p>
         </div>
         <div class="labbox">
-          <h4>Compter les paramètres</h4>
-          <div class="eqbox eq" style="font-size:.82rem">
+          <h4 data-i18n="s9.h41">Compter les paramètres</h4>
+          <div class="eqbox eq" data-i18n="s9.eq1" style="font-size:.82rem">
             <div>couche 1&nbsp;: 3×4 poids + 4 biais = <b>16</b></div>
             <div>couche 2&nbsp;: 4×4 poids + 4 biais = <b>20</b></div>
             <div>sortie&nbsp;&nbsp;&nbsp;: 4×2 poids + 2 biais = <b>10</b></div>
             <div style="border-top:1px solid rgba(0,0,0,.25);margin-top:.35rem;padding-top:.3rem">
               total&nbsp;: <span class="r">46 paramètres</span></div>
           </div>
-          <p class="verdict" style="margin-top:.6rem">Quarante-six boutons, pour ce petit schéma. Chacun reçoit sa pente par rétropropagation, à chaque exemple.</p>
-          <div class="warnbox" style="border-left-color:var(--signal);background:rgba(31,92,255,.07)">
+          <p class="verdict" data-i18n="s9.vd3" style="margin-top:.6rem">Quarante-six boutons, pour ce petit schéma. Chacun reçoit sa pente par rétropropagation, à chaque exemple.</p>
+          <div class="warnbox" data-i18n="s9.wb1" style="border-left-color:var(--signal);background:rgba(31,92,255,.07)">
             <div class="t" style="color:var(--signal-dk)">Le mot « profond » est enfin expliqué</div>
             <p>Beaucoup de couches empilées = un réseau <b>profond</b>. Apprentissage profond, <i>deep learning</i>&nbsp;: le mot croisé à la séance 2 ne dit rien de plus que <b>ça</b>. Pas une profondeur de pensée — un nombre de couches.</p>
           </div>
@@ -672,26 +679,26 @@
 
   <!-- ============ 10 · RETOUR À L'ÉCHELLE ============ -->
   <div class="pane dark pad" id="s10">
-    <div class="eyebrow">Zoom arrière</div>
-    <h2 class="stitle">La même opération,<br>mille milliards de fois</h2>
-    <p class="lead">Rien de ce qui suit n'est nouveau. Un grand modèle de langage, c'est <b>exactement</b> ce que vous venez de voir — multiplier, additionner, écraser — à une autre échelle.</p>
+    <div class="eyebrow" data-i18n="s10.eye">Zoom arrière</div>
+    <h2 class="stitle" data-i18n="s10.t">La même opération,<br>mille milliards de fois</h2>
+    <p class="lead" data-i18n="s10.lead1">Rien de ce qui suit n'est nouveau. Un grand modèle de langage, c'est <b>exactement</b> ce que vous venez de voir — multiplier, additionner, écraser — à une autre échelle.</p>
 
     <div class="mid">
       <div class="stats s6">
-        <div class="stat"><b>3</b><span>le neurone « parapluie »</span></div>
-        <div class="stat"><b>46</b><span>le petit réseau du schéma</span></div>
-        <div class="stat"><b>60 M</b><span>AlexNet · 2012 · la bascule</span></div>
-        <div class="stat"><b>117 M</b><span>GPT-1 · 2018</span></div>
-        <div class="stat"><b>175 Md</b><span>GPT-3 · 2020</span></div>
-        <div class="stat"><b>&gt; 1 000 Md</b><span>modèle frontière · 2026</span></div>
+        <div class="stat" data-i18n="s10.st1"><b>3</b><span>le neurone « parapluie »</span></div>
+        <div class="stat" data-i18n="s10.st2"><b>46</b><span>le petit réseau du schéma</span></div>
+        <div class="stat" data-i18n="s10.st3"><b>60 M</b><span>AlexNet · 2012 · la bascule</span></div>
+        <div class="stat" data-i18n="s10.st4"><b>117 M</b><span>GPT-1 · 2018</span></div>
+        <div class="stat" data-i18n="s10.st5"><b>175 Md</b><span>GPT-3 · 2020</span></div>
+        <div class="stat" data-i18n="s10.st6"><b>&gt; 1 000 Md</b><span>modèle frontière · 2026</span></div>
       </div>
       <div class="cards c2" style="margin:0">
-        <div class="card">
+        <div class="card" data-i18n="s10.c1">
           <h3>Ce qu'on sait exactement</h3>
           <div class="sub">aucun mystère ici</div>
           <p>Chaque opération, une par une&nbsp;: les multiplications, les additions, la fonction d'activation, la pente, le pas. <b>Tout est écrit</b>, et on vient de tout écrire.</p>
         </div>
-        <div class="card warn">
+        <div class="card warn" data-i18n="s10.c2">
           <h3>Ce qu'on ne sait pas</h3>
           <div class="sub">la « boîte noire », pour de vrai</div>
           <p>À quoi sert <b>ce bouton-là</b>, le 714 523 886<sup>e</sup>. Personne ne peut le dire. On ne l'a pas écrit&nbsp;: la descente de gradient l'a posé où il est. <b>La boîte noire n'est pas une ignorance du mécanisme — c'est une ignorance du sens de chaque réglage.</b></p>
@@ -702,30 +709,30 @@
 
   <!-- ============ 10b · ET SUR LE DISQUE DUR ? ============ -->
   <div class="pane light pad" id="s10b">
-    <div class="eyebrow">Zoom arrière · et ça pèse combien&nbsp;?</div>
-    <h2 class="stitle">Une IA plus petite que Wikipédia</h2>
-    <p class="lead">Mille milliards de boutons, soit. Mais un bouton, c'est un <b>nombre</b> — et un nombre prend de la place, comme on l'a vu à la séance sur le codage. <b>Gemma 3</b> (Google, 2025) est un modèle de <b>4,3 milliards de paramètres</b>&nbsp;: en 16 bits par paramètre il pèse 8,6 Go, en <b>4 bits</b> il tient dans <b>2,15 Go</b> — et tourne sur un ordinateur portable.</p>
+    <div class="eyebrow" data-i18n="s10b.eye">Zoom arrière · et ça pèse combien&nbsp;?</div>
+    <h2 class="stitle" data-i18n="s10b.t">Une IA plus petite que Wikipédia</h2>
+    <p class="lead" data-i18n="s10b.lead1">Mille milliards de boutons, soit. Mais un bouton, c'est un <b>nombre</b> — et un nombre prend de la place, comme on l'a vu à la séance sur le codage. <b>Gemma 3</b> (Google, 2025) est un modèle de <b>4,3 milliards de paramètres</b>&nbsp;: en 16 bits par paramètre il pèse 8,6 Go, en <b>4 bits</b> il tient dans <b>2,15 Go</b> — et tourne sur un ordinateur portable.</p>
 
     <div class="mid">
       <div class="ladder" id="llmbars"></div>
-      <p class="lead" style="margin:.35rem auto .25rem;text-align:center;max-width:86ch">Un fichier <b>douze fois plus léger que Wikipédia en anglais</b>… entraîné sur des textes qui pèsent <b>des centaines de fois Wikipédia</b>.</p>
-      <p class="scale-note" style="text-align:center">Échelle linéaire, en Go. Wikipédia&nbsp;: texte de tous les articles, compressé sans perte (dumps.wikimedia.org). Modèles&nbsp;: fichiers publiés sur Hugging Face. Gemma 3&nbsp;: rapport technique Google, 2025.</p>
+      <p class="lead" data-i18n="s10b.lead2" style="margin:.35rem auto .25rem;text-align:center;max-width:86ch">Un fichier <b>douze fois plus léger que Wikipédia en anglais</b>… entraîné sur des textes qui pèsent <b>des centaines de fois Wikipédia</b>.</p>
+      <p class="scale-note" data-i18n="s10b.sn1" style="text-align:center">Échelle linéaire, en Go. Wikipédia&nbsp;: texte de tous les articles, compressé sans perte (dumps.wikimedia.org). Modèles&nbsp;: fichiers publiés sur Hugging Face. Gemma 3&nbsp;: rapport technique Google, 2025.</p>
 
       <div class="cards c3" style="margin-top:.6rem">
-        <div class="card">
+        <div class="card" data-i18n="s10b.c1">
           <h3>Le calcul</h3>
           <div class="sub">moins de bits par bouton</div>
           <p class="ex">4,3 milliards × 16 bits = 8,6 Go<br>4,3 milliards × 4 bits = <b>2,15 Go</b></p>
           <p>Quatre fois moins de bits par nombre, donc un fichier <b>quatre fois plus léger</b> — et un modèle un peu moins précis. Exactement le compromis du son.</p>
           <p class="ex" style="color:var(--muted)">En vrai le fichier pèse un peu plus&nbsp;: certaines tables restent en 16 bits.</p>
         </div>
-        <div class="card">
+        <div class="card" data-i18n="s10b.c2">
           <h3>Ce qu'il a lu</h3>
           <div class="sub">données d'entraînement</div>
           <p>Environ <b>4 000 milliards de <i>tokens</i></b>, soit de l'ordre de <b>15 To</b> de texte — <b>des centaines de fois Wikipédia</b>.</p>
           <p>Tout cela a été <b>vu</b> pendant l'entraînement, mais n'est <b>pas rangé</b> dans le fichier&nbsp;: ce qu'il en reste tient dans les poids.</p>
         </div>
-        <div class="card warn">
+        <div class="card warn" data-i18n="s10b.c3">
           <h3>Contient-il Wikipédia&nbsp;?</h3>
           <div class="sub">pas mot pour mot</div>
           <p>Faire tenir 26 Go dans 2 Go <b>sans rien perdre</b> est impossible. Comme un <b>JPEG</b>, le modèle garde l'allure générale&nbsp;: les grandes idées sont là, mais les <b>détails</b> — dates, chiffres, noms rares — peuvent être faux.</p>
@@ -737,11 +744,11 @@
 
   <!-- ============ 11 · ACTIVITÉ ============ -->
   <div class="pane dark act" id="s11">
-    <div class="tag">Activité · 15 minutes · papier et crayon</div>
-    <h2>Le neurone<br><em>à la main</em></h2>
-    <p class="sub">On ne comprend pas une formule en la regardant. Faites tourner celle-ci vous-même, sur quatre cas. Une calculatrice n'est même pas nécessaire.</p>
+    <div class="tag" data-i18n="s11.tag">Activité · 15 minutes · papier et crayon</div>
+    <h2 data-i18n="s11.t">Le neurone<br><em>à la main</em></h2>
+    <p class="sub" data-i18n="s11.sub">On ne comprend pas une formule en la regardant. Faites tourner celle-ci vous-même, sur quatre cas. Une calculatrice n'est même pas nécessaire.</p>
     <div class="exos" id="exos">
-      <div class="exo">
+      <div class="exo" data-i18n="s11.exo1">
         <div class="n">Exercice 1 · la sortie du neurone</div>
         <div class="q">
           w = (0,6 ; −0,4 ; 0,9)&nbsp;&nbsp;b = −0,5<br>
@@ -758,7 +765,7 @@
           d) s = 0,6 − 0,4 + 0,9 − 0,5 = <b>0,6</b> → <b>1</b>
         </div>
       </div>
-      <div class="exo">
+      <div class="exo" data-i18n="s11.exo2">
         <div class="n">Exercice 2 · un pas de descente</div>
         <div class="q">
           w ← w − η · pente&nbsp;&nbsp;&nbsp;avec η = 0,1<br><br>
@@ -774,7 +781,7 @@
           d) w ne bouge plus&nbsp;: on est sur un <b>minimum</b> (ou un plateau). L'entraînement s'arrête tout seul.
         </div>
       </div>
-      <div class="exo">
+      <div class="exo" data-i18n="s11.exo3">
         <div class="n">Exercice 3 · à quoi sert le biais</div>
         <div class="q">
           Un neurone à une entrée&nbsp;: w = 1, b réglable.<br><br>
@@ -790,7 +797,7 @@
           d) … <b>difficile à convaincre</b>. Le biais déplace le seuil&nbsp;: c'est son seul rôle.
         </div>
       </div>
-      <div class="exo">
+      <div class="exo" data-i18n="s11.exo4">
         <div class="n">Exercice 4 · à discuter à l'oral</div>
         <div class="q">
           <i>a)</i> Pourquoi un η trop grand empêche-t-il d'apprendre ?<br>
@@ -813,33 +820,39 @@
 
   <!-- ============ 12 · RÉCAP ============ -->
   <div class="pane light pad" id="s12">
-    <div class="rc-eye">Fin de séance</div>
-    <h2 class="rc-title">Ce que je dois <span>retenir</span></h2>
+    <div class="rc-eye" data-i18n="rc.eye">Fin de séance</div>
+    <h2 class="rc-title" data-i18n="rc.t">Ce que je dois <span>retenir</span></h2>
     <ol class="rc-list">
-      <li>Un <span class="hl">neurone</span> est une <b>fonction</b>&nbsp;: une somme pondérée des entrées, plus un biais, écrasée par une fonction d'activation. Rien de biologique.</li>
-      <li>Les <span class="hl">poids</span> et les <span class="hl">biais</span> sont les <b>paramètres</b> — les boutons de la séance précédente. Les entrées, elles, ne se règlent pas.</li>
-      <li>L'erreur se <b>mesure</b> par un nombre, la <span class="hl">fonction de coût</span>. Apprendre, c'est chercher les paramètres qui rendent ce nombre minimal.</li>
-      <li>Le «&nbsp;bon sens&nbsp;» de la séance dernière, c'est <b>l'opposé de la pente</b>&nbsp;: la <span class="hl">descente de gradient</span>. Le <span class="hl">taux d'apprentissage</span> fixe la taille du pas — trop grand, ça diverge&nbsp;; trop petit, c'est interminable.</li>
-      <li>La pente de chaque bouton s'obtient en <b>remontant depuis l'erreur</b> (<span class="hl">rétropropagation</span>), en un seul passage pour tous.</li>
-      <li>Un neurone seul ne sait tracer qu'une <b>droite</b>. C'est l'empilement de <span class="hl">couches</span> qui permet des frontières quelconques — et «&nbsp;profond&nbsp;» ne veut dire que «&nbsp;beaucoup de couches&nbsp;».</li>
+      <li data-i18n="rc.i1">Un <span class="hl">neurone</span> est une <b>fonction</b>&nbsp;: une somme pondérée des entrées, plus un biais, écrasée par une fonction d'activation. Rien de biologique.</li>
+      <li data-i18n="rc.i2">Les <span class="hl">poids</span> et les <span class="hl">biais</span> sont les <b>paramètres</b> — les boutons de la séance précédente. Les entrées, elles, ne se règlent pas.</li>
+      <li data-i18n="rc.i3">L'erreur se <b>mesure</b> par un nombre, la <span class="hl">fonction de coût</span>. Apprendre, c'est chercher les paramètres qui rendent ce nombre minimal.</li>
+      <li data-i18n="rc.i4">Le «&nbsp;bon sens&nbsp;» de la séance dernière, c'est <b>l'opposé de la pente</b>&nbsp;: la <span class="hl">descente de gradient</span>. Le <span class="hl">taux d'apprentissage</span> fixe la taille du pas — trop grand, ça diverge&nbsp;; trop petit, c'est interminable.</li>
+      <li data-i18n="rc.i5">La pente de chaque bouton s'obtient en <b>remontant depuis l'erreur</b> (<span class="hl">rétropropagation</span>), en un seul passage pour tous.</li>
+      <li data-i18n="rc.i6">Un neurone seul ne sait tracer qu'une <b>droite</b>. C'est l'empilement de <span class="hl">couches</span> qui permet des frontières quelconques — et «&nbsp;profond&nbsp;» ne veut dire que «&nbsp;beaucoup de couches&nbsp;».</li>
     </ol>
     <div class="rc-voc">
-      <div class="rc-term"><b>Poids &amp; biais</b>Les deux sortes de paramètres d'un neurone. Attention&nbsp;: «&nbsp;biais&nbsp;» a aussi un tout autre sens côté données.</div>
-      <div class="rc-term"><b>Fonction d'activation</b>Marche, sigmoïde, ReLU — ce qui transforme la somme en décision.</div>
-      <div class="rc-term"><b>Fonction de coût</b>Le nombre qui mesure l'erreur sur tout le corpus.</div>
-      <div class="rc-term"><b>Descente de gradient</b>Avancer à l'opposé de la pente, d'un pas η, encore et encore.</div>
-      <div class="rc-term"><b>Rétropropagation</b>Remonter l'erreur de la sortie vers l'entrée pour donner sa pente à chaque paramètre.</div>
-      <div class="rc-term"><b>Couche cachée</b>Les neurones entre l'entrée et la sortie. Beaucoup de couches = réseau profond.</div>
+      <div class="rc-term" data-i18n="rc.v1"><b>Poids &amp; biais</b>Les deux sortes de paramètres d'un neurone. Attention&nbsp;: «&nbsp;biais&nbsp;» a aussi un tout autre sens côté données.</div>
+      <div class="rc-term" data-i18n="rc.v2"><b>Fonction d'activation</b>Marche, sigmoïde, ReLU — ce qui transforme la somme en décision.</div>
+      <div class="rc-term" data-i18n="rc.v3"><b>Fonction de coût</b>Le nombre qui mesure l'erreur sur tout le corpus.</div>
+      <div class="rc-term" data-i18n="rc.v4"><b>Descente de gradient</b>Avancer à l'opposé de la pente, d'un pas η, encore et encore.</div>
+      <div class="rc-term" data-i18n="rc.v5"><b>Rétropropagation</b>Remonter l'erreur de la sortie vers l'entrée pour donner sa pente à chaque paramètre.</div>
+      <div class="rc-term" data-i18n="rc.v6"><b>Couche cachée</b>Les neurones entre l'entrée et la sortie. Beaucoup de couches = réseau profond.</div>
     </div>
-    <p class="rc-key">Prochaine étape&nbsp;: <b>lui donner des informations qu'il n'a jamais apprises — sans toucher à un seul de ces boutons.</b></p>
+    <p class="rc-key" data-i18n="rc.key">Prochaine étape&nbsp;: <b>lui donner des informations qu'il n'a jamais apprises — sans toucher à un seul de ces boutons.</b></p>
   </div>
 
 </div>
 
 <!-- HUD -->
 <div class="hud">
-  <a class="homelink fixedleft" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span>Parcours</span></a>
-  <button class="btn" id="prev">◀ Retour</button>
+  <div class="hudleft">
+    <div class="langsw" id="langsw">
+      <button data-lang="fr" class="on">FR</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <a class="homelink" href="../index.html" title="Retour au parcours IA"><b>☰</b> <span data-i18n="hud.menu">Parcours</span></a>
+  </div>
+  <button class="btn" id="prev" data-i18n="hud.prev">◀ Retour</button>
   <div class="dots">
     <div class="dot active" data-i="0"></div>
     <div class="dot" data-i="1"></div>
@@ -856,11 +869,98 @@
     <div class="dot" data-i="12"></div>
     <div class="dot" data-i="13"></div>
   </div>
-  <button class="btn" id="next">Suite ▶</button>
+  <button class="btn" id="next" data-i18n="hud.next">Suite ▶</button>
   <div class="hint" id="hint">↔ flèches · espace · clic</div>
 </div>
 
 <script>
+/* =========================================================
+   LANGUE — le FR est dans la page, l'EN dans le bloc i18n.
+   Les chaînes fabriquées en JS vivent ici, dans les deux langues.
+   ========================================================= */
+var curLang = 'fr';
+function LG(){ return curLang === 'en' ? 'en' : 'fr'; }
+var TX = {
+  fr:{
+    /* scène 2 · le neurone parapluie */
+    n2ent:['Il y a des nuages','La météo annonce de la pluie'],
+    n2sl:['w₁ nuages','w₂ météo','b biais'],
+    n2out:'sortie',
+    n2yes:'☂ « prends ton parapluie »',
+    n2no:'☀ « laisse-le »',
+    /* scène 4 · le perceptron */
+    pcAxX:'liens →', pcAxY:'capitales →',
+    pcErr:'erreurs : ', pcAll:' — la droite sépare tout',
+    pcSpam:'spam', pcHam:'normal',
+    pcEx:'exemple ',
+    pcOk:'déjà juste → on ne touche à rien',
+    pcSaidA:'il disait « ', pcSaidB:' »', pcCorr:' → on corrige de ',
+    pcOn:' sur ',
+    pcHint:'η = 0,25 — appuyez sur « un seul exemple ».',
+    /* scène 6 · la descente de gradient */
+    gdAxY:'coût C ↑', gdAxX:'le paramètre w →',
+    gdCost:'coût C', gdSlope:'pente de C en w',
+    gdDiv:'✗ ça diverge — le pas était trop grand, la bille a sauté par-dessus la vallée et s’enfuit.',
+    gdStep:'pas = − η × pente', gdNew:'nouveau w',
+    gdNsteps:function(n){ return n + ' pas effectué' + (n>1?'s':''); },
+    gdBottom:' — <span class="ok">pente ≈ 0 : on est au fond</span>',
+    gdFogLift:'👁 Lever le brouillard', gdFogBack:'🌫 Remettre le brouillard',
+    /* scène 8 · une droite ne suffit pas */
+    hxH1:'Un seul neurone', hxH2:'Six neurones + un neurone de sortie',
+    hxFr:'frontière : ', hxL1:'une droite', hxL2:'six droites combinées',
+    hxErr:'erreurs : ', hxAll:' — tout est séparé',
+    hxV1:'Changez de droite autant que vous voulez&nbsp;: il en restera toujours du mauvais côté. Le problème n’est <b>pas linéairement séparable</b> — et un neurone ne sait faire que du linéaire.',
+    hxV2:'Chaque neurone caché trace <b>une</b> droite et répond oui / non. Le neurone de sortie exige que <b>les six soient d’accord</b> — ce qui dessine un hexagone. Avec vingt neurones on aurait un cercle presque parfait&nbsp;: <b>plus de neurones = frontière plus fine</b>.',
+    hxB1:'▦ Passer à six neurones', hxB2:'◂ Revenir à un seul neurone',
+    /* scène 11 · la correction */
+    solShow:'👁 Afficher la correction', solHide:'🙈 Masquer la correction',
+    /* scène 10b · le poids des modèles */
+    llm:[
+      [2.15, '2,15 Go', 'Gemma 3 · 4,3 milliards de paramètres · 4 bits chacun', true],
+      [7.1,  '7 Go',    'Wikipédia en français (texte compressé)', false],
+      [8.6,  '8,6 Go',  'Gemma 3 · le même, en 16 bits', true],
+      [16,   '16 Go',   'Llama 3.1 (Meta) · 8 milliards de paramètres · 16 bits', true],
+      [25.8, '26 Go',   'Wikipédia en anglais (texte compressé)', false]
+    ]
+  },
+  en:{
+    n2ent:['There are clouds','The forecast says rain'],
+    n2sl:['w₁ clouds','w₂ forecast','b bias'],
+    n2out:'output',
+    n2yes:'☂ &ldquo;take your umbrella&rdquo;',
+    n2no:'☀ &ldquo;leave it&rdquo;',
+    pcAxX:'links →', pcAxY:'capitals →',
+    pcErr:'errors: ', pcAll:' — the line separates everything',
+    pcSpam:'spam', pcHam:'normal',
+    pcEx:'example ',
+    pcOk:'already right → nothing to change',
+    pcSaidA:'it said &ldquo;', pcSaidB:'&rdquo;', pcCorr:' → we correct by ',
+    pcOn:' on ',
+    pcHint:'η = 0.25 — press &ldquo;one single example&rdquo;.',
+    gdAxY:'cost C ↑', gdAxX:'the parameter w →',
+    gdCost:'cost C', gdSlope:'slope of C at w',
+    gdDiv:'✗ it diverges — the step was too long, the ball jumped clean over the valley and is running away.',
+    gdStep:'step = − η × slope', gdNew:'new w',
+    gdNsteps:function(n){ return n + ' step' + (n>1?'s':'') + ' taken'; },
+    gdBottom:' — <span class="ok">slope ≈ 0: we are at the bottom</span>',
+    gdFogLift:'👁 Lift the fog', gdFogBack:'🌫 Bring the fog back',
+    hxH1:'One single neuron', hxH2:'Six neurons + one output neuron',
+    hxFr:'boundary: ', hxL1:'one straight line', hxL2:'six lines combined',
+    hxErr:'errors: ', hxAll:' — everything is separated',
+    hxV1:'Try as many lines as you like: some points will always be on the wrong side. The problem is <b>not linearly separable</b> — and a neuron can only do linear.',
+    hxV2:'Each hidden neuron draws <b>one</b> line and answers yes / no. The output neuron demands that <b>all six agree</b> — which draws a hexagon. With twenty neurons we would get an almost perfect circle: <b>more neurons = a finer boundary</b>.',
+    hxB1:'▦ Switch to six neurons', hxB2:'◂ Back to a single neuron',
+    solShow:'👁 Show the answers', solHide:'🙈 Hide the answers',
+    llm:[
+      [2.15, '2.15 GB', 'Gemma 3 · 4.3 billion parameters · 4 bits each', true],
+      [7.1,  '7 GB',    'Wikipedia in French (compressed text)', false],
+      [8.6,  '8.6 GB',  'Gemma 3 · the very same, in 16 bits', true],
+      [16,   '16 GB',   'Llama 3.1 (Meta) · 8 billion parameters · 16 bits', true],
+      [25.8, '26 GB',   'Wikipedia in English (compressed text)', false]
+    ]
+  }
+};
+
 /* =========================================================
    NAVIGATION
    ========================================================= */
@@ -911,15 +1011,19 @@ function lcg(seed){
   var s = seed>>>0;
   return function(){ s = (s*1664525 + 1013904223) >>> 0; return s / 4294967296; };
 }
-function f2(x){ return (Math.round(x*100)/100).toFixed(2).replace('.', ',').replace('-', '−'); }
+function f2(x){
+  var v = (Math.round(x*100)/100).toFixed(2);
+  if(LG() !== 'en') v = v.replace('.', ',');
+  return v.replace('-', '−');
+}
 
 /* =========================================================
    SCÈNE 2 — le neurone « parapluie »
    ========================================================= */
 var N2 = (function(){
   var ENT = [
-    {k:'x₁', lbl:'Il y a des nuages', on:true},
-    {k:'x₂', lbl:'La météo annonce de la pluie', on:false}
+    {k:'x₁', on:true},
+    {k:'x₂', on:false}
   ];
   var P = { w1:1.2, w2:1.6, b:-0.5 };
   var tg = document.getElementById('n2tg'),
@@ -928,7 +1032,7 @@ var N2 = (function(){
 
   function drawCtrls(){
     tg.innerHTML = ENT.map(function(e,i){
-      return '<button class="tg'+(e.on?' on':'')+'" data-i="'+i+'">'+e.lbl+
+      return '<button class="tg'+(e.on?' on':'')+'" data-i="'+i+'">'+TX[LG()].n2ent[i]+
              '<small>'+e.k+' = '+(e.on?1:0)+'</small></button>';
     }).join('');
     [].slice.call(tg.querySelectorAll('.tg')).forEach(function(b){
@@ -936,13 +1040,23 @@ var N2 = (function(){
     });
   }
   function slider(id,label,min,max,val){
-    return '<div class="sl"><label>'+label+'</label>'+
+    return '<div class="sl"><label id="'+id+'l">'+label+'</label>'+
       '<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="0.1" value="'+val+'">'+
       '<span class="val" id="'+id+'v">'+f2(val)+'</span></div>';
   }
-  sl.innerHTML = slider('n2w1','w₁ nuages',-2,2,P.w1) +
-                 slider('n2w2','w₂ météo',-2,2,P.w2) +
-                 slider('n2b','b biais',-2,2,P.b);
+  var SLN = TX[LG()].n2sl;
+  sl.innerHTML = slider('n2w1',SLN[0],-2,2,P.w1) +
+                 slider('n2w2',SLN[1],-2,2,P.w2) +
+                 slider('n2b',SLN[2],-2,2,P.b);
+  function refresh(){
+    var t = TX[LG()].n2sl;
+    ['n2w1','n2w2','n2b'].forEach(function(id,i){
+      document.getElementById(id+'l').textContent = t[i];
+    });
+    ['w1','w2','b'].forEach(function(k){
+      document.getElementById('n2'+k+'v').textContent = f2(P[k]);
+    });
+  }
   ['w1','w2','b'].forEach(function(k){
     var el = document.getElementById('n2'+k);
     el.oninput = function(){
@@ -956,14 +1070,15 @@ var N2 = (function(){
     var x1 = ENT[0].on?1:0, x2 = ENT[1].on?1:0;
     var s = P.w1*x1 + P.w2*x2 + P.b;
     var out = s > 0 ? 1 : 0;
+    var t = TX[LG()];
     rd.innerHTML =
       's = <b>'+f2(P.w1)+'</b>×'+x1+' + <b>'+f2(P.w2)+'</b>×'+x2+' + <b>'+f2(P.b)+'</b>'+
-      '<br>s = <b>'+f2(s)+'</b> &nbsp;→ sortie = <b>'+out+'</b>'+
-      '<br>'+(out ? '<span class="ok">☂ « prends ton parapluie »</span>'
-                  : '<span class="ko">☀ « laisse-le »</span>');
+      '<br>s = <b>'+f2(s)+'</b> &nbsp;→ '+t.n2out+' = <b>'+out+'</b>'+
+      '<br>'+(out ? '<span class="ok">'+t.n2yes+'</span>'
+                  : '<span class="ko">'+t.n2no+'</span>');
   }
   drawCtrls(); upd();
-  return { redraw:function(){} };
+  return { redraw:function(){ refresh(); drawCtrls(); upd(); } };
 })();
 
 /* =========================================================
@@ -1063,9 +1178,9 @@ var PC = (function(){
     ctx.strokeStyle = 'rgba(233,228,216,.25)'; ctx.lineWidth = 1;
     ctx.strokeRect(m,m,w-2*m,h-2*m);
     ctx.fillStyle = 'rgba(233,228,216,.55)'; ctx.font = '10px "Courier New",monospace';
-    ctx.fillText('liens →', w-m-58, h-m-5);
+    ctx.fillText(TX[LG()].pcAxX, w-m-58, h-m-5);
     ctx.save(); ctx.translate(m+12, m+54); ctx.rotate(-Math.PI/2);
-    ctx.fillText('capitales →', 0, 0); ctx.restore();
+    ctx.fillText(TX[LG()].pcAxY, 0, 0); ctx.restore();
 
     /* droite */
     var pA = null, pB = null;
@@ -1102,21 +1217,22 @@ var PC = (function(){
     });
 
     var e = errors();
+    var t = TX[LG()];
     var html = 'w₁ = <b>'+f2(W.w1)+'</b> &nbsp; w₂ = <b>'+f2(W.w2)+'</b> &nbsp; b = <b>'+f2(W.b)+'</b>'+
-               '<br>erreurs : '+(e===0 ? '<span class="ok">0 / '+pts.length+' — la droite sépare tout</span>'
-                                       : '<span class="ko">'+e+' / '+pts.length+'</span>');
+               '<br>'+t.pcErr+(e===0 ? '<span class="ok">0 / '+pts.length+t.pcAll+'</span>'
+                                     : '<span class="ko">'+e+' / '+pts.length+'</span>');
     if(last){
-      var nom = last.p.t ? 'spam' : 'normal';
-      var dit = last.said ? 'spam' : 'normal';
-      html += '<br><br>exemple '+(last.i+1)+' ('+nom+') : ';
+      var nom = last.p.t ? t.pcSpam : t.pcHam;
+      var dit = last.said ? t.pcSpam : t.pcHam;
+      html += '<br><br>'+t.pcEx+(last.i+1)+' ('+nom+') : ';
       html += last.fixed
-        ? '<span class="ok">déjà juste → on ne touche à rien</span>'
-        : '<span class="ko">il disait « '+dit+' »</span> → on corrige de '+
-          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d*last.p.x))+' sur w₁, '+
-          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d*last.p.y))+' sur w₂, '+
-          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d))+' sur b';
+        ? '<span class="ok">'+t.pcOk+'</span>'
+        : '<span class="ko">'+t.pcSaidA+dit+t.pcSaidB+'</span>'+t.pcCorr+
+          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d*last.p.x))+t.pcOn+'w₁, '+
+          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d*last.p.y))+t.pcOn+'w₂, '+
+          (last.d>0?'+':'−')+f2(Math.abs(ETA*last.d))+t.pcOn+'b';
     } else {
-      html += '<br><br>η = 0,25 — appuyez sur « un seul exemple ».';
+      html += '<br><br>'+t.pcHint;
     }
     rd.innerHTML = html;
   }
@@ -1164,8 +1280,8 @@ var GD = (function(){
     ctx.strokeStyle = 'rgba(233,228,216,.18)'; ctx.lineWidth = 1;
     ctx.strokeRect(m,m,cw-2*m,ch-2*m);
     ctx.fillStyle = 'rgba(233,228,216,.5)'; ctx.font = '10px "Courier New",monospace';
-    ctx.fillText('coût C ↑', m+6, m+14);
-    ctx.fillText('le paramètre w →', cw-m-108, ch-m-6);
+    ctx.fillText(TX[LG()].gdAxY, m+6, m+14);
+    ctx.fillText(TX[LG()].gdAxX, cw-m-108, ch-m-6);
 
     /* la courbe : pâle si brouillard, nette autour de la bille */
     function curve(a,b,col,lw){
@@ -1214,15 +1330,20 @@ var GD = (function(){
       ctx.closePath(); ctx.fillStyle = 'rgba(127,224,172,.9)'; ctx.fill();
     }
 
-    var html = 'w = <b>'+f2(w)+'</b> &nbsp; coût C = <b>'+f2(C(wc))+'</b>'+
-               '<br>pente de C en w = <b>'+f2(slope)+'</b>';
+    var t = TX[LG()];
+    var fb = document.getElementById('gdf');
+    if(fb) fb.innerHTML = fog ? t.gdFogLift : t.gdFogBack;
+    var ev = document.getElementById('gdetav');
+    if(ev) ev.textContent = f2(eta);
+    var html = 'w = <b>'+f2(w)+'</b> &nbsp; '+t.gdCost+' = <b>'+f2(C(wc))+'</b>'+
+               '<br>'+t.gdSlope+' = <b>'+f2(slope)+'</b>';
     if(diverged){
-      html += '<br><br><span class="ko">✗ ça diverge — le pas était trop grand, la bille a sauté par-dessus la vallée et s\'enfuit.</span>';
+      html += '<br><br><span class="ko">'+t.gdDiv+'</span>';
     } else {
-      html += '<br>pas = − η × pente = <b>'+f2(-eta*slope)+'</b>'+
-              '<br>nouveau w = <b>'+f2(wc - eta*slope)+'</b>'+
-              '<br><br>'+nstep+' pas effectué'+(nstep>1?'s':'')+
-              (Math.abs(slope) < 0.02 ? ' — <span class="ok">pente ≈ 0 : on est au fond</span>' : '');
+      html += '<br>'+t.gdStep+' = <b>'+f2(-eta*slope)+'</b>'+
+              '<br>'+t.gdNew+' = <b>'+f2(wc - eta*slope)+'</b>'+
+              '<br><br>'+t.gdNsteps(nstep)+
+              (Math.abs(slope) < 0.02 ? t.gdBottom : '');
     }
     rd.innerHTML = html;
   }
@@ -1233,7 +1354,6 @@ var GD = (function(){
     document.getElementById('gdr').onclick = reset;
     document.getElementById('gdf').onclick = function(){
       fog = !fog;
-      this.innerHTML = fog ? '👁 Lever le brouillard' : '🌫 Remettre le brouillard';
       draw();
     };
     var es = document.getElementById('gdeta');
@@ -1349,16 +1469,15 @@ var HX = (function(){
     });
 
     var e = errors();
-    hd.textContent = mode === 0 ? 'Un seul neurone' : 'Six neurones + un neurone de sortie';
-    rd.innerHTML = 'frontière : <b>'+(mode===0 ? 'une droite' : 'six droites combinées')+'</b>'+
-      '<br>erreurs : '+(e===0 ? '<span class="ok">0 / '+pts.length+' — tout est séparé</span>'
-                              : '<span class="ko">'+e+' / '+pts.length+'</span>');
-    vd.innerHTML = mode === 0
-      ? 'Changez de droite autant que vous voulez&nbsp;: il en restera toujours du mauvais côté. Le problème n\'est <b>pas linéairement séparable</b> — et un neurone ne sait faire que du linéaire.'
-      : 'Chaque neurone caché trace <b>une</b> droite et répond oui / non. Le neurone de sortie exige que <b>les six soient d\'accord</b> — ce qui dessine un hexagone. Avec vingt neurones on aurait un cercle presque parfait&nbsp;: <b>plus de neurones = frontière plus fine</b>.';
+    var t = TX[LG()];
+    hd.textContent = mode === 0 ? t.hxH1 : t.hxH2;
+    rd.innerHTML = t.hxFr+'<b>'+(mode===0 ? t.hxL1 : t.hxL2)+'</b>'+
+      '<br>'+t.hxErr+(e===0 ? '<span class="ok">0 / '+pts.length+t.hxAll+'</span>'
+                            : '<span class="ko">'+e+' / '+pts.length+'</span>');
+    vd.innerHTML = mode === 0 ? t.hxV1 : t.hxV2;
     eq.style.display = mode === 0 ? 'none' : 'block';
     document.getElementById('hxl').style.display = mode === 0 ? '' : 'none';
-    document.getElementById('hxm').textContent = mode === 0 ? '▦ Passer à six neurones' : '◂ Revenir à un seul neurone';
+    document.getElementById('hxm').textContent = mode === 0 ? t.hxB1 : t.hxB2;
   }
 
   if(cv){
@@ -1375,10 +1494,12 @@ var HX = (function(){
 (function(){
   var b = document.getElementById('solbtn'), box = document.getElementById('exos');
   if(!b) return;
-  b.onclick = function(){
-    var on = box.classList.toggle('show');
-    b.innerHTML = on ? '🙈 Masquer la correction' : '👁 Afficher la correction';
-  };
+  function updSol(){
+    b.innerHTML = box.classList.contains('show') ? TX[LG()].solHide : TX[LG()].solShow;
+  }
+  b.onclick = function(){ box.classList.toggle('show'); updSol(); };
+  window.updSol = updSol;
+  updSol();
 })();
 
 /* =========================================================
@@ -1387,14 +1508,9 @@ var HX = (function(){
 (function(){
   var lb = document.getElementById('llmbars');
   if(!lb) return;
-  var llm = [
-    [2.15, '2,15 Go', 'Gemma 3 · 4,3 milliards de paramètres · 4 bits chacun', true],
-    [7.1,  '7 Go',    'Wikipédia en français (texte compressé)', false],
-    [8.6,  '8,6 Go',  'Gemma 3 · le même, en 16 bits', true],
-    [16,   '16 Go',   'Llama 3.1 (Meta) · 8 milliards de paramètres · 16 bits', true],
-    [25.8, '26 Go',   'Wikipédia en anglais (texte compressé)', false]
-  ];
-  llm.forEach(function(it){
+  function drawLLM(){
+  lb.innerHTML = '';
+  TX[LG()].llm.forEach(function(it){
     var pct = Math.max(1, 100*it[0]/25.8);
     var r = document.createElement('div');
     r.className = 'rung' + (it[3] ? ' warn' : '');
@@ -1409,6 +1525,9 @@ var HX = (function(){
       }
     });
   });
+  }
+  window.drawLLM = drawLLM;
+  drawLLM();
 })();
 
 /* =========================================================
@@ -1416,13 +1535,352 @@ var HX = (function(){
    ========================================================= */
 function redrawAll(){
   drawActs();
-  PC.redraw(); GD.redraw(); HX.redraw();
+  N2.redraw(); PC.redraw(); GD.redraw(); HX.redraw();
+  if(window.drawLLM) window.drawLLM();
+  if(window.updSol) window.updSol();
 }
+window.redrawAll = redrawAll;
 var rt = null;
 window.addEventListener('resize', function(){
   clearTimeout(rt); rt = setTimeout(redrawAll, 120);
 });
 redrawAll();
+</script>
+
+<script>
+/* ================= i18n — le FR est dans la page, l'EN ici ================= */
+const MSG = {
+  fr:{ title:`Le neurone et son réglage`, hint:`↔ flèches · espace · clic` },
+  en:{ title:`The neuron and its tuning`, hint:`↔ arrows · space · click` }
+};
+const I18N = { en: {
+  'hud.menu':`Course map`, 'hud.prev':`◀ Back`, 'hud.next':`Next ▶`,
+
+  /* --- 0 · ouverture --- */
+  's0.back':`◂ Previous lesson · How an AI learns`,
+  's0.tag':`SNT · AI Course`,
+  's0.big':`The right<br>way — but<br><em>which</em>?`,
+  's0.line':`Last time we said that training turns billions of knobs &ldquo;a hair's breadth the right way&rdquo;. We let something slip past: <strong style="color:#fff">how does the machine know which way to turn?</strong>`,
+  's0.kick':`Neuron · weights · slope · backpropagation`,
+
+  /* --- 1 · la question laissée en plan --- */
+  's1.eye':`Picking up where we left off`,
+  's1.t':`The phrase that hid<br>the whole mechanism`,
+  's1.quote':`
+        <div class="src">Previous lesson · &ldquo;How an AI learns&rdquo;</div>
+        <p>&ldquo;A model is billions of little adjustment knobs. At the start they are random. At every mistake, each knob is turned a hair's breadth <mark>the right way</mark>.&rdquo;</p>
+      `,
+  's1.bigq':`Three questions in one:<br><em>where</em> is the knob,<br><em>how</em> do we know the right way,<br><em>by how much</em> do we turn.
+        <small>This lesson opens the box. We are going to write the formulas down — one line each. None of them is on the syllabus, and none of them is out of reach.</small>
+      `,
+
+  /* --- 2 · un neurone, c'est une fonction --- */
+  's2.eye':`The knob · 1/2`,
+  's2.t':`A neuron is a function`,
+  's2.lead1':`Not a cell, not a brain: a <b>mathematical function</b> with several inputs and one output. The name comes from a biological inspiration dating from 1943 — we mention it once, then forget it, because it explains nothing. A little box that always performs the same five actions:`,
+  's2.fb1':`<div class="n">1 · receives</div><div class="t"><b>inputs</b>, which are numbers</div>`,
+  's2.fb2':`<div class="n">2 · multiplies</div><div class="t">each one by a <b>weight</b></div>`,
+  's2.fb3':`<div class="n">3 · adds</div><div class="t">it all up, plus a <b>bias</b></div>`,
+  's2.fb4':`<div class="n">4 · decides</div><div class="t">a <b>function</b> settles it: fire or not</div>`,
+  's2.fb5':`<div class="n">5 · passes on</div><div class="t">to the <b>next neuron</b></div>`,
+  's2.h41':`The &ldquo;should I take an umbrella?&rdquo; neuron`,
+  's2.h42':`What it computes`,
+  's2.eq1':`
+            <div><span class="r">s</span> = <span class="w">w₁</span>·<span class="x">x₁</span> + <span class="w">w₂</span>·<span class="x">x₂</span> + <span class="b">b</span></div>
+            <div style="margin-top:.3rem">output = 1 if <span class="r">s</span> &gt; 0, otherwise 0</div>
+          `,
+  's2.vd1':`The <b>x</b> are the inputs — given, not adjustable. The <b>w</b> (weights) and <b>b</b> are the <b>parameters</b>: the knobs. A large positive weight means &ldquo;this input counts for a lot, towards yes&rdquo;; a negative weight pushes towards no.`,
+  's2.wb1':`
+            <div class="t">Careful: the word &ldquo;bias&rdquo; has two meanings</div>
+            <p>Here, <b>b</b> is called the neuron's <b>bias</b>: just a number that is added, setting how hard the neuron is to convince. Nothing to do with the <b>bias</b> of the previous lesson, which meant a systematic skew coming from the data. Two notions, two worlds, one word — that is the usage, and we have to live with it.</p>
+          `,
+
+  /* --- 3 · la fonction d'activation --- */
+  's3.eye':`The knob · 2/2`,
+  's3.t':`And the result<br>must be squashed`,
+  's3.lead1':`The weighted sum <b>s</b> can be anything at all: −14, 0.003, two million. So it is passed through one last function, called the <b>activation function</b>. That is what turns a calculation into a decision.`,
+  's3.nm1':`Step`,
+  's3.fm1':`f(s) = 1 if s &gt; 0, otherwise 0`,
+  's3.ap1':`The most intuitive — the one we have just used. But it is <b>flat everywhere</b>: it has no slope at all. Remember that flaw, it decides everything.`,
+  's3.nm2':`Sigmoid`,
+  's3.fm2':`f(s) = 1 / (1 + e<sup>−s</sup>)`,
+  's3.ap2':`The same step, but smoothed out: it slides from 0 to 1. It has <b>a slope everywhere</b>. The output reads like a &ldquo;confidence&rdquo; between 0 and 1.`,
+  's3.nm3':`ReLU`,
+  's3.fm3':`f(s) = max(0, s)`,
+  's3.ap3':`Simpler still: negative → 0, positive → unchanged. Zero slope on the left, slope 1 on the right. <b>This is the one used almost everywhere today</b>, because it costs a single comparison.`,
+  's3.lead2':`Without it, stacking a hundred layers would be pointless: a sum of weighted sums is still a weighted sum, and the whole thing would collapse into one big linear equation. It is what introduces <b>non-linearity</b> — <b>and hence the network's ability to do anything other than a straight line.</b>`,
+
+  /* --- 4 · le perceptron --- */
+  's4.eye':`The adjustment · the founding experiment`,
+  's4.t':`A neuron that corrects itself`,
+  's4.lead1':`Each dot is an email: <b>→</b> its number of links, <b>↑</b> its number of words in capitals. Red = spam, blue = normal. The neuron draws a line and says &ldquo;spam&rdquo; on one side. At the start its line is random: it is wrong almost everywhere.`,
+  's4.bb1':`▸ One single example`,
+  's4.bb2':`⟲ One full pass`,
+  's4.bb3':`↺ Randomise it all again`,
+  's4.h41':`The correction rule`,
+  's4.eq1':`
+            <div>if the prediction is <span class="r">right</span> → change nothing</div>
+            <div style="margin-top:.35rem">otherwise:</div>
+            <div><span class="w">w₁</span> ← <span class="w">w₁</span> + η·(<span class="x">expected − predicted</span>)·<span class="x">x₁</span></div>
+            <div><span class="w">w₂</span> ← <span class="w">w₂</span> + η·(<span class="x">expected − predicted</span>)·<span class="x">x₂</span></div>
+            <div><span class="b">b</span> ← <span class="b">b</span> + η·(<span class="x">expected − predicted</span>)</div>
+          `,
+  's4.vd1':`Rosenblatt, 1957. Three lines, no magic: when we got it wrong, we push the line <b>towards the example we missed</b>. And when the two families can be separated by a straight line, it is <b>proven</b> that this eventually works.`,
+
+  /* --- 5 · l'erreur est un nombre --- */
+  's5.eye':`The adjustment · what we are trying to make small`,
+  's5.t':`The error<br>is a number`,
+  's5.lead1':`To correct, you must first <b>measure</b>. We do not say &ldquo;the model is bad&rdquo;: we compute a number, the same one every time. That number is called the <b>cost function</b> (or loss function).`,
+  's5.c1':`
+          <h3>On one example</h3>
+          <div class="sub">the squared gap</div>
+          <p class="ex">error = (predicted − expected)²</p>
+          <p>Squared for two reasons: it is <b>always positive</b> (an error of −3 is just as bad as one of +3), and <b>big errors count for far more</b> than small ones.</p>
+        `,
+  's5.c2':`
+          <h3>Over the whole corpus</h3>
+          <div class="sub">the average</div>
+          <p class="ex">C = the average error<br>&nbsp;&nbsp;&nbsp;over the N examples</p>
+          <p>One single number for billions of sentences. <b>That number, and nothing else, is what training tries to bring down.</b></p>
+        `,
+  's5.c3':`
+          <h3>So: a minimum</h3>
+          <div class="sub">the problem is now stated</div>
+          <p class="ex">find the w and b<br>that make C smallest</p>
+          <p>This is a perfectly ordinary maths question: <b>find the minimum of a function</b>. You already do it, with one variable. Here there are a trillion.</p>
+        `,
+  's5.lead2':`No formula gives the answer in one go — with a trillion unknowns, nobody knows how to solve it. <b>So we grope our way there.</b>`,
+
+  /* --- 6 · descendre dans le brouillard --- */
+  's6.eye':`The adjustment · the answer to this lesson's question`,
+  's6.t':`Walking down<br>in the fog`,
+  's6.lead1':`You are on a slope, in total fog. You cannot see the valley. But you <b>feel the slope under your feet</b> — so you take one small step downhill. Then you do it again. That is the whole method.`,
+  's6.bb1':`▸ One step`,
+  's6.bb2':`▸▸ Ten steps`,
+  's6.bb3':`↺ Put the ball back`,
+  's6.h41':`Gradient descent`,
+  's6.eq1':`
+            <div><span class="w">w</span> ← <span class="w">w</span> − η · slope of C at <span class="w">w</span></div>
+          `,
+  's6.lab':`η (the step)`,
+  's6.vd1':`The minus sign is the whole secret: the slope goes up, so we go <b>the opposite way</b> to the slope. That is the famous &ldquo;right way&rdquo;. And <b>η</b>, the <b>learning rate</b>, is the length of the step. Push it all the way up to see what happens.`,
+
+  /* --- 7 · la rétropropagation --- */
+  's7.eye':`The adjustment · and for a trillion knobs?`,
+  's7.t':`We work back<br>from the error`,
+  's7.lead1':`One knob we can handle. But the error is measured <b>at the output</b>, and a knob in the first layer is a long way from there. How do we find out <i>its</i> slope?`,
+  's7.nl1':`
+            <text x="80" y="158">input</text><text x="220" y="168">hidden layer 1</text>
+            <text x="380" y="168">hidden layer 2</text><text x="530" y="113">error</text>
+          `,
+  's7.c1':`
+          <h3>The chain rule</h3>
+          <div class="sub">calculus · differentiating a composition</div>
+          <p>If the error depends on the output, which depends on layer 2, which depends on layer 1… then the slope of a distant knob is obtained by <b>multiplying the successive slopes</b> along the path. It is a sixth-form theorem, applied billions of times.</p>
+        `,
+  's7.c2':`
+          <h3>Backpropagation</h3>
+          <div class="sub">rétropropagation · 1986</div>
+          <p>We start from the error and <b>work back layer by layer</b>, from right to left. Every knob gets its slope — and <b>one single backward pass is enough for all of them</b>. Without that trick, training a large model would take centuries: it is what made modern AI possible.</p>
+        `,
+
+  /* --- 8 · une droite ne suffit pas --- */
+  's8.eye':`The network · why several neurons`,
+  's8.t':`One straight line<br>is not enough`,
+  's8.lead1':`A new problem: separate the <b>red disc</b> from the <b>blue ring</b>. Try every straight line you like — none of them will do it. A single neuron is doomed.`,
+  's8.bb1':`↻ Another line`,
+  's8.eq1':`
+            <div>6 hidden neurons: <span class="w">h₁…h₆</span>, one line each</div>
+            <div style="margin-top:.3rem">output neuron:</div>
+            <div><span class="r">s</span> = <span class="w">h₁</span>+<span class="w">h₂</span>+<span class="w">h₃</span>+<span class="w">h₄</span>+<span class="w">h₅</span>+<span class="w">h₆</span> <span class="b">− 5.5</span></div>
+            <div style="margin-top:.3rem">→ positive <i>only if all six say yes</i></div>
+          `,
+
+  /* --- 9 · le réseau et le mot « profond » --- */
+  's9.eye':`The network · and that word from lesson 2`,
+  's9.t':`Layers —<br>and the word &ldquo;deep&rdquo;`,
+  's9.lead1':`The neurons are arranged in <b>layers</b>: the output of each becomes an input to every neuron in the next layer. Every arrow carries a weight, every neuron carries a bias. Let us count.`,
+  's9.nl1':`
+                <text x="55" y="172">input layer</text><text x="185" y="172">hidden layer</text>
+                <text x="315" y="172">hidden layer</text><text x="445" y="140">output layer</text>
+              `,
+  's9.vd1':`Each hidden layer learns <b>one more level of abstraction</b>. To recognise a cat in a photo:`,
+  's9.abstr':`
+            <span>the pixels</span><i>→</i>
+            <span><b>edges</b>, blobs</span><i>→</i>
+            <span>pointed ears, <b>round eyes</b></span><i>→</i>
+            <span>&ldquo;<b>a cat's head</b>&rdquo;</span><i>→</i>
+            <span>cat <b>(0.94)</b></span>
+          `,
+  's9.vd2':`<b>Nobody decided to look at the ears.</b> The network finds on its own what works, through sheer weight of examples — and it is gradient descent that led it there.`,
+  's9.h41':`Counting the parameters`,
+  's9.eq1':`
+            <div>layer 1&nbsp;: 3×4 weights + 4 biases = <b>16</b></div>
+            <div>layer 2&nbsp;: 4×4 weights + 4 biases = <b>20</b></div>
+            <div>output&nbsp;&nbsp;: 4×2 weights + 2 biases = <b>10</b></div>
+            <div style="border-top:1px solid rgba(0,0,0,.25);margin-top:.35rem;padding-top:.3rem">
+              total&nbsp;: <span class="r">46 parameters</span></div>
+          `,
+  's9.vd3':`Forty-six knobs, for that little diagram. Each one gets its slope by backpropagation, at every single example.`,
+  's9.wb1':`
+            <div class="t" style="color:var(--signal-dk)">The word &ldquo;deep&rdquo; is explained at last</div>
+            <p>Many layers stacked up = a <b>deep</b> network. Deep learning: the word we met in lesson 2 says nothing more than <b>that</b>. Not a depth of thought — a number of layers.</p>
+          `,
+
+  /* --- 10 · retour à l'échelle --- */
+  's10.eye':`Zooming out`,
+  's10.t':`The same operation,<br>a trillion times over`,
+  's10.lead1':`Nothing that follows is new. A large language model is <b>exactly</b> what you have just seen — multiply, add, squash — at a different scale.`,
+  's10.st1':`<b>3</b><span>the &ldquo;umbrella&rdquo; neuron</span>`,
+  's10.st2':`<b>46</b><span>the little network in the diagram</span>`,
+  's10.st3':`<b>60 M</b><span>AlexNet · 2012 · the turning point</span>`,
+  's10.st4':`<b>117 M</b><span>GPT-1 · 2018</span>`,
+  's10.st5':`<b>175 bn</b><span>GPT-3 · 2020</span>`,
+  's10.st6':`<b>&gt; 1,000 bn</b><span>frontier model · 2026</span>`,
+  's10.c1':`
+          <h3>What we know exactly</h3>
+          <div class="sub">no mystery here</div>
+          <p>Every operation, one by one: the multiplications, the additions, the activation function, the slope, the step. <b>It is all written down</b> — and we have just written it all down.</p>
+        `,
+  's10.c2':`
+          <h3>What we do not know</h3>
+          <div class="sub">the &ldquo;black box&rdquo;, for real</div>
+          <p>What <b>that one knob</b> is for, the 714,523,886th. Nobody can say. We did not write it: gradient descent put it where it is. <b>The black box is not ignorance of the mechanism — it is ignorance of what each setting means.</b></p>
+        `,
+
+  /* --- 10b · et sur le disque dur ? --- */
+  's10b.eye':`Zooming out · and how much does it weigh?`,
+  's10b.t':`An AI smaller than Wikipedia`,
+  's10b.lead1':`A trillion knobs, fair enough. But a knob is a <b>number</b> — and a number takes up room, as we saw in the lesson on encoding. <b>Gemma 3</b> (Google, 2025) is a <b>4.3 billion parameter</b> model: at 16 bits per parameter it weighs 8.6 GB, at <b>4 bits</b> it fits into <b>2.15 GB</b> — and runs on a laptop.`,
+  's10b.lead2':`A file <b>twelve times lighter than Wikipedia in English</b>… trained on texts weighing <b>hundreds of times Wikipedia</b>.`,
+  's10b.sn1':`Linear scale, in GB. Wikipedia: the text of every article, losslessly compressed (dumps.wikimedia.org). Models: files published on Hugging Face. Gemma 3: Google technical report, 2025.`,
+  's10b.c1':`
+          <h3>The sum</h3>
+          <div class="sub">fewer bits per knob</div>
+          <p class="ex">4.3 billion × 16 bits = 8.6 GB<br>4.3 billion × 4 bits = <b>2.15 GB</b></p>
+          <p>Four times fewer bits per number, so a file <b>four times lighter</b> — and a slightly less accurate model. Exactly the trade-off we met with sound.</p>
+          <p class="ex" style="color:var(--muted)">In reality the file weighs a little more: some tables stay in 16 bits.</p>
+        `,
+  's10b.c2':`
+          <h3>What it has read</h3>
+          <div class="sub">training data</div>
+          <p>Roughly <b>4 trillion <i>tokens</i></b>, so of the order of <b>15 TB</b> of text — <b>hundreds of times Wikipedia</b>.</p>
+          <p>All of it was <b>seen</b> during training, but none of it is <b>stored</b> in the file: what is left of it sits in the weights.</p>
+        `,
+  's10b.c3':`
+          <h3>Does it contain Wikipedia?</h3>
+          <div class="sub">not word for word</div>
+          <p>Fitting 26 GB into 2 GB <b>without losing anything</b> is impossible. Like a <b>JPEG</b>, the model keeps the general shape: the big ideas are there, but the <b>details</b> — dates, figures, rare names — can be wrong.</p>
+          <p>This is one of the origins of <b>&ldquo;hallucinations&rdquo;</b>.</p>
+        `,
+
+  /* --- 11 · activité --- */
+  's11.tag':`Activity · 15 minutes · pen and paper`,
+  's11.t':`The neuron<br><em>by hand</em>`,
+  's11.sub':`You do not understand a formula by looking at it. Run this one yourself, on four cases. You do not even need a calculator.`,
+  's11.exo1':`
+        <div class="n">Exercise 1 · the neuron's output</div>
+        <div class="q">
+          w = (0.6 ; −0.4 ; 0.9)&nbsp;&nbsp;b = −0.5<br>
+          output = 1 if s &gt; 0, otherwise 0<br><br>
+          <i>a)</i> x = (1 ; 1 ; 0) → s = ? output = ?<br>
+          <i>b)</i> x = (1 ; 0 ; 1) → s = ? output = ?<br>
+          <i>c)</i> x = (0 ; 1 ; 1) → s = ? output = ?<br>
+          <i>d)</i> x = (1 ; 1 ; 1) → s = ? output = ?
+        </div>
+        <div class="sol">
+          a) s = 0.6 − 0.4 + 0 − 0.5 = <b>−0.3</b> → <b>0</b><br>
+          b) s = 0.6 + 0 + 0.9 − 0.5 = <b>1.0</b> → <b>1</b><br>
+          c) s = 0 − 0.4 + 0.9 − 0.5 = <b>0.0</b> → <b>0</b> (right on the threshold: s &gt; 0 is false)<br>
+          d) s = 0.6 − 0.4 + 0.9 − 0.5 = <b>0.6</b> → <b>1</b>
+        </div>
+      `,
+  's11.exo2':`
+        <div class="n">Exercise 2 · one step of the descent</div>
+        <div class="q">
+          w ← w − η · slope&nbsp;&nbsp;&nbsp;with η = 0.1<br><br>
+          <i>a)</i> w = 0.80 and slope = +1.6 → new w?<br>
+          <i>b)</i> w = 0.80 and slope = −1.6 → new w?<br>
+          <i>c)</i> In which case does w <b>increase</b>?<br>
+          <i>d)</i> And if the slope were exactly 0?
+        </div>
+        <div class="sol">
+          a) w = 0.80 − 0.1×1.6 = <b>0.64</b> (it moves down, towards the left)<br>
+          b) w = 0.80 + 0.1×1.6 = <b>0.96</b> (it moves down, towards the right)<br>
+          c) When the <b>slope is negative</b> — that is, when the cost falls towards the right.<br>
+          d) w stops moving: we are at a <b>minimum</b> (or on a plateau). Training halts by itself.
+        </div>
+      `,
+  's11.exo3':`
+        <div class="n">Exercise 3 · what the bias is for</div>
+        <div class="q">
+          A neuron with one input: w = 1, b adjustable.<br><br>
+          <i>a)</i> With b = 0, for which x is the output 1?<br>
+          <i>b)</i> With b = −3?<br>
+          <i>c)</i> With b = +3?<br>
+          <i>d)</i> Complete: &ldquo;the smaller b is, the more the neuron is …&rdquo;
+        </div>
+        <div class="sol">
+          a) s = x, so output = 1 for <b>x &gt; 0</b><br>
+          b) s = x − 3, so for <b>x &gt; 3</b><br>
+          c) s = x + 3, so for <b>x &gt; −3</b><br>
+          d) … <b>hard to convince</b>. The bias shifts the threshold: that is its only role.
+        </div>
+      `,
+  's11.exo4':`
+        <div class="n">Exercise 4 · to discuss out loud</div>
+        <div class="q">
+          <i>a)</i> Why does too large an η stop it learning?<br>
+          <i>b)</i> Why does too small an η stop it too?<br>
+          <i>c)</i> Does the word &ldquo;neuron&rdquo; strike you as well chosen?<br>
+          <i>d)</i> We have written it all down. So why do people still talk about a black box?
+        </div>
+        <div class="sol">
+          a) We jump clean over the valley: the ball bounces about, or flies off to infinity.<br>
+          b) It takes an unreasonable amount of time: steps a thousandth of a millimetre long.<br>
+          c) It is a metaphor from 1943. None of these objects resembles a cell: they are multiplications and additions.<br>
+          d) Because we know the mechanism but not the <b>meaning</b> of each setting — and there are a trillion of them.
+        </div>
+      `,
+
+  /* --- 12 · récap --- */
+  'rc.eye':`End of the lesson`,
+  'rc.t':`What I must <span>remember</span>`,
+  'rc.i1':`A <span class="hl">neuron</span> is a <b>function</b>: a weighted sum of the inputs, plus a bias, squashed by an activation function. Nothing biological about it.`,
+  'rc.i2':`The <span class="hl">weights</span> and the <span class="hl">biases</span> are the <b>parameters</b> — the knobs of the previous lesson. The inputs, by contrast, cannot be adjusted.`,
+  'rc.i3':`The error is <b>measured</b> by a number, the <span class="hl">cost function</span>. Learning is the search for the parameters that make that number smallest.`,
+  'rc.i4':`The &ldquo;right way&rdquo; of last lesson is <b>the opposite of the slope</b>: <span class="hl">gradient descent</span>. The <span class="hl">learning rate</span> sets the size of the step — too large and it diverges; too small and it takes forever.`,
+  'rc.i5':`The slope of every knob is obtained by <b>working back from the error</b> (<span class="hl">backpropagation</span>), in a single pass for all of them.`,
+  'rc.i6':`A single neuron can only draw a <b>straight line</b>. It is the stacking of <span class="hl">layers</span> that allows boundaries of any shape — and &ldquo;deep&rdquo; means nothing more than &ldquo;many layers&rdquo;.`,
+  'rc.v1':`<b>Weights &amp; bias</b>The two kinds of parameter in a neuron. Careful: &ldquo;bias&rdquo; also has a quite different meaning on the data side.`,
+  'rc.v2':`<b>Activation function</b>Step, sigmoid, ReLU — what turns the sum into a decision.`,
+  'rc.v3':`<b>Cost function</b>The number that measures the error over the whole corpus.`,
+  'rc.v4':`<b>Gradient descent</b>Moving against the slope, one step η long, over and over again.`,
+  'rc.v5':`<b>Backpropagation</b>Working the error back from the output to the input, to give every parameter its slope.`,
+  'rc.v6':`<b>Hidden layer</b>The neurons between the input and the output. Many layers = a deep network.`,
+  'rc.key':`Next step: <b>giving it information it has never learnt — without touching a single one of these knobs.</b>`
+} };
+
+const frCache = {};
+document.querySelectorAll('[data-i18n]').forEach(el=>{ frCache[el.dataset.i18n] = el.innerHTML; });
+function applyLang(lang){
+  curLang = (lang === 'en') ? 'en' : 'fr';
+  document.documentElement.setAttribute('lang', curLang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.dataset.i18n;
+    el.innerHTML = (curLang !== 'fr' && I18N[curLang][k] != null) ? I18N[curLang][k] : frCache[k];
+  });
+  document.querySelectorAll('#langsw button').forEach(b=>b.classList.toggle('on', b.dataset.lang === curLang));
+  document.title = MSG[curLang].title;
+  const h = document.getElementById('hint');
+  if(h) h.textContent = MSG[curLang].hint;
+  try{ localStorage.setItem('snt-ia-lang', curLang); }catch(e){}
+  if(window.redrawAll) window.redrawAll();
+}
+document.querySelectorAll('#langsw button').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+let savedLang = 'fr';
+try{ savedLang = localStorage.getItem('snt-ia-lang') || 'fr'; }catch(e){}
+applyLang(savedLang === 'en' ? 'en' : 'fr');
 </script>
 </body>
 </html>
